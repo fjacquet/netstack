@@ -8,11 +8,11 @@
 ### Sizing Engine
 
 - [ ] **SIZE-01**: User can input total server count, servers per rack, and connectivity type (25G/100G)
-- [ ] **SIZE-02**: Engine calculates rack count as `ceil(total_servers / servers_per_rack)`
-- [ ] **SIZE-03**: Engine calculates leaf switches as `2 × N_racks` (redundant ToR pair per rack)
-- [ ] **SIZE-04**: Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity
-- [ ] **SIZE-05**: Engine calculates OOB switches (S3248T-ON) as `1 × N_racks` with port saturation alert when ports > 48
-- [ ] **SIZE-06**: Engine is a pure function: `(SizingInput) => NetworkBillOfMaterial` with no side effects
+- [x] **SIZE-02**: Engine calculates rack count as `ceil(total_servers / servers_per_rack)`
+- [x] **SIZE-03**: Engine calculates leaf switches as `2 × N_racks` (redundant ToR pair per rack)
+- [x] **SIZE-04**: Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity
+- [x] **SIZE-05**: Engine calculates OOB switches (S3248T-ON) as `1 × N_racks` with port saturation alert when ports > 48
+- [x] **SIZE-06**: Engine is a pure function: `(SizingInput) => NetworkBillOfMaterial` with no side effects
 - [x] **SIZE-07**: Engine validates all physical constraints via Zod schemas (port counts, cable compatibility)
 
 ### BOM Output
@@ -96,11 +96,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SIZE-01 | Phase 2 | Pending |
-| SIZE-02 | Phase 1 | Pending |
-| SIZE-03 | Phase 1 | Pending |
-| SIZE-04 | Phase 1 | Pending |
-| SIZE-05 | Phase 1 | Pending |
-| SIZE-06 | Phase 1 | Pending |
+| SIZE-02 | Phase 1 | Complete |
+| SIZE-03 | Phase 1 | Complete |
+| SIZE-04 | Phase 1 | Complete |
+| SIZE-05 | Phase 1 | Complete |
+| SIZE-06 | Phase 1 | Complete |
 | SIZE-07 | Phase 1 | Complete |
 | BOM-01 | Phase 3 | Pending |
 | BOM-02 | Phase 3 | Pending |

@@ -12,7 +12,7 @@ NetStack is built domain-first: the pure sizing engine is validated in isolation
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Domain Engine** - Pure sizing logic and hardware catalog — no UI, fully testable in isolation
+- [x] **Phase 1: Domain Engine** - Pure sizing logic and hardware catalog — no UI, fully testable in isolation (completed 2026-03-16)
 - [ ] **Phase 2: App Shell and Input Form** - Project scaffold, Zustand stores, and parameterized input form
 - [ ] **Phase 3: BOM Output and Metrics** - Switch/cable quantities, oversubscription ratios, port saturation alerts
 - [ ] **Phase 4: Visualization, Export and Documentation** - Topology diagram, rack elevation, CSV/PDF/print export, ARD, PRD, user guide, changelog
@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. OOB port saturation produces a typed ConstraintViolation (not a UI string) when servers-per-rack + 2 exceeds 48
   4. Cable quantities are computed from link counts (not port sums), and a Vitest unit test confirms the formula for at least 3 rack configurations
   5. All three switch models (S5248F-ON, S5232F-ON, S3248T-ON) exist in the hardware catalog as typed TypeScript constants with correct port counts, speeds, and power specs
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] 01-01-PLAN.md — Project scaffold, hardware catalog, and Zod schemas
 - [ ] 01-02-PLAN.md — Sizing engine implementation with TDD
@@ -84,7 +84,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Domain Engine | 2/3 | In Progress|  |
+| 1. Domain Engine | 3/3 | Complete   | 2026-03-16 |
 | 2. App Shell and Input Form | 0/TBD | Not started | - |
 | 3. BOM Output and Metrics | 0/TBD | Not started | - |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |

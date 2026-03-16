@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-domain-engine/01-03-PLAN.md
-last_updated: "2026-03-16T21:35:57.014Z"
+stopped_at: Completed 01-domain-engine/01-02-PLAN.md
+last_updated: "2026-03-16T21:37:03.873Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 33
 ---
 
@@ -52,6 +52,7 @@ Progress: [███░░░░░░░] 33%
 *Updated after each plan completion*
 | Phase 01-domain-engine P01 | 10 | 3 tasks | 12 files |
 | Phase 01-domain-engine P03 | 15 | 2 tasks | 2 files |
+| Phase 01-domain-engine P02 | 17 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 01-domain-engine]: mergeCatalog fails fast on first invalid entry — matches catalog fail-fast design
 - [Phase 01-domain-engine]: Returning { ...base, ...validatedOverrides } guarantees immutability and key-level override semantics
 - [Phase 01-domain-engine]: Empty/undefined override returns shallow copy (not original reference) to prevent future mutation surprises
+- [Phase 01-domain-engine]: Oversubscription denominator uses spineSwitches (not uplinkPorts) — ratio reflects actual deployed topology
+- [Phase 01-domain-engine]: OOB violation fires when oobPortsRequired strictly > OOB.downlinkPorts (48), confirming boundary at 46 (no violation) vs 47 (violation)
 
 ### Research Flags (from SUMMARY.md)
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T21:35:57.012Z
-Stopped at: Completed 01-domain-engine/01-03-PLAN.md
+Last session: 2026-03-16T21:37:03.871Z
+Stopped at: Completed 01-domain-engine/01-02-PLAN.md
 Resume file: None
