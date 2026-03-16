@@ -45,6 +45,7 @@
 - [ ] **UX-01**: Light/dark mode toggle with system preference detection
 - [ ] **UX-02**: Internationalization support for FR, EN, DE, IT with language switcher
 - [ ] **UX-03**: Responsive layout for tablet and desktop viewports
+- [ ] **UX-04**: GitHub Pages deployment with GitHub Actions CI/CD pipeline
 
 ### Documentation
 
@@ -94,39 +95,40 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SIZE-01 | — | Pending |
-| SIZE-02 | — | Pending |
-| SIZE-03 | — | Pending |
-| SIZE-04 | — | Pending |
-| SIZE-05 | — | Pending |
-| SIZE-06 | — | Pending |
-| SIZE-07 | — | Pending |
-| BOM-01 | — | Pending |
-| BOM-02 | — | Pending |
-| BOM-03 | — | Pending |
-| BOM-04 | — | Pending |
-| CAT-01 | — | Pending |
-| CAT-02 | — | Pending |
-| CAT-03 | — | Pending |
-| VIZ-01 | — | Pending |
-| VIZ-02 | — | Pending |
-| VIZ-03 | — | Pending |
-| EXP-01 | — | Pending |
-| EXP-02 | — | Pending |
-| EXP-03 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| UX-03 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
-| DOC-03 | — | Pending |
-| DOC-04 | — | Pending |
+| SIZE-01 | Phase 2 | Pending |
+| SIZE-02 | Phase 1 | Pending |
+| SIZE-03 | Phase 1 | Pending |
+| SIZE-04 | Phase 1 | Pending |
+| SIZE-05 | Phase 1 | Pending |
+| SIZE-06 | Phase 1 | Pending |
+| SIZE-07 | Phase 1 | Pending |
+| BOM-01 | Phase 3 | Pending |
+| BOM-02 | Phase 3 | Pending |
+| BOM-03 | Phase 3 | Pending |
+| BOM-04 | Phase 3 | Pending |
+| CAT-01 | Phase 1 | Pending |
+| CAT-02 | Phase 1 | Pending |
+| CAT-03 | Phase 1 | Pending |
+| VIZ-01 | Phase 4 | Pending |
+| VIZ-02 | Phase 4 | Pending |
+| VIZ-03 | Phase 4 | Pending |
+| EXP-01 | Phase 4 | Pending |
+| EXP-02 | Phase 4 | Pending |
+| EXP-03 | Phase 4 | Pending |
+| UX-01 | Phase 2 | Pending |
+| UX-02 | Phase 2 | Pending |
+| UX-03 | Phase 2 | Pending |
+| UX-04 | Phase 2 | Pending |
+| DOC-01 | Phase 4 | Pending |
+| DOC-02 | Phase 4 | Pending |
+| DOC-03 | Phase 4 | Pending |
+| DOC-04 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 27 total
-- Mapped to phases: 0
-- Unmapped: 27
+- v1 requirements: 28 total
+- Mapped to phases: 28
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-16 after initial definition*
+*Last updated: 2026-03-16 after roadmap revision — 28 requirements mapped across 4 phases*

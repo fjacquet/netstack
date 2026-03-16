@@ -32,6 +32,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - [ ] Zod validation for physical limits (port counts, cable compatibility)
 - [ ] Light/dark mode theme support
 - [ ] Internationalization (i18n): FR, EN, DE, IT
+- [ ] GitHub Pages deployment (static SPA with CI/CD)
 
 ### Out of Scope
 
