@@ -30,6 +30,8 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - [ ] Export: CSV, PDF report, JSON
 - [ ] Save/load configurations via browser localStorage
 - [ ] Zod validation for physical limits (port counts, cable compatibility)
+- [ ] Light/dark mode theme support
+- [ ] Internationalization (i18n): FR, EN, DE, IT
 
 ### Out of Scope
 
