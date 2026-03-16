@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 01-domain-engine/01-01-PLAN.md
+last_updated: "2026-03-16T21:17:17.708Z"
+last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
+progress:
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 33
+---
+
 # Project State
 
 ## Project Reference
@@ -14,7 +30,7 @@ Plan: 0 of TBD in current phase
 Status: Ready to plan
 Last activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -34,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-domain-engine P01 | 10 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -46,6 +63,9 @@ Recent decisions affecting current work:
 - [Pre-Phase 1]: Extensible hardware catalog — future Dell models addable without code changes
 - [Pre-Phase 1]: Browser localStorage for persistence — no backend needed
 - [Pre-Phase 1]: GitHub Pages hosting — static SPA deployment with CI/CD
+- [Phase 01-domain-engine]: uplinkPorts: 4 for S5248F-ON — standard Dell reference design uses 4 QSFP28 ports to spine; additionalUplinkPorts: 2 stores QSFP28-DD for future extension
+- [Phase 01-domain-engine]: oversubscriptionRatio required on NetworkBOM from day one — retrofitting later breaks all consumers
+- [Phase 01-domain-engine]: ConstraintViolation as typed discriminated union (not raw strings) — enables type-safe switch on violation.code in UI
 
 ### Research Flags (from SUMMARY.md)
 
@@ -63,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16
-Stopped at: Roadmap created. Ready to begin Phase 1 planning.
+Last session: 2026-03-16T21:17:17.706Z
+Stopped at: Completed 01-domain-engine/01-01-PLAN.md
 Resume file: None

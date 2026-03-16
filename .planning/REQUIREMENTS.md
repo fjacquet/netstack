@@ -13,7 +13,7 @@
 - [ ] **SIZE-04**: Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity
 - [ ] **SIZE-05**: Engine calculates OOB switches (S3248T-ON) as `1 × N_racks` with port saturation alert when ports > 48
 - [ ] **SIZE-06**: Engine is a pure function: `(SizingInput) => NetworkBillOfMaterial` with no side effects
-- [ ] **SIZE-07**: Engine validates all physical constraints via Zod schemas (port counts, cable compatibility)
+- [x] **SIZE-07**: Engine validates all physical constraints via Zod schemas (port counts, cable compatibility)
 
 ### BOM Output
 
@@ -24,8 +24,8 @@
 
 ### Hardware Catalog
 
-- [ ] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON with full specs (ports, speeds, power)
-- [ ] **CAT-02**: Hardware specs defined in TypeScript constants as source of truth
+- [x] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON with full specs (ports, speeds, power)
+- [x] **CAT-02**: Hardware specs defined in TypeScript constants as source of truth
 - [ ] **CAT-03**: JSON override file allows adding/modifying switch models at runtime without code changes
 
 ### Visualization
@@ -101,13 +101,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIZE-04 | Phase 1 | Pending |
 | SIZE-05 | Phase 1 | Pending |
 | SIZE-06 | Phase 1 | Pending |
-| SIZE-07 | Phase 1 | Pending |
+| SIZE-07 | Phase 1 | Complete |
 | BOM-01 | Phase 3 | Pending |
 | BOM-02 | Phase 3 | Pending |
 | BOM-03 | Phase 3 | Pending |
 | BOM-04 | Phase 3 | Pending |
-| CAT-01 | Phase 1 | Pending |
-| CAT-02 | Phase 1 | Pending |
+| CAT-01 | Phase 1 | Complete |
+| CAT-02 | Phase 1 | Complete |
 | CAT-03 | Phase 1 | Pending |
 | VIZ-01 | Phase 4 | Pending |
 | VIZ-02 | Phase 4 | Pending |
