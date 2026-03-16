@@ -29,7 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. OOB port saturation produces a typed ConstraintViolation (not a UI string) when servers-per-rack + 2 exceeds 48
   4. Cable quantities are computed from link counts (not port sums), and a Vitest unit test confirms the formula for at least 3 rack configurations
   5. All three switch models (S5248F-ON, S5232F-ON, S3248T-ON) exist in the hardware catalog as typed TypeScript constants with correct port counts, speeds, and power specs
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold, hardware catalog, and Zod schemas
+- [ ] 01-02-PLAN.md — Sizing engine implementation with TDD
+- [ ] 01-03-PLAN.md — Catalog JSON override merge with validation
 
 ### Phase 2: App Shell and Input Form
 **Goal**: Engineers can open the app, enter sizing parameters, and see the engine running live in the browser
@@ -80,7 +84,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Domain Engine | 0/TBD | Not started | - |
+| 1. Domain Engine | 0/3 | Planning complete | - |
 | 2. App Shell and Input Form | 0/TBD | Not started | - |
 | 3. BOM Output and Metrics | 0/TBD | Not started | - |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |
