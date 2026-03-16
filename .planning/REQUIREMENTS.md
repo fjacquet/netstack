@@ -26,7 +26,7 @@
 
 - [x] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON with full specs (ports, speeds, power)
 - [x] **CAT-02**: Hardware specs defined in TypeScript constants as source of truth
-- [ ] **CAT-03**: JSON override file allows adding/modifying switch models at runtime without code changes
+- [x] **CAT-03**: JSON override file allows adding/modifying switch models at runtime without code changes
 
 ### Visualization
 
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BOM-04 | Phase 3 | Pending |
 | CAT-01 | Phase 1 | Complete |
 | CAT-02 | Phase 1 | Complete |
-| CAT-03 | Phase 1 | Pending |
+| CAT-03 | Phase 1 | Complete |
 | VIZ-01 | Phase 4 | Pending |
 | VIZ-02 | Phase 4 | Pending |
 | VIZ-03 | Phase 4 | Pending |
