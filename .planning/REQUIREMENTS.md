@@ -17,14 +17,14 @@
 
 ### BOM Output
 
-- [ ] **BOM-01**: BOM displays switch quantities per model (S5248F-ON, S5232F-ON, S3248T-ON)
+- [ ] **BOM-01**: BOM displays switch quantities per model (S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
 - [ ] **BOM-02**: BOM displays oversubscription ratio per tier and validates against thresholds
 - [ ] **BOM-03**: User can select cable type (DAC/AOC/fiber) and engine calculates cable quantities
 - [ ] **BOM-04**: BOM displays port utilization (used vs available) per switch model
 
 ### Hardware Catalog
 
-- [ ] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S3248T-ON with full specs (ports, speeds, power)
+- [ ] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON with full specs (ports, speeds, power)
 - [ ] **CAT-02**: Hardware specs defined in TypeScript constants as source of truth
 - [ ] **CAT-03**: JSON override file allows adding/modifying switch models at runtime without code changes
 

@@ -23,7 +23,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - [ ] Spine calculation: scales with leaf count (not fixed pair)
 - [ ] OOB (S3248T) calculation: `1 × N_racks` with port saturation alerts (>48)
 - [ ] User selects cable type (DAC/AOC/fiber), tool calculates quantities
-- [ ] Extensible hardware catalog (starts with S5248F-ON, S5232F-ON, S3248T-ON)
+- [ ] Extensible hardware catalog (starts with S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
 - [ ] Visual topology diagram (Leaf-Spine connections)
 - [ ] Rack elevation view (physical device placement)
 - [ ] BOM summary table with per-model quantities
@@ -45,7 +45,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ## Context
 
-- Target hardware: Dell S5248F-ON (Leaf 25G), S5232F-ON (Spine/Leaf 100G), S3248T-ON (OOB)
+- Target hardware: Dell S5248F-ON (Leaf 48×25G), S5232F-ON (Spine 32×100G), S5224F-ON (Leaf 24×25G), S5212F-ON (Leaf 12×25G), S3248T-ON (OOB 48×1G)
 - All switches run SONiC OS
 - Leaf-Spine is the only supported topology
 - OOB network uses dedicated S3248T management switches
