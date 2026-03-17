@@ -24,6 +24,10 @@ export const SizingInputSchema = z.object({
    *   - maxServersPerRack = max(racks[].serverCount)  — for OOB/oversubscription worst-case
    */
   racks: z.array(RackConfigSchema).min(1).max(200),
+  /** Number of frontend (data/leaf-facing) ports per server (0-8, default 1) */
+  portsPerServerFrontend: z.number().int().min(0).max(8).default(1),
+  /** Number of backend (OOB-facing) ports per server (0-8, default 1) */
+  portsPerServerBackend: z.number().int().min(0).max(8).default(1),
   /** Server-facing connectivity type */
   connectivityType: z.enum(['25G', '100G']),
   /** Cable type used for all inter-device connections */

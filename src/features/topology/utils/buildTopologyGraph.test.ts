@@ -31,6 +31,8 @@ const mockBOM: NetworkBOM = {
   violations: [],
   input: {
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+    portsPerServerFrontend: 1,
+    portsPerServerBackend: 1,
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',

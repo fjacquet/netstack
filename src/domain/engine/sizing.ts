@@ -78,10 +78,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   // limited by leaf uplink ports if fewer than spine count
   const linksPerLeaf = Math.min(spineSwitches, LEAF.uplinkPorts);
   const leafSpineCables = leafSwitches * linksPerLeaf;
-  // serverLeafCables: one cable per server (connected to one of the two ToR leafs)
-  const serverLeafCables = totalServers;
-  // serverOobCables: every server + every leaf switch gets an OOB management port
-  const serverOobCables = totalServers + leafSwitches;
+  // serverLeafCables: frontend port multiplier × totalServers (PORT-03)
+  const serverLeafCables = totalServers * input.portsPerServerFrontend;
+  // serverOobCables: backend port multiplier × servers + leaf switches (PORT-03)
+  const serverOobCables = totalServers * input.portsPerServerBackend + leafSwitches;
 
   // ─── Transceivers (fiber only — 2 per cable link, type depends on speed) ──
   // Server-leaf links are 25G → SFP28; leaf-spine links are 100G → QSFP28

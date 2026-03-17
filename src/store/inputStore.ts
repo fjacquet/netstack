@@ -19,6 +19,8 @@ const DEFAULT_INPUT: SizingInput = {
     { serverCount: 16 },
     { serverCount: 16 },
   ],
+  portsPerServerFrontend: 1,
+  portsPerServerBackend: 1,
   connectivityType: '25G',
   cableType: 'DAC',
   leafModel: 'S5248F-ON',

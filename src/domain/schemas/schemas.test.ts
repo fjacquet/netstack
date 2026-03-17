@@ -303,6 +303,96 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// PORT-03: portsPerServerFrontend validation
+// ---------------------------------------------------------------------------
+describe('SizingInputSchema — portsPerServerFrontend validation', () => {
+  it('accepts portsPerServerFrontend: 0 (minimum — zero ports means no data cables)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerFrontend: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts portsPerServerFrontend: 8 (maximum)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerFrontend: 8,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects portsPerServerFrontend: 9 (above max)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerFrontend: 9,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects portsPerServerFrontend: -1 (below min)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerFrontend: -1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('portsPerServerFrontend defaults to 1 when omitted', () => {
+    const result = SizingInputSchema.safeParse({ ...baseInput });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.portsPerServerFrontend).toBe(1);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PORT-03: portsPerServerBackend validation
+// ---------------------------------------------------------------------------
+describe('SizingInputSchema — portsPerServerBackend validation', () => {
+  it('accepts portsPerServerBackend: 0 (minimum — zero OOB ports)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerBackend: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts portsPerServerBackend: 8 (maximum)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerBackend: 8,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects portsPerServerBackend: 9 (above max)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerBackend: 9,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects portsPerServerBackend: -1 (below min)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      portsPerServerBackend: -1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('portsPerServerBackend defaults to 1 when omitted', () => {
+    const result = SizingInputSchema.safeParse({ ...baseInput });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.portsPerServerBackend).toBe(1);
+    }
+  });
+});
+
 describe('SwitchSpecSchema — runtime catalog validation', () => {
   it('validates a correct switch spec entry', () => {
     const result = SwitchSpecSchema.safeParse({

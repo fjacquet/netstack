@@ -15,6 +15,8 @@ import type { SizingInput } from '../schemas/input';
 function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
   return {
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+    portsPerServerFrontend: 1,
+    portsPerServerBackend: 1,
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
@@ -450,6 +452,93 @@ describe('leafModel selection', () => {
     }));
     // S5212F-ON has uplinkPorts=3, 2 spines → min(2,3)=2 links per leaf
     expect(bom.leafSpineCables).toBe(bom.leafSwitches * Math.min(bom.spineSwitches, 3));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PORT-03: Server Port Multipliers
+// ---------------------------------------------------------------------------
+describe('PORT-03: Server Port Multipliers', () => {
+  it('default ports (1,1) match existing cable counts (backward compatibility)', () => {
+    // 4 racks × 12 servers = 48 total, 8 leafs
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 1,
+      portsPerServerBackend: 1,
+    }));
+    // 48 servers × 1 frontend port = 48 server-leaf cables
+    expect(result.serverLeafCables).toBe(48);
+    // 48 servers × 1 backend port + 8 leafs = 56 OOB cables
+    expect(result.serverOobCables).toBe(56);
+  });
+
+  it('portsPerServerFrontend: 2 doubles serverLeafCables', () => {
+    // 4 racks × 12 = 48 servers × 2 frontend ports = 96 server-leaf cables
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 2,
+      portsPerServerBackend: 1,
+    }));
+    expect(result.serverLeafCables).toBe(96); // 48 * 2
+  });
+
+  it('portsPerServerFrontend: 0 produces 0 serverLeafCables', () => {
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 0,
+      portsPerServerBackend: 1,
+    }));
+    expect(result.serverLeafCables).toBe(0);
+  });
+
+  it('portsPerServerBackend: 2 doubles server portion of OOB cables', () => {
+    // 4 racks × 12 = 48 servers, 8 leafs
+    // serverOobCables = 48 * 2 + 8 = 104
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 1,
+      portsPerServerBackend: 2,
+    }));
+    expect(result.serverOobCables).toBe(104); // 48 * 2 + 8
+  });
+
+  it('portsPerServerBackend: 0 produces serverOobCables = leafSwitches only', () => {
+    // No server OOB cables — only switch management ports
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 1,
+      portsPerServerBackend: 0,
+    }));
+    // serverOobCables = 48 * 0 + 8 = 8 (only leaf switch OOB ports)
+    expect(result.serverOobCables).toBe(8); // just 8 leafs
+    expect(result.serverOobCables).toBe(result.leafSwitches);
+  });
+
+  it('fiber + portsPerServerFrontend: 2 doubles sfp28Count', () => {
+    // 4 racks × 12 = 48 servers, 2 frontend ports → 96 server-leaf cables
+    // sfp28Count = 2 × 96 = 192
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'fiber',
+      portsPerServerFrontend: 2,
+      portsPerServerBackend: 1,
+    }));
+    expect(result.sfp28Count).toBe(192); // 2 * (48 * 2) = 192
+  });
+
+  it('DAC + portsPerServerFrontend: 2 still produces 0 sfp28Count (DAC has no transceivers)', () => {
+    const result = calculateBOM(makeInput({
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 12 })),
+      cableType: 'DAC',
+      portsPerServerFrontend: 2,
+      portsPerServerBackend: 1,
+    }));
+    expect(result.sfp28Count).toBe(0);
   });
 });
 
