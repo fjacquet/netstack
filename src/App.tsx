@@ -5,7 +5,6 @@ import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { RackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab } from '@/features/topology'
-import { ExportTab } from '@/features/export'
 import {
   Tabs,
   TabsContent,
@@ -22,10 +21,18 @@ function AppContent() {
       <Tabs defaultValue="sizing" className="flex flex-1 flex-col">
         <div className="border-b bg-secondary/30 px-4">
           <TabsList className="h-11 bg-transparent">
-            <TabsTrigger value="sizing">{t('tabs.sizing')}</TabsTrigger>
-            <TabsTrigger value="topology">{t('tabs.topology')}</TabsTrigger>
-            <TabsTrigger value="rackElevation">{t('tabs.rackElevation')}</TabsTrigger>
-            <TabsTrigger value="export">{t('tabs.export')}</TabsTrigger>
+            <TabsTrigger value="sizing" className="gap-1.5">
+              <img src="/icon-sizing.png" className="h-4 w-4" alt="" />
+              {t('tabs.sizing')}
+            </TabsTrigger>
+            <TabsTrigger value="topology" className="gap-1.5">
+              <img src="/icon-topology.png" className="h-4 w-4" alt="" />
+              {t('tabs.topology')}
+            </TabsTrigger>
+            <TabsTrigger value="rackElevation" className="gap-1.5">
+              <img src="/icon-rack.png" className="h-4 w-4" alt="" />
+              {t('tabs.rackElevation')}
+            </TabsTrigger>
           </TabsList>
         </div>
         <main className="flex-1 overflow-auto">
@@ -37,9 +44,6 @@ function AppContent() {
           </TabsContent>
           <TabsContent value="rackElevation" className="mt-0">
             <RackElevationTab />
-          </TabsContent>
-          <TabsContent value="export" className="mt-0">
-            <ExportTab />
           </TabsContent>
         </main>
       </Tabs>

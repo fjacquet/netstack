@@ -11,6 +11,22 @@
     <meta name="theme-color" content="#2563EB" />
     <meta name="description" content="Dell Leaf-Spine network sizing calculator for SONiC deployments" />
     <link rel="manifest" href="/site.webmanifest" />
+    <script>
+      // Prevent flash-of-wrong-theme: apply dark/light class before React renders
+      (function() {
+        var t = localStorage.getItem('netstack-theme');
+        var d = document.documentElement;
+        if (t === 'dark') { d.classList.add('dark'); }
+        else if (t === 'light') { d.classList.add('light'); }
+        else { // 'system' or not set
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            d.classList.add('dark');
+          } else {
+            d.classList.add('light');
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
