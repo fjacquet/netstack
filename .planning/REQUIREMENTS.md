@@ -36,9 +36,9 @@
 
 ### Export
 
-- [ ] **EXP-01**: User can export BOM as CSV file
-- [ ] **EXP-02**: User can export formatted PDF report with BOM summary and diagrams
-- [ ] **EXP-03**: Print-friendly CSS stylesheet for browser printing
+- [x] **EXP-01**: User can export BOM as CSV file
+- [x] **EXP-02**: User can export formatted PDF report with BOM summary and diagrams
+- [x] **EXP-03**: Print-friendly CSS stylesheet for browser printing
 
 ### UX / Theme
 
@@ -112,9 +112,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-01 | Phase 4 | Complete |
 | VIZ-02 | Phase 4 | Complete |
 | VIZ-03 | Phase 4 | Complete |
-| EXP-01 | Phase 4 | Pending |
-| EXP-02 | Phase 4 | Pending |
-| EXP-03 | Phase 4 | Pending |
+| EXP-01 | Phase 4 | Complete |
+| EXP-02 | Phase 4 | Complete |
+| EXP-03 | Phase 4 | Complete |
 | UX-01 | Phase 2 | Complete |
 | UX-02 | Phase 2 | Complete |
 | UX-03 | Phase 2 | Complete |

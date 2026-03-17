@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Domain Engine** - Pure sizing logic and hardware catalog — no UI, fully testable in isolation (completed 2026-03-16)
 - [x] **Phase 2: App Shell and Input Form** - Project scaffold, Zustand stores, and parameterized input form (completed 2026-03-17)
 - [x] **Phase 3: BOM Output and Metrics** - Switch/cable quantities, oversubscription ratios, port saturation alerts (completed 2026-03-17)
-- [ ] **Phase 4: Visualization, Export and Documentation** - Topology diagram, rack elevation, CSV/PDF/print export, ARD, PRD, user guide, changelog
+- [x] **Phase 4: Visualization, Export and Documentation** - Topology diagram, rack elevation, CSV/PDF/print export, ARD, PRD, user guide, changelog (completed 2026-03-17)
 
 ## Phase Details
 
@@ -94,7 +94,7 @@ Plans:
   9. PRD formalizes all v1 requirements with acceptance criteria
   10. User Guide explains how to size a deployment, interpret the BOM, and export results
   11. Changelog records v1.0 as the first entry with delivered features
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 
 - [ ] 04-01-PLAN.md — Install packages, shadcn components, type contracts, saturation helper, and i18n keys
@@ -113,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
 | 2. App Shell and Input Form | 3/3 | Complete   | 2026-03-17 |
 | 3. BOM Output and Metrics | 2/2 | Complete   | 2026-03-17 |
-| 4. Visualization, Export and Documentation | 4/5 | In Progress|  |
+| 4. Visualization, Export and Documentation | 5/5 | Complete   | 2026-03-17 |

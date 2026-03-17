@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-visualization-export-and-documentation-02-PLAN.md
-last_updated: "2026-03-17T07:29:46.108Z"
+stopped_at: Completed 04-visualization-export-and-documentation-04-PLAN.md
+last_updated: "2026-03-17T08:18:37.888Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
   percent: 33
 ---
 
@@ -65,6 +65,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 04-visualization-export-and-documentation P03 | 4 | 2 tasks | 6 files |
 | Phase 04-visualization-export-and-documentation P05 | 9 | 2 tasks | 7 files |
 | Phase 04-visualization-export-and-documentation P02 | 30 | 2 tasks | 11 files |
+| Phase 04-visualization-export-and-documentation P04 | 11 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,10 @@ Recent decisions affecting current work:
 - [Phase 04-visualization-export-and-documentation]: Custom DOM event 'topology:action' used for toolbar -> canvas communication — avoids prop-drilling through ReactFlowProvider context boundary
 - [Phase 04-visualization-export-and-documentation]: Module-level PNG cache with 500ms delay for PDF export — captures after nodes render, accessible even when Topology tab hidden
 - [Phase 04-visualization-export-and-documentation]: nodeTypes at module scope — React Flow reference equality check causes infinite re-renders if defined inside component
+- [Phase 04-visualization-export-and-documentation]: UTF-8 BOM placed on own CRLF line before CSV header so split lines[1] is the actual header row
+- [Phase 04-visualization-export-and-documentation]: Double-cast through unknown for @react-pdf/renderer pdf() call — structural type incompatibility between NetStackDocumentProps and DocumentProps
+- [Phase 04-visualization-export-and-documentation]: aria-disabled=true (not HTML disabled) for CSV/PDF buttons when BOM is null — allows tooltip hover and maintains focus
+- [Phase 04-visualization-export-and-documentation]: PDF components use hardcoded hex/rgb values — CSS variables not supported in @react-pdf/renderer (no DOM, no CSS cascade)
 
 ### Research Flags (from SUMMARY.md)
 
@@ -130,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T07:29:46.106Z
-Stopped at: Completed 04-visualization-export-and-documentation-02-PLAN.md
+Last session: 2026-03-17T08:18:37.885Z
+Stopped at: Completed 04-visualization-export-and-documentation-04-PLAN.md
 Resume file: None
