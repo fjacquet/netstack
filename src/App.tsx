@@ -3,9 +3,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
-import { PlaceholderTab } from '@/features/placeholder/PlaceholderTab'
 import { RackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab } from '@/features/topology'
+import { ExportTab } from '@/features/export'
 import {
   Tabs,
   TabsContent,
@@ -39,12 +39,7 @@ function AppContent() {
             <RackElevationTab />
           </TabsContent>
           <TabsContent value="export" className="mt-0">
-            <PlaceholderTab
-              headingKey="placeholders.exportHeading"
-              bodyKey="placeholders.exportBody"
-              phase={4}
-              icon="export"
-            />
+            <ExportTab />
           </TabsContent>
         </main>
       </Tabs>

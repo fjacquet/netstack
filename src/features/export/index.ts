@@ -1,1 +1,1 @@
-// Barrel export — populated in Plan 05
+export { ExportTab } from './ExportTab'

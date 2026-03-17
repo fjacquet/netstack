@@ -80,3 +80,12 @@
     color: hsl(var(--foreground));
   }
 }
+
+@media print {
+  header, [role="tablist"], .toolbar-card { display: none !important; }
+  [data-state="inactive"] { display: none !important; }
+  table { page-break-inside: avoid; }
+  tr { page-break-inside: avoid; }
+  .react-flow__renderer { break-inside: avoid; }
+  * { box-shadow: none !important; }
+}
