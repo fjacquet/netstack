@@ -23,6 +23,12 @@
     "selectConnectivity": "Select connectivity type",
     "selectCable": "Select cable type",
     "selectLeafModel": "Select leaf switch model",
+    "spineModel": "Spine Switch Model",
+    "selectSpineModel": "Select spine model",
+    "borderLeafModel": "Border Leaf Model",
+    "selectBorderLeaf": "Select border leaf model",
+    "borderLeafNone": "None (no border leaf)",
+    "borderLeafCount": "Border Leaf Count",
     "rackSize": "Rack Size",
     "selectRackSize": "Select rack size"
   },

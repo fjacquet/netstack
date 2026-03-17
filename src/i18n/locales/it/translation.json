@@ -23,6 +23,12 @@
     "selectConnectivity": "Selezionare il tipo di connettivita",
     "selectCable": "Selezionare il tipo di cavo",
     "selectLeafModel": "Selezionare il modello switch Leaf",
+    "spineModel": "Modello switch Spine",
+    "selectSpineModel": "Selezionare il modello Spine",
+    "borderLeafModel": "Modello Border Leaf",
+    "selectBorderLeaf": "Selezionare il modello Border Leaf",
+    "borderLeafNone": "Nessuno (nessun Border Leaf)",
+    "borderLeafCount": "Numero di Border Leaf",
     "rackSize": "Dimensione rack",
     "selectRackSize": "Selezionare la dimensione del rack"
   },

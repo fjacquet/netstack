@@ -24,6 +24,8 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
+const SPINE_MODELS = ['S5232F-ON'] as const
+const BORDER_LEAF_OPTIONS = ['none', 'S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
 const RACK_SIZES = ['24U', '42U', '50U'] as const
 
 export function InputForm() {
@@ -224,7 +226,91 @@ export function InputForm() {
                 </FormItem>
               )}
             />
-            {/* Field 6: Rack Size */}
+            {/* Field 6: Spine Switch Model */}
+            <FormField
+              control={form.control}
+              name="spineModel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('sizing.spineModel')}</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('sizing.selectSpineModel')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SPINE_MODELS.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Field 7: Border Leaf Model */}
+            <FormField
+              control={form.control}
+              name="borderLeafModel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('sizing.borderLeafModel')}</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('sizing.selectBorderLeaf')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {BORDER_LEAF_OPTIONS.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model === 'none' ? t('sizing.borderLeafNone') : model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Field 8: Border Leaf Count (only if border model selected) */}
+            {form.watch('borderLeafModel') !== 'none' && (
+              <FormField
+                control={form.control}
+                name="borderLeafCount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('sizing.borderLeafCount')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={4}
+                        {...field}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          field.onChange(val === '' ? '' : Number(val))
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Field 9: Rack Size */}
             <FormField
               control={form.control}
               name="rackSize"

@@ -12,6 +12,9 @@ describe('resultStore (derived from inputStore)', () => {
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
+        spineModel: 'S5232F-ON',
+        borderLeafModel: 'none',
+        borderLeafCount: 0,
         rackSize: '42U',
       },
     })

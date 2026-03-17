@@ -14,8 +14,7 @@ import { SWITCH_CATALOG } from '../catalog/hardware';
 import type { SizingInput } from '../schemas/input';
 import type { ConstraintViolation, NetworkBOM } from '../schemas/bom';
 
-// Fixed catalog aliases — spine and OOB never vary
-const SPINE = SWITCH_CATALOG['S5232F-ON'];
+// OOB model is fixed (not selectable)
 const OOB = SWITCH_CATALOG['S3248T-ON'];
 
 /**
@@ -27,8 +26,9 @@ const OOB = SWITCH_CATALOG['S3248T-ON'];
  * @returns Complete NetworkBOM with switch counts, cable quantities, and violations
  */
 export function calculateBOM(input: SizingInput): NetworkBOM {
-  // ─── Dynamic leaf selection from input ───────────────────────────────────
+  // ─── Dynamic model selection from input ──────────────────────────────────
   const LEAF = SWITCH_CATALOG[input.leafModel];
+  const SPINE = SWITCH_CATALOG[input.spineModel];
 
   // ─── Rack Count (SIZE-02) ─────────────────────────────────────────────────
   const racks = Math.ceil(input.totalServers / input.serversPerRack);
@@ -48,6 +48,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const oobPortsRequired = input.serversPerRack + 2;
   const oobSwitchesPerRack = Math.ceil(oobPortsRequired / OOB.downlinkPorts);
   const oobSwitches = racks * oobSwitchesPerRack;
+
+  // ─── Border Leaf Switches (WAN/uplink connectivity) ──────────────────────
+  const borderLeafSwitches =
+    input.borderLeafModel !== 'none' ? input.borderLeafCount : 0;
 
   // ─── Cable Quantities (link model, not port sum) ──────────────────────────
   // leafSpineCables: each leaf connects to each spine once (1 link per leaf-spine pair)
@@ -113,6 +117,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     leafSwitches,
     spineSwitches,
     oobSwitches,
+    borderLeafSwitches,
     leafSpineCables,
     serverLeafCables,
     serverOobCables,

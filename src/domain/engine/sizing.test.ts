@@ -18,6 +18,9 @@ describe('SIZE-02: Rack Count', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.racks).toBe(4);
@@ -30,6 +33,9 @@ describe('SIZE-02: Rack Count', () => {
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.racks).toBe(5);
@@ -42,6 +48,9 @@ describe('SIZE-02: Rack Count', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.racks).toBe(1);
@@ -59,6 +68,9 @@ describe('SIZE-03: Leaf Count', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.leafSwitches).toBe(4);
@@ -71,6 +83,9 @@ describe('SIZE-03: Leaf Count', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.leafSwitches).toBe(2);
@@ -83,6 +98,9 @@ describe('SIZE-03: Leaf Count', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.leafSwitches).toBe(10);
@@ -100,6 +118,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.spineSwitches).toBe(2);
@@ -112,6 +133,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.spineSwitches).toBe(2);
@@ -124,6 +148,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.spineSwitches).toBe(5);
@@ -136,6 +163,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.spineSwitches).toBeGreaterThanOrEqual(2);
@@ -149,6 +179,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     const violation = result.violations.find(v => v.code === 'SPINE_CAPACITY_EXCEEDED');
@@ -167,6 +200,9 @@ describe('SIZE-04: Spine Scaling', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     const violation = result.violations.find(v => v.code === 'SPINE_CAPACITY_EXCEEDED');
@@ -185,6 +221,9 @@ describe('SIZE-05: OOB Switches', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oobSwitches).toBe(1);
@@ -197,6 +236,9 @@ describe('SIZE-05: OOB Switches', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oobSwitches).toBe(1);
@@ -211,6 +253,9 @@ describe('SIZE-05: OOB Switches', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oobSwitches).toBe(2);
@@ -229,6 +274,9 @@ describe('SIZE-05: OOB Switches', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oobSwitches).toBe(3);
@@ -246,6 +294,9 @@ describe('SIZE-06: Pure Function', () => {
       connectivityType: '25G' as const,
       cableType: 'fiber' as const,
       leafModel: 'S5248F-ON' as const,
+      spineModel: 'S5232F-ON' as const,
+      borderLeafModel: 'none' as const,
+      borderLeafCount: 0,
       rackSize: '42U' as const,
     };
     const result1 = calculateBOM(input);
@@ -265,6 +316,9 @@ describe('Cable Quantities (link-based model)', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 1 rack → 2 leafs → 2 spines (min) → 2 leafs × 2 links = 4
@@ -278,6 +332,9 @@ describe('Cable Quantities (link-based model)', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 2 racks → 4 leafs → 2 spines → 4 × 2 = 8
@@ -291,6 +348,9 @@ describe('Cable Quantities (link-based model)', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 4 racks → 8 leafs → 2 spines → 8 × 2 = 16
@@ -304,6 +364,9 @@ describe('Cable Quantities (link-based model)', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.serverLeafCables).toBe(48);
@@ -316,6 +379,9 @@ describe('Cable Quantities (link-based model)', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 4 racks → 8 leafs; serverOobCables = 48 + 8 = 56
@@ -335,6 +401,9 @@ describe('Oversubscription Ratio', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oversubscriptionRatio).toBeCloseTo(6.0);
@@ -347,6 +416,9 @@ describe('Oversubscription Ratio', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oversubscriptionRatio).toBeCloseTo(1.25);
@@ -359,6 +431,9 @@ describe('Oversubscription Ratio', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.oversubscriptionRatio).toBeDefined();
@@ -377,6 +452,9 @@ describe('DAC Distance Advisory', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 9 racks > 8 → violation
@@ -395,6 +473,9 @@ describe('DAC Distance Advisory', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 8 racks ≤ 8 → no violation
@@ -409,6 +490,9 @@ describe('DAC Distance Advisory', () => {
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
@@ -427,6 +511,9 @@ describe('Input in BOM', () => {
       connectivityType: '25G' as const,
       cableType: 'fiber' as const,
       leafModel: 'S5248F-ON' as const,
+      spineModel: 'S5232F-ON' as const,
+      borderLeafModel: 'none' as const,
+      borderLeafCount: 0,
       rackSize: '42U' as const,
     };
     const result = calculateBOM(input);
@@ -445,6 +532,9 @@ describe('Transceivers (fiber only) and VLT', () => {
       connectivityType: '25G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 1 rack → 2 leafs → 2 spines → 4 leaf-spine cables (QSFP28), 20 server-leaf cables (SFP28)
@@ -459,6 +549,9 @@ describe('Transceivers (fiber only) and VLT', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(bom.sfp28Count).toBe(0);
@@ -472,6 +565,9 @@ describe('Transceivers (fiber only) and VLT', () => {
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(bom.sfp28Count).toBe(0);
@@ -485,6 +581,9 @@ describe('Transceivers (fiber only) and VLT', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     // 3 racks → 3 leaf pairs → 6 VLT cables
@@ -497,14 +596,14 @@ describe('Transceivers (fiber only) and VLT', () => {
 // ---------------------------------------------------------------------------
 describe('leafModel selection', () => {
   it('uses S5224F-ON when selected (3 racks → 6 leafs)', () => {
-    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5224F-ON', rackSize: '42U' })
+    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5224F-ON', spineModel: 'S5232F-ON', borderLeafModel: 'none', borderLeafCount: 0, rackSize: '42U' })
     // S5224F-ON has uplinkPorts=4, same as S5248F-ON, so cable count is same
     // But oversubscription uses downlinkSpeedGbE=25 and the selected leaf's properties
     expect(bom.leafSwitches).toBe(6) // 3 racks * 2
   })
 
   it('uses S5212F-ON uplinkPorts (3) capped by spine count for cable calculations', () => {
-    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5212F-ON', rackSize: '42U' })
+    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5212F-ON', spineModel: 'S5232F-ON', borderLeafModel: 'none', borderLeafCount: 0, rackSize: '42U' })
     // S5212F-ON has uplinkPorts=3, 2 spines → min(2,3)=2 links per leaf
     expect(bom.leafSpineCables).toBe(bom.leafSwitches * Math.min(bom.spineSwitches, 3))
   })

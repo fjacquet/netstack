@@ -51,6 +51,8 @@ export const NetworkBOMSchema = z.object({
   spineSwitches: z.number().int().min(0),
   /** Number of OOB switches: racks × ceil(oobPortsRequired / 48) */
   oobSwitches: z.number().int().min(0),
+  /** Number of border leaf switches for WAN connectivity (0 if none selected) */
+  borderLeafSwitches: z.number().int().min(0),
   /** Leaf-to-spine cables: leafSwitches × uplinkPorts (link model, not port sum) */
   leafSpineCables: z.number().int().min(0),
   /** Server-to-leaf cables: one per server */

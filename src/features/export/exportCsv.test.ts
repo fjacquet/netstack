@@ -7,6 +7,7 @@ const mockBom: NetworkBOM = {
   leafSwitches: 4,
   spineSwitches: 2,
   oobSwitches: 1,
+  borderLeafSwitches: 0,
   leafSpineCables: 8,
   serverLeafCables: 40,
   serverOobCables: 44,
@@ -21,6 +22,9 @@ const mockBom: NetworkBOM = {
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
+    spineModel: 'S5232F-ON',
+    borderLeafModel: 'none',
+    borderLeafCount: 0,
     rackSize: '42U',
   },
 }

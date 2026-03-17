@@ -63,6 +63,9 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.success).toBe(true);
@@ -81,6 +84,9 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '100G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.success).toBe(true);
@@ -93,6 +99,9 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
+      spineModel: 'S5232F-ON',
+      borderLeafModel: 'none',
+      borderLeafCount: 0,
       rackSize: '42U',
     });
     expect(result.success).toBe(true);
@@ -100,7 +109,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
 });
 
 describe('SizingInputSchema leafModel', () => {
-  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const, rackSize: '42U' as const }
+  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const, spineModel: 'S5232F-ON' as const, borderLeafModel: 'none' as const, borderLeafCount: 0, rackSize: '42U' as const }
 
   it('accepts S5248F-ON', () => {
     expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5248F-ON' }).success).toBe(true)
@@ -187,6 +196,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       racks: 5,
       leafSwitches: 10,
       spineSwitches: 4,
+      borderLeafSwitches: 0,
       oobSwitches: 5,
       leafSpineCables: 40,
       serverLeafCables: 100,
@@ -202,6 +212,9 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
+        spineModel: 'S5232F-ON',
+        borderLeafModel: 'none',
+        borderLeafCount: 0,
         rackSize: '42U',
       },
     };
@@ -214,6 +227,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       racks: 10,
       leafSwitches: 20,
       spineSwitches: 4,
+      borderLeafSwitches: 0,
       oobSwitches: 10,
       leafSpineCables: 80,
       serverLeafCables: 470,
@@ -231,6 +245,9 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
+        spineModel: 'S5232F-ON',
+        borderLeafModel: 'none',
+        borderLeafCount: 0,
         rackSize: '42U',
       },
     };
