@@ -4,6 +4,8 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { PlaceholderTab } from '@/features/placeholder/PlaceholderTab'
+import { RackElevationTab } from '@/features/rack-elevation'
+import { TopologyTab } from '@/features/topology'
 import {
   Tabs,
   TabsContent,
@@ -39,12 +41,7 @@ function AppContent() {
             />
           </TabsContent>
           <TabsContent value="rackElevation" className="mt-0">
-            <PlaceholderTab
-              headingKey="placeholders.rackElevationHeading"
-              bodyKey="placeholders.rackElevationBody"
-              phase={4}
-              icon="rackElevation"
-            />
+            <RackElevationTab />
           </TabsContent>
           <TabsContent value="export" className="mt-0">
             <PlaceholderTab

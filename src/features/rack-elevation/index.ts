@@ -1,1 +1,1 @@
-// Barrel export — populated in Plan 03
+export { RackElevationTab } from './RackElevationTab'
