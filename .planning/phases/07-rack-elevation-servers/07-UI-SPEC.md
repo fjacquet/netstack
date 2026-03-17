@@ -60,12 +60,14 @@ Matches established patterns from Phase 3 and Phase 4; no new sizes introduced.
 
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
-| Body | 16px (text-sm = 14px for compact UI) | 400 | 1.5 |
-| Label | 12px (text-xs) | 400 | 1 (leading-none) |
+| Body | 14px (text-sm) | 400 (font-normal) | 1.5 |
+| Label | 12px (text-xs) | 400 (font-normal) | 1 (leading-none) |
 | Heading (section) | 12px uppercase tracking-wide (text-xs + uppercase) | 600 (font-semibold) | 1 |
-| Monospace (model name) | 12px (text-xs font-mono) | 500 (font-medium) | 1 |
+| Monospace (model name) | 12px (text-xs font-mono) | 400 (font-normal) | 1 |
 
-Source: `RackDevice.tsx` (font-mono text-xs font-medium for model), `BOMPanel.tsx` (text-xs font-semibold uppercase tracking-wide for section headings).
+Two weights only: 400 (font-normal) and 600 (font-semibold). The `font-mono` face provides sufficient visual distinction for server model names without a weight change.
+
+Source: `RackDevice.tsx` (font-mono text-xs for model), `BOMPanel.tsx` (text-xs font-semibold uppercase tracking-wide for section headings).
 
 ---
 
