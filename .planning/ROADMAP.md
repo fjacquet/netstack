@@ -52,7 +52,7 @@ Plans:
   4. Language switcher changes the UI language between FR, EN, DE, and IT without data loss
   5. Layout is usable on tablet-width viewports (768px+) and desktop viewports (1280px+)
   6. GitHub Actions workflow builds and deploys the app to GitHub Pages on push to main
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
 
 - [ ] 02-01-PLAN.md — Project scaffold (React + Vite + shadcn/ui) and domain schema extension for leafModel
@@ -100,6 +100,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
-| 2. App Shell and Input Form | 0/3 | Planning complete | - |
+| 2. App Shell and Input Form | 1/3 | In Progress|  |
 | 3. BOM Output and Metrics | 0/TBD | Not started | - |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |

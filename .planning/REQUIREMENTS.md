@@ -7,7 +7,7 @@
 
 ### Sizing Engine
 
-- [ ] **SIZE-01**: User can input total server count, servers per rack, and connectivity type (25G/100G)
+- [x] **SIZE-01**: User can input total server count, servers per rack, and connectivity type (25G/100G)
 - [x] **SIZE-02**: Engine calculates rack count as `ceil(total_servers / servers_per_rack)`
 - [x] **SIZE-03**: Engine calculates leaf switches as `2 × N_racks` (redundant ToR pair per rack)
 - [x] **SIZE-04**: Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SIZE-01 | Phase 2 | Pending |
+| SIZE-01 | Phase 2 | Complete |
 | SIZE-02 | Phase 1 | Complete |
 | SIZE-03 | Phase 1 | Complete |
 | SIZE-04 | Phase 1 | Complete |
@@ -125,6 +125,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DOC-04 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 28 total
 - Mapped to phases: 28
 - Unmapped: 0

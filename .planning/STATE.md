@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-17T03:03:20.995Z"
+stopped_at: Completed 02-app-shell-and-input-form-02-01-PLAN.md
+last_updated: "2026-03-17T04:04:12.706Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 4
   percent: 33
 ---
 
@@ -35,6 +35,7 @@ Progress: [███░░░░░░░] 33%
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: — min
 - Total execution time: 0 hours
@@ -46,6 +47,7 @@ Progress: [███░░░░░░░] 33%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: —
 - Trend: —
 
@@ -53,6 +55,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 01-domain-engine P01 | 10 | 3 tasks | 12 files |
 | Phase 01-domain-engine P03 | 15 | 2 tasks | 2 files |
 | Phase 01-domain-engine P02 | 17 | 3 tasks | 2 files |
+| Phase 02-app-shell-and-input-form P01 | 25 | 2 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -73,6 +76,10 @@ Recent decisions affecting current work:
 - [Phase 01-domain-engine]: Empty/undefined override returns shallow copy (not original reference) to prevent future mutation surprises
 - [Phase 01-domain-engine]: Oversubscription denominator uses spineSwitches (not uplinkPorts) — ratio reflects actual deployed topology
 - [Phase 01-domain-engine]: OOB violation fires when oobPortsRequired strictly > OOB.downlinkPorts (48), confirming boundary at 46 (no violation) vs 47 (violation)
+- [Phase 02-app-shell-and-input-form]: vite@6 used instead of vite@8 due to @tailwindcss/vite@4 peer dependency requiring ^5.2.0 || ^6 || ^7
+- [Phase 02-app-shell-and-input-form]: shadcn interactive init replaced with manual components.json + npx shadcn add for CLI automation
+- [Phase 02-app-shell-and-input-form]: leafModel as required field (not optional with default) — forces explicit selection in UI, prevents silent S5248F-ON assumption
+- [Phase 02-app-shell-and-input-form]: vitest.config.ts deleted — vite.config.ts test block supersedes it completely
 
 ### Research Flags (from SUMMARY.md)
 
@@ -90,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T03:03:20.992Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-app-shell-and-input-form/02-CONTEXT.md
+Last session: 2026-03-17T04:04:12.704Z
+Stopped at: Completed 02-app-shell-and-input-form-02-01-PLAN.md
+Resume file: None
