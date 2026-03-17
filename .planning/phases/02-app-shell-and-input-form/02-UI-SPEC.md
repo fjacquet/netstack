@@ -71,6 +71,7 @@ Declared values (all multiples of 4 — 8-point grid):
 | 3xl | 64px | Page-level top/bottom padding |
 
 Exceptions:
+
 - Touch targets for language switcher dropdown trigger and theme toggle button: minimum 44px height (WCAG 2.5.5 AA)
 - Tab bar height: 44px to match touch target minimum
 
@@ -88,6 +89,7 @@ Exceptions:
 Font stack: `Inter, ui-sans-serif, system-ui, -apple-system, sans-serif`
 
 Notes:
+
 - Technical model names (S5248F-ON, S5232F-ON, DAC, QSFP28, 25G, 100G) always render in English regardless of active locale — no translation applied
 - Monospace font (`ui-monospace, SFMono-Regular, Menlo, monospace`) used for model name badges and SKU values only
 
@@ -118,6 +120,7 @@ Notes:
 | Border | `hsl(215 28% 25%)` — slate-700 | Card borders, input borders (unfocused) |
 
 Accent reserved for (explicit list):
+
 - Active tab underline/indicator
 - Primary CTA button background (not secondary or ghost variants)
 - Input ring on focus state
