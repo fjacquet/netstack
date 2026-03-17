@@ -29,7 +29,9 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     leafSpineCables: 24,
     serverLeafCables: 48,
     serverOobCables: 54,
-    sfpCount: 0,
+    sfp28Count: 0,
+    qsfp28Count: 0,
+    vltCables: 3,
     oversubscriptionRatio: 2.4,
     violations: [],
     input: {
@@ -76,10 +78,10 @@ describe('BOMPanel', () => {
       expect(screen.getByText('S5232F-ON')).toBeInTheDocument()
       // OOB model name
       expect(screen.getByText('S3248T-ON')).toBeInTheDocument()
-      // Quantities
+      // Quantities (3 appears in both OOB switches and VLT cables)
       expect(screen.getByText('6')).toBeInTheDocument()
       expect(screen.getByText('4')).toBeInTheDocument()
-      expect(screen.getByText('3')).toBeInTheDocument()
+      expect(screen.getAllByText('3').length).toBeGreaterThanOrEqual(1)
     })
 
     it('renders empty state when bom is null', () => {

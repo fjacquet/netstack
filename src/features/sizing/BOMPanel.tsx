@@ -345,11 +345,23 @@ export function BOMPanel() {
                   <TableCell>1G RJ45</TableCell>
                   <TableCell>{bom.serverOobCables}</TableCell>
                 </TableRow>
-                {bom.sfpCount > 0 && (
+                <TableRow>
+                  <TableCell>VLT Interconnect</TableCell>
+                  <TableCell>QSFP28-DD</TableCell>
+                  <TableCell>{bom.vltCables}</TableCell>
+                </TableRow>
+                {bom.sfp28Count > 0 && (
                   <TableRow>
-                    <TableCell>SFP Transceivers</TableCell>
-                    <TableCell>{t('bom.sfpCategory')}</TableCell>
-                    <TableCell>{bom.sfpCount}</TableCell>
+                    <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
+                    <TableCell>SFP28 (25G)</TableCell>
+                    <TableCell>{bom.sfp28Count}</TableCell>
+                  </TableRow>
+                )}
+                {bom.qsfp28Count > 0 && (
+                  <TableRow>
+                    <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
+                    <TableCell>QSFP28 (100G)</TableCell>
+                    <TableCell>{bom.qsfp28Count}</TableCell>
                   </TableRow>
                 )}
               </TableBody>

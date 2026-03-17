@@ -406,8 +406,8 @@ describe('Input in BOM', () => {
 // ---------------------------------------------------------------------------
 // SFP Transceivers (fiber only)
 // ---------------------------------------------------------------------------
-describe('SFP Transceivers', () => {
-  it('fiber cable type → sfpCount = 2 × (leafSpineCables + serverLeafCables)', () => {
+describe('Transceivers (fiber only) and VLT', () => {
+  it('fiber → sfp28Count = 2 × serverLeafCables, qsfp28Count = 2 × leafSpineCables', () => {
     const bom = calculateBOM({
       totalServers: 20,
       serversPerRack: 20,
@@ -415,12 +415,12 @@ describe('SFP Transceivers', () => {
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
     });
-    // 1 rack → 2 leafs → 8 leaf-spine cables, 20 server-leaf cables
-    // sfpCount = 2 * (8 + 20) = 56
-    expect(bom.sfpCount).toBe(56);
+    // 1 rack → 2 leafs → 8 leaf-spine cables (QSFP28), 20 server-leaf cables (SFP28)
+    expect(bom.sfp28Count).toBe(40);   // 2 × 20
+    expect(bom.qsfp28Count).toBe(16);  // 2 × 8
   });
 
-  it('DAC cable type → sfpCount = 0', () => {
+  it('DAC → sfp28Count = 0, qsfp28Count = 0', () => {
     const bom = calculateBOM({
       totalServers: 20,
       serversPerRack: 20,
@@ -428,10 +428,11 @@ describe('SFP Transceivers', () => {
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
     });
-    expect(bom.sfpCount).toBe(0);
+    expect(bom.sfp28Count).toBe(0);
+    expect(bom.qsfp28Count).toBe(0);
   });
 
-  it('AOC cable type → sfpCount = 0', () => {
+  it('AOC → sfp28Count = 0, qsfp28Count = 0', () => {
     const bom = calculateBOM({
       totalServers: 20,
       serversPerRack: 20,
@@ -439,7 +440,20 @@ describe('SFP Transceivers', () => {
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
     });
-    expect(bom.sfpCount).toBe(0);
+    expect(bom.sfp28Count).toBe(0);
+    expect(bom.qsfp28Count).toBe(0);
+  });
+
+  it('VLT cables = 1 per rack (QSFP28-DD between leaf pairs)', () => {
+    const bom = calculateBOM({
+      totalServers: 60,
+      serversPerRack: 20,
+      connectivityType: '25G',
+      cableType: 'DAC',
+      leafModel: 'S5248F-ON',
+    });
+    // 3 racks → 3 VLT cables
+    expect(bom.vltCables).toBe(3);
   });
 });
 

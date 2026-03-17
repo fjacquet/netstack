@@ -58,11 +58,16 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   // serverOobCables: every server + every leaf switch gets an OOB management port
   const serverOobCables = input.totalServers + leafSwitches;
 
-  // ─── SFP Transceivers (fiber only — 2 per cable link) ────────────────────
-  const sfpCount =
-    input.cableType === 'fiber'
-      ? 2 * (leafSpineCables + serverLeafCables)
-      : 0;
+  // ─── Transceivers (fiber only — 2 per cable link, type depends on speed) ──
+  // Server-leaf links are 25G → SFP28; leaf-spine links are 100G → QSFP28
+  const sfp28Count =
+    input.cableType === 'fiber' ? 2 * serverLeafCables : 0;
+  const qsfp28Count =
+    input.cableType === 'fiber' ? 2 * leafSpineCables : 0;
+
+  // ─── VLT Interconnect Cables ────────────────────────────────────────────
+  // Each rack has a redundant leaf pair connected via VLT (1 QSFP28-DD cable)
+  const vltCables = racks;
 
   // ─── Oversubscription Ratio ───────────────────────────────────────────────
   // (serversPerRack × server link speed) / (spineSwitches × leaf uplink speed)
@@ -110,7 +115,9 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     leafSpineCables,
     serverLeafCables,
     serverOobCables,
-    sfpCount,
+    sfp28Count,
+    qsfp28Count,
+    vltCables,
     oversubscriptionRatio,
     violations,
     input,

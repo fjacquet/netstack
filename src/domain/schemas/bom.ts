@@ -57,8 +57,12 @@ export const NetworkBOMSchema = z.object({
   serverLeafCables: z.number().int().min(0),
   /** Server-to-OOB cables: totalServers + leafSwitches */
   serverOobCables: z.number().int().min(0),
-  /** SFP transceivers: 2 per fiber cable link (one at each end), 0 for DAC/AOC */
-  sfpCount: z.number().int().min(0),
+  /** SFP28 transceivers for 25G server-leaf fiber links (2 per link), 0 for DAC/AOC */
+  sfp28Count: z.number().int().min(0),
+  /** QSFP28 transceivers for 100G leaf-spine fiber links (2 per link), 0 for DAC/AOC */
+  qsfp28Count: z.number().int().min(0),
+  /** VLT interconnect cables: 1 QSFP28-DD per leaf pair (racks × 1) */
+  vltCables: z.number().int().min(0),
   /** Oversubscription ratio: serverBandwidth / uplinkBandwidth per rack */
   oversubscriptionRatio: z.number().min(0),
   /** Typed constraint violations produced by the sizing engine */
