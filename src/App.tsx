@@ -33,12 +33,7 @@ function AppContent() {
             <SizingPage />
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            <PlaceholderTab
-              headingKey="placeholders.topologyHeading"
-              bodyKey="placeholders.topologyBody"
-              phase={3}
-              icon="topology"
-            />
+            <TopologyTab />
           </TabsContent>
           <TabsContent value="rackElevation" className="mt-0">
             <RackElevationTab />

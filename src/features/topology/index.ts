@@ -1,1 +1,2 @@
-// Barrel export — populated in Plan 02
+export { TopologyTab } from './TopologyTab'
+export { getLastTopologyPng } from './TopologyCanvas'
