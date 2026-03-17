@@ -28,6 +28,9 @@ export const SizingInputSchema = z.object({
   portsPerServerFrontend: z.number().int().min(0).max(8).default(1),
   /** Number of backend (OOB-facing) ports per server (0-8, default 1) */
   portsPerServerBackend: z.number().int().min(0).max(8).default(1),
+  /** Number of active uplinks per leaf switch to spine (1-8, default 4).
+   * The engine clamps this to the model's physical uplinkPorts at runtime. */
+  activeUplinksPerLeaf: z.number().int().min(1).max(8).default(4),
   /** Server-facing connectivity type */
   connectivityType: z.enum(['25G', '100G']),
   /** Cable type used for all inter-device connections */

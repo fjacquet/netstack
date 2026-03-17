@@ -21,6 +21,7 @@ const mockBom: NetworkBOM = {
     racks: [{ serverCount: 20 }, { serverCount: 20 }],
     portsPerServerFrontend: 1,
     portsPerServerBackend: 1,
+    activeUplinksPerLeaf: 4,
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',

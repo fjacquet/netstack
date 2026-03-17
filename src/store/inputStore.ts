@@ -21,6 +21,7 @@ const DEFAULT_INPUT: SizingInput = {
   ],
   portsPerServerFrontend: 1,
   portsPerServerBackend: 1,
+  activeUplinksPerLeaf: 4,
   connectivityType: '25G',
   cableType: 'DAC',
   leafModel: 'S5248F-ON',
@@ -74,11 +75,13 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 3,
+      version: 4,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
-       * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array).
+       * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array)
+       * and v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf).
+       * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields.
        */
       merge: (persisted, current) => {
         const persistedState = persisted as Partial<InputState>;

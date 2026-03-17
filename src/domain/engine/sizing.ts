@@ -75,8 +75,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
 
   // ─── Cable Quantities (link model, not port sum) ──────────────────────────
   // leafSpineCables: each leaf connects to each spine once (1 link per leaf-spine pair)
-  // limited by leaf uplink ports if fewer than spine count
-  const linksPerLeaf = Math.min(spineSwitches, LEAF.uplinkPorts);
+  // limited by active uplinks or leaf model's physical uplink port count
+  // Runtime clamp: user cannot activate more uplinks than the model physically has (UPLN-02)
+  const effectiveUplinks = Math.min(input.activeUplinksPerLeaf, LEAF.uplinkPorts);
+  const linksPerLeaf = Math.min(spineSwitches, effectiveUplinks);
   const leafSpineCables = leafSwitches * linksPerLeaf;
   // serverLeafCables: frontend port multiplier × totalServers (PORT-03)
   const serverLeafCables = totalServers * input.portsPerServerFrontend;
@@ -95,9 +97,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const vltCables = racks * 2;
 
   // ─── Oversubscription Ratio ───────────────────────────────────────────────
-  // (maxServersPerRack × server link speed) / (spineSwitches × leaf uplink speed)
-  // Uses worst-case rack to represent the highest-density rack's oversubscription.
-  const uplinkBandwidth = spineSwitches * (LEAF.uplinkSpeedGbE ?? 0);
+  // (maxServersPerRack × server link speed) / (effectiveUplinks × leaf uplink speed)
+  // Uses worst-case rack and effective (user-configured, model-clamped) uplink count.
+  // effectiveUplinks = min(activeUplinksPerLeaf, LEAF.uplinkPorts) — UPLN-02
+  const uplinkBandwidth = effectiveUplinks * (LEAF.uplinkSpeedGbE ?? 0);
   const oversubscriptionRatio =
     uplinkBandwidth > 0
       ? (maxServersPerRack * LEAF.downlinkSpeedGbE) / uplinkBandwidth

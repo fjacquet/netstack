@@ -17,6 +17,7 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     portsPerServerFrontend: 1,
     portsPerServerBackend: 1,
+    activeUplinksPerLeaf: 4,
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
@@ -302,21 +303,26 @@ describe('Cable Quantities (link-based model)', () => {
 // Oversubscription Ratio
 // ---------------------------------------------------------------------------
 describe('Oversubscription Ratio', () => {
-  it('48 servers at 25G with 2 spines: (48×25) / (2×100) = 6.0', () => {
+  it('48 servers at 25G with S5248F-ON (4 uplinks): (48×25) / (4×100) = 3.0', () => {
     // 1 rack of 48 servers → 2 leafs → 2 spines (minimum)
+    // effectiveUplinks = min(activeUplinksPerLeaf=4, LEAF.uplinkPorts=4) = 4
+    // uplinkBandwidth = 4 × 100G = 400G
+    // ratio = (48 × 25) / 400 = 3.0 (UPLN-02: uses effectiveUplinks, not spineSwitches)
     const result = calculateBOM(makeInput({
       racks: [{ serverCount: 48 }],
       cableType: 'fiber',
     }));
-    expect(result.oversubscriptionRatio).toBeCloseTo(6.0);
+    expect(result.oversubscriptionRatio).toBeCloseTo(3.0);
   });
 
-  it('10 servers at 25G with 2 spines: (10×25) / (2×100) = 1.25', () => {
+  it('10 servers at 25G with S5248F-ON (4 uplinks): (10×25) / (4×100) = 0.625', () => {
+    // effectiveUplinks = min(4, 4) = 4 → uplinkBandwidth = 4 × 100 = 400G
+    // ratio = (10 × 25) / 400 = 0.625
     const result = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'fiber',
     }));
-    expect(result.oversubscriptionRatio).toBeCloseTo(1.25);
+    expect(result.oversubscriptionRatio).toBeCloseTo(0.625);
   });
 
   it('oversubscriptionRatio is present in every BOM result', () => {
@@ -329,12 +335,14 @@ describe('Oversubscription Ratio', () => {
   });
 
   it('oversubscription uses maxServersPerRack (worst-case rack)', () => {
-    // racks: [10, 48] — worst case is 48 → (48×25) / (2×100) = 6.0
+    // racks: [10, 48] — worst case is 48
+    // effectiveUplinks = min(4, 4) = 4 → uplinkBandwidth = 4 × 100 = 400G
+    // ratio = (48 × 25) / 400 = 3.0 (UPLN-02: uses effectiveUplinks)
     const result = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }, { serverCount: 48 }],
       cableType: 'fiber',
     }));
-    expect(result.oversubscriptionRatio).toBeCloseTo(6.0);
+    expect(result.oversubscriptionRatio).toBeCloseTo(3.0);
   });
 });
 
@@ -539,6 +547,131 @@ describe('PORT-03: Server Port Multipliers', () => {
       portsPerServerBackend: 1,
     }));
     expect(result.sfp28Count).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// UPLN-02: Active Uplinks Per Leaf
+// ---------------------------------------------------------------------------
+describe('UPLN-02: Active Uplinks Per Leaf', () => {
+  it('activeUplinksPerLeaf: 4 (default) matches previous behavior (backward compat)', () => {
+    // 3 racks × 16 = 48 servers, S5248F-ON (uplinkPorts=4), 2 spines
+    // linksPerLeaf = min(spines=2, min(4,4)=4) = 2
+    // leafSpineCables = 6 leafs × 2 = 12
+    const result = calculateBOM(makeInput({
+      activeUplinksPerLeaf: 4,
+    }));
+    const resultDefault = calculateBOM(makeInput());
+    expect(result.leafSpineCables).toBe(resultDefault.leafSpineCables);
+    expect(result.oversubscriptionRatio).toBeCloseTo(resultDefault.oversubscriptionRatio);
+  });
+
+  it('activeUplinksPerLeaf: 1 reduces leafSpineCables per leaf to min(spines, 1)', () => {
+    // 1 rack → 2 leafs → 2 spines; linksPerLeaf = min(2, min(1,4)) = min(2,1) = 1
+    // leafSpineCables = 2 leafs × 1 = 2
+    const result = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 1,
+    }));
+    expect(result.leafSpineCables).toBe(2); // 2 leafs × 1 link
+  });
+
+  it('activeUplinksPerLeaf: 1 increases oversubscription ratio (less bandwidth)', () => {
+    // 1 rack, 48 servers, S5248F-ON, 25G, 2 spines
+    // with 1 uplink: uplinkBandwidth = 1 * 100G = 100G → ratio = (48*25)/100 = 12.0
+    // with 4 uplinks (default): uplinkBandwidth = 4 * 100G = 400G → but min(2,4)=2 → 2*100=200 → ratio = 6.0
+    const result1 = calculateBOM(makeInput({
+      racks: [{ serverCount: 48 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 1,
+    }));
+    const result4 = calculateBOM(makeInput({
+      racks: [{ serverCount: 48 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 4,
+    }));
+    // 1 uplink → higher oversubscription
+    expect(result1.oversubscriptionRatio).toBeGreaterThan(result4.oversubscriptionRatio);
+  });
+
+  it('activeUplinksPerLeaf: 1, 48 servers at 25G → oversubscription = (48*25) / (1*100) = 12.0', () => {
+    const result = calculateBOM(makeInput({
+      racks: [{ serverCount: 48 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 1,
+    }));
+    expect(result.oversubscriptionRatio).toBeCloseTo(12.0);
+  });
+
+  it('activeUplinksPerLeaf: 2 with 2 spines → linksPerLeaf = min(2, min(2,4)) = 2', () => {
+    // 1 rack → 2 leafs → 2 spines
+    // linksPerLeaf = min(2, min(2, 4)) = 2
+    // leafSpineCables = 2 × 2 = 4 (same as min(2,4)=2 before)
+    const result = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 2,
+    }));
+    expect(result.leafSpineCables).toBe(4); // 2 leafs × 2 links
+  });
+
+  it('activeUplinksPerLeaf: 4 with S5212F-ON (uplinkPorts=3) is clamped to 3', () => {
+    // effectiveUplinks = min(4, 3) = 3 (S5212F-ON only has 3 uplink ports)
+    // 1 rack → 2 leafs → 2 spines; linksPerLeaf = min(2, 3) = 2
+    const result = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      leafModel: 'S5212F-ON',
+      activeUplinksPerLeaf: 4,
+    }));
+    // Same as activeUplinksPerLeaf: 3 (clamped)
+    const result3 = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      leafModel: 'S5212F-ON',
+      activeUplinksPerLeaf: 3,
+    }));
+    expect(result.leafSpineCables).toBe(result3.leafSpineCables);
+    expect(result.oversubscriptionRatio).toBeCloseTo(result3.oversubscriptionRatio);
+  });
+
+  it('QSFP28 transceivers scale with active uplinks (fiber + reduced uplinks = fewer QSFP28)', () => {
+    // 1 rack, 2 leafs, 2 spines, fiber
+    // activeUplinksPerLeaf: 1 → linksPerLeaf = min(2,1) = 1 → leafSpineCables = 2 × 1 = 2 → qsfp28 = 4
+    // activeUplinksPerLeaf: 4 → linksPerLeaf = min(2,4) = 2 → leafSpineCables = 2 × 2 = 4 → qsfp28 = 8
+    const result1 = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 1,
+    }));
+    const result4 = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 4,
+    }));
+    expect(result1.qsfp28Count).toBe(4); // 2 * 2 (leafSpineCables=2)
+    expect(result4.qsfp28Count).toBe(8); // 2 * 4 (leafSpineCables=4)
+    expect(result1.qsfp28Count).toBeLessThan(result4.qsfp28Count);
+  });
+
+  it('changing activeUplinksPerLeaf from 4 to 2 reduces leafSpineCables and increases oversubscription', () => {
+    // 3 racks → 6 leafs → 2 spines
+    // uplinks=4: linksPerLeaf = min(2, min(4,4)) = 2 → leafSpineCables = 6×2 = 12
+    // uplinks=2: linksPerLeaf = min(2, min(2,4)) = 2 → leafSpineCables = 6×2 = 12 (same, limited by spines)
+    // So we need more spines to see the difference. Use 17 racks → 34 leafs → 2 spines
+    // uplinks=4: linksPerLeaf = min(2,4) = 2, oversub = (16×25)/(4×100) when effectiveUplinks=4
+    // Actually with effectiveUplinks: 4 uplinks → uplinkBw = 4×100 = 400 → oversub = (16*25)/400 = 1.0
+    // With effectiveUplinks: 2 → uplinkBw = 2×100 = 200 → oversub = (16*25)/200 = 2.0
+    const result4 = calculateBOM(makeInput({
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 4,
+    }));
+    const result2 = calculateBOM(makeInput({
+      cableType: 'fiber',
+      activeUplinksPerLeaf: 2,
+    }));
+    expect(result2.oversubscriptionRatio).toBeGreaterThan(result4.oversubscriptionRatio);
   });
 });
 

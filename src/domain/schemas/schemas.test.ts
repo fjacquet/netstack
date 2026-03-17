@@ -393,6 +393,51 @@ describe('SizingInputSchema — portsPerServerBackend validation', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// UPLN-02: activeUplinksPerLeaf validation
+// ---------------------------------------------------------------------------
+describe('SizingInputSchema — activeUplinksPerLeaf validation', () => {
+  it('accepts activeUplinksPerLeaf: 1 (minimum)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      activeUplinksPerLeaf: 1,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts activeUplinksPerLeaf: 8 (maximum)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      activeUplinksPerLeaf: 8,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects activeUplinksPerLeaf: 0 (below min)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      activeUplinksPerLeaf: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects activeUplinksPerLeaf: 9 (above max)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      activeUplinksPerLeaf: 9,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('activeUplinksPerLeaf defaults to 4 when omitted', () => {
+    const result = SizingInputSchema.safeParse({ ...baseInput });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.activeUplinksPerLeaf).toBe(4);
+    }
+  });
+});
+
 describe('SwitchSpecSchema — runtime catalog validation', () => {
   it('validates a correct switch spec entry', () => {
     const result = SwitchSpecSchema.safeParse({

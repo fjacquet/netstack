@@ -10,6 +10,7 @@ describe('resultStore (derived from inputStore)', () => {
         racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
         portsPerServerFrontend: 1,
         portsPerServerBackend: 1,
+        activeUplinksPerLeaf: 4,
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
