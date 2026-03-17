@@ -77,6 +77,22 @@ export const SWITCH_CATALOG = {
   },
 
   /**
+   * S5296F-ON — High-density Leaf switch (25G ToR, 2U)
+   * 96 × 25GbE SFP28 server-facing + 8 × 100GbE QSFP28 spine uplinks
+   * Double density of S5248F-ON — ideal for high-density racks
+   */
+  'S5296F-ON': {
+    modelId: 'S5296F-ON',
+    role: 'leaf',
+    downlinkPorts: 96,
+    downlinkSpeedGbE: 25,
+    uplinkPorts: 8,
+    uplinkSpeedGbE: 100,
+    maxPowerW: 893,
+    switchingCapacityTbps: 6.4,
+  },
+
+  /**
    * S3248T-ON — OOB Management switch (1G)
    * 48 × 1GbE RJ45 + 4 × 10GbE SFP+ uplinks + 2 × 100GbE QSFP28
    * OOB saturation threshold: serversPerRack + 2 (servers + 2 ToR leafs) > 48

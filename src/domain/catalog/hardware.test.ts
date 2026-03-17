@@ -3,9 +3,9 @@ import { SWITCH_CATALOG } from './hardware';
 import { CABLE_CATALOG } from './cables';
 
 describe('SWITCH_CATALOG — model existence', () => {
-  it('contains exactly 5 models', () => {
+  it('contains exactly 6 models', () => {
     const models = Object.keys(SWITCH_CATALOG);
-    expect(models).toHaveLength(5);
+    expect(models).toHaveLength(6);
     expect(models).toContain('S5248F-ON');
     expect(models).toContain('S5232F-ON');
     expect(models).toContain('S5224F-ON');

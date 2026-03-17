@@ -22,9 +22,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
-const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
+const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON'] as const
 const SPINE_MODELS = ['S5232F-ON'] as const
-const BORDER_LEAF_OPTIONS = ['none', 'S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
+const BORDER_LEAF_OPTIONS = ['none', 'S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON'] as const
 const RACK_SIZES = ['24U', '42U', '50U'] as const
 
 /**
@@ -39,9 +39,9 @@ interface FormValues {
   rackCount: number
   connectivityType: '25G' | '100G'
   cableType: 'DAC' | 'AOC' | 'fiber'
-  leafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON'
+  leafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'S5296F-ON'
   spineModel: 'S5232F-ON'
-  borderLeafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'none'
+  borderLeafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'S5296F-ON' | 'none'
   borderLeafCount: number
   rackSize: '24U' | '42U' | '50U'
 }

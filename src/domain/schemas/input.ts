@@ -36,11 +36,11 @@ export const SizingInputSchema = z.object({
   /** Cable type used for all inter-device connections */
   cableType: z.enum(['DAC', 'AOC', 'fiber']),
   /** Leaf switch model — only leaf-role models are valid (excludes spine and OOB) */
-  leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON']),
+  leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON']),
   /** Spine switch model — currently only S5232F-ON, extensible for future models */
   spineModel: z.enum(['S5232F-ON']),
   /** Border leaf switch model — same leaf models, used for WAN/uplink connectivity */
-  borderLeafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'none']),
+  borderLeafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON', 'none']),
   /** Number of border leaf switches (0 = no border leafs, typically 2 for redundancy) */
   borderLeafCount: z.number().int().min(0).max(4),
   /** Rack unit height — standard rack sizes */
