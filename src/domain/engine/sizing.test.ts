@@ -17,6 +17,7 @@ describe('SIZE-02: Rack Count', () => {
       serversPerRack: 3,
       connectivityType: '25G',
       cableType: 'DAC',
+      leafModel: 'S5248F-ON',
     });
     expect(result.racks).toBe(4);
   });
@@ -27,6 +28,7 @@ describe('SIZE-02: Rack Count', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'AOC',
+      leafModel: 'S5248F-ON',
     });
     expect(result.racks).toBe(5);
   });
@@ -37,6 +39,7 @@ describe('SIZE-02: Rack Count', () => {
       serversPerRack: 48,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.racks).toBe(1);
   });
@@ -52,6 +55,7 @@ describe('SIZE-03: Leaf Count', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSwitches).toBe(4);
   });
@@ -62,6 +66,7 @@ describe('SIZE-03: Leaf Count', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSwitches).toBe(2);
   });
@@ -72,6 +77,7 @@ describe('SIZE-03: Leaf Count', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSwitches).toBe(10);
   });
@@ -87,6 +93,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.spineSwitches).toBe(4);
   });
@@ -97,6 +104,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.spineSwitches).toBe(4);
   });
@@ -107,6 +115,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.spineSwitches).toBe(5);
   });
@@ -117,6 +126,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.spineSwitches).not.toBe(2);
     expect(result.spineSwitches).toBeGreaterThanOrEqual(4);
@@ -129,6 +139,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     const violation = result.violations.find(v => v.code === 'SPINE_CAPACITY_EXCEEDED');
     expect(violation).toBeDefined();
@@ -145,6 +156,7 @@ describe('SIZE-04: Spine Scaling', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     const violation = result.violations.find(v => v.code === 'SPINE_CAPACITY_EXCEEDED');
     expect(violation).toBeUndefined();
@@ -161,6 +173,7 @@ describe('SIZE-05: OOB Switches', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oobSwitches).toBe(1);
   });
@@ -171,6 +184,7 @@ describe('SIZE-05: OOB Switches', () => {
       serversPerRack: 46,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oobSwitches).toBe(1);
     const oobViolation = result.violations.find(v => v.code === 'OOB_PORT_SATURATION');
@@ -183,6 +197,7 @@ describe('SIZE-05: OOB Switches', () => {
       serversPerRack: 47,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oobSwitches).toBe(2);
     const oobViolation = result.violations.find(v => v.code === 'OOB_PORT_SATURATION');
@@ -199,6 +214,7 @@ describe('SIZE-05: OOB Switches', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oobSwitches).toBe(3);
   });
@@ -214,6 +230,7 @@ describe('SIZE-06: Pure Function', () => {
       serversPerRack: 10,
       connectivityType: '25G' as const,
       cableType: 'fiber' as const,
+      leafModel: 'S5248F-ON' as const,
     };
     const result1 = calculateBOM(input);
     const result2 = calculateBOM(input);
@@ -231,6 +248,7 @@ describe('Cable Quantities (link-based model)', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSpineCables).toBe(8);
   });
@@ -241,6 +259,7 @@ describe('Cable Quantities (link-based model)', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSpineCables).toBe(16);
   });
@@ -251,6 +270,7 @@ describe('Cable Quantities (link-based model)', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.leafSpineCables).toBe(32);
   });
@@ -261,6 +281,7 @@ describe('Cable Quantities (link-based model)', () => {
       serversPerRack: 12,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.serverLeafCables).toBe(48);
   });
@@ -271,6 +292,7 @@ describe('Cable Quantities (link-based model)', () => {
       serversPerRack: 12,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     // 4 racks → 8 leafs; serverOobCables = 48 + 8 = 56
     expect(result.serverOobCables).toBe(56);
@@ -288,6 +310,7 @@ describe('Oversubscription Ratio', () => {
       serversPerRack: 48,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oversubscriptionRatio).toBeCloseTo(3.0);
   });
@@ -298,6 +321,7 @@ describe('Oversubscription Ratio', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oversubscriptionRatio).toBeCloseTo(0.625);
   });
@@ -308,6 +332,7 @@ describe('Oversubscription Ratio', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.oversubscriptionRatio).toBeDefined();
     expect(typeof result.oversubscriptionRatio).toBe('number');
@@ -324,6 +349,7 @@ describe('DAC Distance Advisory', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'DAC',
+      leafModel: 'S5248F-ON',
     });
     // 9 racks > 8 → violation
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
@@ -340,6 +366,7 @@ describe('DAC Distance Advisory', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'DAC',
+      leafModel: 'S5248F-ON',
     });
     // 8 racks ≤ 8 → no violation
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
@@ -352,6 +379,7 @@ describe('DAC Distance Advisory', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'AOC',
+      leafModel: 'S5248F-ON',
     });
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(violation).toBeUndefined();
@@ -368,8 +396,27 @@ describe('Input in BOM', () => {
       serversPerRack: 20,
       connectivityType: '25G' as const,
       cableType: 'fiber' as const,
+      leafModel: 'S5248F-ON' as const,
     };
     const result = calculateBOM(input);
     expect(result.input).toEqual(input);
   });
 });
+
+// ---------------------------------------------------------------------------
+// leafModel selection
+// ---------------------------------------------------------------------------
+describe('leafModel selection', () => {
+  it('uses S5224F-ON when selected (3 racks → 6 leafs)', () => {
+    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5224F-ON' })
+    // S5224F-ON has uplinkPorts=4, same as S5248F-ON, so cable count is same
+    // But oversubscription uses downlinkSpeedGbE=25 and the selected leaf's properties
+    expect(bom.leafSwitches).toBe(6) // 3 racks * 2
+  })
+
+  it('uses S5212F-ON uplinkPorts (3) for cable calculations', () => {
+    const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5212F-ON' })
+    // S5212F-ON has uplinkPorts=3, so leafSpineCables = leafSwitches * 3
+    expect(bom.leafSpineCables).toBe(bom.leafSwitches * 3)
+  })
+})

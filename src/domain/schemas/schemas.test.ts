@@ -93,6 +93,29 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
   });
 });
 
+describe('SizingInputSchema leafModel', () => {
+  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const }
+
+  it('accepts S5248F-ON', () => {
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5248F-ON' }).success).toBe(true)
+  })
+  it('accepts S5224F-ON', () => {
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5224F-ON' }).success).toBe(true)
+  })
+  it('accepts S5212F-ON', () => {
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5212F-ON' }).success).toBe(true)
+  })
+  it('rejects spine model S5232F-ON', () => {
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5232F-ON' }).success).toBe(false)
+  })
+  it('rejects OOB model S3248T-ON', () => {
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S3248T-ON' }).success).toBe(false)
+  })
+  it('requires leafModel field', () => {
+    expect(SizingInputSchema.safeParse(baseInput).success).toBe(false)
+  })
+})
+
 describe('ConstraintViolationSchema — OOB_PORT_SATURATION variant', () => {
   it('accepts OOB_PORT_SATURATION with required and available fields', () => {
     const result = ConstraintViolationSchema.safeParse({
@@ -169,6 +192,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         serversPerRack: 20,
         connectivityType: '25G',
         cableType: 'DAC',
+        leafModel: 'S5248F-ON',
       },
     };
     const result = NetworkBOMSchema.safeParse(validBOM);
@@ -193,6 +217,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         serversPerRack: 47,
         connectivityType: '25G',
         cableType: 'DAC',
+        leafModel: 'S5248F-ON',
       },
     };
     const result = NetworkBOMSchema.safeParse(bomWithViolations);
