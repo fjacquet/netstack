@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A network sizing calculator that automates the design of Dell Leaf-Spine + OOB infrastructure for server rack deployments running SONiC. Engineers input their server count and connectivity requirements, and the tool outputs a complete Bill of Materials with visual topology and rack elevation diagrams. Built as a React web app with a visual dashboard.
+A client-side network sizing calculator for Dell Leaf-Spine + OOB infrastructure running SONiC. Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser app deployed to GitHub Pages.
 
 ## Core Value
 
@@ -12,62 +12,68 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Pure sizing engine: `calculateBOM(SizingInput) => NetworkBOM` — v1.0
+- ✓ Input form: server count, servers per rack, connectivity, cable type, leaf/spine/border model, rack size — v1.0
+- ✓ Rack/leaf/spine/OOB calculations with correct formulas — v1.0
+- ✓ Selectable cable type (DAC/AOC/fiber) with SFP28 LC / QSFP28 MPO transceivers — v1.0
+- ✓ VLT interconnect cables (2 per leaf pair) — v1.0
+- ✓ Extensible hardware catalog (5 Dell models, JSON override) — v1.0
+- ✓ Interactive topology diagram (@xyflow/react) with rack-based layout — v1.0
+- ✓ Rack elevation view with server + network racks, drag-to-reorder — v1.0
+- ✓ BOM panel with oversubscription badge, port utilization, violation alerts — v1.0
+- ✓ Export: CSV (UTF-8 BOM), PDF (Helvetica), Print (light mode auto-fit) — v1.0
+- ✓ Zod validation for physical limits — v1.0
+- ✓ Light/dark mode with system preference detection — v1.0
+- ✓ Internationalization: FR, EN, DE, IT — v1.0
+- ✓ GitHub Pages deployment via GitHub Actions — v1.0
+- ✓ Border leaf switches for WAN connectivity — v1.0
+- ✓ Rack sizes: 24U, 42U, 50U — v1.0
 
-### Active
+### Active (v2 candidates)
 
-- [ ] Pure sizing engine: `(Input) => NetworkBillOfMaterial`
-- [ ] Input form: server count, servers per rack, connectivity type (25G/100G)
-- [ ] Rack calculation: `ceil(total_servers / servers_per_rack)`
-- [ ] Leaf calculation: `2 × N_racks` (redundant ToR pair)
-- [ ] Spine calculation: scales with leaf count (not fixed pair)
-- [ ] OOB (S3248T) calculation: `1 × N_racks` with port saturation alerts (>48)
-- [ ] User selects cable type (DAC/AOC/fiber), tool calculates quantities
-- [ ] Extensible hardware catalog (starts with S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
-- [ ] Visual topology diagram (Leaf-Spine connections)
-- [ ] Rack elevation view (physical device placement)
-- [ ] BOM summary table with per-model quantities
-- [ ] Export: CSV, PDF report, JSON
-- [ ] Save/load configurations via browser localStorage
-- [ ] Zod validation for physical limits (port counts, cable compatibility)
-- [ ] Light/dark mode theme support
-- [ ] Internationalization (i18n): FR, EN, DE, IT
-- [ ] GitHub Pages deployment (static SPA with CI/CD)
+- [ ] Selectable number of uplinks per switch (GH issue #5)
+- [ ] Save/load named configurations
+- [ ] JSON export
+- [ ] Multi-pod support for large deployments
+- [ ] Power budget calculation per rack
+- [ ] Weight/cooling estimates
 
 ### Out of Scope
 
-- Multi-site / multi-datacenter in a single session — single site focus for v1
-- BGP/VLAN configuration — this is physical sizing only
+- Multi-site / multi-datacenter — single site focus
+- BGP/VLAN configuration — physical sizing only
 - Real-time pricing / procurement integration — BOM is quantities only
-- Mobile app — web-first
-- CLI-only mode — dashboard is the primary interface
-- SONiC configuration generation — out of scope, separate tool
+- Mobile app — web-first (PWA works)
+- SONiC configuration generation — separate tool
+- Backend / user accounts — pure client-side
 
 ## Context
 
-- Target hardware: Dell S5248F-ON (Leaf 48×25G), S5232F-ON (Spine 32×100G), S5224F-ON (Leaf 24×25G), S5212F-ON (Leaf 12×25G), S3248T-ON (OOB 48×1G)
-- All switches run SONiC OS
-- Leaf-Spine is the only supported topology
-- OOB network uses dedicated S3248T management switches
-- Standard redundancy: dual ToR leafs per rack
-- Hardware catalog must be extensible for future Dell models
+Shipped v1.0 with 6,990 LOC TypeScript, 144 tests, 50 commits.
+Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflow/react, @react-pdf/renderer.
+5 Dell PowerSwitch models: S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON.
 
 ## Constraints
 
-- **Tech stack**: Vite 8 + React 19 + TypeScript strict + Zustand v5 + Zod — per engineering constitution
-- **No `any`**: TypeScript strict mode, all equipment modeled with interfaces
-- **Immutability**: Sizing engine must be pure functions, no side effects
-- **Hardware source of truth**: Switch specs centralized in constants (ports, speeds, power)
+- **Tech stack**: Vite 6 + React 19 + TypeScript strict + Zustand v5 + Zod v4
+- **No `any`**: TypeScript strict mode
+- **Immutability**: Sizing engine is a pure function
+- **Hardware source of truth**: Switch specs in `SWITCH_CATALOG` constants
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Spine scales with leaf count | Fixed 2-spine won't work for large deployments (>32 leafs) | — Pending |
-| User selects cable type | Different environments use different cabling (DAC vs AOC vs fiber) | — Pending |
-| Extensible hardware catalog | Future Dell models need to be addable without code changes | — Pending |
-| Browser localStorage for persistence | Simple, no backend needed, sufficient for single-user tool | — Pending |
-| Both topology + rack elevation views | Engineers need logical view (topology) and physical view (rack) | — Pending |
+| Spine min 2 (redundancy) | Fixed 4-spine was overkill for small deployments | ✓ Good |
+| Leaf-spine cables = leafs × min(spines, uplinks) | Each leaf connects to each spine once | ✓ Good |
+| SFP28 LC (25G) / QSFP28 MPO (100G) | Correct fiber connector types per link speed | ✓ Good |
+| VLT 2 cables per leaf pair | Standard Dell VLT interconnect | ✓ Good |
+| Extensible hardware catalog with JSON override | Future models addable without code changes | ✓ Good |
+| Browser localStorage for persistence | Simple, no backend, single-user tool | ✓ Good |
+| Built-in Helvetica for PDF | Avoids font loading issues, always available | ✓ Good |
+| Export buttons in header (not tab) | Saves screen space, always accessible | ✓ Good |
+| Inline theme script in index.html | Prevents flash-of-wrong-theme before React renders | ✓ Good |
+| Zustand persist with version + merge | Handles schema evolution without breaking cached data | ✓ Good |
 
 ---
-*Last updated: 2026-03-16 after initialization*
+*Last updated: 2026-03-17 after v1.0 milestone*
