@@ -5,6 +5,7 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
 /** Minimal mock BOM: 48 servers, 16/rack, S5248F-ON leaf */
 const mockBOM: NetworkBOM = {
   racks: 3,
+  networkRacks: 1,
   leafSwitches: 6,
   spineSwitches: 4,
   oobSwitches: 3,

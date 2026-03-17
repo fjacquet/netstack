@@ -16,6 +16,7 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
  */
 const mockBOM: NetworkBOM = {
   racks: 3,
+  networkRacks: 1,
   leafSwitches: 6,
   spineSwitches: 2,
   oobSwitches: 3,
@@ -42,9 +43,9 @@ const mockBOM: NetworkBOM = {
 }
 
 describe('buildTopologyGraph', () => {
-  it('returns correct total node count for 3 racks (2 spine + 6 leaf + 3 rack + 3 OOB = 14)', () => {
+  it('returns correct total node count for 3 racks (2 spine + 6 leaf + 3 rack + 3 OOB + 1 network rack = 15)', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
-    expect(nodes).toHaveLength(14)
+    expect(nodes).toHaveLength(15)
   })
 
   it('returns correct spine node count', () => {

@@ -46,7 +46,7 @@ export function SwitchNode({ data }: NodeProps<SwitchNodeType>) {
         borderColor,
       ].join(' ')}
     >
-      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Bottom} />
       <div className="flex flex-col items-center gap-0.5">
         <Icon size={18} className="text-foreground/70" />
         <span className="font-mono text-[12px] leading-tight text-foreground/90 text-center">
@@ -59,7 +59,7 @@ export function SwitchNode({ data }: NodeProps<SwitchNodeType>) {
           {data.usedPorts}/{data.totalPorts} ports
         </span>
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Top} />
     </div>
   )
 }

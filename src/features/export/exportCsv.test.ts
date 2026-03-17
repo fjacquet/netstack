@@ -4,6 +4,7 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
 
 const mockBom: NetworkBOM = {
   racks: 2,
+  networkRacks: 1,
   leafSwitches: 4,
   spineSwitches: 2,
   oobSwitches: 1,

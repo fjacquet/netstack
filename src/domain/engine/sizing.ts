@@ -53,6 +53,12 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const borderLeafSwitches =
     input.borderLeafModel !== 'none' ? input.borderLeafCount : 0;
 
+  // ─── Network Racks (for spines + border leafs) ──────────────────────────
+  // 1U per switch, typically 1 rack holds all network devices
+  const rackSizeU = parseInt(input.rackSize)
+  const networkDeviceCount = spineSwitches + borderLeafSwitches
+  const networkRacks = networkDeviceCount > 0 ? Math.ceil(networkDeviceCount / rackSizeU) : 0;
+
   // ─── Cable Quantities (link model, not port sum) ──────────────────────────
   // leafSpineCables: each leaf connects to each spine once (1 link per leaf-spine pair)
   // limited by leaf uplink ports if fewer than spine count
@@ -114,6 +120,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
 
   return {
     racks,
+    networkRacks,
     leafSwitches,
     spineSwitches,
     oobSwitches,

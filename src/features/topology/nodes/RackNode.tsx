@@ -13,14 +13,14 @@ type RackNodeType = Node<RackNodeData, 'rackNode'>
 export function RackNode({ data }: NodeProps<RackNodeType>) {
   return (
     <div className="rounded-lg bg-secondary border border-border p-2 min-w-[100px] shadow-sm hover:shadow-md transition-shadow cursor-pointer select-none">
-      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Top} />
       <div className="flex flex-col items-center gap-0.5">
         <Server size={18} className="text-foreground/70" />
         <span className="text-[12px] font-semibold leading-tight text-foreground text-center">
-          Rack {data.rackIndex + 1}
+          {data.label ?? `Rack ${data.rackIndex + 1}`}
         </span>
         <span className="text-[12px] leading-tight text-muted-foreground text-center">
-          {data.serverCount} servers
+          {data.label ? `${data.serverCount} switches` : `${data.serverCount} servers`}
         </span>
       </div>
     </div>

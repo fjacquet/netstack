@@ -23,6 +23,7 @@ vi.mock('react-i18next', () => ({
 function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
   return {
     racks: 3,
+    networkRacks: 1,
     leafSwitches: 6,
     spineSwitches: 4,
     oobSwitches: 3,

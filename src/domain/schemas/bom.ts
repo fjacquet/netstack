@@ -43,8 +43,10 @@ export type ConstraintViolation = z.infer<typeof ConstraintViolationSchema>;
  * oversubscriptionRatio is required from day one — adding it later breaks all consumers.
  */
 export const NetworkBOMSchema = z.object({
-  /** Number of racks: ceil(totalServers / serversPerRack) */
+  /** Number of server racks: ceil(totalServers / serversPerRack) */
   racks: z.number().int().min(0),
+  /** Number of network racks for spines + border leafs (typically 1) */
+  networkRacks: z.number().int().min(0),
   /** Number of leaf switches: 2 × racks (redundant ToR pair) */
   leafSwitches: z.number().int().min(0),
   /** Number of spine switches: max(uplinkPorts, ceil(leafSwitches / spinePortCount)) */

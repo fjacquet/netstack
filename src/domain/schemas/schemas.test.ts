@@ -193,6 +193,7 @@ describe('ConstraintViolationSchema — DAC_DISTANCE_ADVISORY variant', () => {
 describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
   it('accepts a complete valid BOM object', () => {
     const validBOM = {
+      networkRacks: 1,
       racks: 5,
       leafSwitches: 10,
       spineSwitches: 4,
@@ -224,6 +225,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
 
   it('accepts a BOM with constraint violations', () => {
     const bomWithViolations = {
+      networkRacks: 1,
       racks: 10,
       leafSwitches: 20,
       spineSwitches: 4,

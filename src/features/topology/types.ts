@@ -11,6 +11,7 @@ export type SwitchNodeData = {
 export type RackNodeData = {
   rackIndex: number
   serverCount: number
+  label?: string
 }
 
 export type TopologyGraphResult = {
