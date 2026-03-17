@@ -73,8 +73,8 @@ Plans:
 **Plans:** 2/2 plans complete
 Plans:
 
-- [ ] 03-01-PLAN.md — Install shadcn components (table, alert, tooltip, progress), extend alert/progress, add TooltipProvider, populate BOM i18n keys
-- [ ] 03-02-PLAN.md — Build BOMPanel component with switches/cables tables, oversubscription badge, port utilization bars, violation alerts, and tests
+- [x] 03-01-PLAN.md — Install shadcn components (table, alert, tooltip, progress), extend alert/progress, add TooltipProvider, populate BOM i18n keys
+- [x] 03-02-PLAN.md — Build BOMPanel component with switches/cables tables, oversubscription badge, port utilization bars, violation alerts, and tests
 
 ### Phase 4: Visualization, Export and Documentation
 
@@ -94,7 +94,14 @@ Plans:
   9. PRD formalizes all v1 requirements with acceptance criteria
   10. User Guide explains how to size a deployment, interpret the BOM, and export results
   11. Changelog records v1.0 as the first entry with delivered features
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+
+- [ ] 04-01-PLAN.md — Install packages, shadcn components, type contracts, saturation helper, and i18n keys
+- [ ] 04-02-PLAN.md — Interactive topology diagram with @xyflow/react, custom nodes, and PNG capture
+- [ ] 04-03-PLAN.md — Rack elevation view with device visualization, drag-to-reorder, and rack selector
+- [ ] 04-04-PLAN.md — CSV/PDF export, print stylesheet, and export tab UI
+- [ ] 04-05-PLAN.md — Project documentation (ARD, PRD, User Guide, Changelog)
 
 ## Progress
 
@@ -106,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
 | 2. App Shell and Input Form | 3/3 | Complete   | 2026-03-17 |
 | 3. BOM Output and Metrics | 2/2 | Complete   | 2026-03-17 |
-| 4. Visualization, Export and Documentation | 0/TBD | Not started | - |
+| 4. Visualization, Export and Documentation | 0/5 | Planning complete | - |
