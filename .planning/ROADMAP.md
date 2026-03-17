@@ -14,7 +14,7 @@ NetStack is built domain-first: the pure sizing engine is validated in isolation
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Domain Engine** - Pure sizing logic and hardware catalog — no UI, fully testable in isolation (completed 2026-03-16)
-- [ ] **Phase 2: App Shell and Input Form** - Project scaffold, Zustand stores, and parameterized input form
+- [x] **Phase 2: App Shell and Input Form** - Project scaffold, Zustand stores, and parameterized input form (completed 2026-03-17)
 - [ ] **Phase 3: BOM Output and Metrics** - Switch/cable quantities, oversubscription ratios, port saturation alerts
 - [ ] **Phase 4: Visualization, Export and Documentation** - Topology diagram, rack elevation, CSV/PDF/print export, ARD, PRD, user guide, changelog
 
@@ -52,7 +52,7 @@ Plans:
   4. Language switcher changes the UI language between FR, EN, DE, and IT without data loss
   5. Layout is usable on tablet-width viewports (768px+) and desktop viewports (1280px+)
   6. GitHub Actions workflow builds and deploys the app to GitHub Pages on push to main
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 
 - [ ] 02-01-PLAN.md — Project scaffold (React + Vite + shadcn/ui) and domain schema extension for leafModel
@@ -100,6 +100,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
-| 2. App Shell and Input Form | 2/3 | In Progress|  |
+| 2. App Shell and Input Form | 3/3 | Complete   | 2026-03-17 |
 | 3. BOM Output and Metrics | 0/TBD | Not started | - |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |
