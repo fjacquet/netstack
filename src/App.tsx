@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { PlaceholderTab } from '@/features/placeholder/PlaceholderTab'
@@ -62,7 +63,9 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="netstack-theme">
-      <AppContent />
+      <TooltipProvider delayDuration={300}>
+        <AppContent />
+      </TooltipProvider>
     </ThemeProvider>
   )
 }
