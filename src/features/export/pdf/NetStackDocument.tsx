@@ -1,4 +1,4 @@
-import { Document, Font } from '@react-pdf/renderer'
+import { Document } from '@react-pdf/renderer'
 import type { NetworkBOM } from '@/domain/schemas/bom'
 import { CoverPage } from './CoverPage'
 import { InputsPage } from './InputsPage'
@@ -6,15 +6,7 @@ import { BOMPage } from './BOMPage'
 import { TopologyPage } from './TopologyPage'
 import { ViolationsPage } from './ViolationsPage'
 
-// Register Inter font — must use full absolute URL for @react-pdf/renderer's fetch
-const fontBase = `${window.location.origin}${import.meta.env.BASE_URL ?? '/'}`
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: `${fontBase}fonts/inter-regular.ttf`, fontWeight: 400 },
-    { src: `${fontBase}fonts/inter-semibold.ttf`, fontWeight: 600 },
-  ],
-})
+// Uses built-in Helvetica / Helvetica-Bold — no Font.register needed
 
 interface NetStackDocumentProps {
   bom: NetworkBOM

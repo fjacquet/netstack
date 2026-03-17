@@ -29,6 +29,7 @@
     "selectBorderLeaf": "Border-Leaf-Modell waehlen",
     "borderLeafNone": "Keines (kein Border-Leaf)",
     "borderLeafCount": "Anzahl Border-Leaf",
+    "resetButton": "Zurücksetzen",
     "rackSize": "Rack-Groesse",
     "selectRackSize": "Rack-Groesse waehlen"
   },

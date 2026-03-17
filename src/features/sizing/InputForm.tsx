@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
@@ -30,8 +31,8 @@ const RACK_SIZES = ['24U', '42U', '50U'] as const
 
 export function InputForm() {
   const { t } = useTranslation()
-  const { input, setInput } = useInputStore(
-    useShallow((s) => ({ input: s.input, setInput: s.setInput }))
+  const { input, setInput, resetInput } = useInputStore(
+    useShallow((s) => ({ input: s.input, setInput: s.setInput, resetInput: s.resetInput }))
   )
 
   // CRITICAL: Do NOT pass generic type argument to useForm with Zod v4
@@ -340,6 +341,29 @@ export function InputForm() {
                 </FormItem>
               )}
             />
+            {/* Reset button */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+              onClick={() => {
+                resetInput()
+                form.reset({
+                  totalServers: 48,
+                  serversPerRack: 16,
+                  connectivityType: '25G',
+                  cableType: 'DAC',
+                  leafModel: 'S5248F-ON',
+                  spineModel: 'S5232F-ON',
+                  borderLeafModel: 'none',
+                  borderLeafCount: 0,
+                  rackSize: '42U',
+                })
+              }}
+            >
+              {t('sizing.resetButton')}
+            </Button>
           </form>
         </Form>
       </CardContent>

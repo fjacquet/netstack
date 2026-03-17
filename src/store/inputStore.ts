@@ -6,6 +6,7 @@ import type { SizingInput } from '@/domain/schemas/input'
 interface InputState {
   input: SizingInput
   setInput: (partial: Partial<SizingInput>) => void
+  resetInput: () => void
 }
 
 const DEFAULT_INPUT: SizingInput = {
@@ -60,10 +61,20 @@ export const useInputStore = create<InputState>()(
       input: DEFAULT_INPUT,
       setInput: (partial) =>
         set((state) => ({ input: { ...state.input, ...partial } })),
+      resetInput: () => set({ input: DEFAULT_INPUT }),
     }),
     {
       name: 'netstack-input',
+      version: 2,
       storage: lazyLocalStorage,
+      // Merge persisted state with defaults so new fields get default values
+      merge: (persisted, current) => ({
+        ...current,
+        input: {
+          ...DEFAULT_INPUT,
+          ...((persisted as Partial<InputState>)?.input ?? {}),
+        },
+      }),
     }
   )
 )

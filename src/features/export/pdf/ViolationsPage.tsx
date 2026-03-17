@@ -4,7 +4,7 @@ import type { ConstraintViolation } from '@/domain/schemas/bom'
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontFamily: 'Inter',
+    fontFamily: 'Helvetica',
     fontSize: 12,
     backgroundColor: '#ffffff',
     color: '#111111',
