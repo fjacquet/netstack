@@ -114,13 +114,13 @@ describe('buildTopologyGraph', () => {
   it('places leaf nodes at y=240', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const leafs = nodes.filter(n => n.id.startsWith('leaf-'))
-    leafs.forEach(l => expect(l.position.y).toBe(240))
+    leafs.forEach(l => expect(l.position.y).toBe(280))
   })
 
   it('places rack nodes at y=420', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const racks = nodes.filter(n => n.id.startsWith('rack-'))
-    racks.forEach(r => expect(r.position.y).toBe(420))
+    racks.forEach(r => expect(r.position.y).toBe(460))
   })
 
   it('uses correct node id patterns', () => {

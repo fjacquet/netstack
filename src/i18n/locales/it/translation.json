@@ -130,6 +130,7 @@
     "roleLeaf": "Leaf (ToR)",
     "roleSpine": "Spine",
     "roleOob": "OOB",
+    "roleBorderLeaf": "Border Leaf",
     "cableCategoryDac": "DAC — Direct Attach",
     "cableCategoryAoc": "AOC — Active Optical",
     "cableCategoryFiber": "Fibra — LC/MPO",

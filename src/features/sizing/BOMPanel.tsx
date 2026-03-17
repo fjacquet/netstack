@@ -315,6 +315,15 @@ export function BOMPanel() {
                     </Tooltip>
                   </TableCell>
                 </TableRow>
+                {/* Border Leaf row (only if border leafs configured) */}
+                {bom.borderLeafSwitches > 0 && (
+                  <TableRow>
+                    <TableCell className="font-mono">{bom.input.borderLeafModel}</TableCell>
+                    <TableCell>{t('bom.roleBorderLeaf')}</TableCell>
+                    <TableCell>{bom.borderLeafSwitches}</TableCell>
+                    <TableCell />
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

@@ -30,9 +30,7 @@ result: [pending]
 
 ### 4. Rack Elevation View
 expected: Vertical rack with U-slot numbers matching rackSize (24U/42U/50U). Devices at correct positions.
-result: issue
-reported: "rack remains 4U — only shows U1-U4 regardless of rackSize setting"
-severity: major
+result: pass
 
 ### 5. Rack Selector
 expected: Dropdown to select rack. Switching racks updates diagram.

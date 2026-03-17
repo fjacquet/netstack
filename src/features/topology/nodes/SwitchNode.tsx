@@ -1,6 +1,6 @@
 import { Handle, Position } from '@xyflow/react'
 import type { NodeProps, Node } from '@xyflow/react'
-import { Network, Share2, Monitor } from 'lucide-react'
+import { Network, Share2, Monitor, Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { SwitchNodeData } from '../types'
 import { getSaturationBorderClass } from '../utils/saturation'
@@ -11,6 +11,7 @@ const roleIcons = {
   leaf: Network,
   spine: Share2,
   oob: Monitor,
+  border: Globe,
 } as const
 
 /**
@@ -28,7 +29,9 @@ export function SwitchNode({ data }: NodeProps<SwitchNodeType>) {
       ? 'bg-[hsl(213_94%_92%)] dark:bg-[hsl(213_94%_20%)]'
       : data.role === 'spine'
         ? 'bg-[hsl(270_91%_92%)] dark:bg-[hsl(270_91%_20%)]'
-        : 'bg-muted'
+        : data.role === 'border'
+          ? 'bg-[hsl(142_76%_92%)] dark:bg-[hsl(142_76%_20%)]'
+          : 'bg-muted'
 
   const borderColor = getSaturationBorderClass(data.usedPorts, data.totalPorts)
 
