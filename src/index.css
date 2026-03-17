@@ -81,11 +81,51 @@
   }
 }
 
+@page {
+  margin: 1.5cm;
+}
+
 @media print {
+  /* Hide navigation chrome */
   header, [role="tablist"], .toolbar-card { display: none !important; }
   [data-state="inactive"] { display: none !important; }
-  table { page-break-inside: avoid; }
+
+  /* Force light mode for print */
+  html, body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+    width: 100% !important;
+  }
+  .dark { color-scheme: light !important; }
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    color: black !important;
+    background: transparent !important;
+  }
+
+  /* Restore card/table backgrounds for structure */
+  [data-slot="card"] {
+    border: 1px solid #ccc !important;
+    background: white !important;
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #999 !important;
+    padding: 4px 8px !important;
+    background: white !important;
+  }
+  th { background: #f0f0f0 !important; }
   tr { page-break-inside: avoid; }
-  .react-flow__renderer { break-inside: avoid; }
-  * { box-shadow: none !important; }
+
+  /* Fit topology diagram */
+  .react-flow__renderer {
+    break-inside: avoid;
+    max-width: 100% !important;
+  }
 }

@@ -22,15 +22,15 @@ function AppContent() {
         <div className="border-b bg-secondary/30 px-4">
           <TabsList className="h-11 bg-transparent">
             <TabsTrigger value="sizing" className="gap-1.5">
-              <img src="/icon-sizing.png" className="h-4 w-4" alt="" />
+              <img src={`${import.meta.env.BASE_URL}icon-sizing.png`} className="h-4 w-4" alt="" />
               {t('tabs.sizing')}
             </TabsTrigger>
             <TabsTrigger value="topology" className="gap-1.5">
-              <img src="/icon-topology.png" className="h-4 w-4" alt="" />
+              <img src={`${import.meta.env.BASE_URL}icon-topology.png`} className="h-4 w-4" alt="" />
               {t('tabs.topology')}
             </TabsTrigger>
             <TabsTrigger value="rackElevation" className="gap-1.5">
-              <img src="/icon-rack.png" className="h-4 w-4" alt="" />
+              <img src={`${import.meta.env.BASE_URL}icon-rack.png`} className="h-4 w-4" alt="" />
               {t('tabs.rackElevation')}
             </TabsTrigger>
           </TabsList>
