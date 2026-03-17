@@ -444,7 +444,7 @@ describe('Transceivers (fiber only) and VLT', () => {
     expect(bom.qsfp28Count).toBe(0);
   });
 
-  it('VLT cables = 1 per rack (QSFP28-DD between leaf pairs)', () => {
+  it('VLT cables = 2 per leaf pair (QSFP28-DD)', () => {
     const bom = calculateBOM({
       totalServers: 60,
       serversPerRack: 20,
@@ -452,8 +452,8 @@ describe('Transceivers (fiber only) and VLT', () => {
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
     });
-    // 3 racks → 3 VLT cables
-    expect(bom.vltCables).toBe(3);
+    // 3 racks → 3 leaf pairs → 6 VLT cables
+    expect(bom.vltCables).toBe(6);
   });
 });
 

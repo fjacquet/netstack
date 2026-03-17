@@ -66,8 +66,8 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     input.cableType === 'fiber' ? 2 * leafSpineCables : 0;
 
   // ─── VLT Interconnect Cables ────────────────────────────────────────────
-  // Each rack has a redundant leaf pair connected via VLT (1 QSFP28-DD cable)
-  const vltCables = racks;
+  // Each rack has a redundant leaf pair connected via VLT (2 QSFP28-DD cables per pair)
+  const vltCables = racks * 2;
 
   // ─── Oversubscription Ratio ───────────────────────────────────────────────
   // (serversPerRack × server link speed) / (spineSwitches × leaf uplink speed)
