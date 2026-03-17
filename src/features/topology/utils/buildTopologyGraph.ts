@@ -138,27 +138,12 @@ export function buildTopologyGraph(bom: NetworkBOM): TopologyGraphResult {
     })
   }
 
-  // --- Network rack node (holds spines + border leafs) ---
-  const networkRackNodes: Node<RackNodeData>[] = bom.networkRacks > 0
-    ? Array.from({ length: bom.networkRacks }, (_, i) => ({
-        id: `netrack-${i}`,
-        type: 'rackNode' as const,
-        position: { x: centerX(bom.spineSwitches, Math.floor(bom.spineSwitches / 2)), y: Y.rack },
-        data: {
-          rackIndex: -1 - i, // Negative index to distinguish from server racks
-          serverCount: bom.spineSwitches + bom.borderLeafSwitches,
-          label: `Network Rack ${i + 1}`,
-        },
-      }))
-    : []
-
   const nodes: Node<SwitchNodeData | RackNodeData>[] = [
     ...spineNodes,
     ...borderLeafNodes,
     ...leafNodes,
     ...oobNodes,
     ...rackNodes,
-    ...networkRackNodes,
   ]
 
   // --- Edges ---

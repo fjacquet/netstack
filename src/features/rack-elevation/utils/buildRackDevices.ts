@@ -51,3 +51,44 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
 
   return devices
 }
+
+/**
+ * Build devices for a network rack (spines + border leafs).
+ * Placed bottom-to-top: spines first, then border leafs above.
+ */
+export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
+  const spineSpec = SWITCH_CATALOG[bom.input.spineModel]
+  const devices: RackDevice[] = []
+  let uSlot = 1
+
+  // Spines at bottom
+  for (let i = 0; i < bom.spineSwitches; i++) {
+    devices.push({
+      id: `net-spine-${i}`,
+      model: bom.input.spineModel,
+      role: 'spine',
+      label: `Spine ${i + 1}`,
+      uSlot: uSlot++,
+      usedPorts: Math.ceil(bom.leafSwitches / bom.spineSwitches),
+      totalPorts: spineSpec.downlinkPorts,
+    })
+  }
+
+  // Border leafs above spines
+  if (bom.borderLeafSwitches > 0 && bom.input.borderLeafModel !== 'none') {
+    const borderSpec = SWITCH_CATALOG[bom.input.borderLeafModel]
+    for (let i = 0; i < bom.borderLeafSwitches; i++) {
+      devices.push({
+        id: `net-border-${i}`,
+        model: bom.input.borderLeafModel,
+        role: 'border',
+        label: `Border Leaf ${i + 1}`,
+        uSlot: uSlot++,
+        usedPorts: 0,
+        totalPorts: borderSpec.downlinkPorts,
+      })
+    }
+  }
+
+  return devices
+}

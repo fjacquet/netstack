@@ -136,7 +136,10 @@ export function ExportTab() {
           {pdfError && (
             <Alert variant="destructive">
               <AlertTitle>{t('export.pdfErrorHeading')}</AlertTitle>
-              <AlertDescription>{t('export.pdfErrorBody')}</AlertDescription>
+              <AlertDescription>
+                {t('export.pdfErrorBody')}
+                <pre className="mt-2 text-xs opacity-70 whitespace-pre-wrap">{pdfError}</pre>
+              </AlertDescription>
             </Alert>
           )}
         </CardContent>

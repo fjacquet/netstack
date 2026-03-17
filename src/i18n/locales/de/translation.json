@@ -86,6 +86,8 @@
     "heading": "Rack-Ansicht",
     "selectorLabel": "Rack",
     "selectorOptionFormat": "Rack {{n}} \u2014 {{switchCount}} Switches",
+    "serverRack": "Server-Rack {{n}}",
+    "networkRack": "Netzwerk-Rack {{n}}",
     "emptyHeading": "Keine Racks vorhanden",
     "emptyBody": "Geben Sie Dimensionierungsparameter im Reiter Dimensionierung ein, um die Rack-Ansicht zu erstellen."
   },

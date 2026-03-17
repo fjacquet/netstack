@@ -86,6 +86,8 @@
     "heading": "\u00c9l\u00e9vation de baie",
     "selectorLabel": "Baie",
     "selectorOptionFormat": "Baie {{n}} \u2014 {{switchCount}} switches",
+    "serverRack": "Baie serveur {{n}}",
+    "networkRack": "Baie réseau {{n}}",
     "emptyHeading": "Aucune baie \u00e0 afficher",
     "emptyBody": "Saisissez les param\u00e8tres de dimensionnement dans l\u2019onglet Dimensionnement pour g\u00e9n\u00e9rer la vue."
   },

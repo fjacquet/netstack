@@ -86,6 +86,8 @@
     "heading": "Vista rack",
     "selectorLabel": "Rack",
     "selectorOptionFormat": "Rack {{n}} \u2014 {{switchCount}} switch",
+    "serverRack": "Rack server {{n}}",
+    "networkRack": "Rack di rete {{n}}",
     "emptyHeading": "Nessun rack da visualizzare",
     "emptyBody": "Inserisci i parametri di dimensionamento nella scheda Dimensionamento per generare la vista rack."
   },

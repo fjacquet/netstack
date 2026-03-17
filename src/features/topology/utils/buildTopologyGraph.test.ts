@@ -43,9 +43,9 @@ const mockBOM: NetworkBOM = {
 }
 
 describe('buildTopologyGraph', () => {
-  it('returns correct total node count for 3 racks (2 spine + 6 leaf + 3 rack + 3 OOB + 1 network rack = 15)', () => {
+  it('returns correct total node count for 3 racks (2 spine + 6 leaf + 3 rack + 3 OOB = 14)', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
-    expect(nodes).toHaveLength(15)
+    expect(nodes).toHaveLength(14)
   })
 
   it('returns correct spine node count', () => {

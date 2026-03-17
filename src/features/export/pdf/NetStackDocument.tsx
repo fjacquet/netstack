@@ -6,13 +6,13 @@ import { BOMPage } from './BOMPage'
 import { TopologyPage } from './TopologyPage'
 import { ViolationsPage } from './ViolationsPage'
 
-// Register Inter font — use absolute URL relative to import.meta.env.BASE_URL
-const base = import.meta.env.BASE_URL ?? '/'
+// Register Inter font — must use full absolute URL for @react-pdf/renderer's fetch
+const fontBase = `${window.location.origin}${import.meta.env.BASE_URL ?? '/'}`
 Font.register({
   family: 'Inter',
   fonts: [
-    { src: `${base}fonts/inter-regular.ttf`, fontWeight: 400 },
-    { src: `${base}fonts/inter-semibold.ttf`, fontWeight: 600 },
+    { src: `${fontBase}fonts/inter-regular.ttf`, fontWeight: 400 },
+    { src: `${fontBase}fonts/inter-semibold.ttf`, fontWeight: 600 },
   ],
 })
 

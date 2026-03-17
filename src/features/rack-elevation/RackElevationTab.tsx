@@ -11,36 +11,30 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildRackDevices } from './utils/buildRackDevices'
+import { buildRackDevices, buildNetworkRackDevices } from './utils/buildRackDevices'
 import { RackFrame } from './RackFrame'
 import type { RackDevice } from './types'
 
 /**
  * RackElevationTab — shows a per-rack physical device layout.
  *
- * - Rack selector dropdown (resets to Rack 1 when BOM rack count changes)
- * - RackFrame renders U-slot grid with draggable devices
- * - Devices state is local UI only — NOT persisted (v2 scope per UI-SPEC)
- * - Automatically updates when BOM changes
+ * Rack types:
+ * - Server racks (index 0..N-1): leaf pair + OOB per rack
+ * - Network racks (index -1..-N): spines + border leafs
  */
 export function RackElevationTab() {
   const { t } = useTranslation()
 
   const bom = useResultStore(useShallow((s) => s.bom))
 
-  const [selectedRack, setSelectedRack] = useState(0)
+  const [selectedRack, setSelectedRack] = useState('0')
   const [devices, setDevices] = useState<RackDevice[]>([])
 
   // When rack count changes (BOM update), reset to first rack
   useEffect(() => {
     if (!bom) {
       setDevices([])
-      setSelectedRack(0)
-      return
-    }
-    // If selected rack is out of range, reset to 0
-    if (selectedRack >= bom.racks) {
-      setSelectedRack(0)
+      setSelectedRack('0')
     }
   }, [bom?.racks]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -50,12 +44,18 @@ export function RackElevationTab() {
       setDevices([])
       return
     }
-    const rackIdx = selectedRack < bom.racks ? selectedRack : 0
-    setDevices(buildRackDevices(bom, rackIdx))
+    if (selectedRack.startsWith('net-')) {
+      // Network rack
+      setDevices(buildNetworkRackDevices(bom))
+    } else {
+      const rackIdx = Number(selectedRack)
+      const safeIdx = rackIdx < bom.racks ? rackIdx : 0
+      setDevices(buildRackDevices(bom, safeIdx))
+    }
   }, [bom, selectedRack])
 
   function handleRackChange(value: string) {
-    setSelectedRack(Number(value))
+    setSelectedRack(value)
   }
 
   function handleReorder(updated: RackDevice[]) {
@@ -78,13 +78,15 @@ export function RackElevationTab() {
     )
   }
 
+  const rackUnits = parseInt(bom.input.rackSize)
+
   return (
     <div className="flex h-full flex-col">
       {/* Rack selector bar */}
       <div className="h-12 flex items-center gap-2 px-4 border-b">
         <span className="text-sm font-medium shrink-0">{t('rack.selectorLabel')}:</span>
         <Select
-          value={String(selectedRack)}
+          value={selectedRack}
           onValueChange={handleRackChange}
           aria-label="Select rack to view"
         >
@@ -93,18 +95,24 @@ export function RackElevationTab() {
           </SelectTrigger>
           <SelectContent>
             {Array.from({ length: bom.racks }, (_, i) => (
-              <SelectItem key={i} value={String(i)}>
-                {t('rack.selectorOptionFormat', { n: i + 1, switchCount: 3 })}
+              <SelectItem key={`srv-${i}`} value={String(i)}>
+                {t('rack.serverRack', { n: i + 1 })}
+              </SelectItem>
+            ))}
+            {bom.networkRacks > 0 && Array.from({ length: bom.networkRacks }, (_, i) => (
+              <SelectItem key={`net-${i}`} value={`net-${i}`}>
+                {t('rack.networkRack', { n: i + 1 })}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <span className="text-xs text-muted-foreground ml-2">{rackUnits}U</span>
       </div>
 
       {/* Rack frame with scroll */}
       <ScrollArea className="flex-1">
         <div className="py-6">
-          <RackFrame devices={devices} rackUnits={parseInt(bom.input.rackSize)} onReorder={handleReorder} />
+          <RackFrame devices={devices} rackUnits={rackUnits} onReorder={handleReorder} />
         </div>
       </ScrollArea>
     </div>
