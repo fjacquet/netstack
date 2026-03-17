@@ -52,23 +52,23 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RACK-01 | TBD | Pending |
-| RACK-02 | TBD | Pending |
-| RACK-03 | TBD | Pending |
-| PORT-01 | TBD | Pending |
-| PORT-02 | TBD | Pending |
-| PORT-03 | TBD | Pending |
-| ELEV-01 | TBD | Pending |
-| ELEV-02 | TBD | Pending |
-| ELEV-03 | TBD | Pending |
-| UPLN-01 | TBD | Pending |
-| UPLN-02 | TBD | Pending |
+| RACK-01 | Phase 6 | Pending |
+| RACK-02 | Phase 6 | Pending |
+| RACK-03 | Phase 5 | Pending |
+| PORT-01 | Phase 6 | Pending |
+| PORT-02 | Phase 6 | Pending |
+| PORT-03 | Phase 5 | Pending |
+| ELEV-01 | Phase 7 | Pending |
+| ELEV-02 | Phase 7 | Pending |
+| ELEV-03 | Phase 7 | Pending |
+| UPLN-01 | Phase 6 | Pending |
+| UPLN-02 | Phase 5 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11
+- Mapped to phases: 11
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after v1.1 milestone start*
+*Last updated: 2026-03-17 after v1.1 roadmap creation*

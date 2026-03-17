@@ -1,42 +1,42 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
+milestone: v1.1
+milestone_name: v1.1 Enhancements
 status: planning
-stopped_at: Completed 04-visualization-export-and-documentation-04-PLAN.md
-last_updated: "2026-03-17T18:58:45.231Z"
-last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
+stopped_at: Roadmap created for v1.1 — ready to plan Phase 5
+last_updated: "2026-03-17T00:00:00.000Z"
+last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
-  percent: 33
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-16)
+See: .planning/PROJECT.md (updated 2026-03-17)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
-**Current focus:** Phase 1 — Domain Engine
+**Current focus:** Phase 5 — Engine Enhancements (v1.1)
 
 ## Current Position
 
-Phase: 1 of 4 (Domain Engine)
+Phase: 5 of 7 (Engine Enhancements)
 Plan: 0 of TBD in current phase
 Status: Ready to plan
-Last activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
+Last activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 
-Progress: [███░░░░░░░] 33%
+Progress: [░░░░░░░░░░] 0% (v1.1)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 0 (v1.1)
 - Average duration: — min
 - Total execution time: 0 hours
 
@@ -52,20 +52,6 @@ Progress: [███░░░░░░░] 33%
 - Trend: —
 
 *Updated after each plan completion*
-| Phase 01-domain-engine P01 | 10 | 3 tasks | 12 files |
-| Phase 01-domain-engine P03 | 15 | 2 tasks | 2 files |
-| Phase 01-domain-engine P02 | 17 | 3 tasks | 2 files |
-| Phase 02-app-shell-and-input-form P01 | 25 | 2 tasks | 22 files |
-| Phase 02-app-shell-and-input-form P02 | 5 | 3 tasks | 10 files |
-| Phase 02-app-shell-and-input-form P03 | 4 | 3 tasks | 9 files |
-| Phase 03-bom-output-and-metrics P01 | 3 | 2 tasks | 9 files |
-| Phase 03-bom-output-and-metrics P02 | 3 | 2 tasks | 4 files |
-| Phase 03-bom-output-and-metrics P02 | 5 | 3 tasks | 4 files |
-| Phase 04-visualization-export-and-documentation P01 | 4 | 2 tasks | 16 files |
-| Phase 04-visualization-export-and-documentation P03 | 4 | 2 tasks | 6 files |
-| Phase 04-visualization-export-and-documentation P05 | 9 | 2 tasks | 7 files |
-| Phase 04-visualization-export-and-documentation P02 | 30 | 2 tasks | 11 files |
-| Phase 04-visualization-export-and-documentation P04 | 11 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -74,10 +60,10 @@ Progress: [███░░░░░░░] 33%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Pre-Phase 1]: Spine scales with leaf count — fixed 2-spine won't work for >32 leafs
-- [Pre-Phase 1]: Extensible hardware catalog — future Dell models addable without code changes
-- [Pre-Phase 1]: Browser localStorage for persistence — no backend needed
-- [Pre-Phase 1]: GitHub Pages hosting — static SPA deployment with CI/CD
+- [v1.0 Pre-Phase 1]: Spine scales with leaf count — fixed 2-spine won't work for >32 leafs
+- [v1.0 Pre-Phase 1]: Extensible hardware catalog — future Dell models addable without code changes
+- [v1.0 Pre-Phase 1]: Browser localStorage for persistence — no backend needed
+- [v1.0 Pre-Phase 1]: GitHub Pages hosting — static SPA deployment with CI/CD
 - [Phase 01-domain-engine]: uplinkPorts: 4 for S5248F-ON — standard Dell reference design uses 4 QSFP28 ports to spine; additionalUplinkPorts: 2 stores QSFP28-DD for future extension
 - [Phase 01-domain-engine]: oversubscriptionRatio required on NetworkBOM from day one — retrofitting later breaks all consumers
 - [Phase 01-domain-engine]: ConstraintViolation as typed discriminated union (not raw strings) — enables type-safe switch on violation.code in UI
@@ -101,9 +87,6 @@ Recent decisions affecting current work:
 - [Phase 03-bom-output-and-metrics]: data-testid='oversub-badge' with data-severity attribute enables RTL testing of cva-styled badge without brittle class name assertions
 - [Phase 03-bom-output-and-metrics]: ViolationAlert extracted as sub-component for clean discriminated union switch pattern — each v.code case renders correct Alert variant
 - [Phase 03-bom-output-and-metrics]: TooltipProvider wrapper in test helper required — App.tsx provides it globally but RTL tests render in isolation and Radix requires context
-- [Phase 03-bom-output-and-metrics]: data-testid='oversub-badge' with data-severity attribute enables RTL testing of cva-styled badge without brittle class name assertions
-- [Phase 03-bom-output-and-metrics]: ViolationAlert extracted as sub-component for clean discriminated union switch pattern — each v.code case renders correct Alert variant
-- [Phase 03-bom-output-and-metrics]: TooltipProvider wrapper in test helper required — App.tsx provides it globally but RTL tests render in isolation and Radix requires context
 - [Phase 04-visualization-export-and-documentation]: getSaturationBorderClass uses border- prefix (not bg-) — topology nodes use border colors to show saturation on node outline, not background fill
 - [Phase 04-visualization-export-and-documentation]: CsvRow.category typed as 'Switch' | 'Cable' | 'Transceiver' discriminated union — enables exhaustive switch in CSV generator
 - [Phase 04-visualization-export-and-documentation]: Empty barrel index.ts files created for topology, rack-elevation, export features — Plans 02-05 populate them without structural file changes
@@ -119,11 +102,10 @@ Recent decisions affecting current work:
 - [Phase 04-visualization-export-and-documentation]: aria-disabled=true (not HTML disabled) for CSV/PDF buttons when BOM is null — allows tooltip hover and maintains focus
 - [Phase 04-visualization-export-and-documentation]: PDF components use hardcoded hex/rgb values — CSS variables not supported in @react-pdf/renderer (no DOM, no CSS cascade)
 
-### Research Flags (from SUMMARY.md)
+### Research Flags
 
-- Phase 1: Verify S5248F-ON uplink port count (4 × QSFP28) and S5232F-ON port count (32 × QSFP28) against Dell spec sheets before coding engine
-- Phase 2: Verify @hookform/resolvers v5.2.2 Zod v4 compatibility (GitHub issue 12829) before implementing input form
-- Phase 3: Confirm oversubscription thresholds against Dell EMC L3 Leaf-Spine Design Guide (green <=3:1, amber <=6:1, red >6:1)
+- Phase 5: Verify per-rack input schema design — SizingInput currently uses scalar totalServers/serversPerRack; migration to racks array must handle Zustand persist schema versioning
+- Phase 6: Confirm RACK_CAPACITY_EXCEEDED violation is best surfaced in BOM panel vs inline in rack elevation (align with existing violation pattern from Phase 3)
 
 ### Pending Todos
 
@@ -135,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T08:18:37.885Z
-Stopped at: Completed 04-visualization-export-and-documentation-04-PLAN.md
+Last session: 2026-03-17
+Stopped at: v1.1 roadmap created — ready to plan Phase 5
 Resume file: None
