@@ -55,6 +55,48 @@
   "language": {
     "ariaLabel": "Changer de langue"
   },
+  "topology": {
+    "heading": "Diagramme de topologie",
+    "fitView": "Ajuster la vue",
+    "resetLayout": "R\u00e9initialiser",
+    "legend": "L\u00e9gende",
+    "emptyHeading": "Aucune topologie disponible",
+    "emptyBody": "Saisissez les param\u00e8tres de dimensionnement dans l\u2019onglet Dimensionnement pour g\u00e9n\u00e9rer le diagramme.",
+    "legendLeaf": "Switch Leaf",
+    "legendSpine": "Switch Spine",
+    "legendOob": "Switch OOB",
+    "legendRack": "Baie",
+    "legendHealthy": "Normal (< 80\u00a0%)",
+    "legendWarning": "Attention (\u2265 80\u00a0%)",
+    "legendCritical": "Satur\u00e9 (\u2265 100\u00a0%)",
+    "legendVlt": "Lien VLT",
+    "nodeAriaLabel": "{{model}} {{role}} \u2014 cliquez pour les d\u00e9tails des ports",
+    "portUtilization": "Utilisation des ports",
+    "portsFormat": "{{used}} / {{available}} utilis\u00e9s ({{pct}}\u00a0%)"
+  },
+  "rack": {
+    "heading": "\u00c9l\u00e9vation de baie",
+    "selectorLabel": "Baie",
+    "selectorOptionFormat": "Baie {{n}} \u2014 {{switchCount}} switches",
+    "emptyHeading": "Aucune baie \u00e0 afficher",
+    "emptyBody": "Saisissez les param\u00e8tres de dimensionnement dans l\u2019onglet Dimensionnement pour g\u00e9n\u00e9rer la vue."
+  },
+  "export": {
+    "heading": "Exporter",
+    "csvHeading": "Export CSV",
+    "csvDescription": "T\u00e9l\u00e9chargez la nomenclature au format CSV. Compatible Excel et Google Sheets.",
+    "csvButton": "Exporter CSV",
+    "pdfHeading": "Rapport PDF",
+    "pdfDescription": "G\u00e9n\u00e9rez un rapport format\u00e9 avec la nomenclature, les param\u00e8tres et le diagramme de topologie.",
+    "pdfButton": "Exporter PDF",
+    "printHeading": "Imprimer",
+    "printDescription": "Imprimez la vue courante. Les contr\u00f4les de navigation sont masqu\u00e9s automatiquement.",
+    "printButton": "Imprimer",
+    "disabledTooltip": "Calculez d\u2019abord une nomenclature",
+    "pdfGenerating": "G\u00e9n\u00e9ration du PDF\u2026",
+    "pdfErrorHeading": "\u00c9chec de la g\u00e9n\u00e9ration PDF",
+    "pdfErrorBody": "Impossible de g\u00e9n\u00e9rer le rapport. V\u00e9rifiez vos param\u00e8tres et r\u00e9essayez."
+  },
   "bom": {
     "heading": "Nomenclature",
     "switchesHeading": "Commutateurs",

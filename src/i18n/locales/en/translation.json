@@ -55,6 +55,48 @@
   "language": {
     "ariaLabel": "Change language"
   },
+  "topology": {
+    "heading": "Topology Diagram",
+    "fitView": "Fit View",
+    "resetLayout": "Reset Layout",
+    "legend": "Legend",
+    "emptyHeading": "No topology available",
+    "emptyBody": "Enter sizing parameters in the Sizing tab to generate the topology diagram.",
+    "legendLeaf": "Leaf Switch",
+    "legendSpine": "Spine Switch",
+    "legendOob": "OOB Switch",
+    "legendRack": "Rack",
+    "legendHealthy": "Healthy (< 80%)",
+    "legendWarning": "Warning (\u2265 80%)",
+    "legendCritical": "Saturated (\u2265 100%)",
+    "legendVlt": "VLT Link",
+    "nodeAriaLabel": "{{model}} {{role}} \u2014 click for port details",
+    "portUtilization": "Port Utilization",
+    "portsFormat": "{{used}} / {{available}} used ({{pct}}%)"
+  },
+  "rack": {
+    "heading": "Rack Elevation",
+    "selectorLabel": "Rack",
+    "selectorOptionFormat": "Rack {{n}} \u2014 {{switchCount}} switches",
+    "emptyHeading": "No racks to display",
+    "emptyBody": "Enter sizing parameters in the Sizing tab to generate the rack elevation view."
+  },
+  "export": {
+    "heading": "Export",
+    "csvHeading": "CSV Export",
+    "csvDescription": "Download the Bill of Materials as a CSV file. Opens in Excel and Google Sheets.",
+    "csvButton": "Export CSV",
+    "pdfHeading": "PDF Report",
+    "pdfDescription": "Generate a formatted report including BOM summary, sizing inputs, and topology diagram.",
+    "pdfButton": "Export PDF",
+    "printHeading": "Print",
+    "printDescription": "Print the current view. Navigation controls are hidden automatically.",
+    "printButton": "Print",
+    "disabledTooltip": "Calculate a BOM first",
+    "pdfGenerating": "Generating PDF\u2026",
+    "pdfErrorHeading": "PDF generation failed",
+    "pdfErrorBody": "Unable to generate the report. Check your sizing inputs and try again."
+  },
   "bom": {
     "heading": "Bill of Materials",
     "switchesHeading": "Switches",

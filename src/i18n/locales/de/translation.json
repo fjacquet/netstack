@@ -55,6 +55,48 @@
   "language": {
     "ariaLabel": "Sprache aendern"
   },
+  "topology": {
+    "heading": "Topologiediagramm",
+    "fitView": "Ansicht anpassen",
+    "resetLayout": "Layout zur\u00fccksetzen",
+    "legend": "Legende",
+    "emptyHeading": "Keine Topologie verf\u00fcgbar",
+    "emptyBody": "Geben Sie Dimensionierungsparameter im Reiter Dimensionierung ein, um das Diagramm zu erstellen.",
+    "legendLeaf": "Leaf-Switch",
+    "legendSpine": "Spine-Switch",
+    "legendOob": "OOB-Switch",
+    "legendRack": "Rack",
+    "legendHealthy": "Normal (< 80\u00a0%)",
+    "legendWarning": "Warnung (\u2265 80\u00a0%)",
+    "legendCritical": "Ges\u00e4ttigt (\u2265 100\u00a0%)",
+    "legendVlt": "VLT-Verbindung",
+    "nodeAriaLabel": "{{model}} {{role}} \u2014 klicken f\u00fcr Portdetails",
+    "portUtilization": "Portauslastung",
+    "portsFormat": "{{used}} / {{available}} belegt ({{pct}}\u00a0%)"
+  },
+  "rack": {
+    "heading": "Rack-Ansicht",
+    "selectorLabel": "Rack",
+    "selectorOptionFormat": "Rack {{n}} \u2014 {{switchCount}} Switches",
+    "emptyHeading": "Keine Racks vorhanden",
+    "emptyBody": "Geben Sie Dimensionierungsparameter im Reiter Dimensionierung ein, um die Rack-Ansicht zu erstellen."
+  },
+  "export": {
+    "heading": "Exportieren",
+    "csvHeading": "CSV-Export",
+    "csvDescription": "Laden Sie die St\u00fcckliste als CSV-Datei herunter. Kompatibel mit Excel und Google Sheets.",
+    "csvButton": "CSV exportieren",
+    "pdfHeading": "PDF-Bericht",
+    "pdfDescription": "Erstellen Sie einen formatierten Bericht mit St\u00fcckliste, Parametern und Topologiediagramm.",
+    "pdfButton": "PDF exportieren",
+    "printHeading": "Drucken",
+    "printDescription": "Aktuelle Ansicht drucken. Navigationsleisten werden automatisch ausgeblendet.",
+    "printButton": "Drucken",
+    "disabledTooltip": "Berechnen Sie zuerst eine St\u00fcckliste",
+    "pdfGenerating": "PDF wird erstellt\u2026",
+    "pdfErrorHeading": "PDF-Erstellung fehlgeschlagen",
+    "pdfErrorBody": "Der Bericht konnte nicht erstellt werden. \u00dcberpr\u00fcfen Sie Ihre Parameter und versuchen Sie es erneut."
+  },
   "bom": {
     "heading": "Stueckliste",
     "switchesHeading": "Switches",

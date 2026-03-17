@@ -55,6 +55,48 @@
   "language": {
     "ariaLabel": "Cambia lingua"
   },
+  "topology": {
+    "heading": "Diagramma di topologia",
+    "fitView": "Adatta vista",
+    "resetLayout": "Ripristina layout",
+    "legend": "Legenda",
+    "emptyHeading": "Nessuna topologia disponibile",
+    "emptyBody": "Inserisci i parametri di dimensionamento nella scheda Dimensionamento per generare il diagramma.",
+    "legendLeaf": "Switch Leaf",
+    "legendSpine": "Switch Spine",
+    "legendOob": "Switch OOB",
+    "legendRack": "Rack",
+    "legendHealthy": "Normale (< 80%)",
+    "legendWarning": "Attenzione (\u2265 80%)",
+    "legendCritical": "Saturo (\u2265 100%)",
+    "legendVlt": "Collegamento VLT",
+    "nodeAriaLabel": "{{model}} {{role}} \u2014 clicca per i dettagli delle porte",
+    "portUtilization": "Utilizzo porte",
+    "portsFormat": "{{used}} / {{available}} utilizzate ({{pct}}%)"
+  },
+  "rack": {
+    "heading": "Vista rack",
+    "selectorLabel": "Rack",
+    "selectorOptionFormat": "Rack {{n}} \u2014 {{switchCount}} switch",
+    "emptyHeading": "Nessun rack da visualizzare",
+    "emptyBody": "Inserisci i parametri di dimensionamento nella scheda Dimensionamento per generare la vista rack."
+  },
+  "export": {
+    "heading": "Esporta",
+    "csvHeading": "Esportazione CSV",
+    "csvDescription": "Scarica la distinta materiali come file CSV. Compatibile con Excel e Google Sheets.",
+    "csvButton": "Esporta CSV",
+    "pdfHeading": "Report PDF",
+    "pdfDescription": "Genera un report formattato con distinta materiali, parametri e diagramma di topologia.",
+    "pdfButton": "Esporta PDF",
+    "printHeading": "Stampa",
+    "printDescription": "Stampa la vista corrente. I controlli di navigazione vengono nascosti automaticamente.",
+    "printButton": "Stampa",
+    "disabledTooltip": "Calcola prima una distinta materiali",
+    "pdfGenerating": "Generazione PDF in corso\u2026",
+    "pdfErrorHeading": "Generazione PDF non riuscita",
+    "pdfErrorBody": "Impossibile generare il report. Verifica i parametri e riprova."
+  },
   "bom": {
     "heading": "Distinta materiali",
     "switchesHeading": "Switch",
