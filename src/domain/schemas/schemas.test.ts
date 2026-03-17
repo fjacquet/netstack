@@ -188,6 +188,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       leafSpineCables: 40,
       serverLeafCables: 100,
       serverOobCables: 110,
+      sfpCount: 0,
       oversubscriptionRatio: 3.0,
       violations: [],
       input: {
@@ -211,6 +212,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       leafSpineCables: 80,
       serverLeafCables: 470,
       serverOobCables: 490,
+      sfpCount: 0,
       oversubscriptionRatio: 5.875,
       violations: [
         { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC' },

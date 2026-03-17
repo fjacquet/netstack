@@ -345,6 +345,13 @@ export function BOMPanel() {
                   <TableCell>1G RJ45</TableCell>
                   <TableCell>{bom.serverOobCables}</TableCell>
                 </TableRow>
+                {bom.sfpCount > 0 && (
+                  <TableRow>
+                    <TableCell>SFP Transceivers</TableCell>
+                    <TableCell>{t('bom.sfpCategory')}</TableCell>
+                    <TableCell>{bom.sfpCount}</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

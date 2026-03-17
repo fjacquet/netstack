@@ -404,6 +404,46 @@ describe('Input in BOM', () => {
 });
 
 // ---------------------------------------------------------------------------
+// SFP Transceivers (fiber only)
+// ---------------------------------------------------------------------------
+describe('SFP Transceivers', () => {
+  it('fiber cable type → sfpCount = 2 × (leafSpineCables + serverLeafCables)', () => {
+    const bom = calculateBOM({
+      totalServers: 20,
+      serversPerRack: 20,
+      connectivityType: '25G',
+      cableType: 'fiber',
+      leafModel: 'S5248F-ON',
+    });
+    // 1 rack → 2 leafs → 8 leaf-spine cables, 20 server-leaf cables
+    // sfpCount = 2 * (8 + 20) = 56
+    expect(bom.sfpCount).toBe(56);
+  });
+
+  it('DAC cable type → sfpCount = 0', () => {
+    const bom = calculateBOM({
+      totalServers: 20,
+      serversPerRack: 20,
+      connectivityType: '25G',
+      cableType: 'DAC',
+      leafModel: 'S5248F-ON',
+    });
+    expect(bom.sfpCount).toBe(0);
+  });
+
+  it('AOC cable type → sfpCount = 0', () => {
+    const bom = calculateBOM({
+      totalServers: 20,
+      serversPerRack: 20,
+      connectivityType: '25G',
+      cableType: 'AOC',
+      leafModel: 'S5248F-ON',
+    });
+    expect(bom.sfpCount).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // leafModel selection
 // ---------------------------------------------------------------------------
 describe('leafModel selection', () => {

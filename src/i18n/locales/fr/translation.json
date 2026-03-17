@@ -60,6 +60,7 @@
     "switchesHeading": "Commutateurs",
     "cablesHeading": "Cables ({{type}})",
     "portUtilizationHeading": "Utilisation des ports",
+    "sfpCategory": "Émetteur-récepteur SFP28",
     "alertsHeading": "Alertes",
     "oversubHeading": "Ratio de sursouscription",
     "oversubOptimal": "Optimal",

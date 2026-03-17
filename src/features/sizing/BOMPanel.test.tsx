@@ -29,6 +29,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     leafSpineCables: 24,
     serverLeafCables: 48,
     serverOobCables: 54,
+    sfpCount: 0,
     oversubscriptionRatio: 2.4,
     violations: [],
     input: {

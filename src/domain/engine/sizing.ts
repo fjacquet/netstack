@@ -58,6 +58,12 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   // serverOobCables: every server + every leaf switch gets an OOB management port
   const serverOobCables = input.totalServers + leafSwitches;
 
+  // ─── SFP Transceivers (fiber only — 2 per cable link) ────────────────────
+  const sfpCount =
+    input.cableType === 'fiber'
+      ? 2 * (leafSpineCables + serverLeafCables)
+      : 0;
+
   // ─── Oversubscription Ratio ───────────────────────────────────────────────
   // (serversPerRack × server link speed) / (spineSwitches × leaf uplink speed)
   const uplinkBandwidth = spineSwitches * (LEAF.uplinkSpeedGbE ?? 0);
@@ -104,6 +110,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     leafSpineCables,
     serverLeafCables,
     serverOobCables,
+    sfpCount,
     oversubscriptionRatio,
     violations,
     input,

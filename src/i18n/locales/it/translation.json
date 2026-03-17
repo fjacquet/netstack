@@ -60,6 +60,7 @@
     "switchesHeading": "Switch",
     "cablesHeading": "Cavi ({{type}})",
     "portUtilizationHeading": "Utilizzo porte",
+    "sfpCategory": "Ricetrasmettitore SFP28",
     "alertsHeading": "Avvisi",
     "oversubHeading": "Rapporto di sovrasottoscrizione",
     "oversubOptimal": "Ottimale",

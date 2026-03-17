@@ -60,6 +60,7 @@
     "switchesHeading": "Switches",
     "cablesHeading": "Cables ({{type}})",
     "portUtilizationHeading": "Port Utilization",
+    "sfpCategory": "SFP28 Transceiver",
     "alertsHeading": "Alerts",
     "oversubHeading": "Oversubscription Ratio",
     "oversubOptimal": "Optimal",

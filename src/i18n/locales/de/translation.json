@@ -60,6 +60,7 @@
     "switchesHeading": "Switches",
     "cablesHeading": "Kabel ({{type}})",
     "portUtilizationHeading": "Portauslastung",
+    "sfpCategory": "SFP28-Transceiver",
     "alertsHeading": "Warnungen",
     "oversubHeading": "Ueberzeichnungsverhaeltnis",
     "oversubOptimal": "Optimal",
