@@ -22,7 +22,9 @@
     "cableFiber": "Glasfaser (LC/MPO)",
     "selectConnectivity": "Konnektivitaetstyp waehlen",
     "selectCable": "Kabeltyp waehlen",
-    "selectLeafModel": "Leaf-Switch-Modell waehlen"
+    "selectLeafModel": "Leaf-Switch-Modell waehlen",
+    "rackSize": "Rack-Groesse",
+    "selectRackSize": "Rack-Groesse waehlen"
   },
   "results": {
     "heading": "Ergebnisse",

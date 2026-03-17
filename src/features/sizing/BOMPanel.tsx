@@ -353,14 +353,14 @@ export function BOMPanel() {
                 {bom.sfp28Count > 0 && (
                   <TableRow>
                     <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
-                    <TableCell>SFP28 (25G)</TableCell>
+                    <TableCell>SFP28 LC (25G)</TableCell>
                     <TableCell>{bom.sfp28Count}</TableCell>
                   </TableRow>
                 )}
                 {bom.qsfp28Count > 0 && (
                   <TableRow>
                     <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
-                    <TableCell>QSFP28 (100G)</TableCell>
+                    <TableCell>QSFP28 MPO (100G)</TableCell>
                     <TableCell>{bom.qsfp28Count}</TableCell>
                   </TableRow>
                 )}

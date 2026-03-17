@@ -37,10 +37,9 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const leafSwitches = racks * 2;
 
   // ─── Spine Switches (SIZE-04) — scales with leaf count ───────────────────
-  // max(uplinkPorts, ceil(leafSwitches / spinePortCount))
-  // Ensures full non-blocking connectivity at any scale
+  // min 2 for redundancy, scales up when leafs exceed spine port capacity
   const spineSwitches = Math.max(
-    LEAF.uplinkPorts,
+    2,
     Math.ceil(leafSwitches / SPINE.downlinkPorts),
   );
 

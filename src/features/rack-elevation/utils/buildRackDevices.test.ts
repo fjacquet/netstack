@@ -22,6 +22,7 @@ const mockBOM: NetworkBOM = {
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
+    rackSize: '42U',
   },
 }
 

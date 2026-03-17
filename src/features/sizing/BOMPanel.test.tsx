@@ -40,6 +40,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      rackSize: '42U',
     },
     ...overrides,
   }
@@ -135,7 +136,7 @@ describe('BOMPanel', () => {
 
   describe('BOM-03: cable type', () => {
     it('displays DAC in cables heading when input.cableType is DAC', () => {
-      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON' } })
+      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON', rackSize: '42U' } })
       mockStore({ bom, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
@@ -165,7 +166,7 @@ describe('BOMPanel', () => {
   describe('BOM-04: port utilization and violations', () => {
     it('renders port utilization progress bars with correct aria-valuenow', () => {
       // serversPerRack=16, leaf downlinkPorts=48 → 16/48 = 33.33% → Math.round = 33
-      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON' } })
+      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON', rackSize: '42U' } })
       mockStore({ bom, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })

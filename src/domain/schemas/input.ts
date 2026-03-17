@@ -17,6 +17,8 @@ export const SizingInputSchema = z.object({
   cableType: z.enum(['DAC', 'AOC', 'fiber']),
   /** Leaf switch model — only leaf-role models are valid (excludes spine and OOB) */
   leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON']),
+  /** Rack unit height — standard rack sizes */
+  rackSize: z.enum(['24U', '42U', '50U']),
 });
 
 /** Inferred TypeScript type — do not declare separately */

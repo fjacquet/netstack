@@ -24,6 +24,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
+const RACK_SIZES = ['24U', '42U', '50U'] as const
 
 export function InputForm() {
   const { t } = useTranslation()
@@ -215,6 +216,36 @@ export function InputForm() {
                       {LEAF_MODELS.map((model) => (
                         <SelectItem key={model} value={model}>
                           {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Field 6: Rack Size */}
+            <FormField
+              control={form.control}
+              name="rackSize"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('sizing.rackSize')}</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={t('sizing.selectRackSize')}
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {RACK_SIZES.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
                         </SelectItem>
                       ))}
                     </SelectContent>

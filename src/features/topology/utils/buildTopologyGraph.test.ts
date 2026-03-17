@@ -11,13 +11,13 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
  *
  *   racks = ceil(48/16) = 3
  *   leafSwitches = 2 × 3 = 6
- *   spineSwitches = max(4, ceil(6/32)) = 4
+ *   spineSwitches = max(2, ceil(6/32)) = 2
  *   oobSwitches = 3 × ceil((16+2)/48) = 3 × 1 = 3
  */
 const mockBOM: NetworkBOM = {
   racks: 3,
   leafSwitches: 6,
-  spineSwitches: 4,
+  spineSwitches: 2,
   oobSwitches: 3,
   leafSpineCables: 24,    // 6 leafs × 4 uplinks
   serverLeafCables: 48,   // 48 servers
@@ -33,19 +33,20 @@ const mockBOM: NetworkBOM = {
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
+    rackSize: '42U',
   },
 }
 
 describe('buildTopologyGraph', () => {
-  it('returns correct total node count for 3 racks (4 spine + 6 leaf + 3 rack + 3 OOB = 16)', () => {
+  it('returns correct total node count for 3 racks (2 spine + 6 leaf + 3 rack + 3 OOB = 14)', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
-    expect(nodes).toHaveLength(16)
+    expect(nodes).toHaveLength(14)
   })
 
   it('returns correct spine node count', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const spines = nodes.filter(n => n.id.startsWith('spine-'))
-    expect(spines).toHaveLength(4)
+    expect(spines).toHaveLength(2)
   })
 
   it('returns correct leaf node count', () => {
@@ -66,14 +67,14 @@ describe('buildTopologyGraph', () => {
     expect(oobs).toHaveLength(3)
   })
 
-  it('returns at least 36 edges (24 leaf-spine + 6 server-leaf + 3 server-oob + 3 VLT)', () => {
+  it('returns at least 24 edges (12 leaf-spine + 6 server-leaf + 3 server-oob + 3 VLT)', () => {
     const { edges } = buildTopologyGraph(mockBOM)
-    // leaf-spine: 6 leafs × 4 spines = 24 edges
+    // leaf-spine: 6 leafs × 2 spines = 12 edges
     // server-leaf: 3 racks × 2 leafs = 6 edges
     // server-oob: 3 racks × 1 OOB = 3 edges
     // VLT: 3 leaf pairs = 3 edges
-    // Total: 36
-    expect(edges.length).toBeGreaterThanOrEqual(36)
+    // Total: 24
+    expect(edges.length).toBeGreaterThanOrEqual(24)
   })
 
   it('has correct edge counts by type', () => {
@@ -83,7 +84,7 @@ describe('buildTopologyGraph', () => {
     expect(vltEdges).toHaveLength(3)
 
     const leafSpineEdges = edges.filter(e => e.id.startsWith('ls-'))
-    expect(leafSpineEdges).toHaveLength(24) // 6 leafs × 4 spines
+    expect(leafSpineEdges).toHaveLength(12) // 6 leafs × 2 spines
 
     const serverLeafEdges = edges.filter(e => e.id.startsWith('sl-'))
     expect(serverLeafEdges).toHaveLength(6) // 3 racks × 2 leafs
@@ -122,7 +123,7 @@ describe('buildTopologyGraph', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const ids = nodes.map(n => n.id)
     expect(ids).toContain('spine-0')
-    expect(ids).toContain('spine-3')
+    expect(ids).toContain('spine-1')
     expect(ids).toContain('leaf-0')
     expect(ids).toContain('leaf-5')
     expect(ids).toContain('rack-0')

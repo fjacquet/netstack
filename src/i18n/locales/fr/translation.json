@@ -22,7 +22,9 @@
     "cableFiber": "Fibre (LC/MPO)",
     "selectConnectivity": "Choisir le type de connectivite",
     "selectCable": "Choisir le type de cable",
-    "selectLeafModel": "Choisir le modele de switch Leaf"
+    "selectLeafModel": "Choisir le modele de switch Leaf",
+    "rackSize": "Taille du rack",
+    "selectRackSize": "Choisir la taille du rack"
   },
   "results": {
     "heading": "Resultats",

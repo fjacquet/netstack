@@ -7,6 +7,7 @@ export function TopBar() {
 
   return (
     <header className="flex h-11 items-center border-b bg-secondary/50 px-4">
+      <img src="/netstack/favicon-32x32.png" alt="NetStack" className="mr-2 h-7 w-7" />
       <span className="text-[28px] font-semibold leading-none tracking-tight">
         {t('app.title')}
       </span>

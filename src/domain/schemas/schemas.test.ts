@@ -63,6 +63,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
+      rackSize: '42U',
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -80,6 +81,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '100G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
+      rackSize: '42U',
     });
     expect(result.success).toBe(true);
   });
@@ -91,13 +93,14 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
+      rackSize: '42U',
     });
     expect(result.success).toBe(true);
   });
 });
 
 describe('SizingInputSchema leafModel', () => {
-  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const }
+  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const, rackSize: '42U' as const }
 
   it('accepts S5248F-ON', () => {
     expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5248F-ON' }).success).toBe(true)
@@ -199,6 +202,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
+        rackSize: '42U',
       },
     };
     const result = NetworkBOMSchema.safeParse(validBOM);
@@ -227,6 +231,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
+        rackSize: '42U',
       },
     };
     const result = NetworkBOMSchema.safeParse(bomWithViolations);
