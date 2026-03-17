@@ -50,8 +50,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const oobSwitches = racks * oobSwitchesPerRack;
 
   // ─── Cable Quantities (link model, not port sum) ──────────────────────────
-  // leafSpineCables: each leaf has uplinkPorts connections to the spine tier
-  const leafSpineCables = leafSwitches * LEAF.uplinkPorts;
+  // leafSpineCables: each leaf connects to each spine once (1 link per leaf-spine pair)
+  // limited by leaf uplink ports if fewer than spine count
+  const linksPerLeaf = Math.min(spineSwitches, LEAF.uplinkPorts);
+  const leafSpineCables = leafSwitches * linksPerLeaf;
   // serverLeafCables: one cable per server (connected to one of the two ToR leafs)
   const serverLeafCables = input.totalServers;
   // serverOobCables: every server + every leaf switch gets an OOB management port

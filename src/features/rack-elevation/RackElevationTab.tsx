@@ -104,7 +104,7 @@ export function RackElevationTab() {
       {/* Rack frame with scroll */}
       <ScrollArea className="flex-1">
         <div className="py-6">
-          <RackFrame devices={devices} onReorder={handleReorder} />
+          <RackFrame devices={devices} rackUnits={parseInt(bom.input.rackSize)} onReorder={handleReorder} />
         </div>
       </ScrollArea>
     </div>

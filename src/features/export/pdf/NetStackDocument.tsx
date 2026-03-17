@@ -6,12 +6,13 @@ import { BOMPage } from './BOMPage'
 import { TopologyPage } from './TopologyPage'
 import { ViolationsPage } from './ViolationsPage'
 
-// Register Inter font — paths relative to the deployed base path
+// Register Inter font — use absolute URL relative to import.meta.env.BASE_URL
+const base = import.meta.env.BASE_URL ?? '/'
 Font.register({
   family: 'Inter',
   fonts: [
-    { src: '/netstack/fonts/inter-regular.ttf', fontWeight: 400 },
-    { src: '/netstack/fonts/inter-semibold.ttf', fontWeight: 600 },
+    { src: `${base}fonts/inter-regular.ttf`, fontWeight: 400 },
+    { src: `${base}fonts/inter-semibold.ttf`, fontWeight: 600 },
   ],
 })
 

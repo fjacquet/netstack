@@ -43,7 +43,7 @@ describe('resultStore (derived from inputStore)', () => {
     useInputStore.getState().setInput({ leafModel: 'S5212F-ON' })
     const { bom } = useResultStore.getState()
     expect(bom).not.toBeNull()
-    // S5212F-ON has uplinkPorts=3, so leafSpineCables = leafSwitches * 3
-    expect(bom!.leafSpineCables).toBe(bom!.leafSwitches * 3)
+    // S5212F-ON has uplinkPorts=3, 2 spines → min(2,3)=2 links per leaf
+    expect(bom!.leafSpineCables).toBe(bom!.leafSwitches * Math.min(bom!.spineSwitches, 3))
   })
 })

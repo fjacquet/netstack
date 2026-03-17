@@ -258,7 +258,7 @@ describe('SIZE-06: Pure Function', () => {
 // Cable Quantities (link-based model)
 // ---------------------------------------------------------------------------
 describe('Cable Quantities (link-based model)', () => {
-  it('1 rack: 2 leafs × 4 uplinks = 8 leaf-spine cables', () => {
+  it('1 rack: 2 leafs × 2 spines = 4 leaf-spine cables', () => {
     const result = calculateBOM({
       totalServers: 20,
       serversPerRack: 20,
@@ -267,10 +267,11 @@ describe('Cable Quantities (link-based model)', () => {
       leafModel: 'S5248F-ON',
       rackSize: '42U',
     });
-    expect(result.leafSpineCables).toBe(8);
+    // 1 rack → 2 leafs → 2 spines (min) → 2 leafs × 2 links = 4
+    expect(result.leafSpineCables).toBe(4);
   });
 
-  it('2 racks: 4 leafs × 4 uplinks = 16 leaf-spine cables', () => {
+  it('2 racks: 4 leafs × 2 spines = 8 leaf-spine cables', () => {
     const result = calculateBOM({
       totalServers: 40,
       serversPerRack: 20,
@@ -279,10 +280,11 @@ describe('Cable Quantities (link-based model)', () => {
       leafModel: 'S5248F-ON',
       rackSize: '42U',
     });
-    expect(result.leafSpineCables).toBe(16);
+    // 2 racks → 4 leafs → 2 spines → 4 × 2 = 8
+    expect(result.leafSpineCables).toBe(8);
   });
 
-  it('4 racks: 8 leafs × 4 uplinks = 32 leaf-spine cables', () => {
+  it('4 racks: 8 leafs × 2 spines = 16 leaf-spine cables', () => {
     const result = calculateBOM({
       totalServers: 80,
       serversPerRack: 20,
@@ -291,7 +293,8 @@ describe('Cable Quantities (link-based model)', () => {
       leafModel: 'S5248F-ON',
       rackSize: '42U',
     });
-    expect(result.leafSpineCables).toBe(32);
+    // 4 racks → 8 leafs → 2 spines → 8 × 2 = 16
+    expect(result.leafSpineCables).toBe(16);
   });
 
   it('serverLeafCables = totalServers (one cable per server)', () => {
@@ -444,9 +447,9 @@ describe('Transceivers (fiber only) and VLT', () => {
       leafModel: 'S5248F-ON',
       rackSize: '42U',
     });
-    // 1 rack → 2 leafs → 8 leaf-spine cables (QSFP28), 20 server-leaf cables (SFP28)
+    // 1 rack → 2 leafs → 2 spines → 4 leaf-spine cables (QSFP28), 20 server-leaf cables (SFP28)
     expect(bom.sfp28Count).toBe(40);   // 2 × 20
-    expect(bom.qsfp28Count).toBe(16);  // 2 × 8
+    expect(bom.qsfp28Count).toBe(8);   // 2 × 4
   });
 
   it('DAC → sfp28Count = 0, qsfp28Count = 0', () => {
@@ -500,9 +503,9 @@ describe('leafModel selection', () => {
     expect(bom.leafSwitches).toBe(6) // 3 racks * 2
   })
 
-  it('uses S5212F-ON uplinkPorts (3) for cable calculations', () => {
+  it('uses S5212F-ON uplinkPorts (3) capped by spine count for cable calculations', () => {
     const bom = calculateBOM({ totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5212F-ON', rackSize: '42U' })
-    // S5212F-ON has uplinkPorts=3, so leafSpineCables = leafSwitches * 3
-    expect(bom.leafSpineCables).toBe(bom.leafSwitches * 3)
+    // S5212F-ON has uplinkPorts=3, 2 spines → min(2,3)=2 links per leaf
+    expect(bom.leafSpineCables).toBe(bom.leafSwitches * Math.min(bom.spineSwitches, 3))
   })
 })

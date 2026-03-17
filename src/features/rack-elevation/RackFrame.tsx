@@ -4,6 +4,7 @@ import { RackDevice } from './RackDevice'
 
 interface RackFrameProps {
   devices: RackDeviceType[]
+  rackUnits: number
   onReorder: (devices: RackDeviceType[]) => void
 }
 
@@ -14,8 +15,8 @@ interface RackFrameProps {
  * Empty slots show a dashed border with muted background.
  * Devices are drag-and-droppable to different U-slots.
  */
-export function RackFrame({ devices, onReorder }: RackFrameProps) {
-  const totalSlots = Math.max(4, devices.length + 1)
+export function RackFrame({ devices, rackUnits, onReorder }: RackFrameProps) {
+  const totalSlots = rackUnits
 
   // U-slot numbers go from totalSlots (top, displayed first) down to 1 (bottom, displayed last)
   const slotNumbers = Array.from({ length: totalSlots }, (_, i) => totalSlots - i)
