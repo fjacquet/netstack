@@ -133,13 +133,19 @@ export function BOMPanel() {
   const oobAvailable = SWITCH_CATALOG['S3248T-ON'].downlinkPorts
   const oobPct = Math.round((oobUsed / oobAvailable) * 100)
 
-  // ── Cable category label ──────────────────────────────────────────────────
-  const cableCategoryLabel =
+  // ── Cable category labels (fiber differs by speed: LC for 25G, MPO for 100G) ──
+  const cableCategory25G =
     bom.input.cableType === 'DAC'
       ? t('bom.cableCategoryDac')
       : bom.input.cableType === 'AOC'
         ? t('bom.cableCategoryAoc')
-        : t('bom.cableCategoryFiber')
+        : t('bom.cableCategoryFiberLc')
+  const cableCategory100G =
+    bom.input.cableType === 'DAC'
+      ? t('bom.cableCategoryDac')
+      : bom.input.cableType === 'AOC'
+        ? t('bom.cableCategoryAoc')
+        : t('bom.cableCategoryFiberMpo')
 
   return (
     <Card>
@@ -332,12 +338,12 @@ export function BOMPanel() {
               <TableBody>
                 <TableRow>
                   <TableCell>Leaf-Spine</TableCell>
-                  <TableCell>{cableCategoryLabel}</TableCell>
+                  <TableCell>{cableCategory100G}</TableCell>
                   <TableCell>{bom.leafSpineCables}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Server-Leaf</TableCell>
-                  <TableCell>{cableCategoryLabel}</TableCell>
+                  <TableCell>{cableCategory25G}</TableCell>
                   <TableCell>{bom.serverLeafCables}</TableCell>
                 </TableRow>
                 <TableRow>

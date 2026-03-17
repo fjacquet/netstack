@@ -127,6 +127,8 @@
     "cableCategoryDac": "DAC — Direct Attach",
     "cableCategoryAoc": "AOC — Active Optical",
     "cableCategoryFiber": "Glasfaser — LC/MPO",
+    "cableCategoryFiberLc": "Glasfaser — LC Duplex (25G)",
+    "cableCategoryFiberMpo": "Glasfaser — MPO (100G)",
     "portUtilizationTooltip": "{{used}} belegt / {{available}} verfuegbar ({{pct}}%)",
     "portUtilizationAriaLabel": "Portauslastung fuer {{model}}: {{pct}}%",
     "emptyHeading": "Keine Stueckliste berechnet",
