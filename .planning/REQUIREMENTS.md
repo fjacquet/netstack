@@ -9,7 +9,7 @@
 
 - [ ] **RACK-01**: User can define number of racks explicitly (not just derived from totalServers / serversPerRack)
 - [ ] **RACK-02**: User can set different server counts per rack (variable density)
-- [ ] **RACK-03**: Engine calculates BOM from per-rack configuration array instead of uniform scalars
+- [x] **RACK-03**: Engine calculates BOM from per-rack configuration array instead of uniform scalars
 
 ### Server Ports
 
@@ -54,7 +54,7 @@
 |-------------|-------|--------|
 | RACK-01 | Phase 6 | Pending |
 | RACK-02 | Phase 6 | Pending |
-| RACK-03 | Phase 5 | Pending |
+| RACK-03 | Phase 5 | Complete |
 | PORT-01 | Phase 6 | Pending |
 | PORT-02 | Phase 6 | Pending |
 | PORT-03 | Phase 5 | Pending |

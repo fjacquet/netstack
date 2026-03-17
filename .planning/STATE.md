@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.1
-milestone_name: v1.1 Enhancements
+milestone_name: Enhancements
 status: planning
-stopped_at: Roadmap created for v1.1 — ready to plan Phase 5
-last_updated: "2026-03-17T00:00:00.000Z"
+stopped_at: Completed 05-01-PLAN.md — SizingInput racks array migration
+last_updated: "2026-03-17T19:47:03.025Z"
 last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1)
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 05-engine-enhancements P01 | 9 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,10 @@ Recent decisions affecting current work:
 - [Phase 04-visualization-export-and-documentation]: Double-cast through unknown for @react-pdf/renderer pdf() call — structural type incompatibility between NetStackDocumentProps and DocumentProps
 - [Phase 04-visualization-export-and-documentation]: aria-disabled=true (not HTML disabled) for CSV/PDF buttons when BOM is null — allows tooltip hover and maintains focus
 - [Phase 04-visualization-export-and-documentation]: PDF components use hardcoded hex/rgb values — CSS variables not supported in @react-pdf/renderer (no DOM, no CSS cascade)
+- [Phase 05-engine-enhancements]: racks array replaces totalServers/serversPerRack — foundational RACK-03 schema change enabling per-rack density
+- [Phase 05-engine-enhancements]: maxServersPerRack = Math.max(...racks.map(r => r.serverCount)) for OOB and oversubscription worst-case
+- [Phase 05-engine-enhancements]: Persist version bumped 2 to 3 with merge() migrating v2 scalar format to v3 racks array seamlessly
+- [Phase 05-engine-enhancements]: InputForm bridges UI totalServers+rackCount to racks array via toRacksArray() — full per-rack UI is future
 
 ### Research Flags
 
@@ -117,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: v1.1 roadmap created — ready to plan Phase 5
+Last session: 2026-03-17T19:47:03.022Z
+Stopped at: Completed 05-01-PLAN.md — SizingInput racks array migration
 Resume file: None
