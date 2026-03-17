@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest'
+import { buildCsvString, wrapCsvValue } from './exportCsv'
+import type { NetworkBOM } from '@/domain/schemas/bom'
+
+const mockBom: NetworkBOM = {
+  racks: 2,
+  leafSwitches: 4,
+  spineSwitches: 2,
+  oobSwitches: 1,
+  leafSpineCables: 8,
+  serverLeafCables: 40,
+  serverOobCables: 44,
+  sfp28Count: 0,
+  qsfp28Count: 0,
+  vltCables: 2,
+  oversubscriptionRatio: 3,
+  violations: [],
+  input: {
+    totalServers: 40,
+    serversPerRack: 20,
+    connectivityType: '25G',
+    cableType: 'DAC',
+    leafModel: 'S5248F-ON',
+    rackSize: '42U',
+  },
+}
+
+describe('wrapCsvValue', () => {
+  it('passes through simple strings', () => {
+    expect(wrapCsvValue('hello')).toBe('hello')
+  })
+  it('wraps values containing commas in double quotes', () => {
+    expect(wrapCsvValue('hello, world')).toBe('"hello, world"')
+  })
+  it('doubles internal double quotes', () => {
+    expect(wrapCsvValue('say "hi"')).toBe('"say ""hi"""')
+  })
+})
+
+describe('buildCsvString', () => {
+  it('starts with UTF-8 BOM character', () => {
+    const csv = buildCsvString(mockBom)
+    expect(csv.charCodeAt(0)).toBe(0xFEFF)
+  })
+  it('has correct header row', () => {
+    const csv = buildCsvString(mockBom)
+    const lines = csv.split('\r\n')
+    expect(lines[1]).toBe('Category,Model / Type,Role,Quantity,Unit,Connectivity,Notes')
+  })
+  it('contains switch rows for leaf, spine, and OOB', () => {
+    const csv = buildCsvString(mockBom)
+    expect(csv).toContain('Switch,S5248F-ON,Leaf')
+    expect(csv).toContain('Switch,S5232F-ON,Spine')
+    expect(csv).toContain('Switch,S3248T-ON,OOB')
+  })
+  it('contains cable rows', () => {
+    const csv = buildCsvString(mockBom)
+    expect(csv).toContain('Cable,Leaf-Spine')
+    expect(csv).toContain('Cable,Server-Leaf')
+    expect(csv).toContain('Cable,Server-OOB')
+    expect(csv).toContain('Cable,VLT Interconnect')
+  })
+})
