@@ -18,8 +18,7 @@ const mockBom: NetworkBOM = {
   oversubscriptionRatio: 3,
   violations: [],
   input: {
-    totalServers: 40,
-    serversPerRack: 20,
+    racks: [{ serverCount: 20 }, { serverCount: 20 }],
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',

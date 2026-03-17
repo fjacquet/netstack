@@ -4,12 +4,12 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
 
 /**
  * Mock BOM for 3 racks:
- *   48 servers total, 16 per rack
+ *   48 servers total (3 racks × 16)
  *   Leaf: S5248F-ON (48 downlink, 4 uplink)
  *   Spine: S5232F-ON (32 ports)
  *   OOB: S3248T-ON (48 ports)
  *
- *   racks = ceil(48/16) = 3
+ *   racks = 3 (racks.length)
  *   leafSwitches = 2 × 3 = 6
  *   spineSwitches = max(2, ceil(6/32)) = 2
  *   oobSwitches = 3 × ceil((16+2)/48) = 3 × 1 = 3
@@ -30,8 +30,7 @@ const mockBOM: NetworkBOM = {
   oversubscriptionRatio: 4,
   violations: [],
   input: {
-    totalServers: 48,
-    serversPerRack: 16,
+    racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',

@@ -3,63 +3,82 @@ import { SizingInputSchema } from './input';
 import { ConstraintViolationSchema, NetworkBOMSchema } from './bom';
 import { SwitchSpecSchema } from './catalog';
 
+// Base valid input using racks array format
+const baseInput = {
+  racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+  connectivityType: '25G' as const,
+  cableType: 'DAC' as const,
+  leafModel: 'S5248F-ON' as const,
+  spineModel: 'S5232F-ON' as const,
+  borderLeafModel: 'none' as const,
+  borderLeafCount: 0,
+  rackSize: '42U' as const,
+};
+
 describe('SizingInputSchema — rejection of invalid inputs', () => {
-  it('rejects totalServers: 0', () => {
+  it('rejects empty racks array', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 0,
-      serversPerRack: 20,
-      connectivityType: '25G',
-      cableType: 'DAC',
+      ...baseInput,
+      racks: [],
     });
     expect(result.success).toBe(false);
   });
 
-  it('rejects totalServers: -1', () => {
+  it('rejects serverCount: -1', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: -1,
-      serversPerRack: 20,
-      connectivityType: '25G',
-      cableType: 'DAC',
+      ...baseInput,
+      racks: [{ serverCount: -1 }],
     });
     expect(result.success).toBe(false);
   });
 
-  it('rejects serversPerRack: 0', () => {
+  it('rejects serverCount: 501', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 100,
-      serversPerRack: 0,
-      connectivityType: '25G',
-      cableType: 'DAC',
+      ...baseInput,
+      racks: [{ serverCount: 501 }],
     });
     expect(result.success).toBe(false);
   });
 
-  it('rejects non-integer totalServers (e.g., 10.5)', () => {
+  it('rejects non-integer serverCount (e.g., 10.5)', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 10.5,
-      serversPerRack: 20,
-      connectivityType: '25G',
-      cableType: 'DAC',
+      ...baseInput,
+      racks: [{ serverCount: 10.5 }],
     });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid connectivityType (e.g., 50G)', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 100,
-      serversPerRack: 20,
+      ...baseInput,
       connectivityType: '50G',
-      cableType: 'DAC',
     });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects missing racks field', () => {
+    const { racks: _racks, ...noRacks } = baseInput;
+    const result = SizingInputSchema.safeParse(noRacks);
     expect(result.success).toBe(false);
   });
 });
 
 describe('SizingInputSchema — acceptance of valid inputs', () => {
+  it('accepts single rack with serverCount 10', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      racks: [{ serverCount: 10 }],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.racks).toHaveLength(1);
+      expect(result.data.racks[0].serverCount).toBe(10);
+    }
+  });
+
   it('accepts valid input with 25G connectivity and DAC cable', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 100,
-      serversPerRack: 20,
+      racks: [{ serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }],
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
@@ -70,8 +89,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.totalServers).toBe(100);
-      expect(result.data.serversPerRack).toBe(20);
+      expect(result.data.racks).toHaveLength(5);
       expect(result.data.connectivityType).toBe('25G');
       expect(result.data.cableType).toBe('DAC');
     }
@@ -79,8 +97,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
 
   it('accepts 100G connectivity with fiber cable', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 500,
-      serversPerRack: 48,
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 48 })),
       connectivityType: '100G',
       cableType: 'fiber',
       leafModel: 'S5248F-ON',
@@ -94,8 +111,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
 
   it('accepts AOC cable type', () => {
     const result = SizingInputSchema.safeParse({
-      totalServers: 50,
-      serversPerRack: 10,
+      racks: [{ serverCount: 10 }, { serverCount: 10 }, { serverCount: 10 }, { serverCount: 10 }, { serverCount: 10 }],
       connectivityType: '25G',
       cableType: 'AOC',
       leafModel: 'S5248F-ON',
@@ -106,30 +122,61 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it('accepts serverCount: 0 (empty rack is valid)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      racks: [{ serverCount: 0 }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts serverCount: 500 (max)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      racks: [{ serverCount: 500 }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts racks array up to 200 elements', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      racks: Array.from({ length: 200 }, () => ({ serverCount: 10 })),
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects racks array with 201 elements (over max)', () => {
+    const result = SizingInputSchema.safeParse({
+      ...baseInput,
+      racks: Array.from({ length: 201 }, () => ({ serverCount: 10 })),
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('SizingInputSchema leafModel', () => {
-  const baseInput = { totalServers: 48, serversPerRack: 16, connectivityType: '25G' as const, cableType: 'DAC' as const, spineModel: 'S5232F-ON' as const, borderLeafModel: 'none' as const, borderLeafCount: 0, rackSize: '42U' as const }
-
   it('accepts S5248F-ON', () => {
-    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5248F-ON' }).success).toBe(true)
-  })
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5248F-ON' }).success).toBe(true);
+  });
   it('accepts S5224F-ON', () => {
-    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5224F-ON' }).success).toBe(true)
-  })
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5224F-ON' }).success).toBe(true);
+  });
   it('accepts S5212F-ON', () => {
-    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5212F-ON' }).success).toBe(true)
-  })
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5212F-ON' }).success).toBe(true);
+  });
   it('rejects spine model S5232F-ON', () => {
-    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5232F-ON' }).success).toBe(false)
-  })
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S5232F-ON' }).success).toBe(false);
+  });
   it('rejects OOB model S3248T-ON', () => {
-    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S3248T-ON' }).success).toBe(false)
-  })
+    expect(SizingInputSchema.safeParse({ ...baseInput, leafModel: 'S3248T-ON' }).success).toBe(false);
+  });
   it('requires leafModel field', () => {
-    expect(SizingInputSchema.safeParse(baseInput).success).toBe(false)
-  })
-})
+    const { leafModel: _lm, ...noLeafModel } = baseInput;
+    expect(SizingInputSchema.safeParse(noLeafModel).success).toBe(false);
+  });
+});
 
 describe('ConstraintViolationSchema — OOB_PORT_SATURATION variant', () => {
   it('accepts OOB_PORT_SATURATION with required and available fields', () => {
@@ -208,8 +255,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       oversubscriptionRatio: 3.0,
       violations: [],
       input: {
-        totalServers: 100,
-        serversPerRack: 20,
+        racks: [{ serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }],
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
@@ -242,8 +288,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC' },
       ],
       input: {
-        totalServers: 470,
-        serversPerRack: 47,
+        racks: Array.from({ length: 10 }, () => ({ serverCount: 47 })),
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',

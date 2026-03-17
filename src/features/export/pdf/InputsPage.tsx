@@ -54,9 +54,15 @@ const cableTypeLabel: Record<string, string> = {
 }
 
 export function InputsPage({ input }: InputsPageProps) {
+  // RACK-03: Derive display values from racks array
+  const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0)
+  const rackCount = input.racks.length
+  const maxServersPerRack = rackCount > 0 ? Math.max(...input.racks.map(r => r.serverCount)) : 0
+
   const rows: [string, string][] = [
-    ['Total Servers', String(input.totalServers)],
-    ['Servers per Rack', String(input.serversPerRack)],
+    ['Rack Count', String(rackCount)],
+    ['Total Servers', String(totalServers)],
+    ['Max Servers per Rack', String(maxServersPerRack)],
     ['Rack Size', input.rackSize],
     ['Connectivity Type', input.connectivityType + ' SFP28'],
     ['Cable Type', cableTypeLabel[input.cableType] ?? input.cableType],

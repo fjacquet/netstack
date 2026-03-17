@@ -37,8 +37,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     oversubscriptionRatio: 2.4,
     violations: [],
     input: {
-      totalServers: 48,
-      serversPerRack: 16,
+      racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
       connectivityType: '25G',
       cableType: 'DAC',
       leafModel: 'S5248F-ON',
@@ -141,7 +140,18 @@ describe('BOMPanel', () => {
 
   describe('BOM-03: cable type', () => {
     it('displays DAC in cables heading when input.cableType is DAC', () => {
-      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON', spineModel: 'S5232F-ON', borderLeafModel: 'none', borderLeafCount: 0, rackSize: '42U' } })
+      const bom = makeBom({
+        input: {
+          racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+          connectivityType: '25G',
+          cableType: 'DAC',
+          leafModel: 'S5248F-ON',
+          spineModel: 'S5232F-ON',
+          borderLeafModel: 'none',
+          borderLeafCount: 0,
+          rackSize: '42U',
+        },
+      })
       mockStore({ bom, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
@@ -170,8 +180,19 @@ describe('BOMPanel', () => {
 
   describe('BOM-04: port utilization and violations', () => {
     it('renders port utilization progress bars with correct aria-valuenow', () => {
-      // serversPerRack=16, leaf downlinkPorts=48 → 16/48 = 33.33% → Math.round = 33
-      const bom = makeBom({ input: { totalServers: 48, serversPerRack: 16, connectivityType: '25G', cableType: 'DAC', leafModel: 'S5248F-ON', spineModel: 'S5232F-ON', borderLeafModel: 'none', borderLeafCount: 0, rackSize: '42U' } })
+      // racks: 3 × 16 servers → maxServersPerRack=16, leaf downlinkPorts=48 → 16/48 = 33.33% → Math.round = 33
+      const bom = makeBom({
+        input: {
+          racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+          connectivityType: '25G',
+          cableType: 'DAC',
+          leafModel: 'S5248F-ON',
+          spineModel: 'S5232F-ON',
+          borderLeafModel: 'none',
+          borderLeafCount: 0,
+          rackSize: '42U',
+        },
+      })
       mockStore({ bom, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })

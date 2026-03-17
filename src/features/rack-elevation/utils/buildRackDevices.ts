@@ -5,19 +5,27 @@ import type { RackDevice } from '../types'
 /**
  * Build the list of rack devices for a given rack index from a NetworkBOM.
  *
+ * RACK-03: Uses rack-specific serverCount from input.racks[rackIndex] for
+ * accurate per-rack port utilization display. Falls back to 0 if rackIndex
+ * is out of bounds (defensive guard for edge cases).
+ *
  * Default device placement (bottom-to-top):
  *   U1: OOB switch (S3248T-ON)
  *   U2: Leaf B (second of redundant ToR pair)
  *   U3: Leaf A (first of redundant ToR pair)
  *
  * @param bom - The computed NetworkBOM containing input parameters and counts
- * @param rackIndex - Zero-based rack index (used for device IDs)
+ * @param rackIndex - Zero-based rack index (used for device IDs and per-rack server count)
  * @returns Ordered array of RackDevice objects for this rack
  */
 export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice[] {
   const leafModel = bom.input.leafModel
   const leafSpec = SWITCH_CATALOG[leafModel]
   const oobSpec = SWITCH_CATALOG['S3248T-ON']
+
+  // Per-rack server count for accurate port utilization (RACK-03)
+  const rackConfig = bom.input.racks[rackIndex]
+  const serverCount = rackConfig?.serverCount ?? 0
 
   const devices: RackDevice[] = [
     {
@@ -26,7 +34,7 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'oob',
       label: 'OOB Management',
       uSlot: 1,
-      usedPorts: bom.input.serversPerRack + 2,
+      usedPorts: serverCount + 2,
       totalPorts: oobSpec.downlinkPorts,
     },
     {
@@ -35,7 +43,7 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'leaf',
       label: 'Leaf B (ToR)',
       uSlot: 2,
-      usedPorts: bom.input.serversPerRack,
+      usedPorts: serverCount,
       totalPorts: leafSpec.downlinkPorts,
     },
     {
@@ -44,7 +52,7 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'leaf',
       label: 'Leaf A (ToR)',
       uSlot: 3,
-      usedPorts: bom.input.serversPerRack,
+      usedPorts: serverCount,
       totalPorts: leafSpec.downlinkPorts,
     },
   ]

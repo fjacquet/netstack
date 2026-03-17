@@ -1,9 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/shallow'
-import { SizingInputSchema } from '@/domain/schemas/input'
 import { useInputStore } from '@/store/inputStore'
 import {
   Form,
@@ -29,40 +27,87 @@ const SPINE_MODELS = ['S5232F-ON'] as const
 const BORDER_LEAF_OPTIONS = ['none', 'S5248F-ON', 'S5224F-ON', 'S5212F-ON'] as const
 const RACK_SIZES = ['24U', '42U', '50U'] as const
 
+/**
+ * Bridge form values for the UI. The UI collects totalServers + rackCount
+ * and the form translates those to the racks array format used by SizingInput.
+ *
+ * RACK-03: The UI uses a simplified "total servers / racks count" input that
+ * generates a uniform racks array. Full per-rack configuration is a future enhancement.
+ */
+interface FormValues {
+  totalServers: number
+  rackCount: number
+  connectivityType: '25G' | '100G'
+  cableType: 'DAC' | 'AOC' | 'fiber'
+  leafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON'
+  spineModel: 'S5232F-ON'
+  borderLeafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'none'
+  borderLeafCount: number
+  rackSize: '24U' | '42U' | '50U'
+}
+
+/** Convert form values to a uniform racks array */
+function toRacksArray(totalServers: number, rackCount: number): Array<{ serverCount: number }> {
+  const safeCount = Math.max(1, Math.floor(rackCount))
+  const safeTotal = Math.max(0, Math.floor(totalServers))
+  const base = Math.floor(safeTotal / safeCount)
+  const remainder = safeTotal % safeCount
+  return Array.from({ length: safeCount }, (_, i) => ({
+    serverCount: i < remainder ? base + 1 : base,
+  }))
+}
+
 export function InputForm() {
   const { t } = useTranslation()
   const { input, setInput, resetInput } = useInputStore(
     useShallow((s) => ({ input: s.input, setInput: s.setInput, resetInput: s.resetInput }))
   )
 
+  // Derive display values from racks array
+  const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0)
+  const rackCount = input.racks.length
+
   // CRITICAL: Do NOT pass generic type argument to useForm with Zod v4
-  // @hookform/resolvers v5.2.2 requires type inference from zodResolver
-  const form = useForm({
-    resolver: zodResolver(SizingInputSchema),
-    defaultValues: input,
+  const form = useForm<FormValues>({
+    defaultValues: {
+      totalServers,
+      rackCount,
+      connectivityType: input.connectivityType,
+      cableType: input.cableType,
+      leafModel: input.leafModel,
+      spineModel: input.spineModel,
+      borderLeafModel: input.borderLeafModel,
+      borderLeafCount: input.borderLeafCount,
+      rackSize: input.rackSize,
+    },
     mode: 'onChange',
   })
 
-  // Watch all fields for live recalculation
-  // Use a ref for the debounce timer on number inputs
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const subscription = form.watch((values, { name }) => {
-      // Only push to store if form is valid
-      if (!form.formState.isValid) return
-
-      const validValues = values as Record<string, unknown>
+      const v = values as Partial<FormValues>
 
       // Debounce number inputs (150ms per UI-SPEC)
-      if (name === 'totalServers' || name === 'serversPerRack') {
+      if (name === 'totalServers' || name === 'rackCount') {
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => {
-          setInput(validValues)
+          const ts = Number(v.totalServers ?? totalServers)
+          const rc = Number(v.rackCount ?? rackCount)
+          if (ts > 0 && rc > 0) {
+            setInput({ racks: toRacksArray(ts, rc) })
+          }
         }, 150)
       } else {
         // Select inputs: immediate
-        setInput(validValues)
+        const { totalServers: _ts, rackCount: _rc, ...rest } = v as FormValues
+        const validRest = Object.fromEntries(
+          Object.entries(rest).filter(([, val]) => val !== undefined && val !== null && String(val) !== '')
+        )
+        if (Object.keys(validRest).length > 0) {
+          setInput(validRest)
+        }
       }
     })
 
@@ -70,7 +115,7 @@ export function InputForm() {
       subscription.unsubscribe()
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [form, setInput])
+  }, [form, setInput, totalServers, rackCount])
 
   return (
     <Card>
@@ -106,18 +151,18 @@ export function InputForm() {
               )}
             />
 
-            {/* Field 2: Servers per Rack */}
+            {/* Field 2: Rack Count */}
             <FormField
               control={form.control}
-              name="serversPerRack"
+              name="rackCount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('sizing.serversPerRack')}</FormLabel>
+                  <FormLabel>{t('sizing.rackCount', { defaultValue: 'Number of Racks' })}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={1}
-                      max={48}
+                      max={200}
                       {...field}
                       onChange={(e) => {
                         const val = e.target.value
@@ -351,7 +396,7 @@ export function InputForm() {
                 resetInput()
                 form.reset({
                   totalServers: 48,
-                  serversPerRack: 16,
+                  rackCount: 3,
                   connectivityType: '25G',
                   cableType: 'DAC',
                   leafModel: 'S5248F-ON',

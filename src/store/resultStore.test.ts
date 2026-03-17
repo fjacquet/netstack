@@ -4,11 +4,10 @@ import { useResultStore } from './resultStore'
 
 describe('resultStore (derived from inputStore)', () => {
   beforeEach(() => {
-    // Reset stores to default state
+    // Reset stores to default state (3 racks × 16 = 48 servers)
     useInputStore.setState({
       input: {
-        totalServers: 48,
-        serversPerRack: 16,
+        racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
         connectivityType: '25G',
         cableType: 'DAC',
         leafModel: 'S5248F-ON',
@@ -23,22 +22,30 @@ describe('resultStore (derived from inputStore)', () => {
   it('computes BOM from default input on initialization', () => {
     const { bom } = useResultStore.getState()
     expect(bom).not.toBeNull()
-    expect(bom!.racks).toBe(3) // ceil(48/16) = 3
+    expect(bom!.racks).toBe(3) // 3 racks in array
     expect(bom!.leafSwitches).toBe(6) // 3 * 2
   })
 
-  it('recomputes BOM when inputStore changes', () => {
-    useInputStore.getState().setInput({ totalServers: 96 })
+  it('recomputes BOM when inputStore changes (add a rack)', () => {
+    useInputStore.getState().setInput({
+      racks: [
+        { serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 },
+        { serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 },
+      ],
+    })
     const { bom } = useResultStore.getState()
     expect(bom).not.toBeNull()
-    expect(bom!.racks).toBe(6) // ceil(96/16) = 6
+    expect(bom!.racks).toBe(6) // 6 racks in array
     expect(bom!.leafSwitches).toBe(12) // 6 * 2
   })
 
   it('updates violations when input triggers constraint', () => {
-    useInputStore.getState().setInput({ serversPerRack: 48, cableType: 'DAC', totalServers: 480 })
+    // 10 racks × 48 servers = triggers DAC_DISTANCE_ADVISORY (> 8 racks) and OOB_PORT_SATURATION (48+2=50>48)
+    useInputStore.getState().setInput({
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 48 })),
+      cableType: 'DAC',
+    })
     const { violations } = useResultStore.getState()
-    // serversPerRack=48 + 2 = 50 > 48 OOB ports => OOB_PORT_SATURATION
     expect(violations.some((v) => v.code === 'OOB_PORT_SATURATION')).toBe(true)
   })
 

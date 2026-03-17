@@ -2,15 +2,28 @@
  * Zod schema for sizing engine input.
  * This schema is the single source of truth for the SizingInput TypeScript type.
  * Use z.infer<typeof SizingInputSchema> — never declare the type separately.
+ *
+ * RACK-03: SizingInput now uses a racks array where each element has its own
+ * serverCount, enabling per-rack server density configuration.
  */
 
 import { z } from 'zod';
 
+/** Per-rack configuration: each rack tracks its own server count */
+export const RackConfigSchema = z.object({
+  /** Number of servers in this rack (0 = empty rack, max 500) */
+  serverCount: z.number().int().min(0).max(500),
+});
+
 export const SizingInputSchema = z.object({
-  /** Total number of servers to accommodate */
-  totalServers: z.number().int().min(1).max(10_000),
-  /** Number of servers per rack (determines rack count and OOB port requirements) */
-  serversPerRack: z.number().int().min(1).max(48),
+  /**
+   * Per-rack server configuration. Each element represents one rack.
+   * The engine derives:
+   *   - rack count = racks.length
+   *   - totalServers = sum(racks[].serverCount)
+   *   - maxServersPerRack = max(racks[].serverCount)  — for OOB/oversubscription worst-case
+   */
+  racks: z.array(RackConfigSchema).min(1).max(200),
   /** Server-facing connectivity type */
   connectivityType: z.enum(['25G', '100G']),
   /** Cable type used for all inter-device connections */
@@ -29,3 +42,6 @@ export const SizingInputSchema = z.object({
 
 /** Inferred TypeScript type — do not declare separately */
 export type SizingInput = z.infer<typeof SizingInputSchema>;
+
+/** Inferred TypeScript type for a single rack config */
+export type RackConfig = z.infer<typeof RackConfigSchema>;

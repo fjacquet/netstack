@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { buildRackDevices } from './buildRackDevices'
 import type { NetworkBOM } from '@/domain/schemas/bom'
 
-/** Minimal mock BOM: 48 servers, 16/rack, S5248F-ON leaf */
+/** Minimal mock BOM: 48 servers (3 racks × 16), S5248F-ON leaf */
 const mockBOM: NetworkBOM = {
   racks: 3,
   networkRacks: 1,
@@ -19,8 +19,7 @@ const mockBOM: NetworkBOM = {
   oversubscriptionRatio: 4,
   violations: [],
   input: {
-    totalServers: 48,
-    serversPerRack: 16,
+    racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     connectivityType: '25G',
     cableType: 'DAC',
     leafModel: 'S5248F-ON',
@@ -63,14 +62,14 @@ describe('buildRackDevices', () => {
     expect(u3?.label).toContain('Leaf A')
   })
 
-  it('OOB device has usedPorts = serversPerRack + 2 and totalPorts = 48', () => {
+  it('OOB device has usedPorts = rack serverCount + 2 and totalPorts = 48', () => {
     const devices = buildRackDevices(mockBOM, 0)
     const oob = devices.find((d) => d.role === 'oob')
     expect(oob?.usedPorts).toBe(18) // 16 + 2
     expect(oob?.totalPorts).toBe(48)
   })
 
-  it('Leaf devices have usedPorts = serversPerRack and totalPorts = 48 (S5248F-ON downlinkPorts)', () => {
+  it('Leaf devices have usedPorts = rack serverCount and totalPorts = 48 (S5248F-ON downlinkPorts)', () => {
     const devices = buildRackDevices(mockBOM, 0)
     const leafDevices = devices.filter((d) => d.role === 'leaf')
     expect(leafDevices).toHaveLength(2)
@@ -97,5 +96,35 @@ describe('buildRackDevices', () => {
     expect(ids).toContain('rack-0-oob-0')
     expect(ids).toContain('rack-0-leaf-1')
     expect(ids).toContain('rack-0-leaf-0')
+  })
+
+  it('uses rack-specific serverCount for usedPorts when rackIndex is provided', () => {
+    // Variable density mock: rack 0 has 10 servers, rack 1 has 20, rack 2 has 30
+    const varDensityBOM: NetworkBOM = {
+      ...mockBOM,
+      input: {
+        ...mockBOM.input,
+        racks: [{ serverCount: 10 }, { serverCount: 20 }, { serverCount: 30 }],
+      },
+    }
+    const devices0 = buildRackDevices(varDensityBOM, 0)
+    const devices1 = buildRackDevices(varDensityBOM, 1)
+    const devices2 = buildRackDevices(varDensityBOM, 2)
+
+    const oob0 = devices0.find((d) => d.role === 'oob')
+    const oob1 = devices1.find((d) => d.role === 'oob')
+    const oob2 = devices2.find((d) => d.role === 'oob')
+
+    expect(oob0?.usedPorts).toBe(12) // 10 + 2
+    expect(oob1?.usedPorts).toBe(22) // 20 + 2
+    expect(oob2?.usedPorts).toBe(32) // 30 + 2
+
+    const leaf0 = devices0.find((d) => d.role === 'leaf' && d.uSlot === 3)
+    const leaf1 = devices1.find((d) => d.role === 'leaf' && d.uSlot === 3)
+    const leaf2 = devices2.find((d) => d.role === 'leaf' && d.uSlot === 3)
+
+    expect(leaf0?.usedPorts).toBe(10)
+    expect(leaf1?.usedPorts).toBe(20)
+    expect(leaf2?.usedPorts).toBe(30)
   })
 })

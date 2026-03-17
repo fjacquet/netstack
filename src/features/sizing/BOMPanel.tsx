@@ -121,7 +121,11 @@ export function BOMPanel() {
   const severity = getSeverity(ratio)
 
   // ── Port utilization data ─────────────────────────────────────────────────
-  const leafUsed = bom.input.serversPerRack
+  // RACK-03: Use worst-case rack (max serverCount) for port utilization display
+  const maxServersPerRack = bom.input.racks.length > 0
+    ? Math.max(...bom.input.racks.map(r => r.serverCount))
+    : 0
+  const leafUsed = maxServersPerRack
   const leafAvailable = SWITCH_CATALOG[bom.input.leafModel].downlinkPorts
   const leafPct = Math.round((leafUsed / leafAvailable) * 100)
 
@@ -129,7 +133,7 @@ export function BOMPanel() {
   const spineAvailable = SWITCH_CATALOG['S5232F-ON'].downlinkPorts
   const spinePct = Math.round((spineUsed / spineAvailable) * 100)
 
-  const oobUsed = bom.input.serversPerRack + 2
+  const oobUsed = maxServersPerRack + 2
   const oobAvailable = SWITCH_CATALOG['S3248T-ON'].downlinkPorts
   const oobPct = Math.round((oobUsed / oobAvailable) * 100)
 

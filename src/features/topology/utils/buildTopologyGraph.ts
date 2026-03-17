@@ -76,9 +76,8 @@ export function buildTopologyGraph(bom: NetworkBOM): TopologyGraphResult {
 
   for (let ri = 0; ri < bom.racks; ri++) {
     const cx = rackX(ri)
-    const serversInRack = ri < bom.racks - 1
-      ? bom.input.serversPerRack
-      : bom.input.totalServers - (bom.racks - 1) * bom.input.serversPerRack
+    // RACK-03: Per-rack server count from racks array; fallback to 0 if out of bounds
+    const serversInRack = bom.input.racks[ri]?.serverCount ?? 0
 
     // Leaf A (left of rack center)
     leafNodes.push({

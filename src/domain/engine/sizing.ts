@@ -8,6 +8,9 @@
  *   - Two redundant ToR leaf switches per rack
  *   - Full-mesh non-blocking spine (scales with leaf count)
  *   - OOB management switch per rack with saturation check
+ *
+ * RACK-03: Input uses racks array; engine derives rack count, totalServers,
+ * and maxServersPerRack from the array rather than scalar fields.
  */
 
 import { SWITCH_CATALOG } from '../catalog/hardware';
@@ -22,7 +25,7 @@ const OOB = SWITCH_CATALOG['S3248T-ON'];
  *
  * Pure function: same input always produces the same output. No side effects.
  *
- * @param input - Validated sizing parameters (totalServers, serversPerRack, etc.)
+ * @param input - Validated sizing parameters (racks array, connectivity, cable type, etc.)
  * @returns Complete NetworkBOM with switch counts, cable quantities, and violations
  */
 export function calculateBOM(input: SizingInput): NetworkBOM {
@@ -30,8 +33,18 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const LEAF = SWITCH_CATALOG[input.leafModel];
   const SPINE = SWITCH_CATALOG[input.spineModel];
 
-  // ─── Rack Count (SIZE-02) ─────────────────────────────────────────────────
-  const racks = Math.ceil(input.totalServers / input.serversPerRack);
+  // ─── Rack Count (RACK-03) — derived from racks array length ───────────────
+  const racks = input.racks.length;
+
+  // ─── Server Totals (RACK-03) — derived from racks array ──────────────────
+  const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0);
+
+  // ─── Worst-case rack (RACK-03) — for OOB saturation + oversubscription ───
+  // maxServersPerRack determines port requirements for the densest rack.
+  // An empty rack array is rejected by schema, but guard with fallback 0.
+  const maxServersPerRack = input.racks.length > 0
+    ? Math.max(...input.racks.map(r => r.serverCount))
+    : 0;
 
   // ─── Leaf Switches (SIZE-03) — 2 redundant ToR switches per rack ──────────
   const leafSwitches = racks * 2;
@@ -44,8 +57,9 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   );
 
   // ─── OOB Switches (SIZE-05) ───────────────────────────────────────────────
-  // Each rack needs: serversPerRack + 2 management ports (2 ToR leaf switches)
-  const oobPortsRequired = input.serversPerRack + 2;
+  // Each rack needs: maxServersPerRack + 2 management ports (2 ToR leaf switches)
+  // Using worst-case rack to ensure every rack's OOB needs are met.
+  const oobPortsRequired = maxServersPerRack + 2;
   const oobSwitchesPerRack = Math.ceil(oobPortsRequired / OOB.downlinkPorts);
   const oobSwitches = racks * oobSwitchesPerRack;
 
@@ -55,8 +69,8 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
 
   // ─── Network Racks (for spines + border leafs) ──────────────────────────
   // 1U per switch, typically 1 rack holds all network devices
-  const rackSizeU = parseInt(input.rackSize)
-  const networkDeviceCount = spineSwitches + borderLeafSwitches
+  const rackSizeU = parseInt(input.rackSize);
+  const networkDeviceCount = spineSwitches + borderLeafSwitches;
   const networkRacks = networkDeviceCount > 0 ? Math.ceil(networkDeviceCount / rackSizeU) : 0;
 
   // ─── Cable Quantities (link model, not port sum) ──────────────────────────
@@ -65,9 +79,9 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const linksPerLeaf = Math.min(spineSwitches, LEAF.uplinkPorts);
   const leafSpineCables = leafSwitches * linksPerLeaf;
   // serverLeafCables: one cable per server (connected to one of the two ToR leafs)
-  const serverLeafCables = input.totalServers;
+  const serverLeafCables = totalServers;
   // serverOobCables: every server + every leaf switch gets an OOB management port
-  const serverOobCables = input.totalServers + leafSwitches;
+  const serverOobCables = totalServers + leafSwitches;
 
   // ─── Transceivers (fiber only — 2 per cable link, type depends on speed) ──
   // Server-leaf links are 25G → SFP28; leaf-spine links are 100G → QSFP28
@@ -81,11 +95,12 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   const vltCables = racks * 2;
 
   // ─── Oversubscription Ratio ───────────────────────────────────────────────
-  // (serversPerRack × server link speed) / (spineSwitches × leaf uplink speed)
+  // (maxServersPerRack × server link speed) / (spineSwitches × leaf uplink speed)
+  // Uses worst-case rack to represent the highest-density rack's oversubscription.
   const uplinkBandwidth = spineSwitches * (LEAF.uplinkSpeedGbE ?? 0);
   const oversubscriptionRatio =
     uplinkBandwidth > 0
-      ? (input.serversPerRack * LEAF.downlinkSpeedGbE) / uplinkBandwidth
+      ? (maxServersPerRack * LEAF.downlinkSpeedGbE) / uplinkBandwidth
       : 0;
 
   // ─── Constraint Violations ───────────────────────────────────────────────
@@ -101,6 +116,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   }
 
   // OOB_PORT_SATURATION: OOB ports required exceed one switch's capacity
+  // Uses maxServersPerRack (worst-case rack) for accurate saturation detection.
   if (oobPortsRequired > OOB.downlinkPorts) {
     violations.push({
       code: 'OOB_PORT_SATURATION',
