@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-03-17T06:01:59.751Z"
+stopped_at: Completed 04-visualization-export-and-documentation-01-PLAN.md
+last_updated: "2026-03-17T07:01:52.034Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 13
+  completed_plans: 9
   percent: 33
 ---
 
@@ -61,6 +61,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03-bom-output-and-metrics P01 | 3 | 2 tasks | 9 files |
 | Phase 03-bom-output-and-metrics P02 | 3 | 2 tasks | 4 files |
 | Phase 03-bom-output-and-metrics P02 | 5 | 3 tasks | 4 files |
+| Phase 04-visualization-export-and-documentation P01 | 4 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Recent decisions affecting current work:
 - [Phase 03-bom-output-and-metrics]: data-testid='oversub-badge' with data-severity attribute enables RTL testing of cva-styled badge without brittle class name assertions
 - [Phase 03-bom-output-and-metrics]: ViolationAlert extracted as sub-component for clean discriminated union switch pattern — each v.code case renders correct Alert variant
 - [Phase 03-bom-output-and-metrics]: TooltipProvider wrapper in test helper required — App.tsx provides it globally but RTL tests render in isolation and Radix requires context
+- [Phase 04-visualization-export-and-documentation]: getSaturationBorderClass uses border- prefix (not bg-) — topology nodes use border colors to show saturation on node outline, not background fill
+- [Phase 04-visualization-export-and-documentation]: CsvRow.category typed as 'Switch' | 'Cable' | 'Transceiver' discriminated union — enables exhaustive switch in CSV generator
+- [Phase 04-visualization-export-and-documentation]: Empty barrel index.ts files created for topology, rack-elevation, export features — Plans 02-05 populate them without structural file changes
 
 ### Research Flags (from SUMMARY.md)
 
@@ -116,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T06:01:59.749Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/04-visualization-export-and-documentation/04-UI-SPEC.md
+Last session: 2026-03-17T07:01:52.032Z
+Stopped at: Completed 04-visualization-export-and-documentation-01-PLAN.md
+Resume file: None
