@@ -4,7 +4,7 @@ import { SWITCH_CATALOG } from '@/domain/catalog/hardware'
 import type { SwitchNodeData, RackNodeData, TopologyGraphResult } from '../types'
 
 // Y positions for each tier
-const Y = { spine: 0, leaf: 160, oob: 280, rack: 400 } as const
+const Y = { spine: 0, leaf: 160, rack: 280, oob: 400 } as const
 
 // Rack column width and shared infrastructure spacing
 const RACK_COL_WIDTH = 320

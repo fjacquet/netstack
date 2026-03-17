@@ -121,7 +121,7 @@ describe('buildTopologyGraph', () => {
   it('places rack nodes at y=420', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const racks = nodes.filter(n => n.id.startsWith('rack-'))
-    racks.forEach(r => expect(r.position.y).toBe(400))
+    racks.forEach(r => expect(r.position.y).toBe(280))
   })
 
   it('uses correct node id patterns', () => {
