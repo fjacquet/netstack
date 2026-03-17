@@ -14,24 +14,28 @@ Scaffold the React app with Vite, create Zustand stores wired to the sizing engi
 ## Implementation Decisions
 
 ### Language switching
+
 - Default language detected from browser locale; fall back to EN if locale is not FR/DE/IT
 - Language switcher is a dropdown in the header/navbar (top-right area), always visible
 - Full UI + labels translated: all buttons, labels, tooltips, error messages, empty states — but technical terms (S5248F-ON, DAC, 25G, QSFP28) stay in English
 - Language choice persisted to localStorage so it survives page reloads
 
 ### App shell structure
+
 - Tabbed layout with 4 tabs: Sizing (Input + BOM), Topology, Rack Elevation, Export
 - The Sizing tab shows input form and results side-by-side (form on the left, results on the right)
 - Topology, Rack Elevation, and Export tabs are empty placeholders in Phase 2 — filled in Phases 3-4
 - Top bar contains: app logo/title, tab navigation, language switcher, theme toggle
 
 ### Form layout
+
 - Input form lives in the left panel of the Sizing tab
 - Fields: total server count, servers per rack, connectivity type (25G/100G), cable type (DAC/AOC/fiber), leaf model selection
 - Inline Zod validation error messages on each field
 - Changing any input triggers immediate engine recalculation (no submit button)
 
 ### Claude's Discretion
+
 - Responsive tablet behavior (stack vs collapse at 768px)
 - Form field grouping and visual ordering
 - Theme toggle icon/placement style within the header
@@ -42,20 +46,24 @@ Scaffold the React app with Vite, create Zustand stores wired to the sizing engi
 </decisions>
 
 <code_context>
+
 ## Existing Code Insights
 
 ### Reusable Assets
+
 - `src/domain/engine/sizing.ts`: `calculateBOM(input)` — pure function, ready to wire to Zustand store
 - `src/domain/schemas/input.ts`: `SizingInputSchema` — Zod schema for form validation, exports `SizingInput` type
 - `src/domain/catalog/hardware.ts`: `SWITCH_CATALOG` — needed for leaf model dropdown options
 - `src/domain/catalog/cables.ts`: `CABLE_CATALOG` — needed for cable type dropdown options
 
 ### Established Patterns
+
 - Pure TypeScript domain layer with no React deps — store layer must import from domain, not the other way
 - Types inferred from Zod schemas via `z.infer<>` — form types come from `SizingInput`
 - All hardware constants in catalog — form dropdowns should source options from catalog, not hardcode
 
 ### Integration Points
+
 - Zustand `inputStore` subscribes to form changes → calls `calculateBOM()` → populates `resultStore`
 - `resultStore` is derived (never persisted) — recomputed on every input change
 - React components in `src/features/` consume stores via Zustand hooks with `useShallow`

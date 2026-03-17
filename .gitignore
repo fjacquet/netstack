@@ -1,5 +1,48 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+
+# Vite
+*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code
+.claude/settings.json
+.claude/settings.local.json
+
+# MCP configs (contain API keys)
+.mcp.json
+.mcp_servers.json
+
+# Serena
+.serena/
+
+# RTK
 .rtk/
+
+# Logs
 *.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.*
+!.env.example
