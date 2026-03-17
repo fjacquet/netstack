@@ -30,7 +30,7 @@
 
 ### Visualization
 
-- [ ] **VIZ-01**: Auto-generated Leaf-Spine topology diagram using @xyflow/react with deterministic layout
+- [x] **VIZ-01**: Auto-generated Leaf-Spine topology diagram using @xyflow/react with deterministic layout
 - [x] **VIZ-02**: Rack elevation view showing physical device placement per rack (custom SVG)
 - [x] **VIZ-03**: Visual port saturation alerts when OOB or leaf ports approach/exceed capacity
 
@@ -109,7 +109,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAT-01 | Phase 1 | Complete |
 | CAT-02 | Phase 1 | Complete |
 | CAT-03 | Phase 1 | Complete |
-| VIZ-01 | Phase 4 | Pending |
+| VIZ-01 | Phase 4 | Complete |
 | VIZ-02 | Phase 4 | Complete |
 | VIZ-03 | Phase 4 | Complete |
 | EXP-01 | Phase 4 | Pending |

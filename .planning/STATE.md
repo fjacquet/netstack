@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-visualization-export-and-documentation-05-PLAN.md
-last_updated: "2026-03-17T07:28:14.112Z"
+stopped_at: Completed 04-visualization-export-and-documentation-02-PLAN.md
+last_updated: "2026-03-17T07:29:46.108Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 33
 ---
 
@@ -64,6 +64,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 04-visualization-export-and-documentation P01 | 4 | 2 tasks | 16 files |
 | Phase 04-visualization-export-and-documentation P03 | 4 | 2 tasks | 6 files |
 | Phase 04-visualization-export-and-documentation P05 | 9 | 2 tasks | 7 files |
+| Phase 04-visualization-export-and-documentation P02 | 30 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase Phase 04-visualization-export-and-documentation]: totalSlots = Math.max(4, devices.length + 1) in RackFrame — minimum 4 slots always visible
 - [Phase 04-visualization-export-and-documentation]: PRD formalized with all 28 v1 requirements, acceptance criteria, and phase traceability
 - [Phase 04-visualization-export-and-documentation]: ADRs 0005-0008 document @xyflow/react topology, @react-pdf/renderer lazy-load, VLT cable modeling, react-i18next synchronous imports
+- [Phase 04-visualization-export-and-documentation]: Custom DOM event 'topology:action' used for toolbar -> canvas communication — avoids prop-drilling through ReactFlowProvider context boundary
+- [Phase 04-visualization-export-and-documentation]: Module-level PNG cache with 500ms delay for PDF export — captures after nodes render, accessible even when Topology tab hidden
+- [Phase 04-visualization-export-and-documentation]: nodeTypes at module scope — React Flow reference equality check causes infinite re-renders if defined inside component
 
 ### Research Flags (from SUMMARY.md)
 
@@ -126,6 +130,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T07:28:14.110Z
-Stopped at: Completed 04-visualization-export-and-documentation-05-PLAN.md
+Last session: 2026-03-17T07:29:46.106Z
+Stopped at: Completed 04-visualization-export-and-documentation-02-PLAN.md
 Resume file: None
