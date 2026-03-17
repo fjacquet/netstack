@@ -1,135 +1,74 @@
 # Requirements: NetStack
 
-**Defined:** 2026-03-16
-**Core Value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
+**Defined:** 2026-03-17
+**Core Value:** Answer "How many boxes and cables do I need?" instantly and accurately
 
-## v1 Requirements
+## v1.1 Requirements
 
-### Sizing Engine
+### Rack Configuration
 
-- [x] **SIZE-01**: User can input total server count, servers per rack, and connectivity type (25G/100G)
-- [x] **SIZE-02**: Engine calculates rack count as `ceil(total_servers / servers_per_rack)`
-- [x] **SIZE-03**: Engine calculates leaf switches as `2 × N_racks` (redundant ToR pair per rack)
-- [x] **SIZE-04**: Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity
-- [x] **SIZE-05**: Engine calculates OOB switches (S3248T-ON) as `1 × N_racks` with port saturation alert when ports > 48
-- [x] **SIZE-06**: Engine is a pure function: `(SizingInput) => NetworkBillOfMaterial` with no side effects
-- [x] **SIZE-07**: Engine validates all physical constraints via Zod schemas (port counts, cable compatibility)
+- [ ] **RACK-01**: User can define number of racks explicitly (not just derived from totalServers / serversPerRack)
+- [ ] **RACK-02**: User can set different server counts per rack (variable density)
+- [ ] **RACK-03**: Engine calculates BOM from per-rack configuration array instead of uniform scalars
 
-### BOM Output
+### Server Ports
 
-- [x] **BOM-01**: BOM displays switch quantities per model (S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
-- [x] **BOM-02**: BOM displays oversubscription ratio per tier and validates against thresholds
-- [x] **BOM-03**: User can select cable type (DAC/AOC/fiber) and engine calculates cable quantities
-- [x] **BOM-04**: BOM displays port utilization (used vs available) per switch model
+- [ ] **PORT-01**: User can configure frontend (data) port count per server (0-8, default 1)
+- [ ] **PORT-02**: User can configure backend (OOB) port count per server (0-8, default 1)
+- [ ] **PORT-03**: Cable and transceiver counts adjust based on per-server port configuration
 
-### Hardware Catalog
+### Rack Elevation
 
-- [x] **CAT-01**: Default hardware catalog includes S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON with full specs (ports, speeds, power)
-- [x] **CAT-02**: Hardware specs defined in TypeScript constants as source of truth
-- [x] **CAT-03**: JSON override file allows adding/modifying switch models at runtime without code changes
+- [ ] **ELEV-01**: Servers are visible in the rack elevation view with correct U-height
+- [ ] **ELEV-02**: User can configure server U-height (1U, 2U, 4U, 8U)
+- [ ] **ELEV-03**: RACK_CAPACITY_EXCEEDED constraint violation fires when total device U-height exceeds rack size
 
-### Visualization
+### Uplink Configuration
 
-- [x] **VIZ-01**: Auto-generated Leaf-Spine topology diagram using @xyflow/react with deterministic layout
-- [x] **VIZ-02**: Rack elevation view showing physical device placement per rack (custom SVG)
-- [x] **VIZ-03**: Visual port saturation alerts when OOB or leaf ports approach/exceed capacity
-
-### Export
-
-- [x] **EXP-01**: User can export BOM as CSV file
-- [x] **EXP-02**: User can export formatted PDF report with BOM summary and diagrams
-- [x] **EXP-03**: Print-friendly CSS stylesheet for browser printing
-
-### UX / Theme
-
-- [x] **UX-01**: Light/dark mode toggle with system preference detection
-- [x] **UX-02**: Internationalization support for FR, EN, DE, IT with language switcher
-- [x] **UX-03**: Responsive layout for tablet and desktop viewports
-- [x] **UX-04**: GitHub Pages deployment with GitHub Actions CI/CD pipeline
-
-### Documentation
-
-- [x] **DOC-01**: Architecture Reference Document (ARD) — system design for developers
-- [x] **DOC-02**: Product Requirements Document (PRD) — formal product specification
-- [x] **DOC-03**: User Guide — end-user documentation for using the tool
-- [x] **DOC-04**: Changelog — version history with notable changes
+- [ ] **UPLN-01**: User can select number of active uplinks per leaf switch (1 to model maximum)
+- [ ] **UPLN-02**: Oversubscription ratio and cable counts recalculate based on active uplink count
 
 ## v2 Requirements
 
-### Persistence
+### Fibre Channel SAN (GH #1)
 
-- **PERS-01**: Save/load configurations via browser localStorage
-- **PERS-02**: Named configuration profiles
-- **PERS-03**: JSON file import/export for sharing configurations
-
-### Export
-
-- **EXP-04**: JSON export for machine-readable BOM (procurement tool integration)
-
-### Advanced Sizing
-
-- **ADV-01**: Growth scenario projector (what-if analysis for scaling)
-- **ADV-02**: Multi-pod support when spine count exceeds single-pod capacity
-- **ADV-03**: Power consumption estimation per rack
-
-### Visualization
-
-- **VIZ-04**: Topology port labels showing connection details
-- **VIZ-05**: Interactive diagram (click node to see device details)
+- **FC-01**: FC sizing mode with Brocade Gen7 (64G) switch catalog
+- **FC-02**: FC sizing mode with Brocade Gen8 (128G) switch catalog
+- **FC-03**: FC topology diagram with director/switch tiers
+- **FC-04**: User selects Ethernet OR Fibre Channel mode (not both)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Multi-site / multi-datacenter | Single site focus — complexity without clear v1 value |
-| BGP/VLAN configuration | Physical sizing only, not network config |
-| SONiC configuration generation | Separate tool, different domain |
-| Real-time pricing / procurement | BOM is quantities only, pricing changes too fast |
-| Mobile-optimized layout | Engineers use desktop/tablet, not phones for this |
-| Backend / server-side | Pure client-side app, no user accounts needed |
-| Multi-user collaboration | Single-user tool, share via export |
+| Multi-site / multi-datacenter | Single site focus |
+| BGP/VLAN configuration | Physical sizing only |
+| Real-time pricing | BOM is quantities only |
+| Mobile app | Web-first (PWA works) |
+| SONiC configuration generation | Separate tool |
+| Backend / user accounts | Pure client-side |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SIZE-01 | Phase 2 | Complete |
-| SIZE-02 | Phase 1 | Complete |
-| SIZE-03 | Phase 1 | Complete |
-| SIZE-04 | Phase 1 | Complete |
-| SIZE-05 | Phase 1 | Complete |
-| SIZE-06 | Phase 1 | Complete |
-| SIZE-07 | Phase 1 | Complete |
-| BOM-01 | Phase 3 | Complete |
-| BOM-02 | Phase 3 | Complete |
-| BOM-03 | Phase 3 | Complete |
-| BOM-04 | Phase 3 | Complete |
-| CAT-01 | Phase 1 | Complete |
-| CAT-02 | Phase 1 | Complete |
-| CAT-03 | Phase 1 | Complete |
-| VIZ-01 | Phase 4 | Complete |
-| VIZ-02 | Phase 4 | Complete |
-| VIZ-03 | Phase 4 | Complete |
-| EXP-01 | Phase 4 | Complete |
-| EXP-02 | Phase 4 | Complete |
-| EXP-03 | Phase 4 | Complete |
-| UX-01 | Phase 2 | Complete |
-| UX-02 | Phase 2 | Complete |
-| UX-03 | Phase 2 | Complete |
-| UX-04 | Phase 2 | Complete |
-| DOC-01 | Phase 4 | Complete |
-| DOC-02 | Phase 4 | Complete |
-| DOC-03 | Phase 4 | Complete |
-| DOC-04 | Phase 4 | Complete |
+| RACK-01 | TBD | Pending |
+| RACK-02 | TBD | Pending |
+| RACK-03 | TBD | Pending |
+| PORT-01 | TBD | Pending |
+| PORT-02 | TBD | Pending |
+| PORT-03 | TBD | Pending |
+| ELEV-01 | TBD | Pending |
+| ELEV-02 | TBD | Pending |
+| ELEV-03 | TBD | Pending |
+| UPLN-01 | TBD | Pending |
+| UPLN-02 | TBD | Pending |
 
 **Coverage:**
-
-- v1 requirements: 28 total
-- Mapped to phases: 28
-- Unmapped: 0
+- v1.1 requirements: 11 total
+- Mapped to phases: 0
+- Unmapped: 11
 
 ---
-*Requirements defined: 2026-03-16*
-*Last updated: 2026-03-16 after roadmap revision — 28 requirements mapped across 4 phases*
+*Requirements defined: 2026-03-17*
+*Last updated: 2026-03-17 after v1.1 milestone start*
