@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-app-shell-and-input-form-02-01-PLAN.md
-last_updated: "2026-03-17T04:04:12.706Z"
+stopped_at: Completed 02-app-shell-and-input-form-02-02-PLAN.md
+last_updated: "2026-03-17T04:12:46.323Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 33
 ---
 
@@ -56,6 +56,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 01-domain-engine P03 | 15 | 2 tasks | 2 files |
 | Phase 01-domain-engine P02 | 17 | 3 tasks | 2 files |
 | Phase 02-app-shell-and-input-form P01 | 25 | 2 tasks | 22 files |
+| Phase 02-app-shell-and-input-form P02 | 5 | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 02-app-shell-and-input-form]: shadcn interactive init replaced with manual components.json + npx shadcn add for CLI automation
 - [Phase 02-app-shell-and-input-form]: leafModel as required field (not optional with default) — forces explicit selection in UI, prevents silent S5248F-ON assumption
 - [Phase 02-app-shell-and-input-form]: vitest.config.ts deleted — vite.config.ts test block supersedes it completely
+- [Phase 02-app-shell-and-input-form]: Lazy PersistStorage<InputState> pattern: createJSONStorage captures localStorage at import time (broken in jsdom); custom PersistStorage accesses window.localStorage at call time for jsdom compatibility
+- [Phase 02-app-shell-and-input-form]: resultStore uses module-level subscribe (not React useEffect) so BOM recomputes regardless of component mount state
 
 ### Research Flags (from SUMMARY.md)
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T04:04:12.704Z
-Stopped at: Completed 02-app-shell-and-input-form-02-01-PLAN.md
+Last session: 2026-03-17T04:12:46.321Z
+Stopped at: Completed 02-app-shell-and-input-form-02-02-PLAN.md
 Resume file: None

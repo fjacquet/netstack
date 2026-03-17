@@ -42,8 +42,8 @@
 
 ### UX / Theme
 
-- [ ] **UX-01**: Light/dark mode toggle with system preference detection
-- [ ] **UX-02**: Internationalization support for FR, EN, DE, IT with language switcher
+- [x] **UX-01**: Light/dark mode toggle with system preference detection
+- [x] **UX-02**: Internationalization support for FR, EN, DE, IT with language switcher
 - [ ] **UX-03**: Responsive layout for tablet and desktop viewports
 - [ ] **UX-04**: GitHub Pages deployment with GitHub Actions CI/CD pipeline
 
@@ -115,8 +115,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXP-01 | Phase 4 | Pending |
 | EXP-02 | Phase 4 | Pending |
 | EXP-03 | Phase 4 | Pending |
-| UX-01 | Phase 2 | Pending |
-| UX-02 | Phase 2 | Pending |
+| UX-01 | Phase 2 | Complete |
+| UX-02 | Phase 2 | Complete |
 | UX-03 | Phase 2 | Pending |
 | UX-04 | Phase 2 | Pending |
 | DOC-01 | Phase 4 | Pending |
