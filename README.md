@@ -27,7 +27,7 @@
   <a href="https://fjacquet.github.io/netstack/">Live Demo</a> &bull;
   <a href="docs/userguide.md">User Guide</a> &bull;
   <a href="docs/prd.md">PRD</a> &bull;
-  <a href="CHANGELOG.md">Changelog</a>
+  <a href="docs/CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -41,9 +41,11 @@ Enter your server count and connectivity requirements, and get an instant Bill o
 ### Features
 
 - **Sizing engine** — Pure-function BOM calculator with Dell hardware catalog
+- **Selectable models** — Leaf, Spine, Border Leaf, Rack Size (24U/42U/50U)
 - **Topology diagram** — Interactive leaf-spine visualization with @xyflow/react
-- **Rack elevation** — Physical device placement per rack
+- **Rack elevation** — Server + Network racks with drag-to-reorder
 - **PDF & CSV export** — Full report or raw data for procurement
+- **Print** — Ctrl+P with clean light-mode layout, auto-fit to page
 - **i18n** — English, French, German, Italian
 - **Dark mode** — System preference detection + manual toggle
 
@@ -95,9 +97,12 @@ src/
 |--------|---------|
 | Racks | `ceil(totalServers / serversPerRack)` |
 | Leaf switches | `2 × racks` (redundant ToR pair) |
-| Spine switches | `max(4, ceil(leafSwitches / 32))` |
+| Spine switches | `max(2, ceil(leafSwitches / 32))` |
 | OOB switches | `racks × ceil((serversPerRack + 2) / 48)` |
-| Cables | Computed from link counts, not port sums |
+| Leaf-Spine cables | `leafSwitches × min(spineSwitches, uplinkPorts)` |
+| VLT cables | `racks × 2` (QSFP28-DD per leaf pair) |
+| SFP28 (fiber) | `2 × serverLeafCables` (LC 25G) |
+| QSFP28 (fiber) | `2 × leafSpineCables` (MPO 100G) |
 
 ## Design Decisions
 
@@ -107,6 +112,10 @@ Key architecture decisions are documented as ADRs:
 - [ADR-0002](docs/adr/0002-client-side-only.md) — Client-side only (no backend)
 - [ADR-0003](docs/adr/0003-zod-schemas-as-source-of-truth.md) — Zod schemas as single source of truth
 - [ADR-0004](docs/adr/0004-zustand-state-management.md) — Zustand for state management
+- [ADR-0005](docs/adr/0005-xyflow-topology-diagram.md) — @xyflow/react for topology
+- [ADR-0006](docs/adr/0006-react-pdf-lazy-loading.md) — Lazy-loaded PDF generation
+- [ADR-0007](docs/adr/0007-vlt-cable-modeling.md) — VLT cable and transceiver modeling
+- [ADR-0008](docs/adr/0008-i18n-react-i18next.md) — Synchronous i18n with react-i18next
 
 ## Tech Stack
 
