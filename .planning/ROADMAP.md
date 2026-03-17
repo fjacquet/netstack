@@ -54,7 +54,11 @@ Plans:
   3. User can set frontend (data) port count per server (0-8 range, default 1)
   4. User can set backend (OOB) port count per server (0-8 range, default 1)
   5. User can select active uplink count for leaf switches from 1 to the model's port maximum
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Replace bridge pattern with per-rack editor, port inputs, uplink selector, and i18n keys (RACK-01, RACK-02, PORT-01, PORT-02, UPLN-01)
+- [ ] 06-02-PLAN.md — RTL test suite for InputForm + human visual verification (RACK-01, RACK-02, PORT-01, PORT-02, UPLN-01)
 
 ### Phase 7: Rack Elevation Servers
 
@@ -75,6 +79,6 @@ Plans:
 | 2. App Shell and Input Form | v1.0 | 3/3 | Complete | 2026-03-17 |
 | 3. BOM Output and Metrics | v1.0 | 2/2 | Complete | 2026-03-17 |
 | 4. Visualization, Export and Documentation | v1.0 | 5/5 | Complete | 2026-03-17 |
-| 5. Engine Enhancements | 2/2 | Complete   | 2026-03-17 | - |
-| 6. Input Configuration UI | v1.1 | 0/TBD | Not started | - |
+| 5. Engine Enhancements | v1.1 | 2/2 | Complete | 2026-03-17 |
+| 6. Input Configuration UI | v1.1 | 0/2 | Not started | - |
 | 7. Rack Elevation Servers | v1.1 | 0/TBD | Not started | - |
