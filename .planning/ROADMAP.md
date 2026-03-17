@@ -70,7 +70,7 @@ Plans:
   2. Oversubscription ratio is displayed as "N:1" format with color coding: green for <=3:1, amber for 3:1-6:1, red for >6:1
   3. User can select cable type (DAC, AOC, fiber) and the BOM immediately reflects updated cable quantities and SKU category
   4. Port utilization (used vs. available) is shown per switch model, and OOB saturation triggers a visible alert badge when ports exceed 48
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 
 - [ ] 03-01-PLAN.md — Install shadcn components (table, alert, tooltip, progress), extend alert/progress, add TooltipProvider, populate BOM i18n keys
@@ -105,5 +105,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
 | 2. App Shell and Input Form | 3/3 | Complete   | 2026-03-17 |
-| 3. BOM Output and Metrics | 0/2 | Planning complete | - |
+| 3. BOM Output and Metrics | 1/2 | In Progress|  |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-03-17T04:39:39.567Z"
+stopped_at: Completed 03-bom-output-and-metrics-01-PLAN.md
+last_updated: "2026-03-17T05:01:21.818Z"
 last_activity: 2026-03-16 — Roadmap created, 28 v1 requirements mapped across 4 phases
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 8
+  completed_plans: 7
   percent: 33
 ---
 
@@ -58,6 +58,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02-app-shell-and-input-form P01 | 25 | 2 tasks | 22 files |
 | Phase 02-app-shell-and-input-form P02 | 5 | 3 tasks | 10 files |
 | Phase 02-app-shell-and-input-form P03 | 4 | 3 tasks | 9 files |
+| Phase 03-bom-output-and-metrics P01 | 3 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 02-app-shell-and-input-form]: AppContent split from App so useTranslation() works inside ThemeProvider wrapper
 - [Phase 02-app-shell-and-input-form]: useForm() without generic type — required for @hookform/resolvers v5.2.2 + Zod v4 compatibility
 - [Phase 02-app-shell-and-input-form]: xl: breakpoint (1280px) for side-by-side layout — Tailwind xl: maps to 1280px per UI-SPEC
+- [Phase 03-bom-output-and-metrics]: TooltipProvider placed inside ThemeProvider to inherit theme context for tooltip styling
+- [Phase 03-bom-output-and-metrics]: Alert warning variant uses explicit HSL amber values (hsl 38_92%_50%) not CSS variables — amber has no CSS var in shadcn neutral theme
+- [Phase 03-bom-output-and-metrics]: Progress indicatorClassName falls back to bg-primary when undefined — backward-compatible with existing Progress usage
 
 ### Research Flags (from SUMMARY.md)
 
@@ -104,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T04:39:39.564Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-bom-output-and-metrics/03-UI-SPEC.md
+Last session: 2026-03-17T05:01:21.815Z
+Stopped at: Completed 03-bom-output-and-metrics-01-PLAN.md
+Resume file: None

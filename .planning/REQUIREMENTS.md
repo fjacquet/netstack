@@ -17,10 +17,10 @@
 
 ### BOM Output
 
-- [ ] **BOM-01**: BOM displays switch quantities per model (S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
-- [ ] **BOM-02**: BOM displays oversubscription ratio per tier and validates against thresholds
-- [ ] **BOM-03**: User can select cable type (DAC/AOC/fiber) and engine calculates cable quantities
-- [ ] **BOM-04**: BOM displays port utilization (used vs available) per switch model
+- [x] **BOM-01**: BOM displays switch quantities per model (S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON)
+- [x] **BOM-02**: BOM displays oversubscription ratio per tier and validates against thresholds
+- [x] **BOM-03**: User can select cable type (DAC/AOC/fiber) and engine calculates cable quantities
+- [x] **BOM-04**: BOM displays port utilization (used vs available) per switch model
 
 ### Hardware Catalog
 
@@ -102,10 +102,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIZE-05 | Phase 1 | Complete |
 | SIZE-06 | Phase 1 | Complete |
 | SIZE-07 | Phase 1 | Complete |
-| BOM-01 | Phase 3 | Pending |
-| BOM-02 | Phase 3 | Pending |
-| BOM-03 | Phase 3 | Pending |
-| BOM-04 | Phase 3 | Pending |
+| BOM-01 | Phase 3 | Complete |
+| BOM-02 | Phase 3 | Complete |
+| BOM-03 | Phase 3 | Complete |
+| BOM-04 | Phase 3 | Complete |
 | CAT-01 | Phase 1 | Complete |
 | CAT-02 | Phase 1 | Complete |
 | CAT-03 | Phase 1 | Complete |
