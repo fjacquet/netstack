@@ -21,7 +21,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 ### v1.1 Enhancements (Phases 5-7)
 
-- [ ] **Phase 5: Engine Enhancements** — Extend the sizing engine to support per-rack server arrays, configurable server port counts, and selectable uplink counts
+- [x] **Phase 5: Engine Enhancements** — Extend the sizing engine to support per-rack server arrays, configurable server port counts, and selectable uplink counts (completed 2026-03-17)
 - [ ] **Phase 6: Input Configuration UI** — Surface all new v1.1 configuration options in the input form (rack list editor, port fields, uplink selector)
 - [ ] **Phase 7: Rack Elevation Servers** — Render servers in the rack elevation view with U-height, fit validation, and capacity violation alerts
 
@@ -37,7 +37,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   2. Cable and transceiver counts reflect frontend and backend port multipliers (e.g. 2 frontend ports doubles leaf-facing cables)
   3. Oversubscription ratio and leaf-spine cable count update when active uplink count changes from 1 to model maximum
   4. All existing 144 tests continue to pass; new unit tests cover all three engine extensions
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 05-01-PLAN.md — Evolve SizingInput to racks array (RACK-03): schema, engine, test migration, store migration
@@ -75,6 +75,6 @@ Plans:
 | 2. App Shell and Input Form | v1.0 | 3/3 | Complete | 2026-03-17 |
 | 3. BOM Output and Metrics | v1.0 | 2/2 | Complete | 2026-03-17 |
 | 4. Visualization, Export and Documentation | v1.0 | 5/5 | Complete | 2026-03-17 |
-| 5. Engine Enhancements | 1/2 | In Progress|  | - |
+| 5. Engine Enhancements | 2/2 | Complete   | 2026-03-17 | - |
 | 6. Input Configuration UI | v1.1 | 0/TBD | Not started | - |
 | 7. Rack Elevation Servers | v1.1 | 0/TBD | Not started | - |

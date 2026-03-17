@@ -15,7 +15,7 @@
 
 - [ ] **PORT-01**: User can configure frontend (data) port count per server (0-8, default 1)
 - [ ] **PORT-02**: User can configure backend (OOB) port count per server (0-8, default 1)
-- [ ] **PORT-03**: Cable and transceiver counts adjust based on per-server port configuration
+- [x] **PORT-03**: Cable and transceiver counts adjust based on per-server port configuration
 
 ### Rack Elevation
 
@@ -26,7 +26,7 @@
 ### Uplink Configuration
 
 - [ ] **UPLN-01**: User can select number of active uplinks per leaf switch (1 to model maximum)
-- [ ] **UPLN-02**: Oversubscription ratio and cable counts recalculate based on active uplink count
+- [x] **UPLN-02**: Oversubscription ratio and cable counts recalculate based on active uplink count
 
 ## v2 Requirements
 
@@ -57,12 +57,12 @@
 | RACK-03 | Phase 5 | Complete |
 | PORT-01 | Phase 6 | Pending |
 | PORT-02 | Phase 6 | Pending |
-| PORT-03 | Phase 5 | Pending |
+| PORT-03 | Phase 5 | Complete |
 | ELEV-01 | Phase 7 | Pending |
 | ELEV-02 | Phase 7 | Pending |
 | ELEV-03 | Phase 7 | Pending |
 | UPLN-01 | Phase 6 | Pending |
-| UPLN-02 | Phase 5 | Pending |
+| UPLN-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 11 total

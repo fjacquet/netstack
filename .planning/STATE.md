@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Enhancements
 status: planning
-stopped_at: Completed 05-01-PLAN.md — SizingInput racks array migration
-last_updated: "2026-03-17T19:47:03.025Z"
+stopped_at: Completed 05-02-PLAN.md — port multipliers and active uplinks engine enhancements
+last_updated: "2026-03-17T20:25:12.281Z"
 last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1)
 
 *Updated after each plan completion*
 | Phase 05-engine-enhancements P01 | 9 | 2 tasks | 16 files |
+| Phase 05-engine-enhancements P02 | 19 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,10 @@ Recent decisions affecting current work:
 - [Phase 05-engine-enhancements]: maxServersPerRack = Math.max(...racks.map(r => r.serverCount)) for OOB and oversubscription worst-case
 - [Phase 05-engine-enhancements]: Persist version bumped 2 to 3 with merge() migrating v2 scalar format to v3 racks array seamlessly
 - [Phase 05-engine-enhancements]: InputForm bridges UI totalServers+rackCount to racks array via toRacksArray() — full per-rack UI is future
+- [Phase 05-engine-enhancements]: effectiveUplinks-based oversubscription: changed from spineSwitches*uplinkSpeed to effectiveUplinks*uplinkSpeed — ratio reflects actual configured uplinks not spine topology
+- [Phase 05-engine-enhancements]: Zod .default() for new port fields: portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf use .default() for backward-compatible schema evolution without engine conditional checks
+- [Phase 05-engine-enhancements]: Runtime clamp pattern: effectiveUplinks = min(activeUplinksPerLeaf, LEAF.uplinkPorts) keeps schema max at 8 while enforcing model-specific uplink limits at runtime
+- [Phase 05-engine-enhancements]: Persist version bumped 3 to 4 for activeUplinksPerLeaf/port multiplier fields; merge() spread pattern handles missing fields automatically
 
 ### Research Flags
 
@@ -122,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T19:47:03.022Z
-Stopped at: Completed 05-01-PLAN.md — SizingInput racks array migration
+Last session: 2026-03-17T20:25:12.278Z
+Stopped at: Completed 05-02-PLAN.md — port multipliers and active uplinks engine enhancements
 Resume file: None
