@@ -49,10 +49,10 @@
 
 ### Documentation
 
-- [ ] **DOC-01**: Architecture Reference Document (ARD) — system design for developers
-- [ ] **DOC-02**: Product Requirements Document (PRD) — formal product specification
-- [ ] **DOC-03**: User Guide — end-user documentation for using the tool
-- [ ] **DOC-04**: Changelog — version history with notable changes
+- [x] **DOC-01**: Architecture Reference Document (ARD) — system design for developers
+- [x] **DOC-02**: Product Requirements Document (PRD) — formal product specification
+- [x] **DOC-03**: User Guide — end-user documentation for using the tool
+- [x] **DOC-04**: Changelog — version history with notable changes
 
 ## v2 Requirements
 
@@ -119,10 +119,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-02 | Phase 2 | Complete |
 | UX-03 | Phase 2 | Complete |
 | UX-04 | Phase 2 | Complete |
-| DOC-01 | Phase 4 | Pending |
-| DOC-02 | Phase 4 | Pending |
-| DOC-03 | Phase 4 | Pending |
-| DOC-04 | Phase 4 | Pending |
+| DOC-01 | Phase 4 | Complete |
+| DOC-02 | Phase 4 | Complete |
+| DOC-03 | Phase 4 | Complete |
+| DOC-04 | Phase 4 | Complete |
 
 **Coverage:**
 
