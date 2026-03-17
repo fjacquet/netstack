@@ -3,32 +3,44 @@ import type { NetworkBOM } from '@/domain/schemas/bom'
 import { SWITCH_CATALOG } from '@/domain/catalog/hardware'
 import type { SwitchNodeData, RackNodeData, TopologyGraphResult } from '../types'
 
-const TIER_Y = { spine: 80, borderLeaf: 160, leaf: 280, oob: 340, rack: 460 } as const
+// Y positions for each tier
+const Y = { spine: 0, leaf: 160, oob: 280, rack: 400 } as const
+
+// Rack column width and shared infrastructure spacing
+const RACK_COL_WIDTH = 320
+const NODE_GAP = 140
 
 /**
  * Pure function: NetworkBOM → { nodes, edges }
  *
- * Produces a deterministic multi-tier topology graph:
- *   - Spine nodes at top (y=80)
- *   - Border leaf nodes below spines (y=160) — only if borderLeafSwitches > 0
- *   - Leaf nodes in middle (y=280)
- *   - OOB nodes below leafs (y=340)
- *   - Rack nodes at bottom (y=460)
+ * Layout strategy: rack-based columns
+ *   - Each rack gets a vertical column with its leaf pair + OOB
+ *   - Spines and border leafs are centered above all rack columns
+ *   - This prevents edge crossings within a rack group
  */
-export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): TopologyGraphResult {
-  const xPos = (count: number, index: number) => (canvasWidth / (count + 1)) * (index + 1)
-
+export function buildTopologyGraph(bom: NetworkBOM): TopologyGraphResult {
   const leafSpec = SWITCH_CATALOG[bom.input.leafModel]
   const spineSpec = SWITCH_CATALOG[bom.input.spineModel]
   const oobSpec = SWITCH_CATALOG['S3248T-ON']
 
-  // --- Spine nodes ---
+  // Total canvas width based on rack count
+  const totalWidth = Math.max(bom.racks * RACK_COL_WIDTH, 600)
+  const rackStartX = (totalWidth - (bom.racks - 1) * RACK_COL_WIDTH) / 2
+
+  // Center-distribute shared infrastructure (spines, border leafs) above rack columns
+  const centerX = (count: number, index: number) =>
+    (totalWidth / (count + 1)) * (index + 1)
+
+  // Per-rack column X positions
+  const rackX = (rackIdx: number) => rackStartX + rackIdx * RACK_COL_WIDTH
+
+  // --- Spine nodes (centered) ---
   const spineNodes: Node<SwitchNodeData>[] = Array.from(
     { length: bom.spineSwitches },
     (_, i) => ({
       id: `spine-${i}`,
       type: 'switchNode' as const,
-      position: { x: xPos(bom.spineSwitches, i), y: TIER_Y.spine },
+      position: { x: centerX(bom.spineSwitches, i), y: Y.spine },
       data: {
         model: bom.input.spineModel,
         role: 'spine' as const,
@@ -38,14 +50,15 @@ export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): Topolog
     })
   )
 
-  // --- Border leaf nodes (only if configured) ---
+  // --- Border leaf nodes (same Y as leafs, positioned after last rack column) ---
+  const borderStartX = rackStartX + bom.racks * RACK_COL_WIDTH
   const borderLeafNodes: Node<SwitchNodeData>[] = bom.borderLeafSwitches > 0
     ? Array.from(
         { length: bom.borderLeafSwitches },
         (_, i) => ({
           id: `border-${i}`,
           type: 'switchNode' as const,
-          position: { x: xPos(bom.borderLeafSwitches, i), y: TIER_Y.borderLeaf },
+          position: { x: borderStartX + i * NODE_GAP, y: Y.leaf },
           data: {
             model: bom.input.borderLeafModel !== 'none' ? bom.input.borderLeafModel : bom.input.leafModel,
             role: 'border' as const,
@@ -56,70 +69,74 @@ export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): Topolog
       )
     : []
 
-  // --- Leaf nodes ---
-  const leafNodes: Node<SwitchNodeData>[] = Array.from(
-    { length: bom.leafSwitches },
-    (_, i) => {
-      const rackIdx = Math.floor(i / 2)
-      // Last rack may have fewer servers
-      const serversInThisRack = rackIdx < bom.racks - 1
-        ? bom.input.serversPerRack
-        : bom.input.totalServers - (bom.racks - 1) * bom.input.serversPerRack
-      return {
-        id: `leaf-${i}`,
+  // --- Per-rack nodes: leaf pair + OOB + rack ---
+  const leafNodes: Node<SwitchNodeData>[] = []
+  const oobNodes: Node<SwitchNodeData>[] = []
+  const rackNodes: Node<RackNodeData>[] = []
+
+  for (let ri = 0; ri < bom.racks; ri++) {
+    const cx = rackX(ri)
+    const serversInRack = ri < bom.racks - 1
+      ? bom.input.serversPerRack
+      : bom.input.totalServers - (bom.racks - 1) * bom.input.serversPerRack
+
+    // Leaf A (left of rack center)
+    leafNodes.push({
+      id: `leaf-${ri * 2}`,
+      type: 'switchNode' as const,
+      position: { x: cx - NODE_GAP / 2, y: Y.leaf },
+      data: {
+        model: bom.input.leafModel,
+        role: 'leaf' as const,
+        usedPorts: serversInRack,
+        totalPorts: leafSpec.downlinkPorts,
+        rackIndex: ri,
+      },
+    })
+
+    // Leaf B (right of rack center)
+    if (ri * 2 + 1 < bom.leafSwitches) {
+      leafNodes.push({
+        id: `leaf-${ri * 2 + 1}`,
         type: 'switchNode' as const,
-        position: { x: xPos(bom.leafSwitches, i), y: TIER_Y.leaf },
+        position: { x: cx + NODE_GAP / 2, y: Y.leaf },
         data: {
           model: bom.input.leafModel,
           role: 'leaf' as const,
-          usedPorts: serversInThisRack,
+          usedPorts: serversInRack,
           totalPorts: leafSpec.downlinkPorts,
-          rackIndex: rackIdx,
+          rackIndex: ri,
         },
-      }
+      })
     }
-  )
 
-  // --- OOB nodes (one per rack) ---
-  const oobNodes: Node<SwitchNodeData>[] = Array.from(
-    { length: bom.oobSwitches },
-    (_, i) => {
-      const serversInThisRack = i < bom.racks - 1
-        ? bom.input.serversPerRack
-        : bom.input.totalServers - (bom.racks - 1) * bom.input.serversPerRack
-      return {
-        id: `oob-${i}`,
+    // OOB (centered in rack column)
+    if (ri < bom.oobSwitches) {
+      oobNodes.push({
+        id: `oob-${ri}`,
         type: 'switchNode' as const,
-        position: { x: xPos(bom.oobSwitches, i), y: TIER_Y.oob },
+        position: { x: cx, y: Y.oob },
         data: {
           model: 'S3248T-ON',
           role: 'oob' as const,
-          usedPorts: serversInThisRack + 2,
+          usedPorts: serversInRack + 2,
           totalPorts: oobSpec.downlinkPorts,
-          rackIndex: i,
+          rackIndex: ri,
         },
-      }
+      })
     }
-  )
 
-  // --- Rack nodes (with correct per-rack server count) ---
-  const rackNodes: Node<RackNodeData>[] = Array.from(
-    { length: bom.racks },
-    (_, i) => {
-      const serversInThisRack = i < bom.racks - 1
-        ? bom.input.serversPerRack
-        : bom.input.totalServers - (bom.racks - 1) * bom.input.serversPerRack
-      return {
-        id: `rack-${i}`,
-        type: 'rackNode' as const,
-        position: { x: xPos(bom.racks, i), y: TIER_Y.rack },
-        data: {
-          rackIndex: i,
-          serverCount: serversInThisRack,
-        },
-      }
-    }
-  )
+    // Rack node (centered in rack column)
+    rackNodes.push({
+      id: `rack-${ri}`,
+      type: 'rackNode' as const,
+      position: { x: cx, y: Y.rack },
+      data: {
+        rackIndex: ri,
+        serverCount: serversInRack,
+      },
+    })
+  }
 
   const nodes: Node<SwitchNodeData | RackNodeData>[] = [
     ...spineNodes,
@@ -132,7 +149,7 @@ export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): Topolog
   // --- Edges ---
   const edges: Edge[] = []
 
-  // Border-spine edges: each border leaf connects to each spine
+  // Border-spine edges
   for (let bi = 0; bi < bom.borderLeafSwitches; bi++) {
     for (let si = 0; si < bom.spineSwitches; si++) {
       edges.push({
@@ -150,7 +167,7 @@ export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): Topolog
     }
   }
 
-  // Leaf-spine edges: each leaf connects to each spine
+  // Leaf-spine edges
   for (let li = 0; li < bom.leafSwitches; li++) {
     for (let si = 0; si < bom.spineSwitches; si++) {
       edges.push({
@@ -160,58 +177,56 @@ export function buildTopologyGraph(bom: NetworkBOM, canvasWidth = 1200): Topolog
         type: 'default',
         style: {
           stroke: 'hsl(var(--foreground))',
-          strokeOpacity: 0.4,
-          strokeWidth: 1.5,
+          strokeOpacity: 0.3,
+          strokeWidth: 1,
         },
       })
     }
   }
 
-  // Server-leaf edges: each rack connects to its 2 leaf switches
+  // Per-rack edges: rack → leaf pair, rack → OOB, VLT between leaf pair
   for (let ri = 0; ri < bom.racks; ri++) {
     const leafA = ri * 2
     const leafB = ri * 2 + 1
+
+    // Rack → Leaf A
     edges.push({
       id: `sl-${ri}-a`,
       source: `rack-${ri}`,
       target: `leaf-${leafA}`,
       type: 'straight',
-      style: { strokeWidth: 1, stroke: 'hsl(var(--muted-foreground))' },
+      style: { strokeWidth: 1.5, stroke: 'hsl(var(--muted-foreground))' },
     })
+
+    // Rack → Leaf B
     if (leafB < bom.leafSwitches) {
       edges.push({
         id: `sl-${ri}-b`,
         source: `rack-${ri}`,
         target: `leaf-${leafB}`,
         type: 'straight',
-        style: { strokeWidth: 1, stroke: 'hsl(var(--muted-foreground))' },
+        style: { strokeWidth: 1.5, stroke: 'hsl(var(--muted-foreground))' },
       })
     }
-  }
 
-  // Server-OOB edges: each rack connects to its OOB switch
-  for (let ri = 0; ri < bom.racks; ri++) {
+    // Rack → OOB
     if (ri < bom.oobSwitches) {
       edges.push({
         id: `so-${ri}`,
         source: `rack-${ri}`,
         target: `oob-${ri}`,
         type: 'straight',
-        style: { strokeWidth: 1, stroke: 'hsl(var(--muted-foreground))' },
+        style: { strokeWidth: 1, stroke: 'hsl(var(--muted-foreground))', strokeOpacity: 0.5 },
       })
     }
-  }
 
-  // VLT edges: dashed edge between each leaf pair
-  for (let ri = 0; ri < bom.racks; ri++) {
-    const leafA = ri * 2
-    const leafB = ri * 2 + 1
+    // VLT between leaf pair (dashed blue)
     if (leafB < bom.leafSwitches) {
       edges.push({
         id: `vlt-${ri}`,
         source: `leaf-${leafA}`,
         target: `leaf-${leafB}`,
-        type: 'default',
+        type: 'straight',
         style: {
           stroke: 'hsl(213, 94%, 68%)',
           strokeWidth: 2,

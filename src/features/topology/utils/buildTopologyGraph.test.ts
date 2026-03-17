@@ -108,19 +108,19 @@ describe('buildTopologyGraph', () => {
   it('places spine nodes at y=80', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const spines = nodes.filter(n => n.id.startsWith('spine-'))
-    spines.forEach(s => expect(s.position.y).toBe(80))
+    spines.forEach(s => expect(s.position.y).toBe(0))
   })
 
   it('places leaf nodes at y=240', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const leafs = nodes.filter(n => n.id.startsWith('leaf-'))
-    leafs.forEach(l => expect(l.position.y).toBe(280))
+    leafs.forEach(l => expect(l.position.y).toBe(160))
   })
 
   it('places rack nodes at y=420', () => {
     const { nodes } = buildTopologyGraph(mockBOM)
     const racks = nodes.filter(n => n.id.startsWith('rack-'))
-    racks.forEach(r => expect(r.position.y).toBe(460))
+    racks.forEach(r => expect(r.position.y).toBe(400))
   })
 
   it('uses correct node id patterns', () => {
