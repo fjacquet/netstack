@@ -9,9 +9,16 @@ interface InputState {
   resetInput: () => void
 }
 
+/**
+ * Default input: 3 racks × 16 servers = 48 servers total.
+ * Equivalent to the old scalar default of { totalServers: 48, serversPerRack: 16 }.
+ */
 const DEFAULT_INPUT: SizingInput = {
-  totalServers: 48,
-  serversPerRack: 16,
+  racks: [
+    { serverCount: 16 },
+    { serverCount: 16 },
+    { serverCount: 16 },
+  ],
   connectivityType: '25G',
   cableType: 'DAC',
   leafModel: 'S5248F-ON',
@@ -65,16 +72,42 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 2,
+      version: 3,
       storage: lazyLocalStorage,
-      // Merge persisted state with defaults so new fields get default values
-      merge: (persisted, current) => ({
-        ...current,
-        input: {
-          ...DEFAULT_INPUT,
-          ...((persisted as Partial<InputState>)?.input ?? {}),
-        },
-      }),
+      /**
+       * Merge persisted state with defaults.
+       * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array).
+       */
+      merge: (persisted, current) => {
+        const persistedState = persisted as Partial<InputState>;
+        const oldInput = persistedState?.input as Record<string, unknown> | undefined;
+
+        // Migrate v2 scalar format to v3 racks array
+        let migratedInput: SizingInput = { ...DEFAULT_INPUT };
+        if (oldInput) {
+          if ('racks' in oldInput && Array.isArray(oldInput.racks)) {
+            // Already v3 format — merge normally
+            migratedInput = { ...DEFAULT_INPUT, ...oldInput } as SizingInput;
+          } else if ('totalServers' in oldInput && 'serversPerRack' in oldInput) {
+            // v2 format — convert to racks array
+            const totalServers = oldInput.totalServers as number;
+            const serversPerRack = oldInput.serversPerRack as number;
+            const rackCount = Math.ceil(totalServers / serversPerRack);
+            const racks = Array.from({ length: rackCount }, (_, i) => ({
+              serverCount: i < rackCount - 1
+                ? serversPerRack
+                : totalServers - serversPerRack * (rackCount - 1),
+            }));
+            const { totalServers: _ts, serversPerRack: _spr, ...rest } = oldInput;
+            migratedInput = { ...DEFAULT_INPUT, ...rest, racks } as SizingInput;
+          }
+        }
+
+        return {
+          ...current,
+          input: migratedInput,
+        };
+      },
     }
   )
 )
