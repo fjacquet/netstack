@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "NetStack"
+  },
+  "tabs": {
+    "sizing": "Dimensionamento",
+    "topology": "Topologia",
+    "rackElevation": "Vista Rack",
+    "export": "Esporta"
+  },
+  "sizing": {
+    "heading": "Parametri di dimensionamento",
+    "totalServers": "Numero totale di server",
+    "serversPerRack": "Server per rack",
+    "connectivityType": "Tipo di connettivita",
+    "cableType": "Tipo di cavo",
+    "leafModel": "Modello switch Leaf",
+    "connectivity25G": "25G (SFP28)",
+    "connectivity100G": "100G (QSFP28)",
+    "cableDAC": "DAC (Direct Attach)",
+    "cableAOC": "AOC (Active Optical)",
+    "cableFiber": "Fibra (LC/MPO)",
+    "selectConnectivity": "Selezionare il tipo di connettivita",
+    "selectCable": "Selezionare il tipo di cavo",
+    "selectLeafModel": "Selezionare il modello switch Leaf"
+  },
+  "results": {
+    "heading": "Risultati",
+    "emptyHeading": "Inserire i parametri",
+    "emptyBody": "Compilare il modulo per calcolare la BOM istantaneamente.",
+    "placeholder": "I risultati appariranno qui dopo l'inserimento dei parametri."
+  },
+  "placeholders": {
+    "topologyHeading": "Diagramma di topologia",
+    "topologyBody": "Il diagramma di topologia Leaf-Spine sara disponibile dopo l'inserimento dei parametri.",
+    "rackElevationHeading": "Vista Rack",
+    "rackElevationBody": "La vista rack sara disponibile in una fase futura.",
+    "exportHeading": "Esporta",
+    "exportBody": "L'esportazione CSV e PDF sara disponibile in una fase futura."
+  },
+  "validation": {
+    "serverCountRequired": "Inserire il numero di server",
+    "serverCountMin": "Il numero di server deve essere almeno 1",
+    "serversPerRackRequired": "Inserire i server per rack",
+    "serversPerRackMin": "Deve essere almeno 1",
+    "serversPerRackMax": "Massimo 48 server per rack per compatibilita OOB",
+    "connectivityRequired": "Selezionare un tipo di connettivita",
+    "cableRequired": "Selezionare un tipo di cavo",
+    "leafModelRequired": "Selezionare un modello switch Leaf"
+  },
+  "theme": {
+    "switchToDark": "Passa alla modalita scura",
+    "switchToLight": "Passa alla modalita chiara"
+  },
+  "language": {
+    "ariaLabel": "Cambia lingua"
+  }
+}

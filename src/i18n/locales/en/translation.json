@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "NetStack"
+  },
+  "tabs": {
+    "sizing": "Sizing",
+    "topology": "Topology",
+    "rackElevation": "Rack Elevation",
+    "export": "Export"
+  },
+  "sizing": {
+    "heading": "Sizing Parameters",
+    "totalServers": "Total Servers",
+    "serversPerRack": "Servers per Rack",
+    "connectivityType": "Connectivity Type",
+    "cableType": "Cable Type",
+    "leafModel": "Leaf Switch Model",
+    "connectivity25G": "25G (SFP28)",
+    "connectivity100G": "100G (QSFP28)",
+    "cableDAC": "DAC (Direct Attach)",
+    "cableAOC": "AOC (Active Optical)",
+    "cableFiber": "Fiber (LC/MPO)",
+    "selectConnectivity": "Select connectivity type",
+    "selectCable": "Select cable type",
+    "selectLeafModel": "Select leaf switch model"
+  },
+  "results": {
+    "heading": "Results",
+    "emptyHeading": "Enter Sizing Parameters",
+    "emptyBody": "Fill in the form on the left to calculate your BOM instantly.",
+    "placeholder": "Results will appear here once you enter sizing parameters."
+  },
+  "placeholders": {
+    "topologyHeading": "Topology Diagram",
+    "topologyBody": "The Leaf-Spine topology diagram will be available after sizing parameters are entered.",
+    "rackElevationHeading": "Rack Elevation",
+    "rackElevationBody": "The rack elevation view will be available in a future phase.",
+    "exportHeading": "Export",
+    "exportBody": "Export to CSV and PDF will be available in a future phase."
+  },
+  "validation": {
+    "serverCountRequired": "Enter a server count",
+    "serverCountMin": "Server count must be at least 1",
+    "serversPerRackRequired": "Enter servers per rack",
+    "serversPerRackMin": "Must be at least 1",
+    "serversPerRackMax": "Maximum 48 servers per rack for OOB port compatibility",
+    "connectivityRequired": "Select a connectivity type",
+    "cableRequired": "Select a cable type",
+    "leafModelRequired": "Select a leaf switch model"
+  },
+  "theme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
+  "language": {
+    "ariaLabel": "Change language"
+  }
+}

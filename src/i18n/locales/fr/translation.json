@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "NetStack"
+  },
+  "tabs": {
+    "sizing": "Dimensionnement",
+    "topology": "Topologie",
+    "rackElevation": "Vue Baie",
+    "export": "Export"
+  },
+  "sizing": {
+    "heading": "Parametres de dimensionnement",
+    "totalServers": "Nombre total de serveurs",
+    "serversPerRack": "Serveurs par baie",
+    "connectivityType": "Type de connectivite",
+    "cableType": "Type de cable",
+    "leafModel": "Modele de switch Leaf",
+    "connectivity25G": "25G (SFP28)",
+    "connectivity100G": "100G (QSFP28)",
+    "cableDAC": "DAC (Direct Attach)",
+    "cableAOC": "AOC (Active Optical)",
+    "cableFiber": "Fibre (LC/MPO)",
+    "selectConnectivity": "Choisir le type de connectivite",
+    "selectCable": "Choisir le type de cable",
+    "selectLeafModel": "Choisir le modele de switch Leaf"
+  },
+  "results": {
+    "heading": "Resultats",
+    "emptyHeading": "Saisir les parametres",
+    "emptyBody": "Remplissez le formulaire pour calculer votre BOM instantanement.",
+    "placeholder": "Les resultats apparaitront ici apres la saisie des parametres."
+  },
+  "placeholders": {
+    "topologyHeading": "Diagramme de topologie",
+    "topologyBody": "Le diagramme de topologie Leaf-Spine sera disponible apres la saisie des parametres.",
+    "rackElevationHeading": "Vue Baie",
+    "rackElevationBody": "La vue baie sera disponible dans une phase ulterieure.",
+    "exportHeading": "Export",
+    "exportBody": "L'export CSV et PDF sera disponible dans une phase ulterieure."
+  },
+  "validation": {
+    "serverCountRequired": "Saisir un nombre de serveurs",
+    "serverCountMin": "Le nombre de serveurs doit etre au minimum 1",
+    "serversPerRackRequired": "Saisir le nombre de serveurs par baie",
+    "serversPerRackMin": "Doit etre au minimum 1",
+    "serversPerRackMax": "Maximum 48 serveurs par baie pour la compatibilite OOB",
+    "connectivityRequired": "Choisir un type de connectivite",
+    "cableRequired": "Choisir un type de cable",
+    "leafModelRequired": "Choisir un modele de switch Leaf"
+  },
+  "theme": {
+    "switchToDark": "Passer en mode sombre",
+    "switchToLight": "Passer en mode clair"
+  },
+  "language": {
+    "ariaLabel": "Changer de langue"
+  }
+}

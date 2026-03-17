@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "NetStack"
+  },
+  "tabs": {
+    "sizing": "Dimensionierung",
+    "topology": "Topologie",
+    "rackElevation": "Rackansicht",
+    "export": "Export"
+  },
+  "sizing": {
+    "heading": "Dimensionierungsparameter",
+    "totalServers": "Gesamtanzahl Server",
+    "serversPerRack": "Server pro Rack",
+    "connectivityType": "Konnektivitaetstyp",
+    "cableType": "Kabeltyp",
+    "leafModel": "Leaf-Switch-Modell",
+    "connectivity25G": "25G (SFP28)",
+    "connectivity100G": "100G (QSFP28)",
+    "cableDAC": "DAC (Direct Attach)",
+    "cableAOC": "AOC (Active Optical)",
+    "cableFiber": "Glasfaser (LC/MPO)",
+    "selectConnectivity": "Konnektivitaetstyp waehlen",
+    "selectCable": "Kabeltyp waehlen",
+    "selectLeafModel": "Leaf-Switch-Modell waehlen"
+  },
+  "results": {
+    "heading": "Ergebnisse",
+    "emptyHeading": "Parameter eingeben",
+    "emptyBody": "Fuellen Sie das Formular aus, um Ihre BOM sofort zu berechnen.",
+    "placeholder": "Ergebnisse erscheinen hier nach Eingabe der Parameter."
+  },
+  "placeholders": {
+    "topologyHeading": "Topologiediagramm",
+    "topologyBody": "Das Leaf-Spine-Topologiediagramm wird nach Eingabe der Dimensionierungsparameter verfuegbar.",
+    "rackElevationHeading": "Rackansicht",
+    "rackElevationBody": "Die Rackansicht wird in einer spaeteren Phase verfuegbar sein.",
+    "exportHeading": "Export",
+    "exportBody": "CSV- und PDF-Export wird in einer spaeteren Phase verfuegbar sein."
+  },
+  "validation": {
+    "serverCountRequired": "Serveranzahl eingeben",
+    "serverCountMin": "Die Serveranzahl muss mindestens 1 betragen",
+    "serversPerRackRequired": "Server pro Rack eingeben",
+    "serversPerRackMin": "Muss mindestens 1 betragen",
+    "serversPerRackMax": "Maximal 48 Server pro Rack fuer OOB-Kompatibilitaet",
+    "connectivityRequired": "Konnektivitaetstyp waehlen",
+    "cableRequired": "Kabeltyp waehlen",
+    "leafModelRequired": "Leaf-Switch-Modell waehlen"
+  },
+  "theme": {
+    "switchToDark": "Zum dunklen Modus wechseln",
+    "switchToLight": "Zum hellen Modus wechseln"
+  },
+  "language": {
+    "ariaLabel": "Sprache aendern"
+  }
+}
