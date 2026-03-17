@@ -15,6 +15,8 @@ export const SizingInputSchema = z.object({
   connectivityType: z.enum(['25G', '100G']),
   /** Cable type used for all inter-device connections */
   cableType: z.enum(['DAC', 'AOC', 'fiber']),
+  /** Leaf switch model — only leaf-role models are valid (excludes spine and OOB) */
+  leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON']),
 });
 
 /** Inferred TypeScript type — do not declare separately */

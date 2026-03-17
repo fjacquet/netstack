@@ -62,6 +62,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       serversPerRack: 20,
       connectivityType: '25G',
       cableType: 'DAC',
+      leafModel: 'S5248F-ON',
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -78,6 +79,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       serversPerRack: 48,
       connectivityType: '100G',
       cableType: 'fiber',
+      leafModel: 'S5248F-ON',
     });
     expect(result.success).toBe(true);
   });
@@ -88,6 +90,7 @@ describe('SizingInputSchema — acceptance of valid inputs', () => {
       serversPerRack: 10,
       connectivityType: '25G',
       cableType: 'AOC',
+      leafModel: 'S5248F-ON',
     });
     expect(result.success).toBe(true);
   });

@@ -14,8 +14,7 @@ import { SWITCH_CATALOG } from '../catalog/hardware';
 import type { SizingInput } from '../schemas/input';
 import type { ConstraintViolation, NetworkBOM } from '../schemas/bom';
 
-// Catalog aliases — all port/speed references go through these
-const LEAF = SWITCH_CATALOG['S5248F-ON'];
+// Fixed catalog aliases — spine and OOB never vary
 const SPINE = SWITCH_CATALOG['S5232F-ON'];
 const OOB = SWITCH_CATALOG['S3248T-ON'];
 
@@ -28,6 +27,9 @@ const OOB = SWITCH_CATALOG['S3248T-ON'];
  * @returns Complete NetworkBOM with switch counts, cable quantities, and violations
  */
 export function calculateBOM(input: SizingInput): NetworkBOM {
+  // ─── Dynamic leaf selection from input ───────────────────────────────────
+  const LEAF = SWITCH_CATALOG[input.leafModel];
+
   // ─── Rack Count (SIZE-02) ─────────────────────────────────────────────────
   const racks = Math.ceil(input.totalServers / input.serversPerRack);
 
