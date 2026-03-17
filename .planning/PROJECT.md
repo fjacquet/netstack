@@ -29,14 +29,21 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Border leaf switches for WAN connectivity — v1.0
 - ✓ Rack sizes: 24U, 42U, 50U — v1.0
 
-### Active (v2 candidates)
+### Active (v1.1)
 
-- [ ] Selectable number of uplinks per switch (GH issue #5)
-- [ ] Save/load named configurations
-- [ ] JSON export
-- [ ] Multi-pod support for large deployments
-- [ ] Power budget calculation per rack
-- [ ] Weight/cooling estimates
+- [ ] Per-rack server count configuration (GH #2)
+- [ ] Configurable frontend/backend port count per server (GH #3)
+- [ ] Show servers in rack elevation with U-height validation (GH #4)
+- [ ] Selectable number of uplinks per switch (GH #5)
+
+### Future (v2.0+)
+
+- Fibre Channel SAN sizing with Brocade Gen7/Gen8 (GH #1)
+- Save/load named configurations
+- JSON export
+- Multi-pod support for large deployments
+- Power budget calculation per rack
+- Weight/cooling estimates
 
 ### Out of Scope
 
@@ -46,6 +53,16 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - Mobile app — web-first (PWA works)
 - SONiC configuration generation — separate tool
 - Backend / user accounts — pure client-side
+
+## Current Milestone: v1.1 Enhancements
+
+**Goal:** Improve the Ethernet calculator with per-rack configuration, configurable server ports, rack capacity validation, and selectable uplinks.
+
+**Target features:**
+- Per-rack server count (variable density per rack) — GH #2
+- Configurable frontend/backend port count per server — GH #3
+- Servers visible in rack elevation with U-height + fit validation — GH #4
+- Selectable number of uplinks per switch — GH #5
 
 ## Context
 
