@@ -1,5 +1,5 @@
 import { InputForm } from './InputForm'
-import { ResultsPlaceholder } from './ResultsPlaceholder'
+import { BOMPanel } from './BOMPanel'
 import { Separator } from '@/components/ui/separator'
 
 export function SizingPage() {
@@ -15,7 +15,7 @@ export function SizingPage() {
 
       {/* Results panel — flex-1 on desktop, full width on tablet */}
       <div className="min-w-0 flex-1">
-        <ResultsPlaceholder />
+        <BOMPanel />
       </div>
     </div>
   )
