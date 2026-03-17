@@ -90,12 +90,20 @@
   header, [role="tablist"], .toolbar-card { display: none !important; }
   [data-state="inactive"] { display: none !important; }
 
-  /* Force light mode for print */
+  /* Force light mode for print, auto-fit to page */
   html, body {
     background: white !important;
     color: black !important;
     font-size: 11pt !important;
     width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    zoom: 85%;
+  }
+  [data-state="active"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
   .dark { color-scheme: light !important; }
   * {
