@@ -1,3 +1,4 @@
+import { InputForm } from './InputForm'
 import { ResultsPlaceholder } from './ResultsPlaceholder'
 import { Separator } from '@/components/ui/separator'
 
@@ -6,10 +7,7 @@ export function SizingPage() {
     <div className="flex flex-col gap-6 p-6 xl:flex-row xl:gap-8">
       {/* Input panel — 320px fixed on desktop, full width on tablet */}
       <div className="w-full shrink-0 xl:w-80">
-        {/* InputForm will be mounted here in Task 2 */}
-        <div className="text-sm text-muted-foreground">
-          Loading form...
-        </div>
+        <InputForm />
       </div>
 
       {/* Separator for stacked layout (tablet) */}
