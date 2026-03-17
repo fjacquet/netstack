@@ -55,9 +55,9 @@ Plans:
 **Plans:** 3/3 plans complete
 Plans:
 
-- [ ] 02-01-PLAN.md — Project scaffold (React + Vite + shadcn/ui) and domain schema extension for leafModel
-- [ ] 02-02-PLAN.md — Zustand stores, i18n bootstrap with 4 locales, and ThemeProvider
-- [ ] 02-03-PLAN.md — App shell, input form, language/theme controls, CI/CD deployment
+- [x] 02-01-PLAN.md — Project scaffold (React + Vite + shadcn/ui) and domain schema extension for leafModel
+- [x] 02-02-PLAN.md — Zustand stores, i18n bootstrap with 4 locales, and ThemeProvider
+- [x] 02-03-PLAN.md — App shell, input form, language/theme controls, CI/CD deployment
 
 ### Phase 3: BOM Output and Metrics
 
@@ -70,7 +70,11 @@ Plans:
   2. Oversubscription ratio is displayed as "N:1" format with color coding: green for <=3:1, amber for 3:1-6:1, red for >6:1
   3. User can select cable type (DAC, AOC, fiber) and the BOM immediately reflects updated cable quantities and SKU category
   4. Port utilization (used vs. available) is shown per switch model, and OOB saturation triggers a visible alert badge when ports exceed 48
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+
+- [ ] 03-01-PLAN.md — Install shadcn components (table, alert, tooltip, progress), extend alert/progress, add TooltipProvider, populate BOM i18n keys
+- [ ] 03-02-PLAN.md — Build BOMPanel component with switches/cables tables, oversubscription badge, port utilization bars, violation alerts, and tests
 
 ### Phase 4: Visualization, Export and Documentation
 
@@ -101,5 +105,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Domain Engine | 3/3 | Complete    | 2026-03-16 |
 | 2. App Shell and Input Form | 3/3 | Complete   | 2026-03-17 |
-| 3. BOM Output and Metrics | 0/TBD | Not started | - |
+| 3. BOM Output and Metrics | 0/2 | Planning complete | - |
 | 4. Visualization, Export and Documentation | 0/TBD | Not started | - |
