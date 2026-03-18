@@ -191,6 +191,13 @@
     "totalPorts": "Total par baie",
     "switchCapacity": "Capacite switch (avec POD)"
   },
+  "converged": {
+    "heading": "Dimensionnement Converge",
+    "ethernetHeading": "Reseau Ethernet",
+    "fcHeading": "FC SAN",
+    "resetButton": "Reinitialiser",
+    "hbaPortsHelp": "0 = FC desactive, 1-8 ports HBA par serveur"
+  },
   "bom": {
     "heading": "Nomenclature",
     "switchesHeading": "Commutateurs",

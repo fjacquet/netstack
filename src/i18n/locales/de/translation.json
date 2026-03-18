@@ -191,6 +191,13 @@
     "totalPorts": "Gesamt pro Fabric",
     "switchCapacity": "Switch-Kapazitat (mit POD)"
   },
+  "converged": {
+    "heading": "Konvergente Dimensionierung",
+    "ethernetHeading": "Ethernet-Netzwerk",
+    "fcHeading": "FC SAN",
+    "resetButton": "Zurucksetzen",
+    "hbaPortsHelp": "0 = FC deaktiviert, 1-8 HBA-Ports pro Server"
+  },
   "bom": {
     "heading": "Stueckliste",
     "switchesHeading": "Switches",
