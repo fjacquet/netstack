@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Enhancements
 status: planning
-stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-03-17T21:55:45.658Z"
+stopped_at: Completed 07-rack-elevation-servers-01-PLAN.md
+last_updated: "2026-03-18T06:23:27.879Z"
 last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 5
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1)
 *Updated after each plan completion*
 | Phase 05-engine-enhancements P01 | 9 | 2 tasks | 16 files |
 | Phase 05-engine-enhancements P02 | 19 | 2 tasks | 11 files |
+| Phase 07-rack-elevation-servers P01 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,10 @@ Recent decisions affecting current work:
 - [Phase 05-engine-enhancements]: Zod .default() for new port fields: portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf use .default() for backward-compatible schema evolution without engine conditional checks
 - [Phase 05-engine-enhancements]: Runtime clamp pattern: effectiveUplinks = min(activeUplinksPerLeaf, LEAF.uplinkPorts) keeps schema max at 8 while enforcing model-specific uplink limits at runtime
 - [Phase 05-engine-enhancements]: Persist version bumped 3 to 4 for activeUplinksPerLeaf/port multiplier fields; merge() spread pattern handles missing fields automatically
+- [Phase 07-rack-elevation-servers]: serverUHeight enum with Zod default handles backward compat without migration logic
+- [Phase 07-rack-elevation-servers]: SWITCH_U_PER_SERVER_RACK=3 constant: OOB+2 leaf switches fixed overhead per server rack
+- [Phase 07-rack-elevation-servers]: Per-rack RACK_CAPACITY_EXCEEDED violations (not aggregated) — one per overflowing rack with rackNumber
+- [Phase 07-rack-elevation-servers]: Store version 5 via spread pattern — no explicit migration branch for serverUHeight needed
 
 ### Research Flags
 
@@ -127,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T21:55:45.655Z
-Stopped at: Phase 7 UI-SPEC approved
-Resume file: .planning/phases/07-rack-elevation-servers/07-UI-SPEC.md
+Last session: 2026-03-18T06:23:27.877Z
+Stopped at: Completed 07-rack-elevation-servers-01-PLAN.md
+Resume file: None

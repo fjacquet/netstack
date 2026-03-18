@@ -20,8 +20,8 @@
 ### Rack Elevation
 
 - [ ] **ELEV-01**: Servers are visible in the rack elevation view with correct U-height
-- [ ] **ELEV-02**: User can configure server U-height (1U, 2U, 4U, 8U)
-- [ ] **ELEV-03**: RACK_CAPACITY_EXCEEDED constraint violation fires when total device U-height exceeds rack size
+- [x] **ELEV-02**: User can configure server U-height (1U, 2U, 4U, 8U)
+- [x] **ELEV-03**: RACK_CAPACITY_EXCEEDED constraint violation fires when total device U-height exceeds rack size
 
 ### Uplink Configuration
 
@@ -59,8 +59,8 @@
 | PORT-02 | Phase 6 | Pending |
 | PORT-03 | Phase 5 | Complete |
 | ELEV-01 | Phase 7 | Pending |
-| ELEV-02 | Phase 7 | Pending |
-| ELEV-03 | Phase 7 | Pending |
+| ELEV-02 | Phase 7 | Complete |
+| ELEV-03 | Phase 7 | Complete |
 | UPLN-01 | Phase 6 | Pending |
 | UPLN-02 | Phase 5 | Complete |
 
