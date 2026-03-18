@@ -120,7 +120,7 @@
     "serverLabel": "Serveur {{n}}",
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — depassement",
-    "overflowStrip": "+{{over}}U depassement",
+    "overflowStrip": "+{{over}}U depassement"
   },
   "export": {
     "heading": "Exporter",
