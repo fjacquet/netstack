@@ -17,7 +17,7 @@ export function RackDevice({ device, onDragStart, onDragEnd, onMoveUp, onMoveDow
   const borderClass = getSaturationBorderClass(device.usedPorts, device.totalPorts)
 
   const roleColorClass =
-    device.role === 'leaf'
+    device.role === 'leaf' || device.role === 'access'
       ? 'bg-[hsl(213_94%_80%)] dark:bg-[hsl(213_94%_28%)]'
       : device.role === 'spine'
         ? 'bg-[hsl(270_91%_80%)] dark:bg-[hsl(270_91%_28%)]'
@@ -25,7 +25,11 @@ export function RackDevice({ device, onDragStart, onDragEnd, onMoveUp, onMoveDow
           ? 'bg-[hsl(142_76%_80%)] dark:bg-[hsl(142_76%_28%)]'
           : device.role === 'fc-switch'
             ? 'bg-[hsl(280_80%_85%)] dark:bg-[hsl(280_80%_25%)]'
-            : 'bg-muted'
+            : device.role === 'aggregation'
+              ? 'bg-[hsl(38_92%_80%)] dark:bg-[hsl(38_92%_28%)]'
+              : device.role === 'core'
+                ? 'bg-[hsl(270_91%_80%)] dark:bg-[hsl(270_91%_28%)]'
+                : 'bg-muted'
 
   function handleDragStart(e: React.DragEvent<HTMLDivElement>) {
     e.dataTransfer.setData('text/plain', device.id)

@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 
 interface ModeSelectorProps {
-  mode: 'ethernet' | 'fc' | 'converged'
-  onModeChange: (m: 'ethernet' | 'fc' | 'converged') => void
+  mode: 'ethernet' | 'fc' | 'converged' | 'three-tier'
+  onModeChange: (m: 'ethernet' | 'fc' | 'converged' | 'three-tier') => void
 }
 
 export function ModeSelector({ mode, onModeChange }: ModeSelectorProps) {
@@ -34,6 +34,13 @@ export function ModeSelector({ mode, onModeChange }: ModeSelectorProps) {
         onClick={() => onModeChange('converged')}
       >
         {t('mode.converged')}
+      </Button>
+      <Button
+        variant={mode === 'three-tier' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onModeChange('three-tier')}
+      >
+        {t('mode.threeTier')}
       </Button>
     </div>
   )

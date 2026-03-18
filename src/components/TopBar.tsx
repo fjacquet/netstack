@@ -23,8 +23,8 @@ import { generateConvergedPdfBlob } from '@/features/export/exportConvergedPdf'
 import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface TopBarProps {
-  mode: 'ethernet' | 'fc' | 'converged'
-  onModeChange: (m: 'ethernet' | 'fc' | 'converged') => void
+  mode: 'ethernet' | 'fc' | 'converged' | 'three-tier'
+  onModeChange: (m: 'ethernet' | 'fc' | 'converged' | 'three-tier') => void
 }
 
 export function TopBar({ mode, onModeChange }: TopBarProps) {

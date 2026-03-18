@@ -7,6 +7,7 @@ import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
+import { ThreeTierSizingPage } from '@/features/sizing/three-tier/ThreeTierSizingPage'
 import { RackElevationTab, ConvergedRackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab, FCTopologyTab, ConvergedTopologyTab } from '@/features/topology'
 import {
@@ -18,7 +19,7 @@ import {
 
 function AppContent() {
   const { t } = useTranslation()
-  const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged'>('ethernet')
+  const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged' | 'three-tier'>('ethernet')
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -44,14 +45,14 @@ function AppContent() {
         </div>
         <main className="flex-1 overflow-auto">
           <TabsContent value="sizing" className="mt-0">
-            {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : <SizingPage />}
+            {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : mode === 'three-tier' ? <ThreeTierSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : <TopologyTab />}
+            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : mode === 'three-tier' ? <div className="flex items-center justify-center py-12 text-muted-foreground">Three-Tier topology will appear here</div> : <TopologyTab />}
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
-              {mode === 'converged' ? <ConvergedRackElevationTab /> : <RackElevationTab />}
+              {mode === 'converged' ? <ConvergedRackElevationTab /> : mode === 'three-tier' ? <div className="flex items-center justify-center py-12 text-muted-foreground">Three-Tier rack elevation will appear here</div> : <RackElevationTab />}
             </TabsContent>
           )}
         </main>
