@@ -109,20 +109,22 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
 
 /**
  * Build devices for a network rack (spines + border leafs).
- * Placed bottom-to-top: spines first, then border leafs above.
+ * Placement follows the same ToR/MoR/BoR positioning as server racks.
  */
 export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
   const spineSpec = SWITCH_CATALOG[bom.input.spineModel]
-  const devices: RackDevice[] = []
-  let uSlot = 1
+  const positioning = bom.input.switchPositioning
+  const rackSizeU = parseInt(bom.input.rackSize, 10)
+
+  // Collect all devices first, then position them
+  const rawDevices: Omit<RackDevice, 'uSlot'>[] = []
 
   for (let i = 0; i < bom.spineSwitches; i++) {
-    devices.push({
+    rawDevices.push({
       id: `net-spine-${i}`,
       model: bom.input.spineModel,
       role: 'spine',
       label: `Spine ${i + 1}`,
-      uSlot: uSlot++,
       uHeight: 1,
       usedPorts: Math.ceil(bom.leafSwitches / bom.spineSwitches),
       totalPorts: spineSpec.downlinkPorts,
@@ -132,12 +134,11 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
   if (bom.borderLeafSwitches > 0 && bom.input.borderLeafModel !== 'none') {
     const borderSpec = SWITCH_CATALOG[bom.input.borderLeafModel]
     for (let i = 0; i < bom.borderLeafSwitches; i++) {
-      devices.push({
+      rawDevices.push({
         id: `net-border-${i}`,
         model: bom.input.borderLeafModel,
         role: 'border',
         label: `Border Leaf ${i + 1}`,
-        uSlot: uSlot++,
         uHeight: 1,
         usedPorts: 0,
         totalPorts: borderSpec.downlinkPorts,
@@ -145,5 +146,36 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
     }
   }
 
-  return devices
+  return positionDeviceGroup(rawDevices, positioning, rackSizeU)
+}
+
+/**
+ * Position a group of devices within a rack according to ToR/MoR/BoR.
+ * Used by both network racks and FC racks for consistent positioning.
+ */
+export function positionDeviceGroup(
+  rawDevices: Omit<RackDevice, 'uSlot'>[],
+  positioning: 'ToR' | 'MoR' | 'BoR',
+  rackSizeU: number,
+): RackDevice[] {
+  const totalU = rawDevices.reduce((sum, d) => sum + d.uHeight, 0)
+
+  let startSlot: number
+  if (positioning === 'ToR') {
+    // Group at top: last device ends at U(rackSizeU)
+    startSlot = rackSizeU - totalU + 1
+  } else if (positioning === 'MoR') {
+    // Group centered at mid-rack
+    startSlot = Math.max(1, Math.floor((rackSizeU - totalU) / 2) + 1)
+  } else {
+    // BoR: start from U1
+    startSlot = 1
+  }
+
+  let uSlot = startSlot
+  return rawDevices.map((d) => {
+    const device: RackDevice = { ...d, uSlot }
+    uSlot += d.uHeight
+    return device
+  })
 }

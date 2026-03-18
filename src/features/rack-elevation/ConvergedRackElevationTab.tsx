@@ -55,7 +55,9 @@ export function ConvergedRackElevationTab() {
     if (selectedRack.startsWith('fc-net-')) {
       // FC network rack
       if (bom.fcBom) {
-        setDevices(buildFCNetworkRackDevices(bom.fcBom))
+        const positioning = bom.ethernetBom.input.switchPositioning
+        const rackSizeU = parseInt(bom.ethernetBom.input.rackSize, 10)
+        setDevices(buildFCNetworkRackDevices(bom.fcBom, positioning, rackSizeU))
       } else {
         setDevices([])
       }
