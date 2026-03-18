@@ -112,7 +112,13 @@ Plans:
   2. Rack elevation renders switches at the correct U-position: ToR switches appear at the top of the server rack, MoR/BoR switches appear in a separate dedicated network rack column
   3. Estimated cable run length in the BOM updates based on switch position (MoR and BoR produce longer estimated runs than ToR)
   4. A DAC_POSITIONING_INCOMPATIBLE violation fires when DAC cables are selected with MoR or BoR positioning, because DAC cables cannot span the longer runs
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+
+- [ ] 11-01-PLAN.md — Domain layer: switchPositioning schema field, DAC_POSITIONING_INCOMPATIBLE violation, switchOverheadU engine refactor, 8 new tests
+- [ ] 11-02-PLAN.md — Store + UI: inputStore v6, InputForm positioning selector, BOMPanel cable advisory and violation, 10 i18n keys (all 4 locales)
+- [ ] 11-03-PLAN.md — Rack elevation: positioning-aware buildRackDevices, new buildPositioningRackDevices, RackElevationTab positioning rack option
 
 ### Phase 12: FC Input and BOM UI
 
@@ -168,7 +174,7 @@ Plans:
 | 8. FC Catalog and Schema Foundation | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
-| 11. Switch Positioning (Ethernet) | v2.0 | 0/? | Not started | - |
+| 11. Switch Positioning (Ethernet) | v2.0 | 0/3 | Not started | - |
 | 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |
