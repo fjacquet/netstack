@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: "Completed 08-01-PLAN.md (FC catalog: fc-types.ts, brocade.ts, brocade.test.ts)"
-last_updated: "2026-03-18T09:30:29.359Z"
+stopped_at: Completed 09-01-PLAN.md (FC engine stub + RED test scaffolding)
+last_updated: "2026-03-18T09:56:05.544Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 *Updated after each plan completion*
 | Phase 08 P02 | 129 | 2 tasks | 3 files |
 | Phase 08 P01 | 3 | 2 tasks | 3 files |
+| Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 08-01]: fc-types.ts has zero imports — complete Ethernet domain isolation; FCOpticsSpec uses protocol: fibre-channel as structural discriminant
 - [Phase 08-01]: 7850 extension switch: podLicenseUnit=0 because WAN port licensing differs from FC POD licensing; all 24 FC ports are base-licensed
 - [Phase 08-01]: X7-4 totalPorts=256 (4x64 data ports), not 265 — 9 ICL ports are internal fabric routing ports excluded from host connectivity sizing
+- [Phase 09-01]: FC engine stub returns zero-value FCNetworkBOM: satisfies compiler for fcResultStore import chain
+- [Phase 09-01]: DEFAULT_FC_INPUT inlined in each test file: keeps tests self-contained
 
 ### Research Flags
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T09:27:29.348Z
-Stopped at: Completed 08-01-PLAN.md (FC catalog: fc-types.ts, brocade.ts, brocade.test.ts)
+Last session: 2026-03-18T09:56:05.542Z
+Stopped at: Completed 09-01-PLAN.md (FC engine stub + RED test scaffolding)
 Resume file: None

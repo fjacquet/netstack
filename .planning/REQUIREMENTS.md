@@ -23,7 +23,7 @@
 
 ### FC User Interface
 
-- [ ] **FC-09**: Mode selector at app level (Ethernet OR Fibre Channel, mutually exclusive)
+- [x] **FC-09**: Mode selector at app level (Ethernet OR Fibre Channel, mutually exclusive)
 - [ ] **FC-10**: FC-specific input form (server count, HBA ports per server, FC speed, preferred generation)
 - [ ] **FC-11**: FC BOM panel with switches, optics, ISL links, and POD license requirements
 - [ ] **FC-12**: FC topology diagram with dual-fabric layout (Fabric A | Fabric B)
@@ -64,7 +64,7 @@
 | FC-06 | Phase 10 | Pending |
 | FC-07 | Phase 10 | Pending |
 | FC-08 | Phase 10 | Pending |
-| FC-09 | Phase 9 | Pending |
+| FC-09 | Phase 9 | Complete |
 | FC-10 | Phase 12 | Pending |
 | FC-11 | Phase 12 | Pending |
 | FC-12 | Phase 13 | Pending |
