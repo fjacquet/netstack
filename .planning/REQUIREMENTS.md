@@ -10,10 +10,10 @@
 ### Converged Schema & Engine
 
 - [ ] **CONV-01**: User can select "Converged" mode alongside Ethernet and FC
-- [ ] **CONV-02**: Converged input accepts 1–4 Ethernet frontend ports + 0–2 FC HBA ports per server
-- [ ] **CONV-03**: Converged engine calls both `calculateBOM()` and `calculateFCBOM()` and returns a combined BOM
-- [ ] **CONV-04**: FC portion is optional (0 HBA ports = Ethernet-only converged)
-- [ ] **CONV-05**: Combined violations from both engines reported in a single array
+- [x] **CONV-02**: Converged input accepts 1–4 Ethernet frontend ports + 0–2 FC HBA ports per server
+- [x] **CONV-03**: Converged engine calls both `calculateBOM()` and `calculateFCBOM()` and returns a combined BOM
+- [x] **CONV-04**: FC portion is optional (0 HBA ports = Ethernet-only converged)
+- [x] **CONV-05**: Combined violations from both engines reported in a single array
 
 ### Converged UI
 
@@ -53,10 +53,10 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CONV-01 | Phase 15 | Pending |
-| CONV-02 | Phase 15 | Pending |
-| CONV-03 | Phase 15 | Pending |
-| CONV-04 | Phase 15 | Pending |
-| CONV-05 | Phase 15 | Pending |
+| CONV-02 | Phase 15 | Complete |
+| CONV-03 | Phase 15 | Complete |
+| CONV-04 | Phase 15 | Complete |
+| CONV-05 | Phase 15 | Complete |
 | CONV-06 | Phase 16 | Pending |
 | CONV-07 | Phase 16 | Pending |
 | CONV-08 | Phase 16 | Pending |

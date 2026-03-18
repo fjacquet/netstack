@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Converged Mode
-status: ready_to_plan
-stopped_at: Roadmap created for v3.0
-last_updated: "2026-03-18T19:00:00.000Z"
-last_activity: 2026-03-18 — v3.0 roadmap created (3 phases, 12 requirements)
+status: executing
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-03-18T19:08:12.000Z"
+last_activity: 2026-03-18 — Completed 15-01 converged domain schemas + engine
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
@@ -21,30 +21,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
-**Current focus:** Phase 15 — Converged Domain & Store (ready to plan)
+**Current focus:** Phase 15 — Converged Domain & Store (Plan 01 complete, Plan 02 next)
 
 ## Current Position
 
 Phase: 15 of 17 (Converged Domain & Store)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-18 — v3.0 roadmap created
+Plan: 2 of 2
+Status: Executing
+Last activity: 2026-03-18 — Completed 15-01 converged domain schemas + engine
 
-Progress: [░░░░░░░░░░] 0% (v3.0)
+Progress: [█████░░░░░] 50% (v3.0)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v3.0)
-- Average duration: — min (v2.0 reference: variable)
-- Total execution time: 0 hours
+- Total plans completed: 1 (v3.0)
+- Average duration: 3 min
+- Total execution time: 0.05 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 15-converged-domain-store | 1/2 | 3min | 3min |
 
 **Recent Trend (from v2.0):**
 
@@ -65,6 +65,9 @@ Key architectural decisions relevant to v3.0:
 - [v2.0]: FC store uses separate localStorage keys — Ethernet store schema never touched
 - [v2.0]: ISL formula uses fan-in ratio (7:1 Broadcom default), independent from Ethernet uplink formula
 - [v2.0]: FC topology returns {fabricA, fabricB} isolated subgraphs — cross-fabric edges architecturally impossible
+- [15-01]: Compose engines via toEthernetInput/toFCInput adapter functions rather than merging schemas
+- [15-01]: fcBom is nullable (not optional) to distinguish FC-disabled from FC-errored
+- [15-01]: portsPerServerFrontend min=1 in converged mode (Ethernet always active)
 
 ### Pending Todos
 
@@ -77,5 +80,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: v3.0 roadmap created, Phase 15 ready to plan
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None
