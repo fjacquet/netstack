@@ -23,7 +23,9 @@ export function RackDevice({ device, onDragStart, onDragEnd, onMoveUp, onMoveDow
         ? 'bg-[hsl(270_91%_80%)] dark:bg-[hsl(270_91%_28%)]'
         : device.role === 'border'
           ? 'bg-[hsl(142_76%_80%)] dark:bg-[hsl(142_76%_28%)]'
-          : 'bg-muted'
+          : device.role === 'fc-switch'
+            ? 'bg-[hsl(280_80%_85%)] dark:bg-[hsl(280_80%_25%)]'
+            : 'bg-muted'
 
   function handleDragStart(e: React.DragEvent<HTMLDivElement>) {
     e.dataTransfer.setData('text/plain', device.id)

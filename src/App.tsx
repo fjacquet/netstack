@@ -7,7 +7,7 @@ import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
-import { RackElevationTab } from '@/features/rack-elevation'
+import { RackElevationTab, ConvergedRackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab, FCTopologyTab, ConvergedTopologyTab } from '@/features/topology'
 import {
   Tabs,
@@ -51,7 +51,7 @@ function AppContent() {
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
-              <RackElevationTab />
+              {mode === 'converged' ? <ConvergedRackElevationTab /> : <RackElevationTab />}
             </TabsContent>
           )}
         </main>
