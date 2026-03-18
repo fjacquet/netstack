@@ -13,10 +13,13 @@ import {
 } from '@/components/ui/tooltip'
 import { useResultStore } from '@/store/resultStore'
 import { useFCResultStore } from '@/store/fcResultStore'
+import { useConvergedResultStore } from '@/store/convergedResultStore'
 import { downloadBomCsv } from '@/features/export/exportCsv'
 import { downloadFCBomCsv } from '@/features/export/exportFCCsv'
+import { downloadConvergedBomCsv } from '@/features/export/exportConvergedCsv'
 import { generatePdfBlob } from '@/features/export/exportPdf'
 import { generateFCPdfBlob } from '@/features/export/exportFCPdf'
+import { generateConvergedPdfBlob } from '@/features/export/exportConvergedPdf'
 import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface TopBarProps {
@@ -28,16 +31,37 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
   const { t } = useTranslation()
   const bom = useResultStore(useShallow((s) => s.bom))
   const fcBom = useFCResultStore(useShallow((s) => s.bom))
-  const activeBom = mode === 'fc' ? fcBom : bom
+  const convergedBom = useConvergedResultStore(useShallow((s) => s.bom))
+  const activeBom = mode === 'fc' ? fcBom : mode === 'converged' ? convergedBom : bom
   const [pdfGenerating, setPdfGenerating] = useState(false)
 
   const handleCsv = () => {
-    if (mode === 'fc' && fcBom) downloadFCBomCsv(fcBom)
+    if (mode === 'converged' && convergedBom) downloadConvergedBomCsv(convergedBom)
+    else if (mode === 'fc' && fcBom) downloadFCBomCsv(fcBom)
     else if (bom) downloadBomCsv(bom)
   }
 
   const handlePdf = async () => {
-    if (mode === 'fc') {
+    if (mode === 'converged') {
+      if (!convergedBom) return
+      setPdfGenerating(true)
+      try {
+        const png = getLastTopologyPng() ?? undefined
+        const pngA = getLastFCTopologyPng('A') ?? undefined
+        const pngB = getLastFCTopologyPng('B') ?? undefined
+        const blob = await generateConvergedPdfBlob(convergedBom, png, pngA, pngB)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'netstack-converged-report.pdf'
+        a.click()
+        URL.revokeObjectURL(url)
+      } catch {
+        // Silently fail — user can retry
+      } finally {
+        setPdfGenerating(false)
+      }
+    } else if (mode === 'fc') {
       if (!fcBom) return
       setPdfGenerating(true)
       try {
