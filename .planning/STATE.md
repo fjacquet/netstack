@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 09-01-PLAN.md (FC engine stub + RED test scaffolding)
-last_updated: "2026-03-18T09:56:05.544Z"
+stopped_at: Completed 09-02-PLAN.md (fcInputStore + fcResultStore + isolation tests GREEN)
+last_updated: "2026-03-18T10:02:01.852Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 08 P02 | 129 | 2 tasks | 3 files |
 | Phase 08 P01 | 3 | 2 tasks | 3 files |
 | Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
+| Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Key v2.0 architectural decisions from research:
 - [Phase 08-01]: X7-4 totalPorts=256 (4x64 data ports), not 265 — 9 ICL ports are internal fabric routing ports excluded from host connectivity sizing
 - [Phase 09-01]: FC engine stub returns zero-value FCNetworkBOM: satisfies compiler for fcResultStore import chain
 - [Phase 09-01]: DEFAULT_FC_INPUT inlined in each test file: keeps tests self-contained
+- [Phase 09-02]: fcInputStore uses 'netstack-fc-input' v1 key — Ethernet 'netstack-input' v5 never touched; localStorage polyfill added to test setup for Node 25 WebStorage compatibility
 
 ### Research Flags
 
@@ -94,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T09:56:05.542Z
-Stopped at: Completed 09-01-PLAN.md (FC engine stub + RED test scaffolding)
+Last session: 2026-03-18T10:02:01.850Z
+Stopped at: Completed 09-02-PLAN.md (fcInputStore + fcResultStore + isolation tests GREEN)
 Resume file: None
