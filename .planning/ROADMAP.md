@@ -79,7 +79,11 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
   3. Calling the 3-tier engine with a server count produces the correct number of access (2 per rack), aggregation (formula-based, min 2), and core (formula-based, min 2) switches
   4. The engine output includes oversubscription ratios at each tier boundary (access-to-aggregation and aggregation-to-core)
   5. The engine produces a cable BOM with server-to-access, access-to-aggregation, and aggregation-to-core cable counts
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 18-01-PLAN.md — Catalog extension (Z-series + tier field) and three-tier schemas
+- [ ] 18-02-PLAN.md — Three-tier sizing engine (calculateThreeTierBOM) with TDD
+- [ ] 18-03-PLAN.md — Converged engine topology selector integration
 
 ### Phase 19: Three-Tier UI & Converged Integration
 **Goal**: Users can interact with 3-tier topology through a standalone mode and as the Ethernet portion of Converged mode, with full input controls, BOM display, topology visualization, and rack elevation
@@ -124,6 +128,6 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 | 15. Converged Domain & Store | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 16. Converged UI | v3.0 | 3/3 | Complete | 2026-03-18 |
 | 17. Converged Export & i18n | v3.0 | 2/2 | Complete | 2026-03-18 |
-| 18. Three-Tier Domain & Engine | v4.0 | 0/TBD | Not started | - |
+| 18. Three-Tier Domain & Engine | v4.0 | 0/3 | Not started | - |
 | 19. Three-Tier UI & Converged Integration | v4.0 | 0/TBD | Not started | - |
 | 20. Three-Tier Export & i18n | v4.0 | 0/TBD | Not started | - |
