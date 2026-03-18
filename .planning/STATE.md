@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 12-03-PLAN.md (preferredGeneration gap closure)
-last_updated: "2026-03-18T13:46:36.304Z"
+stopped_at: Completed 13-01-PLAN.md (buildFCTopologyGraph pure function)
+last_updated: "2026-03-18T14:10:21.050Z"
 last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 14
+  completed_plans: 13
   percent: 0
 ---
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 12 P01 | 20 | 3 tasks | 10 files |
 | Phase 12 P02 | 15 | 3 tasks | 7 files |
 | Phase 12 P03 | 18 | 3 tasks | 14 files |
+| Phase 13-fc-topology-diagram P01 | 163 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 12]: FCBOMPanel fan-in uses getFCSeverity with <= 7 (Broadcom FC standard), not <= 6 (Ethernet)
 - [Phase 12-03]: preferredGeneration uses form.watch() outside useEffect for reactive filteredModels computation
 - [Phase 12-03]: Test uses labelFor attribute to find switch model combobox trigger — data-slot='form-item' not present in FormItem
+- [Phase 13-fc-topology-diagram]: Ring ISL topology when islPortsPerFabric >= switchCount — creates N edges (i→i+1 mod N); linear chain when M < N; 0 edges for single-switch or M=0
+- [Phase 13-fc-topology-diagram]: FCSwitchNodeData.totalPorts is a proxy (equals usedPorts) — FC_SWITCH_CATALOG lookup deferred to Plan 13-02 when visual rendering needs accurate port capacity
 
 ### Research Flags
 
@@ -122,6 +125,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:43:22.032Z
-Stopped at: Completed 12-03-PLAN.md (preferredGeneration gap closure)
+Last session: 2026-03-18T14:10:21.047Z
+Stopped at: Completed 13-01-PLAN.md (buildFCTopologyGraph pure function)
 Resume file: None

@@ -26,7 +26,7 @@
 - [x] **FC-09**: Mode selector at app level (Ethernet OR Fibre Channel, mutually exclusive)
 - [x] **FC-10**: FC-specific input form (server count, HBA ports per server, FC speed, preferred generation)
 - [x] **FC-11**: FC BOM panel with switches, optics, ISL links, and POD license requirements
-- [ ] **FC-12**: FC topology diagram with dual-fabric layout (Fabric A | Fabric B)
+- [x] **FC-12**: FC topology diagram with dual-fabric layout (Fabric A | Fabric B)
 
 ### FC Export
 
@@ -67,7 +67,7 @@
 | FC-09 | Phase 9 | Complete |
 | FC-10 | Phase 12 | Complete |
 | FC-11 | Phase 12 | Complete |
-| FC-12 | Phase 13 | Pending |
+| FC-12 | Phase 13 | Complete |
 | FC-13 | Phase 14 | Pending |
 | FC-14 | Phase 14 | Pending |
 | POS-01 | Phase 11 | Complete |
