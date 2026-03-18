@@ -70,7 +70,11 @@ Plans:
   2. A Vitest test confirms that mutating fcInputStore leaves the Ethernet inputStore state byte-for-byte unchanged, and vice versa
   3. Mode state (ethernet vs fc) is documented as ephemeral component state — not persisted to localStorage — preventing stale mode on reload
   4. The store layer compiles cleanly with TypeScript strict mode and no cross-domain imports between fc* and Ethernet stores
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — FC sizing engine stub + test scaffolding (RED phase): fc-sizing.ts, fcInputStore.test.ts, fcResultStore.test.ts, store-isolation.test.ts
+- [ ] 09-02-PLAN.md — FC store implementations (GREEN phase): fcInputStore.ts and fcResultStore.ts turn all 11 isolation tests green
 
 ### Phase 10: FC Sizing Engine
 **Goal**: calculateFCBOM() is a verified pure function that produces correct dual-fabric BOM output for any valid FC input — fully tested before any UI consumes it
@@ -140,8 +144,8 @@ Plans:
 | 5. Engine Enhancements | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 6. Input Configuration UI | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 7. Rack Elevation Servers | v1.1 | 3/3 | Complete | 2026-03-18 |
-| 8. FC Catalog and Schema Foundation | 2/2 | Complete   | 2026-03-18 | - |
-| 9. Mode Store Isolation | v2.0 | 0/? | Not started | - |
+| 8. FC Catalog and Schema Foundation | v2.0 | 2/2 | Complete | 2026-03-18 |
+| 9. Mode Store Isolation | v2.0 | 0/2 | Not started | - |
 | 10. FC Sizing Engine | v2.0 | 0/? | Not started | - |
 | 11. Switch Positioning (Ethernet) | v2.0 | 0/? | Not started | - |
 | 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
