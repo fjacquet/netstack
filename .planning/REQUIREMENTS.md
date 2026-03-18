@@ -15,11 +15,11 @@
 ### Three-Tier Engine
 
 - [x] **TENG-01**: Topology selector in input schema: "leaf-spine" (Clos) vs "three-tier" (Core/Aggregation/Access)
-- [ ] **TENG-02**: Access switches = 2 per rack (redundant pair, same formula as leaf switches)
-- [ ] **TENG-03**: Aggregation switches = ceil(accessSwitches × uplinksPerAccess / aggrDownlinks), min 2 for redundancy
-- [ ] **TENG-04**: Core switches = ceil(aggrSwitches × uplinksPerAggr / coreDownlinks), min 2 for redundancy
-- [ ] **TENG-05**: Oversubscription calculated at each tier boundary (access→aggr, aggr→core)
-- [ ] **TENG-06**: Cable BOM: server-access + access-aggr + aggr-core cables with correct inter-tier counts
+- [x] **TENG-02**: Access switches = 2 per rack (redundant pair, same formula as leaf switches)
+- [x] **TENG-03**: Aggregation switches = ceil(accessSwitches × uplinksPerAccess / aggrDownlinks), min 2 for redundancy
+- [x] **TENG-04**: Core switches = ceil(aggrSwitches × uplinksPerAggr / coreDownlinks), min 2 for redundancy
+- [x] **TENG-05**: Oversubscription calculated at each tier boundary (access→aggr, aggr→core)
+- [x] **TENG-06**: Cable BOM: server-access + access-aggr + aggr-core cables with correct inter-tier counts
 - [x] **TENG-07**: User can select access/aggregation/core switch models independently
 
 ### Three-Tier UI
@@ -65,11 +65,11 @@
 | TIER-01 | Phase 18 | Complete |
 | TIER-02 | Phase 18 | Complete |
 | TENG-01 | Phase 18 | Complete |
-| TENG-02 | Phase 18 | Pending |
-| TENG-03 | Phase 18 | Pending |
-| TENG-04 | Phase 18 | Pending |
-| TENG-05 | Phase 18 | Pending |
-| TENG-06 | Phase 18 | Pending |
+| TENG-02 | Phase 18 | Complete |
+| TENG-03 | Phase 18 | Complete |
+| TENG-04 | Phase 18 | Complete |
+| TENG-05 | Phase 18 | Complete |
+| TENG-06 | Phase 18 | Complete |
 | TENG-07 | Phase 18 | Complete |
 | TUI-01 | Phase 19 | Pending |
 | TUI-02 | Phase 19 | Pending |
