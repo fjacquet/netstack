@@ -26,6 +26,7 @@ function makeInput(overrides: Partial<FCSizingInput> = {}): FCSizingInput {
     islPortsPerSwitch: 4,
     rackSize: '42U',
     serverUHeight: '1U',
+    preferredGeneration: 'any',
     ...overrides,
   };
 }

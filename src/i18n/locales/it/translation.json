@@ -155,7 +155,12 @@
     "selectSwitchModel": "Seleziona modello switch FC",
     "islPortsPerSwitch": "Porte ISL per switch",
     "islPortsHelp": "Porte riservate per i link inter-switch (0\u201332)",
-    "resetButton": "Ripristina FC"
+    "resetButton": "Ripristina FC",
+    "preferredGeneration": "Generazione preferita",
+    "preferredGenerationHelp": "Filtra i modelli per generazione (Gen 7 = 64G, Gen 8 = 128G)",
+    "gen7": "Gen 7 (64G)",
+    "gen8": "Gen 8 (128G)",
+    "genAny": "Qualsiasi generazione"
   },
   "fcbom": {
     "heading": "Distinta materiali FC",

@@ -40,6 +40,7 @@ const DEFAULT_FC_INPUT: FCSizingInput = {
   islPortsPerSwitch: 4,
   rackSize: '42U',
   serverUHeight: '1U',
+  preferredGeneration: 'any',
 }
 
 describe('store isolation: FC and Ethernet stores are independent', () => {

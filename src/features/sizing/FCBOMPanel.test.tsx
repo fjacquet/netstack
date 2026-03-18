@@ -42,6 +42,7 @@ function makeBom(overrides: Partial<FCNetworkBOM> = {}): FCNetworkBOM {
       islPortsPerSwitch: 4,
       rackSize: '42U',
       serverUHeight: '1U',
+      preferredGeneration: 'any',
     },
     ...overrides,
   }
