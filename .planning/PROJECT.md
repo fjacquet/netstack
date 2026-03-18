@@ -29,12 +29,12 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Border leaf switches for WAN connectivity — v1.0
 - ✓ Rack sizes: 24U, 42U, 50U — v1.0
 
-### Active (v1.1)
+### Shipped (v1.1) — 2026-03-18
 
-- [ ] Per-rack server count configuration (GH #2)
-- [ ] Configurable frontend/backend port count per server (GH #3)
-- [ ] Show servers in rack elevation with U-height validation (GH #4)
-- [ ] Selectable number of uplinks per switch (GH #5)
+- ✓ Per-rack server count configuration with variable density (GH #2)
+- ✓ Configurable frontend (data) and backend (storage/backup) port count per server (GH #3)
+- ✓ Servers in rack elevation with U-height proportional rendering and RACK_CAPACITY_EXCEEDED alerts (GH #4)
+- ✓ Selectable active uplinks per leaf switch (1 to model maximum) (GH #5)
 
 ### Future (v2.0+)
 
@@ -54,18 +54,19 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - SONiC configuration generation — separate tool
 - Backend / user accounts — pure client-side
 
-## Current Milestone: v1.1 Enhancements
+## Current State: v1.1 Shipped
 
-**Goal:** Improve the Ethernet calculator with per-rack configuration, configurable server ports, rack capacity validation, and selectable uplinks.
+**Shipped:** 2026-03-18 | **Tag:** v1.1.0
+**Status:** All v1.1 requirements satisfied (11/11). 223 tests, 0 TypeScript errors.
 
-**Target features:**
-- Per-rack server count (variable density per rack) — GH #2
-- Configurable frontend/backend port count per server — GH #3
-- Servers visible in rack elevation with U-height + fit validation — GH #4
-- Selectable number of uplinks per switch — GH #5
+## Next Milestone: v2.0 (TBD)
+
+Candidate: Fibre Channel SAN sizing with Brocade Gen7/Gen8 switch catalog.
+Start with `/gsd:new-milestone` to define requirements.
 
 ## Context
 
+Shipped v1.1 with 223 tests, 34 commits across 3 phases (5–7), 55 files changed.
 Shipped v1.0 with 6,990 LOC TypeScript, 144 tests, 50 commits.
 Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflow/react, @react-pdf/renderer.
 5 Dell PowerSwitch models: S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON.
@@ -93,4 +94,4 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | Zustand persist with version + merge | Handles schema evolution without breaking cached data | ✓ Good |
 
 ---
-*Last updated: 2026-03-17 after v1.0 milestone*
+*Last updated: 2026-03-18 after v1.1 milestone*

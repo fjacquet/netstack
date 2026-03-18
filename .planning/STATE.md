@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Enhancements
-status: planning
-stopped_at: Completed 07-rack-elevation-servers-02-PLAN.md
-last_updated: "2026-03-18T07:44:38.982Z"
-last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
+milestone: v2.0
+milestone_name: TBD
+status: idle
+stopped_at: v1.1 milestone archived 2026-03-18
+last_updated: "2026-03-18T00:00:00.000Z"
+last_activity: 2026-03-18 — v1.1 milestone archived, v1.1.0 tagged, 223 tests passing
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 

@@ -1,34 +1,13 @@
-# Requirements: NetStack
+# Requirements: NetStack v2.0
 
-**Defined:** 2026-03-17
+**Defined:** 2026-03-18 (v2.0 planning — TBD)
 **Core Value:** Answer "How many boxes and cables do I need?" instantly and accurately
 
-## v1.1 Requirements
+> v1.1 requirements have been archived to `.planning/milestones/v1.1-REQUIREMENTS.md` (all 11/11 satisfied).
 
-### Rack Configuration
+## v2.0 Requirements (TBD)
 
-- [ ] **RACK-01**: User can define number of racks explicitly (not just derived from totalServers / serversPerRack)
-- [ ] **RACK-02**: User can set different server counts per rack (variable density)
-- [x] **RACK-03**: Engine calculates BOM from per-rack configuration array instead of uniform scalars
-
-### Server Ports
-
-- [ ] **PORT-01**: User can configure frontend (data) port count per server (0-8, default 1)
-- [ ] **PORT-02**: User can configure backend (OOB) port count per server (0-8, default 1)
-- [x] **PORT-03**: Cable and transceiver counts adjust based on per-server port configuration
-
-### Rack Elevation
-
-- [x] **ELEV-01**: Servers are visible in the rack elevation view with correct U-height
-- [x] **ELEV-02**: User can configure server U-height (1U, 2U, 4U, 8U)
-- [x] **ELEV-03**: RACK_CAPACITY_EXCEEDED constraint violation fires when total device U-height exceeds rack size
-
-### Uplink Configuration
-
-- [ ] **UPLN-01**: User can select number of active uplinks per leaf switch (1 to model maximum)
-- [x] **UPLN-02**: Oversubscription ratio and cable counts recalculate based on active uplink count
-
-## v2 Requirements
+*Run `/gsd:new-milestone` to define v2.0 requirements.*
 
 ### Fibre Channel SAN (GH #1)
 
@@ -48,27 +27,5 @@
 | SONiC configuration generation | Separate tool |
 | Backend / user accounts | Pure client-side |
 
-## Traceability
-
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| RACK-01 | Phase 6 | Pending |
-| RACK-02 | Phase 6 | Pending |
-| RACK-03 | Phase 5 | Complete |
-| PORT-01 | Phase 6 | Pending |
-| PORT-02 | Phase 6 | Pending |
-| PORT-03 | Phase 5 | Complete |
-| ELEV-01 | Phase 7 | Complete |
-| ELEV-02 | Phase 7 | Complete |
-| ELEV-03 | Phase 7 | Complete |
-| UPLN-01 | Phase 6 | Pending |
-| UPLN-02 | Phase 5 | Complete |
-
-**Coverage:**
-- v1.1 requirements: 11 total
-- Mapped to phases: 11
-- Unmapped: 0
-
 ---
-*Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after v1.1 roadmap creation*
+*Created: 2026-03-18 after v1.1 milestone completion*
