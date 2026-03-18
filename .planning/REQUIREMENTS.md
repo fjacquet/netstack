@@ -17,7 +17,7 @@
 
 ### Converged UI
 
-- [ ] **CONV-06**: Converged input form with shared rack config + Ethernet section + FC section
+- [x] **CONV-06**: Converged input form with shared rack config + Ethernet section + FC section
 - [ ] **CONV-07**: Combined BOM panel showing Ethernet switches, FC switches, and total cables
 - [ ] **CONV-08**: Topology view with Ethernet leaf-spine + FC Fabric A + Fabric B
 - [ ] **CONV-09**: Rack elevation shows server racks (3U Ethernet overhead) + FC network racks
@@ -57,7 +57,7 @@
 | CONV-03 | Phase 15 | Complete |
 | CONV-04 | Phase 15 | Complete |
 | CONV-05 | Phase 15 | Complete |
-| CONV-06 | Phase 16 | Pending |
+| CONV-06 | Phase 16 | Complete |
 | CONV-07 | Phase 16 | Pending |
 | CONV-08 | Phase 16 | Pending |
 | CONV-09 | Phase 16 | Pending |
