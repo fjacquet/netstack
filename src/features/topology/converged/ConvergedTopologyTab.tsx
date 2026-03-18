@@ -14,6 +14,7 @@ import { useShallow } from 'zustand/shallow'
 import { useConvergedResultStore } from '@/store/convergedResultStore'
 import { useTheme } from '@/components/theme-provider'
 import { buildTopologyGraph } from '../utils/buildTopologyGraph'
+import { buildThreeTierTopologyGraph } from '../utils/buildThreeTierTopologyGraph'
 import { SwitchNode } from '../nodes/SwitchNode'
 import { RackNode } from '../nodes/RackNode'
 import { TopologyLegend } from '../TopologyLegend'
@@ -94,6 +95,69 @@ function ConvergedEthernetCanvas({ ethernetBom }: { ethernetBom: import('@/domai
 }
 
 /**
+ * Lightweight Three-Tier canvas that takes a threeTierBom as a prop.
+ * Must be rendered inside its own <ReactFlowProvider>.
+ */
+function ConvergedThreeTierCanvas({ threeTierBom }: { threeTierBom: import('@/domain/schemas/three-tier-bom').ThreeTierBOM }) {
+  const { theme } = useTheme()
+  const rfInstance = useReactFlow()
+
+  const resolvedTheme = useMemo((): 'dark' | 'light' => {
+    if (theme === 'dark') return 'dark'
+    if (theme === 'light') return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }, [theme])
+
+  const initialGraph = useMemo(() => buildThreeTierTopologyGraph(threeTierBom), [threeTierBom])
+
+  const [nodes, setNodes] = useState<Node<SwitchNodeData | RackNodeData>[]>(initialGraph.nodes)
+  const [edges, setEdges] = useState<Edge[]>(initialGraph.edges)
+
+  // Update graph when BOM changes
+  useEffect(() => {
+    const graph = buildThreeTierTopologyGraph(threeTierBom)
+    setNodes(graph.nodes)
+    setEdges(graph.edges)
+  }, [threeTierBom])
+
+  // Expose fit view and reset via custom events
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ action: string }>).detail
+      if (detail.action === 'fitView') {
+        rfInstance.fitView({ padding: 0.1, duration: 300 })
+      } else if (detail.action === 'resetLayout') {
+        const graph = buildThreeTierTopologyGraph(threeTierBom)
+        setNodes(graph.nodes)
+        setEdges(graph.edges)
+        setTimeout(() => rfInstance.fitView({ padding: 0.1, duration: 300 }), 50)
+      }
+    }
+    window.addEventListener('converged-eth-topology:action', handler)
+    return () => window.removeEventListener('converged-eth-topology:action', handler)
+  }, [rfInstance, threeTierBom])
+
+  return (
+    <div className="relative h-full w-full" aria-label="Converged Three-Tier topology diagram">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={ethNodeTypes}
+        colorMode={resolvedTheme}
+        fitView
+        fitViewOptions={{ padding: 0.1 }}
+        minZoom={0.2}
+        maxZoom={4}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
+    </div>
+  )
+}
+
+/**
  * Converged topology tab: Ethernet leaf-spine diagram (always) + FC Fabric A/B (when FC enabled).
  *
  * Layout:
@@ -109,7 +173,7 @@ export function ConvergedTopologyTab() {
   const [showEthLegend, setShowEthLegend] = useState(false)
   const [showFCLegend, setShowFCLegend] = useState(false)
 
-  if (!bom || !bom.ethernetBom) {
+  if (!bom || (!bom.ethernetBom && !bom.threeTierBom)) {
     return (
       <div className="flex h-[calc(100vh-120px)] flex-col items-center justify-center gap-2 p-8 text-center">
         <h2 className="text-xl font-semibold">{t('topology.emptyHeading')}</h2>
@@ -122,7 +186,7 @@ export function ConvergedTopologyTab() {
 
   const dispatchAll = useCallback(
     (action: string) => {
-      // Dispatch to Ethernet canvas
+      // Dispatch to Ethernet/Three-Tier canvas (same event channel)
       window.dispatchEvent(
         new CustomEvent('converged-eth-topology:action', { detail: { action } })
       )
@@ -172,12 +236,19 @@ export function ConvergedTopologyTab() {
         )}
       </div>
 
-      {/* Ethernet section -- always rendered */}
+      {/* Ethernet section -- Clos or Three-Tier depending on topology */}
       <div className={hasFc ? 'h-[60%] min-h-0 relative' : 'flex-1 min-h-0 relative'}>
-        <ReactFlowProvider>
-          <ConvergedEthernetCanvas ethernetBom={bom.ethernetBom} />
-          <TopologyLegend show={showEthLegend} />
-        </ReactFlowProvider>
+        {bom.threeTierBom ? (
+          <ReactFlowProvider>
+            <ConvergedThreeTierCanvas threeTierBom={bom.threeTierBom} />
+            <TopologyLegend show={showEthLegend} />
+          </ReactFlowProvider>
+        ) : bom.ethernetBom ? (
+          <ReactFlowProvider>
+            <ConvergedEthernetCanvas ethernetBom={bom.ethernetBom} />
+            <TopologyLegend show={showEthLegend} />
+          </ReactFlowProvider>
+        ) : null}
       </div>
 
       {/* FC section -- conditionally rendered when bom.fcBom is non-null */}

@@ -228,309 +228,482 @@ export function ConvergedBOMPanel() {
     )
   }
 
-  // ── Guard: three-tier topology has no Ethernet BOM (handled in future plan) ──
-  if (!bom.ethernetBom) {
-    return (
-      <Card>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <BarChart3 className="mb-3 h-12 w-12 text-muted-foreground" />
-            <h3 className="mb-2 text-lg font-medium">Three-Tier BOM</h3>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Three-tier topology BOM panel is coming in a future release.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // ── Ethernet oversubscription ───────────────────────────────────────────────
+  // ── Ethernet section variables (computed only when ethernetBom is present) ──
   const ethBom = bom.ethernetBom
-  const ratio = ethBom.oversubscriptionRatio
-  const ratioFormatted = `${ratio.toFixed(1)}:1`
-  const severity = getSeverity(ratio)
+  const ttBom = bom.threeTierBom
 
-  // ── Ethernet port utilization (worst-case rack) ─────────────────────────────
-  const maxServersPerRack = ethBom.input.racks.length > 0
+  // Clos-specific derived values (only when ethBom is non-null)
+  const closRatio = ethBom ? ethBom.oversubscriptionRatio : 0
+  const closRatioFormatted = ethBom ? `${closRatio.toFixed(1)}:1` : ''
+  const closSeverity = ethBom ? getSeverity(closRatio) : ('optimal' as const)
+
+  const closMaxServersPerRack = ethBom && ethBom.input.racks.length > 0
     ? Math.max(...ethBom.input.racks.map(r => r.serverCount))
     : 0
-  const leafUsed = maxServersPerRack
-  const leafAvailable = SWITCH_CATALOG[ethBom.input.leafModel].downlinkPorts
-  const leafPct = Math.round((leafUsed / leafAvailable) * 100)
+  const closLeafUsed = closMaxServersPerRack
+  const closLeafAvailable = ethBom ? SWITCH_CATALOG[ethBom.input.leafModel].downlinkPorts : 0
+  const closLeafPct = closLeafAvailable > 0 ? Math.round((closLeafUsed / closLeafAvailable) * 100) : 0
 
-  const spineUsed = ethBom.spineSwitches > 0 ? Math.ceil(ethBom.leafSwitches / ethBom.spineSwitches) : 0
-  const spineAvailable = SWITCH_CATALOG['S5232F-ON'].downlinkPorts
-  const spinePct = Math.round((spineUsed / spineAvailable) * 100)
+  const closSpineUsed = ethBom && ethBom.spineSwitches > 0 ? Math.ceil(ethBom.leafSwitches / ethBom.spineSwitches) : 0
+  const closSpineAvailable = SWITCH_CATALOG['S5232F-ON'].downlinkPorts
+  const closSpinePct = Math.round((closSpineUsed / closSpineAvailable) * 100)
 
-  const oobUsed = maxServersPerRack + 2
-  const oobAvailable = SWITCH_CATALOG['S3248T-ON'].downlinkPorts
-  const oobPct = Math.round((oobUsed / oobAvailable) * 100)
+  const closOobUsed = closMaxServersPerRack + 2
+  const closOobAvailable = SWITCH_CATALOG['S3248T-ON'].downlinkPorts
+  const closOobPct = Math.round((closOobUsed / closOobAvailable) * 100)
 
-  // ── Cable category labels ───────────────────────────────────────────────────
-  const cableCategory25G =
-    ethBom.input.cableType === 'DAC'
+  const closCableCategory25G = ethBom
+    ? ethBom.input.cableType === 'DAC'
       ? t('bom.cableCategoryDac')
       : ethBom.input.cableType === 'AOC'
         ? t('bom.cableCategoryAoc')
         : t('bom.cableCategoryFiberLc')
-  const cableCategory100G =
-    ethBom.input.cableType === 'DAC'
+    : ''
+  const closCableCategory100G = ethBom
+    ? ethBom.input.cableType === 'DAC'
       ? t('bom.cableCategoryDac')
       : ethBom.input.cableType === 'AOC'
         ? t('bom.cableCategoryAoc')
         : t('bom.cableCategoryFiberMpo')
+    : ''
+
+  // Three-tier severity helper (green <=3, amber 3-5, red >5)
+  const getThreeTierSeverity = (ratio: number): 'optimal' | 'acceptable' | 'critical' => {
+    if (ratio <= 3) return 'optimal'
+    if (ratio <= 5) return 'acceptable'
+    return 'critical'
+  }
+
+  const formatOversub = (ratio: number): string => `${ratio.toFixed(1)}:1`
 
   return (
     <div className="space-y-4">
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* ETHERNET SECTION — always rendered                                    */}
+      {/* ETHERNET SECTION — branches on topology                              */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">{t('converged.ethernetHeading')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {/* ── Oversubscription Metric ─────────────────────────────────── */}
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t('bom.oversubHeading')}
-              </p>
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold">{ratioFormatted}</span>
-                <span
-                  data-testid="oversub-badge"
-                  data-severity={severity}
-                  className={oversubBadgeVariants({ severity })}
-                  aria-label={t('bom.oversubAriaLabel', { value: ratioFormatted, status: severity })}
-                >
-                  {severity === 'optimal'
-                    ? t('bom.oversubOptimal')
-                    : severity === 'acceptable'
-                      ? t('bom.oversubAcceptable')
-                      : t('bom.oversubCritical')}
-                </span>
-              </div>
-              {/* Threshold legend chips */}
-              <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                <span
-                  className={
-                    severity === 'optimal'
-                      ? 'rounded-md bg-[hsl(142_76%_36%)] px-2 py-0.5 text-white dark:bg-[hsl(142_69%_58%)] dark:text-black'
-                      : 'rounded-md border px-2 py-0.5 text-muted-foreground'
-                  }
-                >
-                  {t('bom.oversubOptimal')} {t('bom.oversubOptimalValue')}
-                </span>
-                <span
-                  className={
-                    severity === 'acceptable'
-                      ? 'rounded-md bg-[hsl(38_92%_50%)] px-2 py-0.5 text-white dark:bg-[hsl(38_95%_64%)] dark:text-black'
-                      : 'rounded-md border px-2 py-0.5 text-muted-foreground'
-                  }
-                >
-                  {t('bom.oversubAcceptable')} {t('bom.oversubAcceptableValue')}
-                </span>
-                <span
-                  className={
-                    severity === 'critical'
-                      ? 'rounded-md bg-destructive px-2 py-0.5 text-destructive-foreground'
-                      : 'rounded-md border px-2 py-0.5 text-muted-foreground'
-                  }
-                >
-                  {t('bom.oversubCritical')} {t('bom.oversubCriticalValue')}
-                </span>
-              </div>
-            </div>
 
-            {/* ── Switches Table ──────────────────────────────────────────── */}
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t('bom.switchesHeading')}
-              </p>
-              <Table>
-                <TableCaption className="sr-only">{t('bom.switchesHeading')}</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead scope="col">{t('bom.colModel')}</TableHead>
-                    <TableHead scope="col">{t('bom.colRole')}</TableHead>
-                    <TableHead scope="col">{t('bom.colQty')}</TableHead>
-                    <TableHead scope="col">{t('bom.colUtilization')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {/* Leaf row */}
-                  <TableRow>
-                    <TableCell className="font-mono">{ethBom.input.leafModel}</TableCell>
-                    <TableCell>{t('bom.roleLeaf')}</TableCell>
-                    <TableCell>{ethBom.leafSwitches}</TableCell>
-                    <TableCell>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Progress
-                            value={leafPct}
-                            indicatorClassName={getProgressColor(leafPct)}
-                            className="h-2 w-24"
-                            aria-valuenow={leafPct}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-label={t('bom.portUtilizationAriaLabel', {
-                              model: ethBom.input.leafModel,
-                              pct: leafPct,
-                            })}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {t('bom.portUtilizationTooltip', {
-                            used: leafUsed,
-                            available: leafAvailable,
-                            pct: leafPct,
-                          })}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                  {/* Spine row */}
-                  <TableRow>
-                    <TableCell className="font-mono">S5232F-ON</TableCell>
-                    <TableCell>{t('bom.roleSpine')}</TableCell>
-                    <TableCell>{ethBom.spineSwitches}</TableCell>
-                    <TableCell>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Progress
-                            value={spinePct}
-                            indicatorClassName={getProgressColor(spinePct)}
-                            className="h-2 w-24"
-                            aria-valuenow={spinePct}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-label={t('bom.portUtilizationAriaLabel', {
-                              model: 'S5232F-ON',
-                              pct: spinePct,
-                            })}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {t('bom.portUtilizationTooltip', {
-                            used: spineUsed,
-                            available: spineAvailable,
-                            pct: spinePct,
-                          })}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                  {/* OOB row */}
-                  <TableRow>
-                    <TableCell className="font-mono">S3248T-ON</TableCell>
-                    <TableCell>{t('bom.roleOob')}</TableCell>
-                    <TableCell>{ethBom.oobSwitches}</TableCell>
-                    <TableCell>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Progress
-                            value={oobPct}
-                            indicatorClassName={getProgressColor(oobPct)}
-                            className="h-2 w-24"
-                            aria-valuenow={oobPct}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-label={t('bom.portUtilizationAriaLabel', {
-                              model: 'S3248T-ON',
-                              pct: oobPct,
-                            })}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {t('bom.portUtilizationTooltip', {
-                            used: oobUsed,
-                            available: oobAvailable,
-                            pct: oobPct,
-                          })}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                  {/* Border Leaf row (only if border leafs configured) */}
-                  {ethBom.borderLeafSwitches > 0 && (
-                    <TableRow>
-                      <TableCell className="font-mono">{ethBom.input.borderLeafModel}</TableCell>
-                      <TableCell>{t('bom.roleBorderLeaf')}</TableCell>
-                      <TableCell>{ethBom.borderLeafSwitches}</TableCell>
-                      <TableCell />
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* ── Cables Table ────────────────────────────────────────────── */}
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t('bom.cablesHeading', { type: ethBom.input.cableType })}
-              </p>
-              <Table>
-                <TableCaption className="sr-only">
-                  {t('bom.cablesHeading', { type: ethBom.input.cableType })}
-                </TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead scope="col">{t('bom.colCableType')}</TableHead>
-                    <TableHead scope="col">{t('bom.colCableCategory')}</TableHead>
-                    <TableHead scope="col">{t('bom.colQty')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Leaf-Spine</TableCell>
-                    <TableCell>{cableCategory100G}</TableCell>
-                    <TableCell>{ethBom.leafSpineCables}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Server-Leaf</TableCell>
-                    <TableCell>{cableCategory25G}</TableCell>
-                    <TableCell>{ethBom.serverLeafCables}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Server-OOB</TableCell>
-                    <TableCell>1G RJ45</TableCell>
-                    <TableCell>{ethBom.serverOobCables}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>VLT Interconnect</TableCell>
-                    <TableCell>QSFP28-DD</TableCell>
-                    <TableCell>{ethBom.vltCables}</TableCell>
-                  </TableRow>
-                  {ethBom.sfp28Count > 0 && (
-                    <TableRow>
-                      <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
-                      <TableCell>SFP28 LC (25G)</TableCell>
-                      <TableCell>{ethBom.sfp28Count}</TableCell>
-                    </TableRow>
-                  )}
-                  {ethBom.qsfp28Count > 0 && (
-                    <TableRow>
-                      <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
-                      <TableCell>QSFP28 MPO (100G)</TableCell>
-                      <TableCell>{ethBom.qsfp28Count}</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              {ethBom.recommendedCableLengthM > 0 && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {t('bom.cableLengthAdvisory', {
-                    maxLength: ethBom.recommendedCableLengthM,
-                    positioning: ethBom.switchPositioning,
-                  })}
+      {/* ── Three-Tier BOM (when topology='three-tier') ────────────────────── */}
+      {ttBom && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">{t('converged.ethernetHeading')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* ── Oversubscription Ratios ──────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.oversubHeading')}
                 </p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{t('threeTier.accessToAggrOversub')}</span>
+                    <span className="text-lg font-semibold">{formatOversub(ttBom.accessToAggrOversubscription)}</span>
+                    <span className={oversubBadgeVariants({ severity: getThreeTierSeverity(ttBom.accessToAggrOversubscription) })}>
+                      {getThreeTierSeverity(ttBom.accessToAggrOversubscription) === 'optimal' ? t('bom.oversubOptimal') : getThreeTierSeverity(ttBom.accessToAggrOversubscription) === 'acceptable' ? t('bom.oversubAcceptable') : t('bom.oversubCritical')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{t('threeTier.aggrToCoreOversub')}</span>
+                    <span className="text-lg font-semibold">{formatOversub(ttBom.aggrToCoreOversubscription)}</span>
+                    <span className={oversubBadgeVariants({ severity: getThreeTierSeverity(ttBom.aggrToCoreOversubscription) })}>
+                      {getThreeTierSeverity(ttBom.aggrToCoreOversubscription) === 'optimal' ? t('bom.oversubOptimal') : getThreeTierSeverity(ttBom.aggrToCoreOversubscription) === 'acceptable' ? t('bom.oversubAcceptable') : t('bom.oversubCritical')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Switches Table ──────────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.switchesHeading')}
+                </p>
+                <Table>
+                  <TableCaption className="sr-only">{t('bom.switchesHeading')}</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead scope="col">{t('bom.colRole')}</TableHead>
+                      <TableHead scope="col">{t('bom.colModel')}</TableHead>
+                      <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>{t('threeTier.accessSwitches')}</TableCell>
+                      <TableCell className="font-mono">{ttBom.input.accessModel}</TableCell>
+                      <TableCell>{ttBom.accessSwitches}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.aggregationSwitches')}</TableCell>
+                      <TableCell className="font-mono">{ttBom.input.aggregationModel}</TableCell>
+                      <TableCell>{ttBom.aggregationSwitches}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.coreSwitches')}</TableCell>
+                      <TableCell className="font-mono">{ttBom.input.coreModel}</TableCell>
+                      <TableCell>{ttBom.coreSwitches}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.oobSwitches')}</TableCell>
+                      <TableCell className="font-mono">S3248T-ON</TableCell>
+                      <TableCell>{ttBom.oobSwitches}</TableCell>
+                    </TableRow>
+                    {ttBom.borderLeafSwitches > 0 && (
+                      <TableRow>
+                        <TableCell>{t('threeTier.borderLeafSwitches')}</TableCell>
+                        <TableCell className="font-mono">{ttBom.input.borderLeafModel}</TableCell>
+                        <TableCell>{ttBom.borderLeafSwitches}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* ── Cables Table ────────────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.cablesHeading', { type: ttBom.input.cableType })}
+                </p>
+                <Table>
+                  <TableCaption className="sr-only">
+                    {t('bom.cablesHeading', { type: ttBom.input.cableType })}
+                  </TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead scope="col">{t('bom.colCableType')}</TableHead>
+                      <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>{t('threeTier.serverAccessCables')}</TableCell>
+                      <TableCell>{ttBom.serverAccessCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.accessAggrCables')}</TableCell>
+                      <TableCell>{ttBom.accessAggrCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.aggrCoreCables')}</TableCell>
+                      <TableCell>{ttBom.aggrCoreCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Server-OOB</TableCell>
+                      <TableCell>{ttBom.serverOobCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{t('threeTier.vltCables')}</TableCell>
+                      <TableCell>{ttBom.vltCables}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* ── Optics Table (if any) ───────────────────────────────── */}
+              {(ttBom.sfp28Count > 0 || ttBom.qsfp28Count > 0 || ttBom.qsfp56ddCount > 0) && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Optics
+                  </p>
+                  <Table>
+                    <TableCaption className="sr-only">Optics</TableCaption>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead scope="col">{t('bom.colCableType')}</TableHead>
+                        <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ttBom.sfp28Count > 0 && (
+                        <TableRow>
+                          <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
+                          <TableCell>{ttBom.sfp28Count}</TableCell>
+                        </TableRow>
+                      )}
+                      {ttBom.qsfp28Count > 0 && (
+                        <TableRow>
+                          <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
+                          <TableCell>{ttBom.qsfp28Count}</TableCell>
+                        </TableRow>
+                      )}
+                      {ttBom.qsfp56ddCount > 0 && (
+                        <TableRow>
+                          <TableCell>QSFP56-DD Transceiver</TableCell>
+                          <TableCell>{ttBom.qsfp56ddCount}</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
+
+              {/* ── Rack Summary ────────────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('rack.heading')}
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-muted-foreground">{t('sizing.rackCount')}</span>
+                  <span className="font-semibold">{ttBom.racks}</span>
+                  <span className="text-muted-foreground">{t('threeTier.networkRacks')}</span>
+                  <span className="font-semibold">{ttBom.networkRacks}</span>
+                  <span className="text-muted-foreground">{t('sizing.switchPositioning')}</span>
+                  <span className="font-semibold">{ttBom.switchPositioning}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Clos (Leaf-Spine) BOM (when topology='leaf-spine') ─────────────── */}
+      {ethBom && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">{t('converged.ethernetHeading')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* ── Oversubscription Metric ─────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.oversubHeading')}
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold">{closRatioFormatted}</span>
+                  <span
+                    data-testid="oversub-badge"
+                    data-severity={closSeverity}
+                    className={oversubBadgeVariants({ severity: closSeverity })}
+                    aria-label={t('bom.oversubAriaLabel', { value: closRatioFormatted, status: closSeverity })}
+                  >
+                    {closSeverity === 'optimal'
+                      ? t('bom.oversubOptimal')
+                      : closSeverity === 'acceptable'
+                        ? t('bom.oversubAcceptable')
+                        : t('bom.oversubCritical')}
+                  </span>
+                </div>
+                {/* Threshold legend chips */}
+                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                  <span
+                    className={
+                      closSeverity === 'optimal'
+                        ? 'rounded-md bg-[hsl(142_76%_36%)] px-2 py-0.5 text-white dark:bg-[hsl(142_69%_58%)] dark:text-black'
+                        : 'rounded-md border px-2 py-0.5 text-muted-foreground'
+                    }
+                  >
+                    {t('bom.oversubOptimal')} {t('bom.oversubOptimalValue')}
+                  </span>
+                  <span
+                    className={
+                      closSeverity === 'acceptable'
+                        ? 'rounded-md bg-[hsl(38_92%_50%)] px-2 py-0.5 text-white dark:bg-[hsl(38_95%_64%)] dark:text-black'
+                        : 'rounded-md border px-2 py-0.5 text-muted-foreground'
+                    }
+                  >
+                    {t('bom.oversubAcceptable')} {t('bom.oversubAcceptableValue')}
+                  </span>
+                  <span
+                    className={
+                      closSeverity === 'critical'
+                        ? 'rounded-md bg-destructive px-2 py-0.5 text-destructive-foreground'
+                        : 'rounded-md border px-2 py-0.5 text-muted-foreground'
+                    }
+                  >
+                    {t('bom.oversubCritical')} {t('bom.oversubCriticalValue')}
+                  </span>
+                </div>
+              </div>
+
+              {/* ── Switches Table ──────────────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.switchesHeading')}
+                </p>
+                <Table>
+                  <TableCaption className="sr-only">{t('bom.switchesHeading')}</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead scope="col">{t('bom.colModel')}</TableHead>
+                      <TableHead scope="col">{t('bom.colRole')}</TableHead>
+                      <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                      <TableHead scope="col">{t('bom.colUtilization')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {/* Leaf row */}
+                    <TableRow>
+                      <TableCell className="font-mono">{ethBom.input.leafModel}</TableCell>
+                      <TableCell>{t('bom.roleLeaf')}</TableCell>
+                      <TableCell>{ethBom.leafSwitches}</TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Progress
+                              value={closLeafPct}
+                              indicatorClassName={getProgressColor(closLeafPct)}
+                              className="h-2 w-24"
+                              aria-valuenow={closLeafPct}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-label={t('bom.portUtilizationAriaLabel', {
+                                model: ethBom.input.leafModel,
+                                pct: closLeafPct,
+                              })}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {t('bom.portUtilizationTooltip', {
+                              used: closLeafUsed,
+                              available: closLeafAvailable,
+                              pct: closLeafPct,
+                            })}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                    {/* Spine row */}
+                    <TableRow>
+                      <TableCell className="font-mono">S5232F-ON</TableCell>
+                      <TableCell>{t('bom.roleSpine')}</TableCell>
+                      <TableCell>{ethBom.spineSwitches}</TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Progress
+                              value={closSpinePct}
+                              indicatorClassName={getProgressColor(closSpinePct)}
+                              className="h-2 w-24"
+                              aria-valuenow={closSpinePct}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-label={t('bom.portUtilizationAriaLabel', {
+                                model: 'S5232F-ON',
+                                pct: closSpinePct,
+                              })}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {t('bom.portUtilizationTooltip', {
+                              used: closSpineUsed,
+                              available: closSpineAvailable,
+                              pct: closSpinePct,
+                            })}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                    {/* OOB row */}
+                    <TableRow>
+                      <TableCell className="font-mono">S3248T-ON</TableCell>
+                      <TableCell>{t('bom.roleOob')}</TableCell>
+                      <TableCell>{ethBom.oobSwitches}</TableCell>
+                      <TableCell>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Progress
+                              value={closOobPct}
+                              indicatorClassName={getProgressColor(closOobPct)}
+                              className="h-2 w-24"
+                              aria-valuenow={closOobPct}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-label={t('bom.portUtilizationAriaLabel', {
+                                model: 'S3248T-ON',
+                                pct: closOobPct,
+                              })}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {t('bom.portUtilizationTooltip', {
+                              used: closOobUsed,
+                              available: closOobAvailable,
+                              pct: closOobPct,
+                            })}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                    {/* Border Leaf row (only if border leafs configured) */}
+                    {ethBom.borderLeafSwitches > 0 && (
+                      <TableRow>
+                        <TableCell className="font-mono">{ethBom.input.borderLeafModel}</TableCell>
+                        <TableCell>{t('bom.roleBorderLeaf')}</TableCell>
+                        <TableCell>{ethBom.borderLeafSwitches}</TableCell>
+                        <TableCell />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* ── Cables Table ────────────────────────────────────────────── */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('bom.cablesHeading', { type: ethBom.input.cableType })}
+                </p>
+                <Table>
+                  <TableCaption className="sr-only">
+                    {t('bom.cablesHeading', { type: ethBom.input.cableType })}
+                  </TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead scope="col">{t('bom.colCableType')}</TableHead>
+                      <TableHead scope="col">{t('bom.colCableCategory')}</TableHead>
+                      <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Leaf-Spine</TableCell>
+                      <TableCell>{closCableCategory100G}</TableCell>
+                      <TableCell>{ethBom.leafSpineCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Server-Leaf</TableCell>
+                      <TableCell>{closCableCategory25G}</TableCell>
+                      <TableCell>{ethBom.serverLeafCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Server-OOB</TableCell>
+                      <TableCell>1G RJ45</TableCell>
+                      <TableCell>{ethBom.serverOobCables}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>VLT Interconnect</TableCell>
+                      <TableCell>QSFP28-DD</TableCell>
+                      <TableCell>{ethBom.vltCables}</TableCell>
+                    </TableRow>
+                    {ethBom.sfp28Count > 0 && (
+                      <TableRow>
+                        <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
+                        <TableCell>SFP28 LC (25G)</TableCell>
+                        <TableCell>{ethBom.sfp28Count}</TableCell>
+                      </TableRow>
+                    )}
+                    {ethBom.qsfp28Count > 0 && (
+                      <TableRow>
+                        <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
+                        <TableCell>QSFP28 MPO (100G)</TableCell>
+                        <TableCell>{ethBom.qsfp28Count}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+                {ethBom.recommendedCableLengthM > 0 && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {t('bom.cableLengthAdvisory', {
+                      maxLength: ethBom.recommendedCableLengthM,
+                      positioning: ethBom.switchPositioning,
+                    })}
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* FC SECTION — conditionally rendered ONLY when fcBom is non-null       */}

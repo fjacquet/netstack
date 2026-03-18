@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { buildRackDevices, buildNetworkRackDevices } from './utils/buildRackDevices'
+import { buildThreeTierRackDevices, buildThreeTierNetworkRackDevices } from './utils/buildThreeTierRackDevices'
 import { buildFCNetworkRackDevices } from './utils/buildConvergedRackDevices'
 import { RackFrame } from './RackFrame'
 import { RackCapacityBadge } from './RackCapacityBadge'
@@ -44,7 +45,7 @@ export function ConvergedRackElevationTab() {
       setDevices([])
       setSelectedRack('0')
     }
-  }, [bom?.ethernetBom?.racks]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bom?.ethernetBom?.racks, bom?.threeTierBom?.racks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Rebuild devices whenever BOM or selectedRack changes
   useEffect(() => {
@@ -52,28 +53,41 @@ export function ConvergedRackElevationTab() {
       setDevices([])
       return
     }
-    // Guard: three-tier topology has no Ethernet BOM
-    if (!bom.ethernetBom) {
+    // Guard: need at least one Ethernet BOM variant
+    if (!bom.ethernetBom && !bom.threeTierBom) {
       setDevices([])
       return
     }
     if (selectedRack.startsWith('fc-net-')) {
       // FC network rack
       if (bom.fcBom) {
-        const positioning = bom.ethernetBom.input.switchPositioning
-        const rackSizeU = parseInt(bom.ethernetBom.input.rackSize, 10)
+        const positioning = bom.threeTierBom
+          ? bom.threeTierBom.input.switchPositioning
+          : bom.ethernetBom!.input.switchPositioning
+        const rackSizeU = bom.threeTierBom
+          ? parseInt(bom.threeTierBom.input.rackSize, 10)
+          : parseInt(bom.ethernetBom!.input.rackSize, 10)
         setDevices(buildFCNetworkRackDevices(bom.fcBom, positioning, rackSizeU))
       } else {
         setDevices([])
       }
-    } else if (selectedRack.startsWith('eth-net-')) {
-      // Ethernet network rack
-      setDevices(buildNetworkRackDevices(bom.ethernetBom))
+    } else if (selectedRack.startsWith('eth-net-') || selectedRack.startsWith('tt-net-')) {
+      // Network rack: three-tier or Clos
+      if (bom.threeTierBom) {
+        setDevices(buildThreeTierNetworkRackDevices(bom.threeTierBom))
+      } else if (bom.ethernetBom) {
+        setDevices(buildNetworkRackDevices(bom.ethernetBom))
+      }
     } else {
       // Server rack (numeric index)
       const rackIdx = Number(selectedRack)
-      const safeIdx = rackIdx < bom.ethernetBom.racks ? rackIdx : 0
-      setDevices(buildRackDevices(bom.ethernetBom, safeIdx))
+      if (bom.threeTierBom) {
+        const safeIdx = rackIdx < bom.threeTierBom.racks ? rackIdx : 0
+        setDevices(buildThreeTierRackDevices(bom.threeTierBom, safeIdx))
+      } else if (bom.ethernetBom) {
+        const safeIdx = rackIdx < bom.ethernetBom.racks ? rackIdx : 0
+        setDevices(buildRackDevices(bom.ethernetBom, safeIdx))
+      }
     }
   }, [bom, selectedRack])
 
@@ -85,8 +99,8 @@ export function ConvergedRackElevationTab() {
     setDevices(updated)
   }
 
-  // Empty state -- no BOM computed yet, or three-tier topology (no Ethernet BOM)
-  if (!bom || !bom.ethernetBom) {
+  // Empty state -- no BOM computed yet
+  if (!bom || (!bom.ethernetBom && !bom.threeTierBom)) {
     return (
       <div className="flex h-full items-center justify-center p-6">
         <Card className="max-w-sm w-full">
@@ -103,6 +117,11 @@ export function ConvergedRackElevationTab() {
 
   const rackUnits = parseInt(bom.input.rackSize)
   const hasFc = bom.fcBom !== null
+
+  // Rack counts from the active topology
+  const serverRackCount = bom.threeTierBom ? bom.threeTierBom.racks : bom.ethernetBom ? bom.ethernetBom.racks : 0
+  const networkRackCount = bom.threeTierBom ? bom.threeTierBom.networkRacks : bom.ethernetBom ? bom.ethernetBom.networkRacks : 0
+  const networkRackPrefix = bom.threeTierBom ? 'tt-net-' : 'eth-net-'
 
   // Compute used U and overflow for the selected rack
   const usedU = devices.reduce((sum, d) => sum + d.uHeight, 0)
@@ -125,19 +144,23 @@ export function ConvergedRackElevationTab() {
             {/* Server racks */}
             <SelectGroup>
               <SelectLabel>{t('rack.serverRacks', { defaultValue: 'Server Racks' })}</SelectLabel>
-              {Array.from({ length: bom.ethernetBom.racks }, (_, i) => (
+              {Array.from({ length: serverRackCount }, (_, i) => (
                 <SelectItem key={`srv-${i}`} value={String(i)}>
                   {t('rack.serverRack', { n: i + 1 })}
                 </SelectItem>
               ))}
             </SelectGroup>
 
-            {/* Ethernet network racks */}
-            {bom.ethernetBom.networkRacks > 0 && (
+            {/* Network racks (Clos or Three-Tier) */}
+            {networkRackCount > 0 && (
               <SelectGroup>
-                <SelectLabel>{t('rack.ethernetNetworkRacks', { defaultValue: 'Ethernet Network' })}</SelectLabel>
-                {Array.from({ length: bom.ethernetBom.networkRacks }, (_, i) => (
-                  <SelectItem key={`eth-net-${i}`} value={`eth-net-${i}`}>
+                <SelectLabel>
+                  {bom.threeTierBom
+                    ? t('rack.ethernetNetworkRacks', { defaultValue: 'Three-Tier Network' })
+                    : t('rack.ethernetNetworkRacks', { defaultValue: 'Ethernet Network' })}
+                </SelectLabel>
+                {Array.from({ length: networkRackCount }, (_, i) => (
+                  <SelectItem key={`${networkRackPrefix}${i}`} value={`${networkRackPrefix}${i}`}>
                     {t('rack.networkRack', { n: i + 1 })}
                   </SelectItem>
                 ))}
