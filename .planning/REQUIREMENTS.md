@@ -9,10 +9,10 @@
 
 ### Fibre Channel Catalog
 
-- [ ] **FC-01**: Brocade Gen7 (64G) switch catalog with verified specs (G710, G720, G730, X7-4, X7-8)
-- [ ] **FC-02**: Brocade Gen8 (128G) switch catalog with verified specs (G820, X8-4, X8-8)
-- [ ] **FC-03**: Dynamic POD licensing modeled per switch (basePorts vs totalPorts, podLicenseUnit)
-- [ ] **FC-04**: 7850 FCIP extension switch in catalog
+- [x] **FC-01**: Brocade Gen7 (64G) switch catalog with verified specs (G710, G720, G730, X7-4, X7-8)
+- [x] **FC-02**: Brocade Gen8 (128G) switch catalog with verified specs (G820, X8-4, X8-8)
+- [x] **FC-03**: Dynamic POD licensing modeled per switch (basePorts vs totalPorts, podLicenseUnit)
+- [x] **FC-04**: 7850 FCIP extension switch in catalog
 
 ### FC Sizing Engine
 
@@ -56,10 +56,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FC-01 | Phase 8 | Pending |
-| FC-02 | Phase 8 | Pending |
-| FC-03 | Phase 8 | Pending |
-| FC-04 | Phase 8 | Pending |
+| FC-01 | Phase 8 | Complete |
+| FC-02 | Phase 8 | Complete |
+| FC-03 | Phase 8 | Complete |
+| FC-04 | Phase 8 | Complete |
 | FC-05 | Phase 10 | Pending |
 | FC-06 | Phase 10 | Pending |
 | FC-07 | Phase 10 | Pending |
