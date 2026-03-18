@@ -2,7 +2,7 @@ import type { Node, Edge } from '@xyflow/react'
 
 export type SwitchNodeData = {
   model: string
-  role: 'spine' | 'leaf' | 'oob' | 'border'
+  role: 'spine' | 'leaf' | 'oob' | 'border' | 'access' | 'aggregation' | 'core'
   usedPorts: number
   totalPorts: number
   rackIndex?: number

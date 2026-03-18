@@ -146,6 +146,7 @@
     "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
     "converged": "Convergé",
+    "threeTier": "Trois niveaux",
     "selectLabel": "Mode"
   },
   "fc": {
@@ -198,7 +199,30 @@
     "ethernetHeading": "Reseau Ethernet",
     "fcHeading": "FC SAN",
     "resetButton": "Reinitialiser",
-    "hbaPortsHelp": "0 = FC desactive, 1-8 ports HBA par serveur"
+    "hbaPortsHelp": "0 = FC desactive, 1-8 ports HBA par serveur",
+    "topologySelector": "Topologie Ethernet",
+    "topologyLeafSpine": "Leaf-Spine (Clos)",
+    "topologyThreeTier": "Trois niveaux (Coeur/Aggr/Acces)"
+  },
+  "threeTier": {
+    "heading": "Parametres de dimensionnement trois niveaux",
+    "accessModel": "Modele commutateur d'acces",
+    "aggregationModel": "Modele commutateur d'agregation",
+    "coreModel": "Modele commutateur coeur",
+    "activeUplinksPerAccess": "Uplinks par commutateur d'acces",
+    "activeUplinksPerAggregation": "Uplinks par commutateur d'agregation",
+    "accessSwitches": "Commutateurs d'acces",
+    "aggregationSwitches": "Commutateurs d'agregation",
+    "coreSwitches": "Commutateurs coeur",
+    "serverAccessCables": "Cables serveur-acces",
+    "accessAggrCables": "Cables acces-agregation",
+    "aggrCoreCables": "Cables agregation-coeur",
+    "accessToAggrOversub": "Sursouscription acces-agregation",
+    "aggrToCoreOversub": "Sursouscription agregation-coeur",
+    "networkRacks": "Baies reseau",
+    "oobSwitches": "Commutateurs OOB",
+    "vltCables": "Cables VLT",
+    "borderLeafSwitches": "Commutateurs Border Leaf"
   },
   "bom": {
     "heading": "Nomenclature",

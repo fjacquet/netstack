@@ -12,6 +12,9 @@ const roleIcons = {
   spine: Share2,
   oob: Monitor,
   border: Globe,
+  access: Network,
+  aggregation: Share2,
+  core: Share2,
 } as const
 
 /**
@@ -25,13 +28,17 @@ export function SwitchNode({ data }: NodeProps<SwitchNodeType>) {
   const Icon = roleIcons[data.role]
 
   const roleColor =
-    data.role === 'leaf'
+    data.role === 'leaf' || data.role === 'access'
       ? 'bg-[hsl(213_94%_92%)] dark:bg-[hsl(213_94%_20%)]'
       : data.role === 'spine'
         ? 'bg-[hsl(270_91%_92%)] dark:bg-[hsl(270_91%_20%)]'
         : data.role === 'border'
           ? 'bg-[hsl(142_76%_92%)] dark:bg-[hsl(142_76%_20%)]'
-          : 'bg-muted'
+          : data.role === 'aggregation'
+            ? 'bg-[hsl(38_92%_92%)] dark:bg-[hsl(38_92%_20%)]'
+            : data.role === 'core'
+              ? 'bg-[hsl(270_91%_92%)] dark:bg-[hsl(270_91%_20%)]'
+              : 'bg-muted'
 
   const borderColor = getSaturationBorderClass(data.usedPorts, data.totalPorts)
 

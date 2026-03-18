@@ -146,6 +146,7 @@
     "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
     "converged": "Converged",
+    "threeTier": "Three-Tier",
     "selectLabel": "Mode"
   },
   "fc": {
@@ -198,7 +199,30 @@
     "ethernetHeading": "Ethernet Network",
     "fcHeading": "FC SAN",
     "resetButton": "Reset to Defaults",
-    "hbaPortsHelp": "0 = FC disabled, 1-8 HBA ports per server"
+    "hbaPortsHelp": "0 = FC disabled, 1-8 HBA ports per server",
+    "topologySelector": "Ethernet Topology",
+    "topologyLeafSpine": "Leaf-Spine (Clos)",
+    "topologyThreeTier": "Three-Tier (Core/Aggr/Access)"
+  },
+  "threeTier": {
+    "heading": "Three-Tier Sizing Parameters",
+    "accessModel": "Access Switch Model",
+    "aggregationModel": "Aggregation Switch Model",
+    "coreModel": "Core Switch Model",
+    "activeUplinksPerAccess": "Uplinks per Access Switch",
+    "activeUplinksPerAggregation": "Uplinks per Aggregation Switch",
+    "accessSwitches": "Access Switches",
+    "aggregationSwitches": "Aggregation Switches",
+    "coreSwitches": "Core Switches",
+    "serverAccessCables": "Server-Access Cables",
+    "accessAggrCables": "Access-Aggr Cables",
+    "aggrCoreCables": "Aggr-Core Cables",
+    "accessToAggrOversub": "Access-Aggr Oversubscription",
+    "aggrToCoreOversub": "Aggr-Core Oversubscription",
+    "networkRacks": "Network Racks",
+    "oobSwitches": "OOB Switches",
+    "vltCables": "VLT Cables",
+    "borderLeafSwitches": "Border Leaf Switches"
   },
   "bom": {
     "heading": "Bill of Materials",

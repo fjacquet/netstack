@@ -146,6 +146,7 @@
     "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
     "converged": "Convergente",
+    "threeTier": "Tre livelli",
     "selectLabel": "Modalita"
   },
   "fc": {
@@ -198,7 +199,30 @@
     "ethernetHeading": "Rete Ethernet",
     "fcHeading": "FC SAN",
     "resetButton": "Ripristina predefiniti",
-    "hbaPortsHelp": "0 = FC disabilitato, 1-8 porte HBA per server"
+    "hbaPortsHelp": "0 = FC disabilitato, 1-8 porte HBA per server",
+    "topologySelector": "Topologia Ethernet",
+    "topologyLeafSpine": "Leaf-Spine (Clos)",
+    "topologyThreeTier": "Tre livelli (Core/Aggr/Access)"
+  },
+  "threeTier": {
+    "heading": "Parametri dimensionamento tre livelli",
+    "accessModel": "Modello switch di accesso",
+    "aggregationModel": "Modello switch di aggregazione",
+    "coreModel": "Modello switch core",
+    "activeUplinksPerAccess": "Uplink per switch di accesso",
+    "activeUplinksPerAggregation": "Uplink per switch di aggregazione",
+    "accessSwitches": "Switch di accesso",
+    "aggregationSwitches": "Switch di aggregazione",
+    "coreSwitches": "Switch core",
+    "serverAccessCables": "Cavi server-accesso",
+    "accessAggrCables": "Cavi accesso-aggregazione",
+    "aggrCoreCables": "Cavi aggregazione-core",
+    "accessToAggrOversub": "Sovrascrizione accesso-aggregazione",
+    "aggrToCoreOversub": "Sovrascrizione aggregazione-core",
+    "networkRacks": "Rack di rete",
+    "oobSwitches": "Switch OOB",
+    "vltCables": "Cavi VLT",
+    "borderLeafSwitches": "Switch Border Leaf"
   },
   "bom": {
     "heading": "Distinta materiali",

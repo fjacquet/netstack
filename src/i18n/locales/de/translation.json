@@ -146,6 +146,7 @@
     "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
     "converged": "Konvergiert",
+    "threeTier": "Dreistufig",
     "selectLabel": "Modus"
   },
   "fc": {
@@ -198,7 +199,30 @@
     "ethernetHeading": "Ethernet-Netzwerk",
     "fcHeading": "FC SAN",
     "resetButton": "Zurucksetzen",
-    "hbaPortsHelp": "0 = FC deaktiviert, 1-8 HBA-Ports pro Server"
+    "hbaPortsHelp": "0 = FC deaktiviert, 1-8 HBA-Ports pro Server",
+    "topologySelector": "Ethernet-Topologie",
+    "topologyLeafSpine": "Leaf-Spine (Clos)",
+    "topologyThreeTier": "Dreistufig (Core/Aggr/Access)"
+  },
+  "threeTier": {
+    "heading": "Dreistufige Dimensionierungsparameter",
+    "accessModel": "Access-Switch-Modell",
+    "aggregationModel": "Aggregation-Switch-Modell",
+    "coreModel": "Core-Switch-Modell",
+    "activeUplinksPerAccess": "Uplinks pro Access-Switch",
+    "activeUplinksPerAggregation": "Uplinks pro Aggregation-Switch",
+    "accessSwitches": "Access-Switches",
+    "aggregationSwitches": "Aggregation-Switches",
+    "coreSwitches": "Core-Switches",
+    "serverAccessCables": "Server-Access-Kabel",
+    "accessAggrCables": "Access-Aggr-Kabel",
+    "aggrCoreCables": "Aggr-Core-Kabel",
+    "accessToAggrOversub": "Access-Aggr-Uberzeichnung",
+    "aggrToCoreOversub": "Aggr-Core-Uberzeichnung",
+    "networkRacks": "Netzwerk-Racks",
+    "oobSwitches": "OOB-Switches",
+    "vltCables": "VLT-Kabel",
+    "borderLeafSwitches": "Border-Leaf-Switches"
   },
   "bom": {
     "heading": "Stueckliste",
