@@ -1,5 +1,19 @@
 # Milestones
 
+## v4.0 Three-Tier Topology (In Progress)
+
+**Phases planned:** 3 phases (18-20), 18 requirements
+
+**Target features:**
+- Core/Aggregation/Access (3-tier) topology as standalone mode and Converged option
+- Z-series switches (Z9264F-ON, Z9332F-ON, Z9432F-ON) in hardware catalog
+- 3-tier sizing engine with per-boundary oversubscription
+- Hierarchical topology diagram (tree layout)
+- CSV/PDF export with 3-tier sections
+- i18n labels for all 4 locales
+
+---
+
 ## v3.0 Converged Mode (Shipped: 2026-03-18)
 
 **Phases completed:** 3 phases, 7 plans, 0 tasks
@@ -11,7 +25,7 @@
 
 ## v2.0 FC SAN and Switch Positioning (Shipped: 2026-03-18)
 
-**Phases completed:** 7 phases (8–14), 16 plans | 165 commits | ~15,000 LOC TypeScript | 388 tests
+**Phases completed:** 7 phases (8-14), 16 plans | 165 commits | ~15,000 LOC TypeScript | 388 tests
 **Timeline:** 1 day (2026-03-18)
 
 **Key accomplishments:**
@@ -30,7 +44,7 @@
 
 ## v1.1 Enhancements (Shipped: 2026-03-18)
 
-**Phases completed:** 3 phases (5–7), 8 plans | 11 requirements satisfied
+**Phases completed:** 3 phases (5-7), 8 plans | 11 requirements satisfied
 **Timeline:** 1 day (2026-03-18)
 
 **Key accomplishments:**
@@ -47,7 +61,7 @@
 ## v1.0 MVP (Shipped: 2026-03-17)
 
 **Phases completed:** 4 phases, 13 plans | 50 commits | 6,990 LOC TypeScript | 144 tests
-**Timeline:** 2 days (2026-03-16 → 2026-03-17)
+**Timeline:** 2 days (2026-03-16 -> 2026-03-17)
 
 **Key accomplishments:**
 
