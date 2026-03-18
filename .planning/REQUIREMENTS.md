@@ -9,7 +9,7 @@
 
 ### Converged Schema & Engine
 
-- [ ] **CONV-01**: User can select "Converged" mode alongside Ethernet and FC
+- [x] **CONV-01**: User can select "Converged" mode alongside Ethernet and FC
 - [x] **CONV-02**: Converged input accepts 1–4 Ethernet frontend ports + 0–2 FC HBA ports per server
 - [x] **CONV-03**: Converged engine calls both `calculateBOM()` and `calculateFCBOM()` and returns a combined BOM
 - [x] **CONV-04**: FC portion is optional (0 HBA ports = Ethernet-only converged)
@@ -52,7 +52,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONV-01 | Phase 15 | Pending |
+| CONV-01 | Phase 15 | Complete |
 | CONV-02 | Phase 15 | Complete |
 | CONV-03 | Phase 15 | Complete |
 | CONV-04 | Phase 15 | Complete |

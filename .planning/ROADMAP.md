@@ -51,7 +51,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 
 **Milestone Goal:** Add a third "Converged" sizing mode that combines Ethernet leaf-spine + FC SAN in a single BOM per server: 1 OOB port, 1-4 Ethernet frontend ports, 0-2 FC backend ports.
 
-- [ ] **Phase 15: Converged Domain & Store** - Converged schema, composed engine, combined violations
+- [x] **Phase 15: Converged Domain & Store** - Converged schema, composed engine, combined violations (completed 2026-03-18)
 - [ ] **Phase 16: Converged UI** - Unified input form, combined BOM panel, topology, rack elevation
 - [ ] **Phase 17: Converged Export & i18n** - Combined CSV/PDF export, all 4 locales
 
@@ -61,7 +61,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 **Goal**: Users can compute a combined Ethernet+FC BOM from a single converged input
 **Depends on**: Phase 14 (v2.0 complete — both Ethernet and FC engines exist)
 **Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 15-01-PLAN.md — Converged schemas (input + BOM) and TDD engine composing calculateBOM + calculateFCBOM
 - [ ] 15-02-PLAN.md — Converged Zustand stores and mode selector wiring (third "Converged" button)
@@ -111,6 +111,6 @@ Plans:
 | 12. FC Input and BOM UI | v2.0 | 3/3 | Complete | 2026-03-18 |
 | 13. FC Topology Diagram | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
-| 15. Converged Domain & Store | 1/2 | In Progress|  | - |
+| 15. Converged Domain & Store | 2/2 | Complete   | 2026-03-18 | - |
 | 16. Converged UI | v3.0 | 0/? | Not started | - |
 | 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
