@@ -63,8 +63,8 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 **Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05
 **Plans:** 2/2 plans complete
 Plans:
-- [ ] 15-01-PLAN.md — Converged schemas (input + BOM) and TDD engine composing calculateBOM + calculateFCBOM
-- [ ] 15-02-PLAN.md — Converged Zustand stores and mode selector wiring (third "Converged" button)
+- [x] 15-01-PLAN.md — Converged schemas (input + BOM) and TDD engine composing calculateBOM + calculateFCBOM
+- [x] 15-02-PLAN.md — Converged Zustand stores and mode selector wiring (third "Converged" button)
 **Success Criteria** (what must be TRUE):
   1. User can select "Converged" as a third mode alongside Ethernet and FC in the mode selector
   2. User can specify 1-4 Ethernet frontend ports and 0-2 FC HBA ports per server in converged mode
@@ -76,12 +76,16 @@ Plans:
 **Goal**: Users can configure and view converged sizing results through a unified interface
 **Depends on**: Phase 15
 **Requirements**: CONV-06, CONV-07, CONV-08, CONV-09
+**Plans:** 3 plans
+Plans:
+- [ ] 16-01-PLAN.md — Converged input form + sizing page + App.tsx wiring (CONV-06)
+- [ ] 16-02-PLAN.md — Combined BOM panel with Ethernet + FC sub-BOMs (CONV-07)
+- [ ] 16-03-PLAN.md — Converged topology view + rack elevation with FC racks (CONV-08, CONV-09)
 **Success Criteria** (what must be TRUE):
   1. Converged input form shows shared rack config at the top with separate Ethernet and FC sections in one form
   2. Combined BOM panel displays Ethernet switches, FC switches, and total cable counts together
   3. Topology view renders Ethernet leaf-spine diagram plus FC Fabric A and Fabric B diagrams
   4. Rack elevation shows server racks with 3U Ethernet switch overhead and separate FC network racks
-**Plans**: TBD
 
 ### Phase 17: Converged Export & i18n
 **Goal**: Users can export converged sizing results and use the app in all four languages
@@ -111,6 +115,6 @@ Plans:
 | 12. FC Input and BOM UI | v2.0 | 3/3 | Complete | 2026-03-18 |
 | 13. FC Topology Diagram | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
-| 15. Converged Domain & Store | 2/2 | Complete    | 2026-03-18 | - |
-| 16. Converged UI | v3.0 | 0/? | Not started | - |
+| 15. Converged Domain & Store | v3.0 | 2/2 | Complete | 2026-03-18 |
+| 16. Converged UI | v3.0 | 0/3 | Not started | - |
 | 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
