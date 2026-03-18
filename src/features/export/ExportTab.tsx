@@ -21,7 +21,8 @@ import {
 import { downloadBomCsv } from './exportCsv'
 import { downloadFCBomCsv } from './exportFCCsv'
 import { generatePdfBlob } from './exportPdf'
-import { getLastTopologyPng } from '@/features/topology'
+import { generateFCPdfBlob } from './exportFCPdf'
+import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface ExportTabProps {
   mode: 'ethernet' | 'fc'
@@ -47,14 +48,23 @@ export function ExportTab({ mode }: ExportTabProps) {
   }
 
   const handlePdfExport = async () => {
-    if (mode === 'fc') {
-      // FC PDF export — implemented in Plan 02
-      return
-    }
-    if (!bom) return
     setPdfGenerating(true)
     setPdfError(null)
     try {
+      if (mode === 'fc') {
+        if (!fcBom) return
+        const pngA = getLastFCTopologyPng('A') ?? undefined
+        const pngB = getLastFCTopologyPng('B') ?? undefined
+        const blob = await generateFCPdfBlob(fcBom, pngA, pngB)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'netstack-fc-report.pdf'
+        a.click()
+        URL.revokeObjectURL(url)
+        return
+      }
+      if (!bom) return
       const png = getLastTopologyPng()
       const blob = await generatePdfBlob(bom, png ?? undefined)
       const url = URL.createObjectURL(blob)
