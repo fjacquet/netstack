@@ -16,7 +16,7 @@ import {
 
 function AppContent() {
   const { t } = useTranslation()
-  const [mode, setMode] = useState<'ethernet' | 'fc'>('ethernet')
+  const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged'>('ethernet')
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -32,7 +32,7 @@ function AppContent() {
               <img src={`${import.meta.env.BASE_URL}icon-topology.png`} className="h-4 w-4" alt="" />
               {t('tabs.topology')}
             </TabsTrigger>
-            {mode === 'ethernet' && (
+            {mode !== 'fc' && (
               <TabsTrigger value="rackElevation" className="gap-1.5">
                 <img src={`${import.meta.env.BASE_URL}icon-rack.png`} className="h-4 w-4" alt="" />
                 {t('tabs.rackElevation')}
@@ -47,7 +47,7 @@ function AppContent() {
           <TabsContent value="topology" className="mt-0">
             {mode === 'fc' ? <FCTopologyTab /> : <TopologyTab />}
           </TabsContent>
-          {mode === 'ethernet' && (
+          {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
               <RackElevationTab />
             </TabsContent>

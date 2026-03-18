@@ -20,8 +20,8 @@ import { generateFCPdfBlob } from '@/features/export/exportFCPdf'
 import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface TopBarProps {
-  mode: 'ethernet' | 'fc'
-  onModeChange: (m: 'ethernet' | 'fc') => void
+  mode: 'ethernet' | 'fc' | 'converged'
+  onModeChange: (m: 'ethernet' | 'fc' | 'converged') => void
 }
 
 export function TopBar({ mode, onModeChange }: TopBarProps) {
