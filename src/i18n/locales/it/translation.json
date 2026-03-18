@@ -138,7 +138,9 @@
     "pdfErrorHeading": "Generazione PDF non riuscita",
     "pdfErrorBody": "Impossibile generare il report. Verifica i parametri e riprova.",
     "fcCsvButton": "Esporta CSV FC",
-    "fcPdfButton": "Esporta PDF FC"
+    "fcPdfButton": "Esporta PDF FC",
+    "convergedCsvButton": "Esporta CSV Convergente",
+    "convergedPdfButton": "Esporta PDF Convergente"
   },
   "mode": {
     "ethernet": "Spine-Leaf",

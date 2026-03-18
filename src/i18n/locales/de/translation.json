@@ -138,7 +138,9 @@
     "pdfErrorHeading": "PDF-Erstellung fehlgeschlagen",
     "pdfErrorBody": "Der Bericht konnte nicht erstellt werden. \u00dcberpr\u00fcfen Sie Ihre Parameter und versuchen Sie es erneut.",
     "fcCsvButton": "FC CSV exportieren",
-    "fcPdfButton": "FC PDF exportieren"
+    "fcPdfButton": "FC PDF exportieren",
+    "convergedCsvButton": "Konvergiertes CSV exportieren",
+    "convergedPdfButton": "Konvergiertes PDF exportieren"
   },
   "mode": {
     "ethernet": "Spine-Leaf",

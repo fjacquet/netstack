@@ -138,7 +138,9 @@
     "pdfErrorHeading": "\u00c9chec de la g\u00e9n\u00e9ration PDF",
     "pdfErrorBody": "Impossible de g\u00e9n\u00e9rer le rapport. V\u00e9rifiez vos param\u00e8tres et r\u00e9essayez.",
     "fcCsvButton": "Exporter CSV FC",
-    "fcPdfButton": "Exporter PDF FC"
+    "fcPdfButton": "Exporter PDF FC",
+    "convergedCsvButton": "Exporter CSV Converge",
+    "convergedPdfButton": "Exporter PDF Converge"
   },
   "mode": {
     "ethernet": "Spine-Leaf",

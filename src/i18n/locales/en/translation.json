@@ -138,7 +138,9 @@
     "pdfErrorHeading": "PDF generation failed",
     "pdfErrorBody": "Unable to generate the report. Check your sizing inputs and try again.",
     "fcCsvButton": "Export FC CSV",
-    "fcPdfButton": "Export FC PDF"
+    "fcPdfButton": "Export FC PDF",
+    "convergedCsvButton": "Export Converged CSV",
+    "convergedPdfButton": "Export Converged PDF"
   },
   "mode": {
     "ethernet": "Spine-Leaf",
