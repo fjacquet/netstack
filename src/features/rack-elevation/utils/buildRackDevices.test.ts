@@ -30,7 +30,20 @@ const mockBOM: NetworkBOM = {
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
+    serverUHeight: '1U',
   },
+}
+
+/** Helper: create a BOM with the given serverUHeight and serverCount for rack 0 */
+function bomWithUHeight(serverUHeight: '1U' | '2U' | '4U' | '8U', serverCount = 3): NetworkBOM {
+  return {
+    ...mockBOM,
+    input: {
+      ...mockBOM.input,
+      serverUHeight,
+      racks: [{ serverCount }],
+    },
+  }
 }
 
 describe('buildRackDevices', () => {
@@ -101,6 +114,13 @@ describe('buildRackDevices', () => {
     expect(ids).toContain('rack-0-leaf-0')
   })
 
+  it('all switch devices have uHeight=1', () => {
+    const devices = buildRackDevices(mockBOM, 0)
+    for (const d of devices.filter((d) => d.role !== 'server')) {
+      expect(d.uHeight).toBe(1)
+    }
+  })
+
   it('uses rack-specific serverCount for usedPorts when rackIndex is provided', () => {
     // Variable density mock: rack 0 has 10 servers, rack 1 has 20, rack 2 has 30
     const varDensityBOM: NetworkBOM = {
@@ -129,5 +149,65 @@ describe('buildRackDevices', () => {
     expect(leaf0?.usedPorts).toBe(10)
     expect(leaf1?.usedPorts).toBe(20)
     expect(leaf2?.usedPorts).toBe(30)
+  })
+})
+
+describe('server devices', () => {
+  it('3 servers at 1U returns 6 devices total (3 switches + 3 servers)', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 3), 0)
+    expect(devices).toHaveLength(6)
+  })
+
+  it('server devices have role="server"', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 3), 0)
+    const servers = devices.filter((d) => d.role === 'server')
+    expect(servers).toHaveLength(3)
+  })
+
+  it('server labels are "Server 1", "Server 2", "Server 3"', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 3), 0)
+    const servers = devices.filter((d) => d.role === 'server')
+    const labels = servers.map((s) => s.label).sort()
+    expect(labels).toEqual(['Server 1', 'Server 2', 'Server 3'])
+  })
+
+  it('server uSlots start at 4 and stack for 1U', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 3), 0)
+    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
+    expect(servers[0].uSlot).toBe(4)
+    expect(servers[1].uSlot).toBe(5)
+    expect(servers[2].uSlot).toBe(6)
+  })
+
+  it('2 servers at 2U: uSlot=4 uHeight=2, uSlot=6 uHeight=2', () => {
+    const devices = buildRackDevices(bomWithUHeight('2U', 2), 0)
+    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
+    expect(servers).toHaveLength(2)
+    expect(servers[0].uSlot).toBe(4)
+    expect(servers[0].uHeight).toBe(2)
+    expect(servers[1].uSlot).toBe(6)
+    expect(servers[1].uHeight).toBe(2)
+  })
+
+  it('1 server at 4U: uSlot=4 uHeight=4', () => {
+    const devices = buildRackDevices(bomWithUHeight('4U', 1), 0)
+    const servers = devices.filter((d) => d.role === 'server')
+    expect(servers).toHaveLength(1)
+    expect(servers[0].uSlot).toBe(4)
+    expect(servers[0].uHeight).toBe(4)
+  })
+
+  it('0 servers returns only 3 switch devices', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 0), 0)
+    expect(devices).toHaveLength(3)
+    expect(devices.every((d) => d.role !== 'server')).toBe(true)
+  })
+
+  it('server device IDs follow pattern rack-N-server-M', () => {
+    const devices = buildRackDevices(bomWithUHeight('1U', 2), 0)
+    const servers = devices.filter((d) => d.role === 'server')
+    const ids = servers.map((s) => s.id)
+    expect(ids).toContain('rack-0-server-0')
+    expect(ids).toContain('rack-0-server-1')
   })
 })
