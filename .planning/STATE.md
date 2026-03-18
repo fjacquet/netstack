@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Converged Mode
-status: planning
-stopped_at: —
-last_updated: "2026-03-18T18:00:00.000Z"
-last_activity: 2026-03-18 — Milestone v3.0 started
+status: ready_to_plan
+stopped_at: Roadmap created for v3.0
+last_updated: "2026-03-18T19:00:00.000Z"
+last_activity: 2026-03-18 — v3.0 roadmap created (3 phases, 12 requirements)
 progress:
   total_phases: 3
   completed_phases: 0
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
-**Current focus:** Phase 15 — Converged Domain & Store (not yet planned)
+**Current focus:** Phase 15 — Converged Domain & Store (ready to plan)
 
 ## Current Position
 
 Phase: 15 of 17 (Converged Domain & Store)
 Plan: — (not yet planned)
-Status: Defining requirements
-Last activity: 2026-03-18 — Milestone v3.0 started
+Status: Ready to plan
+Last activity: 2026-03-18 — v3.0 roadmap created
 
-Progress: [░░░░░░░░░░] 0% (v2.0)
+Progress: [░░░░░░░░░░] 0% (v3.0)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v2.0)
-- Average duration: — min (v1.1 reference: ~10 min/plan)
+- Total plans completed: 0 (v3.0)
+- Average duration: — min (v2.0 reference: variable)
 - Total execution time: 0 hours
 
 **By Phase:**
@@ -46,86 +46,25 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 |-------|-------|-------|----------|
 | - | - | - | - |
 
-**Recent Trend:**
+**Recent Trend (from v2.0):**
 
-- Last 5 plans: —
-- Trend: —
+- Last 5 plans: 14-02, 14-01, 13-02, 13-01, 12-03
+- Trend: Stable
 
 *Updated after each plan completion*
-| Phase 08 P02 | 129 | 2 tasks | 3 files |
-| Phase 08 P01 | 3 | 2 tasks | 3 files |
-| Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
-| Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
-| Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
-| Phase 10-fc-sizing-engine P02 | 4 | 1 tasks | 1 files |
-| Phase 11-switch-positioning-ethernet P01 | 395 | 2 tasks | 14 files |
-| Phase 11-switch-positioning-ethernet P02 | 15 | 2 tasks | 9 files |
-| Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
-| Phase 12 P01 | 20 | 3 tasks | 10 files |
-| Phase 12 P02 | 15 | 3 tasks | 7 files |
-| Phase 12 P03 | 18 | 3 tasks | 14 files |
-| Phase 13-fc-topology-diagram P01 | 163 | 2 tasks | 3 files |
-| Phase 13-fc-topology-diagram P02 | 203 | 2 tasks | 6 files |
-| Phase 14-fc-export P01 | 3 | 2 tasks | 9 files |
-| Phase 14-fc-export P02 | 4 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Key v2.0 architectural decisions from research:
+Key architectural decisions relevant to v3.0:
 
-- [v2.0 Pre-Phase 8]: FC and Ethernet are parallel domains — separate schemas, engines, stores, never shared mutable state
-- [v2.0 Pre-Phase 8]: Mode selector is ephemeral UI state — not persisted to localStorage; prevents stale-mode reload bug
-- [v2.0 Pre-Phase 8]: FC store uses separate localStorage keys (netstack-fc-input v1) — Ethernet store schema never touched
-- [v2.0 Pre-Phase 8]: POD licensing modeled as basePorts + podLicenseUnit in catalog — must precede engine; cannot retrofit
-- [v2.0 Pre-Phase 8]: ISL formula uses fan-in ratio (7:1 Broadcom default), not Ethernet uplink multiplier
-- [v2.0 Pre-Phase 8]: FC topology returns {fabricA, fabricB} isolated subgraphs — cross-fabric edges architecturally impossible
-- [v2.0 Pre-Phase 8]: SWITCH_U_PER_SERVER_RACK=3 constant must become switchOverheadU(positioning) before Phase 11 UI
-- [Phase 08-02]: FC schemas isolated from Ethernet — fc-bom.ts does not import from bom.ts
-- [Phase 08-02]: podLicensesRequired, fanInRatio, islOversubscriptionRatio required (not optional) in FCNetworkBOMSchema
-- [Phase 08-01]: fc-types.ts has zero imports — complete Ethernet domain isolation; FCOpticsSpec uses protocol: fibre-channel as structural discriminant
-- [Phase 08-01]: 7850 extension switch: podLicenseUnit=0 because WAN port licensing differs from FC POD licensing; all 24 FC ports are base-licensed
-- [Phase 08-01]: X7-4 totalPorts=256 (4x64 data ports), not 265 — 9 ICL ports are internal fabric routing ports excluded from host connectivity sizing
-- [Phase 09-01]: FC engine stub returns zero-value FCNetworkBOM: satisfies compiler for fcResultStore import chain
-- [Phase 09-01]: DEFAULT_FC_INPUT inlined in each test file: keeps tests self-contained
-- [Phase 09-02]: fcInputStore uses 'netstack-fc-input' v1 key — Ethernet 'netstack-input' v5 never touched; localStorage polyfill added to test setup for Node 25 WebStorage compatibility
-- [Phase 10-fc-sizing-engine]: TDD RED phase: 29 test cases, 13 fail against zero-value stub — real assertions confirmed
-- [Phase 10-fc-sizing-engine]: makeInput() self-contained in test files — no external DEFAULT_FC_INPUT import (Phase 09-01 convention)
-- [Phase 10-02]: ISL formula uses hostBandwidth/targetFanIn — not min(host,storage) — so ISL count scales with server count
-- [Phase 10-02]: FC_PORT_SATURATION fires against single-switch max device port capacity (totalPorts - effectiveIslPerSwitch), not total fabric capacity
-- [Phase 10-02]: computeEffectivePorts() uses demand without ISL for POD license count; ISL reservation applied separately to devicePortsPerSwitch
-- [Phase 11-01]: switchOverheadU as inner function inside calculateBOM — avoids module-level pollution while remaining testable via engine outputs
-- [Phase 11-01]: DAC_POSITIONING_INCOMPATIBLE fires independently from DAC_DISTANCE_ADVISORY — different concerns (cable physics vs deployment span)
-- [Phase 11-switch-positioning-ethernet]: inputStore v6 uses existing merge spread for switchPositioning migration — no new migration branch needed
-- [Phase 11-switch-positioning-ethernet]: buildPositioningRackDevices separate utility (not inline in buildRackDevices) — positioning rack is architecturally distinct from server rack
-- [Phase 11-switch-positioning-ethernet]: buildRackDevices positioning-aware: MoR/BoR racks omit leaf devices (servers start U2 vs U4 for ToR)
-- [Phase 11-03]: Tasks 0 and 1 were pre-implemented in 11-02 commit; selectedRack 'positioning' sentinel follows net-N pattern for rack type routing
-- [Phase 12-01]: scrollIntoView mocked for Radix Select + jsdom compatibility in FCInputForm tests
-- [Phase 12-01]: FCInputForm uses Object.keys(FC_SWITCH_CATALOG) — never hardcodes model list
-- [Phase 12-01]: Mode selector state is ephemeral useState in AppContent — not persisted
-- [Phase 12]: FCViolationAlert: FC_ISL_UNDERPROVISIONED uses variant=warning (advisory), not destructive
-- [Phase 12]: FCBOMPanel fan-in uses getFCSeverity with <= 7 (Broadcom FC standard), not <= 6 (Ethernet)
-- [Phase 12-03]: preferredGeneration uses form.watch() outside useEffect for reactive filteredModels computation
-- [Phase 12-03]: Test uses labelFor attribute to find switch model combobox trigger — data-slot='form-item' not present in FormItem
-- [Phase 13-fc-topology-diagram]: Ring ISL topology when islPortsPerFabric >= switchCount — creates N edges (i→i+1 mod N); linear chain when M < N; 0 edges for single-switch or M=0
-- [Phase 13-fc-topology-diagram]: FCSwitchNodeData.totalPorts is a proxy (equals usedPorts) — FC_SWITCH_CATALOG lookup deferred to Plan 13-02 when visual rendering needs accurate port capacity
-- [Phase 13-02]: FCTopologyTab reads bom from fcResultStore in parent, passes as prop to FCTopologyCanvas — avoids store coupling inside canvas
-- [Phase 13-02]: Custom event namespaces fc-topology:action-a/b prevent cross-interference with Ethernet topology:action events
-- [Phase 13-02]: getLastFCTopologyPng(fabric) per-fabric module-level cache enables Phase 14 PDF export for both fabrics independently
-- [Phase 14-01]: ExportTab uses activeBom (mode-derived) for disabled/enabled state — avoids null checks on wrong store
-- [Phase 14-01]: FC PDF export stubbed in handlePdfExport for Plan 02 — branch exists, implementation deferred
-- [Phase 14-01]: Export tab un-gated in App.tsx for both modes — rackElevation stays Ethernet-only
-- [Phase 14-02]: FC PDF export lazy-loads @react-pdf/renderer via dynamic import — same pattern as Ethernet PDF; no bundle cost at page load
-- [Phase 14-02]: FCTopologyPage accepts separate pngFabricA/pngFabricB props and renders placeholders independently when either PNG is absent
-- [Phase 14-02]: FCBOMPage uses 7:1 fan-in threshold (Broadcom FC standard) vs Ethernet 6:1 — matches FCBOMPanel.tsx severity logic
-
-### Research Flags
-
-- Phase 8: G820 Gen8 power figures estimated — verify X8-4/X8-8 director power against Lenovo Press datasheets before encoding
-- Phase 10: Hard-code ISL fan-in at 7:1 for v2.0; expose workload type (NVMe-oF 3:1) in v2.x
-- Phase 13: Multiple ReactFlow instances confirmed working with independent ReactFlowProvider wrappers; benchmark at >20 racks if needed
+- [v2.0]: FC and Ethernet are parallel domains — composition (not generics) is the correct approach for converged mode
+- [v2.0]: Mode selector is ephemeral UI state — not persisted to localStorage
+- [v2.0]: FC store uses separate localStorage keys — Ethernet store schema never touched
+- [v2.0]: ISL formula uses fan-in ratio (7:1 Broadcom default), independent from Ethernet uplink formula
+- [v2.0]: FC topology returns {fabricA, fabricB} isolated subgraphs — cross-fabric edges architecturally impossible
 
 ### Pending Todos
 
@@ -137,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T16:24:13.811Z
-Stopped at: Completed 14-02-PLAN.md
+Last session: 2026-03-18
+Stopped at: v3.0 roadmap created, Phase 15 ready to plan
 Resume file: None

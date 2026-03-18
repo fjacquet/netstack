@@ -5,6 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-17)
 - ✅ **v1.1 Enhancements** — Phases 5-7 (shipped 2026-03-18)
 - ✅ **v2.0 FC SAN & Switch Positioning** — Phases 8-14 (shipped 2026-03-18)
+- 🚧 **v3.0 Converged Mode** — Phases 15-17 (in progress)
 
 ## Phases
 
@@ -46,6 +47,49 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 
 </details>
 
+### v3.0 Converged Mode (In Progress)
+
+**Milestone Goal:** Add a third "Converged" sizing mode that combines Ethernet leaf-spine + FC SAN in a single BOM per server: 1 OOB port, 1-4 Ethernet frontend ports, 0-2 FC backend ports.
+
+- [ ] **Phase 15: Converged Domain & Store** - Converged schema, composed engine, combined violations
+- [ ] **Phase 16: Converged UI** - Unified input form, combined BOM panel, topology, rack elevation
+- [ ] **Phase 17: Converged Export & i18n** - Combined CSV/PDF export, all 4 locales
+
+## Phase Details
+
+### Phase 15: Converged Domain & Store
+**Goal**: Users can compute a combined Ethernet+FC BOM from a single converged input
+**Depends on**: Phase 14 (v2.0 complete — both Ethernet and FC engines exist)
+**Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05
+**Success Criteria** (what must be TRUE):
+  1. User can select "Converged" as a third mode alongside Ethernet and FC in the mode selector
+  2. User can specify 1-4 Ethernet frontend ports and 0-2 FC HBA ports per server in converged mode
+  3. Converged engine produces a combined BOM containing both Ethernet switch counts and FC switch counts from a single input
+  4. Setting FC HBA ports to 0 produces an Ethernet-only BOM with no FC switches and no FC violations
+  5. Violations from both Ethernet and FC engines appear in a single combined violations array
+**Plans**: TBD
+
+### Phase 16: Converged UI
+**Goal**: Users can configure and view converged sizing results through a unified interface
+**Depends on**: Phase 15
+**Requirements**: CONV-06, CONV-07, CONV-08, CONV-09
+**Success Criteria** (what must be TRUE):
+  1. Converged input form shows shared rack config at the top with separate Ethernet and FC sections in one form
+  2. Combined BOM panel displays Ethernet switches, FC switches, and total cable counts together
+  3. Topology view renders Ethernet leaf-spine diagram plus FC Fabric A and Fabric B diagrams
+  4. Rack elevation shows server racks with 3U Ethernet switch overhead and separate FC network racks
+**Plans**: TBD
+
+### Phase 17: Converged Export & i18n
+**Goal**: Users can export converged sizing results and use the app in all four languages
+**Depends on**: Phase 16
+**Requirements**: CONV-10, CONV-11, CONV-12
+**Success Criteria** (what must be TRUE):
+  1. CSV export produces a single file with Ethernet section and FC section under one header
+  2. PDF export generates one document combining Ethernet and FC pages
+  3. All converged-mode labels (mode name, section headers, BOM fields) appear correctly in EN, FR, DE, and IT
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -64,3 +108,6 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 | 12. FC Input and BOM UI | v2.0 | 3/3 | Complete | 2026-03-18 |
 | 13. FC Topology Diagram | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
+| 15. Converged Domain & Store | v3.0 | 0/? | Not started | - |
+| 16. Converged UI | v3.0 | 0/? | Not started | - |
+| 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
