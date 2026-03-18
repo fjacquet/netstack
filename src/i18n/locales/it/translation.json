@@ -141,8 +141,9 @@
     "fcPdfButton": "Esporta PDF FC"
   },
   "mode": {
-    "ethernet": "Ethernet",
+    "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
+    "converged": "Convergente",
     "selectLabel": "Modalita"
   },
   "fc": {

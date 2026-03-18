@@ -141,8 +141,9 @@
     "fcPdfButton": "Export FC PDF"
   },
   "mode": {
-    "ethernet": "Ethernet",
+    "ethernet": "Spine-Leaf",
     "fc": "Fibre Channel",
+    "converged": "Converged",
     "selectLabel": "Mode"
   },
   "fc": {
