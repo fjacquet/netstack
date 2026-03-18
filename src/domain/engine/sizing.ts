@@ -106,6 +106,16 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
       ? (maxServersPerRack * LEAF.downlinkSpeedGbE) / uplinkBandwidth
       : 0;
 
+  // ─── Switch Overhead U-height (POS-04) ───────────────────────────────────
+  // ToR: OOB + Leaf A + Leaf B = 3U; MoR/BoR: OOB only = 1U (leaves in separate network rack)
+  function switchOverheadU(positioning: SizingInput['switchPositioning']): number {
+    switch (positioning) {
+      case 'ToR': return 3;
+      case 'MoR': return 1;
+      case 'BoR': return 1;
+    }
+  }
+
   // ─── Constraint Violations ───────────────────────────────────────────────
   const violations: ConstraintViolation[] = [];
 
@@ -137,11 +147,29 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     });
   }
 
+  // ─── Cable Length Map (POS-01) ────────────────────────────────────────────
+  // Recommended cable length depends on switch positioning mode.
+  const cableLengthMap: Record<SizingInput['switchPositioning'], number> = {
+    ToR: 3,
+    MoR: 15,
+    BoR: 30,
+  };
+  const recommendedCableLengthM = cableLengthMap[input.switchPositioning];
+
+  // DAC_POSITIONING_INCOMPATIBLE: DAC cables are short-reach; MoR/BoR distances require AOC/fiber
+  if (input.cableType === 'DAC' && input.switchPositioning !== 'ToR') {
+    violations.push({
+      code: 'DAC_POSITIONING_INCOMPATIBLE',
+      positioning: input.switchPositioning as 'MoR' | 'BoR',
+      recommendedCableLengthM,
+    });
+  }
+
   // RACK_CAPACITY_EXCEEDED: total device U-height exceeds rack physical size
-  const SWITCH_U_PER_SERVER_RACK = 3; // OOB (U1) + Leaf B (U2) + Leaf A (U3)
+  const overheadU = switchOverheadU(input.switchPositioning);
   const uHeightInt = parseInt(input.serverUHeight, 10);
   for (let i = 0; i < input.racks.length; i++) {
-    const usedU = SWITCH_U_PER_SERVER_RACK + input.racks[i].serverCount * uHeightInt;
+    const usedU = overheadU + input.racks[i].serverCount * uHeightInt;
     if (usedU > rackSizeU) {
       violations.push({
         code: 'RACK_CAPACITY_EXCEEDED',
@@ -166,6 +194,8 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     qsfp28Count,
     vltCables,
     oversubscriptionRatio,
+    switchPositioning: input.switchPositioning,
+    recommendedCableLengthM,
     violations,
     input,
   };

@@ -253,6 +253,8 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       qsfp28Count: 0,
       vltCables: 5,
       oversubscriptionRatio: 3.0,
+      switchPositioning: 'ToR',
+      recommendedCableLengthM: 3,
       violations: [],
       input: {
         racks: [{ serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }],
@@ -263,6 +265,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         borderLeafModel: 'none',
         borderLeafCount: 0,
         rackSize: '42U',
+        switchPositioning: 'ToR',
       },
     };
     const result = NetworkBOMSchema.safeParse(validBOM);
@@ -284,6 +287,8 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       qsfp28Count: 0,
       vltCables: 5,
       oversubscriptionRatio: 5.875,
+      switchPositioning: 'ToR',
+      recommendedCableLengthM: 3,
       violations: [
         { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC' },
       ],
@@ -296,6 +301,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
         borderLeafModel: 'none',
         borderLeafCount: 0,
         rackSize: '42U',
+        switchPositioning: 'ToR',
       },
     };
     const result = NetworkBOMSchema.safeParse(bomWithViolations);
