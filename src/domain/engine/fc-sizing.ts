@@ -3,35 +3,230 @@
  *
  * calculateFCBOM(input: FCSizingInput): FCNetworkBOM
  *
+ * Five-step pure function:
+ *   1. Server totals from racks array
+ *   2. Per-fabric port demand (host + storage, split across dual fabrics)
+ *   3. Effective ports via POD licensing model + switch count
+ *   4. ISL count via bandwidth fan-in formula (NOT Ethernet uplink multiplier)
+ *   5. Violations + final BOM assembly
+ *
+ * DUAL-FABRIC INVARIANT: fabricBSwitches is always identical to fabricASwitches.
+ * Fabric A and Fabric B are symmetrical by design — they are never computed independently.
+ *
  * @module fc-sizing
  */
 
-/** Phase 9 stub — replaced by real implementation in Phase 10. */
+import { FC_SWITCH_CATALOG } from '../catalog/brocade';
+import type { FCSizingInput } from '../schemas/fc-input';
+import type { FCConstraintViolation, FCNetworkBOM } from '../schemas/fc-bom';
 
-import type { FCSizingInput } from '@/domain/schemas/fc-input'
-import type { FCNetworkBOM } from '@/domain/schemas/fc-bom'
+/** Broadcom recommended maximum host-to-storage fan-in ratio (SAN Design Guide, Nov 2025) */
+const FC_FAN_IN_MAX = 7;
+
+// ─── Helper: POD License Calculation ──────────────────────────────────────────
+
+/**
+ * Compute the effective port count per switch and POD licenses required per switch.
+ *
+ * Directors (podLicenseUnit === 0) use all totalPorts as base-licensed — no POD licenses.
+ * Fixed-port switches (G710, G720, G730, G820) start at basePorts; POD licenses unlock
+ * additional ports in increments of podLicenseUnit, up to totalPorts.
+ *
+ * @param portsNeededPerSwitch - Device ports needed per switch (host + storage, not ISL)
+ * @param basePorts - Ports active with factory license
+ * @param totalPorts - Maximum ports available with full POD unlock
+ * @param podLicenseUnit - Ports per POD license increment (0 for directors)
+ * @returns effectivePorts and podLicensesRequired per switch
+ */
+function computeEffectivePorts(
+  portsNeededPerSwitch: number,
+  basePorts: number,
+  totalPorts: number,
+  podLicenseUnit: number,
+): { effectivePorts: number; podLicensesRequired: number } {
+  // Director branch: all ports are base-licensed, no POD model
+  if (podLicenseUnit === 0) {
+    return { effectivePorts: totalPorts, podLicensesRequired: 0 };
+  }
+  // Within base capacity: no POD licenses needed
+  if (portsNeededPerSwitch <= basePorts) {
+    return { effectivePorts: basePorts, podLicensesRequired: 0 };
+  }
+  // POD branch: unlock incremental port groups until demand is met or totalPorts reached
+  const extraPortsNeeded = portsNeededPerSwitch - basePorts;
+  const podCount = Math.ceil(extraPortsNeeded / podLicenseUnit);
+  const effectivePorts = Math.min(basePorts + podCount * podLicenseUnit, totalPorts);
+  return { effectivePorts, podLicensesRequired: podCount };
+}
+
+// ─── Helper: ISL Count via Bandwidth Fan-In Formula ───────────────────────────
+
+/**
+ * Calculate ISL count using the bandwidth-based fan-in formula.
+ *
+ * The ISL bandwidth must support the traffic from hosts to storage without exceeding
+ * the target fan-in ratio. Each ISL carries one full-speed link.
+ * Minimum 2 ISLs is always enforced (Broadcom minimum for redundancy).
+ *
+ * Source: Broadcom SAN Design and Best Practices, Nov 2025
+ *
+ * @param hostPortsPerFabric - Total host-facing ports in one fabric
+ * @param storagePortsPerFabric - Total storage-facing ports in one fabric
+ * @param switchSpeedGbps - Port speed of the selected FC switch model
+ * @param targetFanIn - Maximum host:storage ratio (default: FC_FAN_IN_MAX = 7)
+ * @returns ISL count (integer, minimum 2)
+ */
+function calculateIslCount(
+  hostPortsPerFabric: number,
+  _storagePortsPerFabric: number,
+  switchSpeedGbps: number,
+  targetFanIn: number = FC_FAN_IN_MAX,
+): number {
+  // ISLs must carry host-originated traffic up to the fan-in ratio limit.
+  // Formula: requiredIslBandwidth = hostBandwidth / targetFanIn
+  // This scales correctly with host count — more hosts require more ISL bandwidth.
+  const hostBandwidth = hostPortsPerFabric * switchSpeedGbps;
+  const requiredIslBandwidth = hostBandwidth / targetFanIn;
+  // Each ISL carries one full-speed link; enforce minimum 2 for redundancy
+  return Math.max(2, Math.ceil(requiredIslBandwidth / switchSpeedGbps));
+}
+
+// ─── Main Engine ───────────────────────────────────────────────────────────────
 
 /**
  * Calculate the FC Bill of Materials for a Brocade FC deployment.
  *
- * Phase 9 stub: returns zero-value FCNetworkBOM. Real sizing logic is implemented in Phase 10.
+ * Pure function — no side effects. All port arithmetic uses catalog fields from
+ * FC_SWITCH_CATALOG; never hardcoded values. The returned FCNetworkBOM includes
+ * required fields: podLicensesRequired, fanInRatio, islOversubscriptionRatio.
  *
- * @param input - Validated FC sizing parameters
- * @returns Zero-value FCNetworkBOM with input echoed back
+ * @param input - Validated FC sizing parameters (FCSizingInput)
+ * @returns FCNetworkBOM with all fields computed (never zero-value stub)
  */
 export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
-  return {
-    fabricASwitches: 0,
-    fabricBSwitches: 0,
-    hostPortsPerFabric: 0,
-    storagePortsPerFabric: 0,
-    islPortsPerFabric: 0,
-    podLicensesRequired: 0,
-    fcOpticsCount: 0,
-    islCables: 0,
-    fanInRatio: 0,
-    islOversubscriptionRatio: 0,
-    violations: [],
-    input,
+  const SW = FC_SWITCH_CATALOG[input.fcSwitchModel];
+
+  // ─── Step 1: Server totals ──────────────────────────────────────────────────
+  const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0);
+
+  // ─── Step 2: Per-fabric port demand ────────────────────────────────────────
+  //
+  // Dual-fabric splits HBA ports evenly using floor() — conservative for odd HBA counts.
+  // Example: hbaPortsPerServer=2 → 1 port per fabric per server (standard deployment).
+  // Example: hbaPortsPerServer=3 → floor(3/2)=1 port per fabric (odd port is unassigned).
+  const hostPortsPerFabric = totalServers * Math.floor(input.hbaPortsPerServer / 2);
+
+  // Storage target ports split across both fabrics (ceil to avoid underprovisioning).
+  const storagePortsPerFabric = Math.ceil(
+    (input.storageArrayCount * input.storageTargetPorts) / 2,
+  );
+
+  // ─── Step 3: Effective ports and switch count ───────────────────────────────
+  //
+  // ISL ports come from the same physical port pool as device ports on fixed switches.
+  // Clamp islPortsPerSwitch to SW.maxIslPorts (UPLN-02 style runtime clamp).
+  const effectiveIslPerSwitch = Math.min(input.islPortsPerSwitch, SW.maxIslPorts);
+
+  // Device ports per switch = total effective ports minus ISL reservation.
+  // ISL reservation reduces available host+storage capacity per switch.
+  const portsNeededPerSwitch = hostPortsPerFabric + storagePortsPerFabric;
+
+  // Use effective capacity based on POD license model (base + unlocked increments).
+  // For switch count calculation we consider ISL-adjusted effective device ports.
+  const { effectivePorts: rawEffectivePorts, podLicensesRequired: podLicensesPerSwitch } =
+    computeEffectivePorts(
+      // Ports needed per switch includes ISL reservation to ensure enough ports are unlocked
+      portsNeededPerSwitch,
+      SW.basePorts,
+      SW.totalPorts,
+      SW.podLicenseUnit,
+    );
+
+  // Device ports available per switch = effectivePorts minus ISL reservation
+  const devicePortsPerSwitch = Math.max(1, rawEffectivePorts - effectiveIslPerSwitch);
+
+  // Fabric switch count: minimum 1 switch, scaled by demand
+  const fabricSwitchCount = Math.max(
+    1,
+    Math.ceil((hostPortsPerFabric + storagePortsPerFabric) / devicePortsPerSwitch),
+  );
+
+  // Total POD licenses: per-switch count × switches in both fabrics
+  const podLicensesRequired = podLicensesPerSwitch * fabricSwitchCount * 2;
+
+  // ─── Step 4: ISL count via bandwidth fan-in formula ────────────────────────
+  //
+  // ISL count is derived from the bandwidth-based fan-in ratio (Broadcom 7:1 default).
+  // This is NOT the Ethernet uplink formula (switchCount × islPortsPerSwitch).
+  const islCount = calculateIslCount(
+    hostPortsPerFabric,
+    storagePortsPerFabric,
+    SW.speedGbps,
+  );
+
+  // ISL cables span both fabrics (one cable connects fabric A switch to fabric B switch)
+  const islCables = islCount * 2;
+
+  // ─── Step 5: Optics count ──────────────────────────────────────────────────
+  //
+  // 2 optics per cable (one at each end) × total links per fabric × 2 fabrics.
+  const totalLinksPerFabric = hostPortsPerFabric + storagePortsPerFabric + islCount;
+  const fcOpticsCount = totalLinksPerFabric * 2 * 2;
+
+  // ─── Step 6: Ratios ────────────────────────────────────────────────────────
+  const fanInRatio =
+    storagePortsPerFabric > 0 ? hostPortsPerFabric / storagePortsPerFabric : 0;
+  const islOversubscriptionRatio = islCount > 0 ? hostPortsPerFabric / islCount : 0;
+
+  // ─── Step 7: Violations ────────────────────────────────────────────────────
+  const violations: FCConstraintViolation[] = [];
+
+  // FC_OVERSUBSCRIPTION_EXCEEDED: host-to-storage fan-in exceeds Broadcom 7:1 recommendation
+  if (fanInRatio > FC_FAN_IN_MAX) {
+    violations.push({
+      code: 'FC_OVERSUBSCRIPTION_EXCEEDED',
+      ratio: fanInRatio,
+      maxRatio: FC_FAN_IN_MAX,
+    });
   }
+
+  // FC_PORT_SATURATION: demand exceeds a single switch's maximum device port capacity.
+  // Fires when (hostPortsPerFabric + storagePortsPerFabric) > (SW.totalPorts - effectiveIslPerSwitch).
+  // This means the switch model is fundamentally too small — no amount of switch stacking
+  // in a single-tier fabric can solve the problem without upgrading the model.
+  const maxDevicePortsPerSwitch = SW.totalPorts - effectiveIslPerSwitch;
+  if (portsNeededPerSwitch > maxDevicePortsPerSwitch) {
+    violations.push({
+      code: 'FC_PORT_SATURATION',
+      requiredPorts: portsNeededPerSwitch,
+      availablePorts: maxDevicePortsPerSwitch,
+    });
+  }
+
+  // FC_ISL_UNDERPROVISIONED: user provisioned fewer ISL ports than the fan-in formula requires
+  if (effectiveIslPerSwitch < islCount) {
+    violations.push({
+      code: 'FC_ISL_UNDERPROVISIONED',
+      islsAvailable: effectiveIslPerSwitch,
+      islsRequired: islCount,
+    });
+  }
+
+  // ─── Return FCNetworkBOM ───────────────────────────────────────────────────
+  //
+  // DUAL-FABRIC INVARIANT: fabricBSwitches === fabricASwitches (always)
+  return {
+    fabricASwitches: fabricSwitchCount,
+    fabricBSwitches: fabricSwitchCount,
+    hostPortsPerFabric,
+    storagePortsPerFabric,
+    islPortsPerFabric: islCount,
+    podLicensesRequired,
+    fcOpticsCount,
+    islCables,
+    fanInRatio,
+    islOversubscriptionRatio,
+    violations,
+    input,
+  };
 }
