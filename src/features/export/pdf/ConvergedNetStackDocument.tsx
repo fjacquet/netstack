@@ -9,6 +9,9 @@ import { FCInputsPage } from './FCInputsPage'
 import { FCBOMPage } from './FCBOMPage'
 import { FCTopologyPage } from './FCTopologyPage'
 import { FCViolationsPage } from './FCViolationsPage'
+import { ThreeTierInputsPage } from './ThreeTierInputsPage'
+import { ThreeTierBOMPage } from './ThreeTierBOMPage'
+import { ThreeTierViolationsPage } from './ThreeTierViolationsPage'
 
 // Uses built-in Helvetica / Helvetica-Bold — no Font.register needed
 
@@ -51,6 +54,18 @@ export function ConvergedNetStackDocument({
           <TopologyPage topoDiagramPng={topoDiagramPng} />
           {bom.ethernetBom.violations.length > 0 && (
             <ViolationsPage violations={bom.ethernetBom.violations} />
+          )}
+        </>
+      )}
+
+      {/* Three-tier pages -- only when three-tier topology (threeTierBom is non-null) */}
+      {bom.threeTierBom && (
+        <>
+          <ThreeTierInputsPage input={bom.threeTierBom.input} />
+          <ThreeTierBOMPage bom={bom.threeTierBom} />
+          <TopologyPage topoDiagramPng={topoDiagramPng} />
+          {bom.threeTierBom.violations.length > 0 && (
+            <ThreeTierViolationsPage violations={bom.threeTierBom.violations} />
           )}
         </>
       )}

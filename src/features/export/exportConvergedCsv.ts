@@ -1,6 +1,7 @@
 import type { ConvergedBOM } from '@/domain/schemas/converged-bom'
 import { wrapCsvValue, buildCsvRows } from './exportCsv'
 import { buildFCCsvRows } from './exportFCCsv'
+import { buildThreeTierCsvRows } from './exportThreeTierCsv'
 
 /**
  * Builds a single CSV string combining Ethernet and FC BOM sections.
@@ -20,21 +21,27 @@ export function buildConvergedCsvString(bom: ConvergedBOM): string {
   const BOM_CHAR = '\uFEFF'
   const header = 'Category,Model / Type,Role,Quantity,Unit,Connectivity,Notes'
 
-  // Ethernet rows (buildCsvRows returns pre-joined comma-separated strings)
-  // Guard: when topology='three-tier', ethernetBom is null -- skip Ethernet rows
-  const ethernetRows = bom.ethernetBom ? buildCsvRows(bom.ethernetBom) : []
+  // Network rows: use three-tier rows when topology='three-tier', otherwise Ethernet rows
+  // Guard: when topology='three-tier', ethernetBom is null -- use threeTierBom instead
+  const networkRows = bom.threeTierBom
+    ? buildThreeTierCsvRows(bom.threeTierBom)
+    : bom.ethernetBom
+      ? buildCsvRows(bom.ethernetBom)
+      : []
+
+  const sectionLabel = bom.threeTierBom ? 'Three-Tier' : 'Ethernet'
 
   const allRows: string[] = []
 
   if (bom.fcBom !== null) {
-    // Add Ethernet section separator
+    // Add network section separator
     allRows.push(
-      ['Section', 'Ethernet', '', '', '', 'Ethernet', ''].map(wrapCsvValue).join(',')
+      ['Section', sectionLabel, '', '', '', sectionLabel, ''].map(wrapCsvValue).join(',')
     )
   }
 
-  // Add Ethernet data rows
-  allRows.push(...ethernetRows)
+  // Add network data rows (Ethernet or Three-Tier)
+  allRows.push(...networkRows)
 
   if (bom.fcBom !== null) {
     // FC rows (buildFCCsvRows returns string[][] -- needs wrapCsvValue+join)
