@@ -61,11 +61,13 @@ metrics:
 Two new configurable fields added to `SizingInput` with corresponding engine formula updates:
 
 **PORT-03 — Server port multipliers:**
+
 - `portsPerServerFrontend` (0-8, default 1): scales `serverLeafCables = totalServers × portsPerServerFrontend`
 - `portsPerServerBackend` (0-8, default 1): scales `serverOobCables = totalServers × portsPerServerBackend + leafSwitches`
 - SFP28 transceiver count scales automatically with `serverLeafCables`
 
 **UPLN-02 — Active uplinks per leaf:**
+
 - `activeUplinksPerLeaf` (1-8, default 4): user-configured uplink count per leaf switch
 - Runtime clamp: `effectiveUplinks = min(activeUplinksPerLeaf, LEAF.uplinkPorts)` prevents exceeding model physical ports
 - `linksPerLeaf = min(spineSwitches, effectiveUplinks)` replaces previous `min(spineSwitches, LEAF.uplinkPorts)`
@@ -96,6 +98,7 @@ Two new configurable fields added to `SizingInput` with corresponding engine for
 ### Auto-fixed Issues
 
 **1. [Rule 2 - Missing Fields] All external test fixtures missing new required fields**
+
 - **Found during:** Task 1 GREEN phase (TypeScript compilation)
 - **Issue:** Six test files (`BOMPanel.test.tsx`, `buildTopologyGraph.test.ts`, `exportCsv.test.ts`, `exportPdf.test.ts`, `buildRackDevices.test.ts`, `resultStore.test.ts`) had inline `SizingInput` objects missing the new `portsPerServerFrontend` and `portsPerServerBackend` fields (Task 1) and `activeUplinksPerLeaf` (Task 2)
 - **Fix:** Added all three new fields with their default values to every inline input fixture in each affected test file
@@ -103,6 +106,7 @@ Two new configurable fields added to `SizingInput` with corresponding engine for
 - **Commits:** aadd3fa (Task 1), f693c3f (Task 2)
 
 **2. [Rule 1 - Bug] Oversubscription test expectations used old spineSwitches formula**
+
 - **Found during:** Task 2 GREEN phase
 - **Issue:** Three existing tests in `sizing.test.ts` expected oversubscription ratios calculated with `spineSwitches × uplinkSpeed` (old formula). With the new `effectiveUplinks × uplinkSpeed` formula and default `activeUplinksPerLeaf: 4`, the denominator changed from `2 × 100 = 200` to `4 × 100 = 400`, halving the ratios.
 - **Fix:** Updated test comments and expected values to reflect the new semantically-correct formula. Example: "48 servers at 25G with 2 spines: 6.0" → "48 servers at 25G with S5248F-ON (4 uplinks): 3.0"

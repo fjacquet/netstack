@@ -55,6 +55,7 @@ created: 2026-03-18
 Existing infrastructure covers all phase requirements. No Wave 0 needed.
 
 The two relevant test files already exist and will be extended:
+
 - `src/domain/engine/sizing.test.ts` — for ELEV-02 schema + ELEV-03 engine violation
 - `src/features/rack-elevation/utils/buildRackDevices.test.ts` — for ELEV-01/02 slot rendering
 

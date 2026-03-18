@@ -141,6 +141,7 @@ None - no external service configuration required. GitHub Pages deployment requi
 ## Self-Check: PASSED
 
 All created files verified to exist on disk. All task commits verified in git log:
+
 - `5be3300` - feat(02-03): build app shell with TopBar, tabs, placeholders, and i18n controls
 - `d2876f8` - feat(02-03): build InputForm with react-hook-form + zodResolver wired to Zustand
 - `c102125` - feat(02-03): add GitHub Actions workflow for GitHub Pages deployment

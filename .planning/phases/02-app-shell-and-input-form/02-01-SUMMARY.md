@@ -110,6 +110,7 @@ completed: 2026-03-17
 - **Files modified:** 22
 
 ## Accomplishments
+
 - React 19 + Vite 6 build pipeline configured with GitHub Pages base path and @ path alias
 - shadcn/ui initialized manually (components.json + CLI add) with 11 UI components
 - Tailwind v4 configured via @tailwindcss/vite plugin with dark mode custom variant
@@ -129,6 +130,7 @@ Each task was committed atomically:
 _Note: Task 2 used TDD — separate RED (test) and GREEN (feat) commits._
 
 ## Files Created/Modified
+
 - `vite.config.ts` - Unified Vite + Vitest config with React plugin, Tailwind v4, jsdom, @ alias
 - `index.html` - SPA entry point with `<div id="root">`
 - `src/main.tsx` - React 19 createRoot entry point
@@ -147,6 +149,7 @@ _Note: Task 2 used TDD — separate RED (test) and GREEN (feat) commits._
 - `src/domain/schemas/schemas.test.ts` - Added 6 leafModel schema tests + updated acceptance tests
 
 ## Decisions Made
+
 - **vite@6 not vite@8**: `@tailwindcss/vite@4` has peer dependency `vite@^5.2.0 || ^6 || ^7`; locked to v6 for compatibility
 - **Manual shadcn init**: `npx shadcn init` requires interactive terminal; created components.json manually then used `npx shadcn add` for components
 - **leafModel as required field**: Explicit selection required in UI — prevents silent default to S5248F-ON; user must choose
@@ -157,6 +160,7 @@ _Note: Task 2 used TDD — separate RED (test) and GREEN (feat) commits._
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Updated existing schema acceptance tests to include leafModel**
+
 - **Found during:** Task 2 GREEN phase
 - **Issue:** Existing `SizingInputSchema — acceptance of valid inputs` tests lacked `leafModel` field — they now incorrectly failed after schema was updated
 - **Fix:** Added `leafModel: 'S5248F-ON'` to the 3 existing acceptance test inputs
@@ -165,6 +169,7 @@ _Note: Task 2 used TDD — separate RED (test) and GREEN (feat) commits._
 - **Committed in:** `e7a8d75` (Task 2 GREEN commit)
 
 **2. [Rule 3 - Blocking] Downgraded vite from @8 to @6**
+
 - **Found during:** Task 1 (dependency installation)
 - **Issue:** `@tailwindcss/vite@4.2.1` requires `vite@"^5.2.0 || ^6 || ^7"` but npm installed vite@8; shadcn component add failed with ERESOLVE
 - **Fix:** `npm install --save-dev vite@^6 --legacy-peer-deps`
@@ -178,13 +183,16 @@ _Note: Task 2 used TDD — separate RED (test) and GREEN (feat) commits._
 **Impact on plan:** Both auto-fixes necessary for correctness and functionality. No scope creep.
 
 ## Issues Encountered
+
 - `npx shadcn@latest init` cannot be automated (requires interactive terminal selection). Resolved by creating `components.json` manually and using `npx shadcn add` for individual components.
 - vite@8 conflicts with @tailwindcss/vite@4 peer dependencies. Resolved by pinning to vite@^6.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - React + Vite project scaffold is complete and building successfully
 - shadcn/ui components available for use in Plans 02-04
 - Test infrastructure supports jsdom for React component tests

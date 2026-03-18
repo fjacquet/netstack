@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -56,6 +57,7 @@ The five domain pitfalls from project research (hardcoded spine count, oversubsc
 ### What Phase 1 Does NOT Need
 
 Phase 1 is strictly domain-layer work. Do NOT install or import in this phase:
+
 - React, ReactDOM — no UI yet
 - Zustand — no state management yet
 - @xyflow/react — no topology rendering yet
@@ -64,6 +66,7 @@ Phase 1 is strictly domain-layer work. Do NOT install or import in this phase:
 - Tailwind, shadcn/ui — no styling yet
 
 **Installation (only if starting from scratch):**
+
 ```bash
 npm install zod@4
 npm install -D vitest typescript@5
@@ -109,6 +112,7 @@ npm install -D vitest typescript@5
 **Forwarding rate:** 2.4 Bpps
 
 **Spine capacity formula consequence:** With 32 × QSFP28 spine ports (one connection per leaf), a single S5232F-ON can connect to a maximum of 32 leaf switches = maximum 16 racks (2 leafs per rack) per spine switch. With a standard 4-spine design, the formula is:
+
 - `spinesRequired = Math.ceil(N_leafs / SPINE_PORTS_PER_SWITCH)` where `SPINE_PORTS_PER_SWITCH = 32`
 - Minimum spines for non-blocking Clos = number of uplinks per leaf = 4
 - `spineCount = Math.max(4, Math.ceil(N_leafs / SPINE_PORT_COUNT))`
@@ -163,6 +167,7 @@ src/
 **Why:** Changing port counts for a new Dell model requires editing one file. Port counts in the engine body are a maintenance catastrophe.
 
 **Example:**
+
 ```typescript
 // src/domain/catalog/hardware.ts
 // Source: Dell PowerSwitch S5200-ON Series Spec Sheet (verified 2026-03-16)
@@ -208,6 +213,7 @@ export type SwitchModelId = keyof typeof SWITCH_CATALOG;
 **What:** Do not define TypeScript interfaces for domain inputs/outputs separately from Zod schemas. Use `z.infer<typeof Schema>` to generate TypeScript types. One source of truth.
 
 **Example:**
+
 ```typescript
 // src/domain/schemas/input.ts
 // Source: zod.dev/v4
@@ -329,6 +335,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
 **What:** Tests live in `sizing.test.ts` co-located with the implementation. Tests verify specific output values for known inputs — not internal implementation.
 
 **Vitest 4 configuration for pure TypeScript (Node environment):**
+
 ```typescript
 // vitest.config.ts (root)
 import { defineConfig } from 'vitest/config';
@@ -342,6 +349,7 @@ export default defineConfig({
 ```
 
 **Critical test cases that MUST be written (success criteria requirement):**
+
 ```typescript
 // src/domain/engine/sizing.test.ts
 import { describe, it, expect } from 'vitest';
@@ -604,6 +612,7 @@ export default defineConfig({
 | Cable count = sum of all ports / 2 | Cable count = N_leafs × uplinksPerLeaf (link model) | Engineering best practice | No off-by-factor errors |
 
 **Deprecated/outdated:**
+
 - `z.string().email()` in Zod v4: replaced by `z.email()` at top level
 - Custom `errorMap` in Zod v4: replaced by unified `error` parameter
 - Jest with Babel transform for TypeScript: replaced by Vitest with native Vite/SWC transform
@@ -681,7 +690,7 @@ export default defineConfig({
 - Dell PowerSwitch S5200-ON Series Spec Sheet (via netsolutionworks.com reseller): S5248F-ON confirmed 48 × 25GbE SFP28 + 4 × 100GbE QSFP28 + 2 × 100GbE QSFP28-DD; max power 647W
 - Multiple Dell-authorized reseller listings (networktigers.com, networkhardwares.com, harddiskdirect.com): S5248F-ON specs cross-verified consistently
 - Dell PowerSwitch S5232F-ON Spec (uvation.com marketplace, networkhardwares.com): 32 × 100GbE QSFP28 + 2 × 10GbE SFP+; max power 635W; 3.2 Tbps confirmed
-- Dell PowerSwitch S3248T-ON official spec sheet URL: https://www.delltechnologies.com/asset/en-us/products/networking/technical-support/dell-powerswitch-s3248t-on-spec-sheet.pdf (found via search); 48 × 1GbE RJ45 + 4 × 10GbE SFP+ + 2 × 100GbE QSFP28 confirmed
+- Dell PowerSwitch S3248T-ON official spec sheet URL: <https://www.delltechnologies.com/asset/en-us/products/networking/technical-support/dell-powerswitch-s3248t-on-spec-sheet.pdf> (found via search); 48 × 1GbE RJ45 + 4 × 10GbE SFP+ + 2 × 100GbE QSFP28 confirmed
 - Zod v4 release notes (zod.dev/v4): discriminated union, `z.infer`, unified `error` parameter confirmed
 - Vitest Getting Started (vitest.dev/guide): `environment: 'node'`, `globals: true`, `.test.ts` naming convention confirmed
 
@@ -699,6 +708,7 @@ export default defineConfig({
 ## Metadata
 
 **Confidence breakdown:**
+
 - Hardware specs (catalog constants): HIGH — port counts verified from multiple independent sources
 - Sizing formulas: HIGH — standard Clos fabric math cross-referenced with Dell and Juniper design guides in prior research
 - Zod v4 API: HIGH — official docs fetched and verified

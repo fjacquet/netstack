@@ -63,6 +63,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 **Goal:** Add Fibre Channel SAN sizing with Brocade Gen7/Gen8 switch catalog, and allow ToR/MoR/BoR switch positioning in the existing Ethernet mode.
 
 **Target features:**
+
 - Fibre Channel SAN sizing mode with Brocade Gen7 (64G) and Gen8 (128G) switch catalogs (GH #1)
 - Mode selector: Ethernet OR Fibre Channel (mutually exclusive)
 - FC-specific input form, BOM output, dual-fabric topology diagram

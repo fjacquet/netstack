@@ -22,6 +22,7 @@ for the new `ServerDevice` component. The rendering change in `RackFrame` is the
 structurally novel work.
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -256,7 +257,7 @@ collisions.
 ### Anti-Patterns to Avoid
 
 - **Dynamic Tailwind class composition:** Do not write `className={\`h-[\${n * 44}px]\`}`.
-  JIT will not generate those classes. Use a static lookup map or inline `style={}`.
+  JIT will not generate those classes. Use a static lookup map or inline`style={}`.
 - **Recalculating rackSizeU in the engine:** `rackSizeU` is already on line 72 of `sizing.ts`.
   Reuse it.
 - **Making server slots draggable:** UI-SPEC explicitly prohibits drag for servers in v1.

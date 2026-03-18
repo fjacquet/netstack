@@ -23,5 +23,6 @@ Created `src/features/sizing/InputForm.test.tsx` with 15 test cases covering all
 | General | renders all section headings; renders reset button |
 
 ## Verification
+
 - 15 new tests pass
 - Full suite: 204 tests (189 + 15), 0 failures

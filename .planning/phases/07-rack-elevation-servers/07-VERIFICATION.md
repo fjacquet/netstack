@@ -40,6 +40,7 @@ Previous status: human_needed (12/12 automated, 5 human items pending)
 Current status: human_needed (12/12 automated, same 5 human items still pending)
 
 Regression check results:
+
 - All 12 automated must-haves: PASS (no regressions)
 - Full test suite: 223 tests, 0 failures
 - TypeScript: compiles clean (exit 0)
@@ -134,7 +135,7 @@ No blocker or warning anti-patterns found.
 
 #### 1. Server Slot Visual Rendering (ELEV-01)
 
-**Test:** Start `npx vite dev`, open http://localhost:5173, navigate to "Rack Elevation" tab.
+**Test:** Start `npx vite dev`, open <http://localhost:5173>, navigate to "Rack Elevation" tab.
 **Expected:** Amber-colored server slots labeled "Server 1", "Server 2", etc. appear above OOB (U1), Leaf B (U2), Leaf A (U3) switch devices. Servers are not draggable.
 **Why human:** Amber HSL color, slot stacking order, and non-draggable behavior cannot be confirmed without a rendered browser view.
 

@@ -14,6 +14,7 @@ Fill the Topology, Rack Elevation, and Export tabs with functional content. Add 
 ## Implementation Decisions
 
 ### Topology diagram
+
 - Tree-style vertical layout: spines at root (top), leafs as branches (middle), rack/server nodes as leaves (bottom)
 - Deterministic positioning: same inputs always produce the same node positions
 - Fully interactive: click for details (port info popover), drag to rearrange, pan and zoom
@@ -21,10 +22,12 @@ Fill the Topology, Rack Elevation, and Export tabs with functional content. Add 
 - VLT links shown between leaf pairs (dashed or distinct style)
 
 ### Topology edges
+
 - Claude's discretion on edge style (straight vs bezier, color coding by cable type)
 - Must be readable at different deployment scales (2 racks vs 20+ racks)
 
 ### Rack elevation view
+
 - Vertical orientation: classic rack diagram with U-slots numbered bottom-to-top (U1 at bottom)
 - One rack at a time with a dropdown/tab selector (rack summary in selector)
 - Device colors: fill = role color (leaf=blue, spine=purple, OOB=gray), border glow = utilization color (green/amber/red)
@@ -32,17 +35,20 @@ Fill the Topology, Rack Elevation, and Export tabs with functional content. Add 
 - Rack view updates automatically when sizing inputs change
 
 ### Export formats
+
 - Claude's discretion on CSV column structure and PDF report layout
 - PDF must include BOM summary, sizing inputs, and topology diagram
 - PDF generated with @react-pdf/renderer (lazy-loaded per CLAUDE.md)
 - Print (Ctrl+P) must render clean layout with no navigation chrome
 
 ### Documentation
+
 - Claude's discretion on depth/format for ARD, PRD, User Guide, and Changelog
 - ARD was deferred from Phase 2 — describes four-layer architecture, data flow, pure-function engine contract
 - All docs presumably in docs/ folder as Markdown
 
 ### Claude's Discretion
+
 - Edge styling for topology (straight vs bezier, color coding)
 - CSV column ordering and naming
 - PDF report sections, branding, and layout
@@ -53,6 +59,7 @@ Fill the Topology, Rack Elevation, and Export tabs with functional content. Add 
 </decisions>
 
 <canonical_refs>
+
 ## Canonical References
 
 **Downstream agents MUST read these before planning or implementing.**
@@ -62,9 +69,11 @@ No external specs — requirements fully captured in decisions above and in REQU
 </canonical_refs>
 
 <code_context>
+
 ## Existing Code Insights
 
 ### Reusable Assets
+
 - `src/store/resultStore.ts`: `useResultStore` — provides full `NetworkBOM` with all fields (switches, cables, SFPs, VLT, oversubscription, violations)
 - `src/store/inputStore.ts`: `useInputStore` — provides current `SizingInput` for export metadata
 - `src/domain/catalog/hardware.ts`: `SWITCH_CATALOG` — switch specs for rack elevation device sizing
@@ -73,6 +82,7 @@ No external specs — requirements fully captured in decisions above and in REQU
 - `src/components/theme-provider.tsx`: ThemeProvider with dark mode — topology and rack views must respect theme
 
 ### Established Patterns
+
 - `@xyflow/react` for topology diagrams (per CLAUDE.md — not deprecated `reactflow`)
 - `@react-pdf/renderer` for PDF (per CLAUDE.md — must be lazy-loaded)
 - Zustand stores with `useShallow` selectors for React component consumption
@@ -80,6 +90,7 @@ No external specs — requirements fully captured in decisions above and in REQU
 - Technical terms (model names, DAC, QSFP28, etc.) stay in English regardless of locale
 
 ### Integration Points
+
 - Topology tab: replace `PlaceholderTab` in `App.tsx` tabs
 - Rack Elevation tab: replace `PlaceholderTab` in `App.tsx` tabs
 - Export tab: replace `PlaceholderTab` in `App.tsx` tabs

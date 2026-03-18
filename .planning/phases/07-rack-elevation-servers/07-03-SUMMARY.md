@@ -22,6 +22,7 @@ completed: 2026-03-18
 ## Fix Applied During Checkpoint
 
 Renamed "Backend Ports per Server" → **"OOB Ports per Server"** across all 4 locales.
+
 - "backend" is storage/SAN terminology, not OOB management
 - Help text updated to: "Out-of-band management ports (OOB switch-facing)"
 - Section heading changed: "Server Connectivity" → "Server Port Counts"

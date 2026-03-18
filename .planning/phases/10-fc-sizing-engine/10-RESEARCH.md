@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -32,6 +33,7 @@ The primary implementation challenge is the ISL formula, which must be derived f
 ## Standard Stack
 
 ### Core
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | Vitest | (project) | Unit testing pure functions | Already configured; zero-value stub tests pass in Phase 9 |
@@ -39,6 +41,7 @@ The primary implementation challenge is the ISL formula, which must be derived f
 | TypeScript strict | (project) | Type checking across engine and catalog | Project requires `no any`; `as const satisfies` pattern in brocade.ts |
 
 ### Supporting
+
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | `FC_SWITCH_CATALOG` from `brocade.ts` | (internal) | All port counts and POD fields | All port arithmetic references catalog fields, never inline numbers |
@@ -51,6 +54,7 @@ The primary implementation challenge is the ISL formula, which must be derived f
 ## Architecture Patterns
 
 ### Recommended File Structure (this phase only)
+
 ```
 src/
 └── domain/
@@ -64,6 +68,7 @@ No other files change in Phase 10.
 ### Pattern 1: Five-Step Pure Function Structure
 
 **What:** The engine follows the same five-step structure as `calculateBOM()` in `sizing.ts`:
+
 1. Resolve catalog entry (`FC_SWITCH_CATALOG[input.fcSwitchModel]`)
 2. Compute per-fabric port demand (host ports + storage ports + ISL reservation)
 3. Compute switch count via effective ports (basePorts + POD units needed)
@@ -73,6 +78,7 @@ No other files change in Phase 10.
 **When to use:** Always — this is the established engine pattern in the project.
 
 **Example:**
+
 ```typescript
 // Source: src/domain/engine/sizing.ts — adapted for FC
 import { FC_SWITCH_CATALOG, FC_OPTICS_CATALOG } from '../catalog/brocade';
@@ -110,6 +116,7 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
 **When to use:** For every fixed-port switch (G710, G720, G730, G820). Directors (`podLicenseUnit === 0`) use `totalPorts` directly.
 
 **Formula:**
+
 ```typescript
 function computeEffectivePorts(
   portsNeededPerSwitch: number,
@@ -138,6 +145,7 @@ function computeEffectivePorts(
 **What:** ISL count is derived from the bandwidth relationship between host ports and storage ports at the target fan-in ratio. This is NOT the same as Ethernet uplink count (`leafSwitches × activeUplinksPerLeaf`).
 
 **Formula (from Broadcom SAN Design Guide, Nov 2025):**
+
 ```typescript
 function calculateIslCount(
   hostPortsPerFabric: number,
@@ -167,6 +175,7 @@ Simplified to: `hostPortsPerFabric / islCount`. Values >7 flag `FC_ISL_UNDERPROV
 **When to use:** Always. The dual-fabric model is symmetrical by design — Fabric A and B are identical.
 
 **Test assertion to include:**
+
 ```typescript
 it('fabricBSwitches always equals fabricASwitches', () => {
   const result = calculateFCBOM(makeInput());
@@ -179,6 +188,7 @@ it('fabricBSwitches always equals fabricASwitches', () => {
 **What:** `fcOpticsCount` is 2 × total cable link count (one optic at each end of every fiber link). Total links = (host + storage + ISL cables per fabric) × 2 fabrics.
 
 **Formula:**
+
 ```typescript
 const totalLinksPerFabric = hostPortsPerFabric + storagePortsPerFabric + islPortsPerFabric;
 const fcOpticsCount = totalLinksPerFabric * 2 * 2; // 2 optics/cable × 2 fabrics
@@ -189,6 +199,7 @@ The specific optics SKU is implied by `SW.speedGbps` (32G→SFP28, 64G→SFP+, 1
 ### Pattern 6: Violation Severity Classification
 
 **What:** `fanInRatio` is always returned in the BOM. Severity classification (ok/warning/critical) is derived from the ratio value:
+
 - ok: fanInRatio ≤ 7
 - warning: 7 < fanInRatio ≤ 10
 - critical: fanInRatio > 10
@@ -223,29 +234,34 @@ The violation `FC_OVERSUBSCRIPTION_EXCEEDED` fires when `fanInRatio > 7`. The se
 ## Common Pitfalls
 
 ### Pitfall 1: ISL Formula Copied From Ethernet Uplink Multiplier
+
 **What goes wrong:** ISL count computed as `switchCount × islPortsPerSwitch` (Ethernet pattern) rather than bandwidth fan-in ratio. Produces a BOM with 4× too many ISLs in small fabrics and too few in large ones.
 **Why it happens:** The Ethernet `effectiveUplinks × leafSwitches` formula is immediately visible in `sizing.ts` and feels analogous.
 **How to avoid:** Implement `calculateIslCount()` as a standalone helper function with explicit `hostPortsPerFabric`, `storagePortsPerFabric`, `switchSpeedGbps`, and `targetFanIn` parameters. Function signature makes the intent unambiguous.
 **Warning signs:** ISL count grows with `switchCount` rather than with `hostPortsPerFabric / targetFanIn`.
 
 ### Pitfall 2: Using `totalPorts` Instead of Effective Ports for Switch Count
+
 **What goes wrong:** `switchCount = ceil(portsNeeded / SW.totalPorts)`. Customer receives a BOM with switches that arrive with only `basePorts` active and no POD license line item.
 **Why it happens:** `totalPorts` is the most visible field in the catalog entry.
 **How to avoid:** Always go through `computeEffectivePorts()` helper. The switch count division uses `effectivePorts`, not `totalPorts`. The POD license output is derived from the delta.
 **Warning signs:** `podLicensesRequired` returns 0 for any G720 or G730 deployment.
 
 ### Pitfall 3: `podLicensesRequired` as Per-Switch Count Rather Than Total
+
 **What goes wrong:** `podLicensesRequired = podsPerSwitch` rather than `podsPerSwitch × totalSwitches × 2` (both fabrics). Customer's procurement order is short by a factor of switch count.
 **Why it happens:** The per-switch calculation is what the formula naturally produces first.
 **How to avoid:** Final BOM assembly multiplies by `fabricASwitches × 2` (both fabrics). Add a test with a multi-switch fabric that validates the total.
 
 ### Pitfall 4: ISL Port Reservation Not Subtracted From Device Ports
+
 **What goes wrong:** Engine calculates `switchCount = ceil(hostPorts + storagePorts / SW.effectivePorts)` without reserving ISL ports first. Each switch is over-committed — some ports assigned to hosts are actually needed for ISL links.
 **Why it happens:** ISL ports and device ports seem separable conceptually, but they come from the same physical port pool on fixed switches (unlike directors which have separate ISL routing blades).
 **How to avoid:** Per-switch device ports = `effectivePorts - input.islPortsPerSwitch`. The schema already carries `islPortsPerSwitch` (default 4) for this purpose.
 **Warning signs:** Engine ignores `input.islPortsPerSwitch`.
 
 ### Pitfall 5: hbaPortsPerServer Distributed Unevenly
+
 **What goes wrong:** `hostPortsPerFabric = totalServers × hbaPortsPerServer` (all HBAs to one fabric). Correct formula splits HBAs evenly: `hostPortsPerFabric = totalServers × floor(hbaPortsPerServer / 2)`.
 **Why it happens:** The input schema name `hbaPortsPerServer` sounds like "total per server," not "split across 2 fabrics."
 **How to avoid:** Use `floor(hbaPortsPerServer / 2)` explicitly. With default `hbaPortsPerServer=2`, this gives 1 HBA port per fabric per server (standard dual-fabric deployment).
@@ -258,6 +274,7 @@ The violation `FC_OVERSUBSCRIPTION_EXCEEDED` fires when `fanInRatio > 7`. The se
 Verified patterns from the existing codebase and Broadcom SAN Design Guide:
 
 ### Engine Entry Point Skeleton
+
 ```typescript
 // src/domain/engine/fc-sizing.ts
 import { FC_SWITCH_CATALOG } from '../catalog/brocade';
@@ -307,6 +324,7 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
 ```
 
 ### Test Helper Pattern (from sizing.test.ts)
+
 ```typescript
 // Source: src/domain/engine/sizing.test.ts — adapted for FC
 import { describe, it, expect } from 'vitest';
@@ -329,6 +347,7 @@ function makeInput(overrides: Partial<FCSizingInput> = {}): FCSizingInput {
 ```
 
 ### ISL Oversubscription Check (from fc-bom.ts schema + Broadcom guide)
+
 ```typescript
 // Violation fires when fan-in exceeds Broadcom 7:1 recommendation
 if (fanInRatio > FC_FAN_IN_MAX) {
@@ -351,6 +370,7 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 | Phase 9 zero-value stub | Real implementation (this phase) | Phase 10 | All downstream consumers (store, BOM panel, export) receive correct data |
 
 **Deprecated/outdated:**
+
 - Phase 9 stub return values (all zeros): Every field except `input` and `violations:[]` must produce correct computed values after Phase 10.
 
 ---
@@ -372,6 +392,7 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 ## Validation Architecture
 
 ### Test Framework
+
 | Property | Value |
 |----------|-------|
 | Framework | Vitest (project-configured) |
@@ -380,6 +401,7 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 | Full suite command | `npx vitest run` |
 
 ### Phase Requirements → Test Map
+
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
 | FC-05 | fabricASwitches equals fabricBSwitches for any input | unit | `npx vitest run src/domain/engine/fc-sizing.test.ts` | ❌ Wave 0 |
@@ -396,11 +418,13 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 | FC-05/06 | podLicensesRequired > 0 for G720 with 40 servers (exceeds basePorts) | unit | `npx vitest run src/domain/engine/fc-sizing.test.ts` | ❌ Wave 0 |
 
 ### Sampling Rate
+
 - **Per task commit:** `npx vitest run src/domain/engine/fc-sizing.test.ts`
 - **Per wave merge:** `npx vitest run`
 - **Phase gate:** Full suite green before `/gsd:verify-work`
 
 ### Wave 0 Gaps
+
 - [ ] `src/domain/engine/fc-sizing.test.ts` — covers all FC-05 through FC-08 requirements
 - [ ] Shared `makeInput()` helper inside `fc-sizing.test.ts` (same self-contained pattern as `sizing.test.ts`)
 
@@ -411,20 +435,23 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/domain/catalog/brocade.ts` — FC_SWITCH_CATALOG with all 9 models, POD fields, maxIslPorts
 - `src/domain/catalog/fc-types.ts` — FCSwitchSpec and FCOpticsSpec interfaces
 - `src/domain/schemas/fc-input.ts` — FCSizingInputSchema (locked input contract)
 - `src/domain/schemas/fc-bom.ts` — FCNetworkBOMSchema, FCConstraintViolationSchema (locked output contract)
 - `src/domain/engine/sizing.ts` — reference implementation pattern for pure engine structure
 - `src/domain/engine/fc-sizing.ts` — Phase 9 stub to be replaced
-- Broadcom SAN Design and Best Practices (Nov 2025): https://docs.broadcom.com/doc/53-1004781 — ISL formula, 7:1 fan-in recommendation
-- Broadcom G720 Product Brief: https://docs.broadcom.com/doc/G720-Switch-PB — POD licensing model
+- Broadcom SAN Design and Best Practices (Nov 2025): <https://docs.broadcom.com/doc/53-1004781> — ISL formula, 7:1 fan-in recommendation
+- Broadcom G720 Product Brief: <https://docs.broadcom.com/doc/G720-Switch-PB> — POD licensing model
 
 ### Secondary (MEDIUM confidence)
+
 - `.planning/research/FEATURES.md` — FC sizing formulas section, verified against Broadcom guide
 - `.planning/research/PITFALLS.md` — ISL formula pitfall, POD licensing pitfall, dual-fabric topology pitfall
 
 ### Tertiary (LOW confidence)
+
 - None. All critical implementation details verified from primary sources (codebase + official Broadcom docs).
 
 ---
@@ -432,6 +459,7 @@ if (fanInRatio > FC_FAN_IN_MAX) {
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — no new libraries; all tooling already in use
 - Architecture: HIGH — schemas and catalog already complete; engine structure follows established `calculateBOM()` pattern
 - FC formulas (dual-fabric split, POD model): HIGH — modeled in catalog and schema from Phase 8; confirmed against Broadcom docs

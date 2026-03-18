@@ -52,6 +52,7 @@ Implemented fcInputStore and fcResultStore — the parallel FC Zustand store pai
 ## What Was Built
 
 **fcInputStore** (`src/store/fcInputStore.ts`):
+
 - Zustand persist store for FC sizing inputs
 - Storage key: `netstack-fc-input`, version 1
 - `lazyLocalStorageFC` adapter reads `window.localStorage` at call time (not module load)
@@ -60,6 +61,7 @@ Implemented fcInputStore and fcResultStore — the parallel FC Zustand store pai
 - Zero imports from Ethernet store layer (strict isolation)
 
 **fcResultStore** (`src/store/fcResultStore.ts`):
+
 - Zustand store (non-persisted) for FC BOM output
 - Module-level `useFCInputStore.subscribe(...)` outside React lifecycle
 - Initial computation on module load seeds the store
@@ -79,6 +81,7 @@ Implemented fcInputStore and fcResultStore — the parallel FC Zustand store pai
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Node 25 WebStorage overrides jsdom localStorage prototype**
+
 - **Found during:** Task 1 verification (test 4 — persist under key netstack-fc-input)
 - **Issue:** Node 25 activates `--experimental-webstorage` by default, overriding `window.localStorage` with a built-in object that lacks `getItem/setItem` prototype methods. jsdom's Storage implementation was being shadowed, causing `TypeError: window.localStorage.getItem is not a function` in all jsdom test environments.
 - **Fix 1:** Added `environmentOptions: { jsdom: { url: 'http://localhost/' } }` to `vite.config.ts` test section. Ensures jsdom initializes with a full Window context.

@@ -94,6 +94,7 @@ No blocking or warning anti-patterns found. The single `return null` at line 92 
 ### Commit Verification
 
 All four commits from SUMMARY files confirmed present in git history:
+
 - `16b7e9e` — feat(03-01): install shadcn table, alert, tooltip, progress components
 - `45156ba` — feat(03-01): add TooltipProvider to App.tsx and populate BOM i18n keys
 - `774ad37` — feat(03-02): implement BOMPanel component with TDD

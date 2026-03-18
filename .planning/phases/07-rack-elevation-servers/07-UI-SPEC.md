@@ -43,6 +43,7 @@ Declared values (multiples of 4 only). No changes from previous phases.
 | 3xl | 64px | Page-level spacing |
 
 Exceptions:
+
 - Rack U-slot row height: 44px (h-11) — existing pattern from RackFrame.tsx, matches touch target minimum. Keep as-is.
 - Rack device inner content: 40px (h-10) — 4px clearance from slot row boundary. Keep as-is.
 - 1U server slot height: 44px — matches existing h-11 U-slot row, consistent with switch rendering.
@@ -95,6 +96,7 @@ Role color map for device slots (existing pattern from `RackDevice.tsx`, extende
 | `server` (NEW) | `hsl(25 95% 80%)` | `hsl(25 95% 28%)` — amber/orange |
 
 Rack overflow indicator (ELEV-03 visual state):
+
 - Rack frame outer border: changes from `border-border` to `border-destructive` when RACK_CAPACITY_EXCEEDED violation is present for the currently-selected rack.
 - Overflow indicator strip: 4px solid red bar at the bottom of the last rack slot (inside the rack frame), labeled with overflow U-count.
 - No background color change on individual slots — border change on the frame is sufficient.
@@ -127,6 +129,7 @@ Source: `RackDevice.tsx` (role color pattern), `BOMPanel.tsx` (destructive varia
 ### RackDevice type extension
 
 Add `uHeight: number` field to `RackDevice` type in `types.ts`:
+
 ```
 uHeight: number  // default 1 for all switches; configurable 1/2/4/8 for servers
 ```
@@ -157,6 +160,7 @@ Help text: none (self-explanatory)
 ### ELEV-01: Server slot rendering
 
 Servers are rendered inside `buildRackDevices()` above the switch devices (U4 and up):
+
 - Default placement: U4 = first server group start (U1=OOB, U2=Leaf B, U3=Leaf A).
 - One `ServerDevice` per server, stacked upward from U4.
 - Each `ServerDevice` occupies `uHeight` consecutive U-slots. The rack frame must skip those slot numbers.
@@ -258,6 +262,7 @@ No third-party registries. All components are shadcn official or custom-built.
 ### Q5: Overflow behavior
 
 When total device U-height (all servers + 3 switches) exceeds `rackSize`:
+
 1. Rack frame outer border: `border-destructive` (4px red border, replacing neutral `border-border`).
 2. Overflow strip: 4px tall red bar at the bottom of the slot list, labeled "+Xu overflow".
 3. BOM panel: destructive Alert with title + contextual body copy (rack number, used U, total U).

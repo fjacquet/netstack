@@ -5,6 +5,7 @@
 **Confidence:** HIGH
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -77,6 +78,7 @@ src/
 **When to use:** Required for jsdom test compatibility. Accessing `window.localStorage` at module load time fails in Node test environments. The lazy pattern defers access until `getItem`/`setItem` is called.
 
 **Example:**
+
 ```typescript
 // Source: src/store/inputStore.ts (verbatim pattern to replicate)
 import type { PersistStorage, StorageValue } from 'zustand/middleware'
@@ -117,6 +119,7 @@ const lazyLocalStorageFC: PersistStorage<FCInputState> = {
 **When to use:** Every time user changes FC inputs. The store is read by FCInputForm (Phase 12) and subscribed to by fcResultStore.
 
 **Example:**
+
 ```typescript
 // Source: architecture pattern from ARCHITECTURE.md + inputStore.ts structure
 import { create } from 'zustand'
@@ -166,6 +169,7 @@ export const useFCInputStore = create<FCInputState>()(
 **When to use:** This is the only correct pattern for derived result stores in this codebase. Component-level subscriptions via `useEffect` would leave the result store stale before first render.
 
 **Example:**
+
 ```typescript
 // Source: src/store/resultStore.ts (verbatim pattern)
 import { create } from 'zustand'
@@ -208,6 +212,7 @@ try {
 **When to use:** Phase 9 scope is store layer only. A `ModeSelector` component is deferred to Phase 12. Phase 9 only needs to validate the mode concept through tests.
 
 **Example:**
+
 ```typescript
 // Future pattern (Phase 12) — referenced here for store design context
 const [mode, setMode] = useState<'ethernet' | 'fc'>('ethernet')
@@ -247,6 +252,7 @@ const [mode, setMode] = useState<'ethernet' | 'fc'>('ethernet')
 **How to avoid:** The key `netstack-fc-input` is the required value. Unit test: after initializing both stores and mutating fcInputStore, `window.localStorage.getItem('netstack-input')` must not contain any FC fields.
 
 **Warning signs:**
+
 - `persist({ name: 'netstack-input' })` in fcInputStore.ts — caught immediately by the isolation test
 
 ### Pitfall 2: `calculateFCBOM` Not Available Before Phase 10
@@ -416,6 +422,7 @@ export function calculateFCBOM(_input: FCSizingInput): FCNetworkBOM {
 | Zustand v5: initial state auto-written to storage | Zustand v5: initial state NOT auto-written | Zustand 5.0.0 | Store starts blank in localStorage until first explicit user mutation; `merge` fallback handles cold start correctly |
 
 **Deprecated/outdated:**
+
 - `createJSONStorage(() => localStorage)`: Works in Zustand v5 but the `lazyLocalStorage` pattern is used project-wide for jsdom compatibility — do not introduce `createJSONStorage` in new stores.
 
 ---
@@ -498,6 +505,7 @@ export function calculateFCBOM(_input: FCSizingInput): FCNetworkBOM {
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — exact versions confirmed from package.json; all libraries already in use
 - Architecture: HIGH — patterns verified against existing inputStore/resultStore implementations; locked decisions from STATE.md
 - Pitfalls: HIGH — Pitfall 5 from PITFALLS.md directly addresses this phase; additional pitfalls derived from reading actual store code

@@ -46,10 +46,12 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 ## Phase Details
 
 ### Phase 8: FC Catalog and Schema Foundation
+
 **Goal**: FC hardware specifications and type system exist as pure TypeScript — verified by unit tests before any UI is written
 **Depends on**: Phase 7 (project foundation established)
 **Requirements**: FC-01, FC-02, FC-03, FC-04
 **Success Criteria** (what must be TRUE):
+
   1. All 9 Brocade switch models (G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8) exist in FC_SWITCH_CATALOG with correct port counts, speeds, and form factors
   2. Every switch entry models both basePorts and totalPorts with a podLicenseUnit increment, reflecting the real POD licensing model
   3. FCSizingInputSchema and FCNetworkBOMSchema are defined with Zod v4 and all TypeScript types are derived via z.infer — no separately declared types
@@ -58,14 +60,17 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 **Plans**: 2 plans
 
 Plans:
+
 - [ ] 08-01-PLAN.md — FCSwitchSpec/FCOpticsSpec interfaces and FC_SWITCH_CATALOG/FC_OPTICS_CATALOG catalog constants with TDD tests
 - [ ] 08-02-PLAN.md — FCSizingInputSchema and FCNetworkBOMSchema Zod schemas with TDD tests
 
 ### Phase 9: Mode Store Isolation
+
 **Goal**: Ethernet and FC stores occupy separate localStorage keys with independent schemas — switching modes never corrupts the other mode's persisted data
 **Depends on**: Phase 8
 **Requirements**: FC-09
 **Success Criteria** (what must be TRUE):
+
   1. fcInputStore persists to key `netstack-fc-input` (v1) and fcResultStore is derived from it — neither key appears in the Ethernet store's schema
   2. A Vitest test confirms that mutating fcInputStore leaves the Ethernet inputStore state byte-for-byte unchanged, and vice versa
   3. Mode state (ethernet vs fc) is documented as ephemeral component state — not persisted to localStorage — preventing stale mode on reload
@@ -73,14 +78,17 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
+
 - [ ] 09-01-PLAN.md — FC sizing engine stub + test scaffolding (RED phase): fc-sizing.ts, fcInputStore.test.ts, fcResultStore.test.ts, store-isolation.test.ts
 - [ ] 09-02-PLAN.md — FC store implementations (GREEN phase): fcInputStore.ts and fcResultStore.ts turn all 11 isolation tests green
 
 ### Phase 10: FC Sizing Engine
+
 **Goal**: calculateFCBOM() is a verified pure function that produces correct dual-fabric BOM output for any valid FC input — fully tested before any UI consumes it
 **Depends on**: Phase 9
 **Requirements**: FC-05, FC-06, FC-07, FC-08
 **Success Criteria** (what must be TRUE):
+
   1. Given any server count and HBA configuration, the engine returns switch counts for both Fabric A and Fabric B (always equal, always doubled)
   2. ISL count is calculated from the host-to-storage fan-in ratio (Broadcom 7:1 default), not from the Ethernet uplink multiplier formula
   3. The FC BOM output includes podLicensesRequired as a first-class field (not a footnote) whenever the switch's basePorts is less than the ports required
@@ -89,14 +97,17 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
+
 - [ ] 10-01-PLAN.md — Write failing test suite for calculateFCBOM() (TDD RED phase)
 - [ ] 10-02-PLAN.md — Implement calculateFCBOM() to pass all tests (TDD GREEN phase)
 
 ### Phase 11: Switch Positioning (Ethernet)
+
 **Goal**: Ethernet mode users can select ToR, MoR, or BoR switch placement and see accurate cable length advisories and correct rack elevation rendering
 **Depends on**: Phase 7
 **Requirements**: POS-01, POS-02, POS-03, POS-04
 **Success Criteria** (what must be TRUE):
+
   1. A switch position selector (ToR / MoR / BoR) appears in the Ethernet input form with ToR as the default, and the selection persists across page reloads
   2. Rack elevation renders switches at the correct U-position: ToR switches appear at the top of the server rack, MoR/BoR switches appear in a separate dedicated network rack column
   3. Estimated cable run length in the BOM updates based on switch position (MoR and BoR produce longer estimated runs than ToR)
@@ -104,10 +115,12 @@ Plans:
 **Plans**: TBD
 
 ### Phase 12: FC Input and BOM UI
+
 **Goal**: Users can switch to Fibre Channel mode, enter FC sizing inputs, and see a complete FC BOM with per-fabric counts and POD license requirements
 **Depends on**: Phase 10
 **Requirements**: FC-10, FC-11
 **Success Criteria** (what must be TRUE):
+
   1. A mode selector toggle at the app level switches between Ethernet and Fibre Channel views — only one subtree renders at a time, never both simultaneously
   2. In FC mode, a dedicated input form accepts HBA ports per server, storage target ports, FC switch model selection, and preferred generation
   3. The FC BOM panel displays per-fabric switch counts (Fabric A and Fabric B separately), ISL cable count, SFP optics quantities, and fan-in oversubscription ratio
@@ -116,10 +129,12 @@ Plans:
 **Plans**: TBD
 
 ### Phase 13: FC Topology Diagram
+
 **Goal**: FC mode users see a dual-fabric topology diagram where Fabric A and Fabric B are visually independent, color-coded, and structurally isolated
 **Depends on**: Phase 12
 **Requirements**: FC-12
 **Success Criteria** (what must be TRUE):
+
   1. The FC topology tab renders two independent ReactFlow canvas instances — one for Fabric A (blue) and one for Fabric B (orange) — each wrapped in its own ReactFlowProvider
   2. No edges cross between Fabric A nodes and Fabric B nodes in the rendered diagram — cross-fabric edges are architecturally impossible in buildFCTopologyGraph output
   3. The FC topology view is accessible via the existing tab navigation and does not break the Ethernet topology tab
@@ -127,10 +142,12 @@ Plans:
 **Plans**: TBD
 
 ### Phase 14: FC Export
+
 **Goal**: CSV and PDF exports include complete FC BOM data — switches, optics, ISLs, and POD licenses — clearly separated from Ethernet BOM sections
 **Depends on**: Phase 13
 **Requirements**: FC-13, FC-14
 **Success Criteria** (what must be TRUE):
+
   1. In FC mode, CSV export contains dedicated Fabric A and Fabric B sections with switch, optic, ISL, and POD license rows — none of these rows appear in an Ethernet mode export
   2. In FC mode, the PDF report includes an FC BOM page with dual-fabric totals, switch model, port utilization, and oversubscription ratio
   3. FC optics appear in the export with a Protocol column value of "FC" (not "Ethernet") — preventing procurement confusion between SFP28 FC and SFP28 Ethernet transceivers

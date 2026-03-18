@@ -116,6 +116,7 @@ metrics:
 ### i18n Keys — All 4 Locales (Task 3)
 
 12 new keys added to `sizing`, `rack`, and `bom` namespaces:
+
 - `sizing`: `serverUHeight`, `selectServerUHeight`, `uHeight1U`, `uHeight2U`, `uHeight4U`, `uHeight8U`
 - `rack`: `serverLabel`, `capacityWithin`, `capacityExceeded`, `overflowStrip`
 - `bom`: `violationRackCapacityTitle`, `violationRackCapacityBody`
@@ -125,6 +126,7 @@ metrics:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Existing test count assertion updated for new behavior**
+
 - **Found during:** Task 1 GREEN phase
 - **Issue:** Test "returns exactly 3 devices for rack 0" assumed no server entries; after implementation, 16 servers at 1U produces 19 devices (3 switches + 16 servers)
 - **Fix:** Updated test description and expectation to `toHaveLength(19)` with explanatory comment
@@ -132,6 +134,7 @@ metrics:
 - **Commit:** 60d9df2
 
 **2. [Rule 2 - Missing field] Added serverUHeight to 6 test mock inputs**
+
 - **Found during:** Task 3 TypeScript check
 - **Issue:** `serverUHeight` is now required on `SizingInput` (Zod enum with default); 6 test files had inline mock objects without the new field causing TS2741 errors
 - **Fix:** Added `serverUHeight: '1U'` to all affected mock input objects in BOMPanel.test.tsx, InputForm.test.tsx, resultStore.test.ts, exportCsv.test.ts, exportPdf.test.ts, buildTopologyGraph.test.ts
@@ -147,10 +150,12 @@ metrics:
 ## Self-Check
 
 Files created:
+
 - [x] src/features/rack-elevation/ServerDevice.tsx — contains `hsl(25_95%` (amber)
 - [x] src/features/rack-elevation/RackCapacityBadge.tsx — exists, >= 10 lines
 
 Files modified:
+
 - [x] src/features/rack-elevation/utils/buildRackDevices.ts — contains `role: 'server'`, `uHeight`
 - [x] src/features/rack-elevation/RackFrame.tsx — contains `coveredSlots`, `ServerDevice`, `overflow`, `border-destructive`
 - [x] src/features/rack-elevation/RackElevationTab.tsx — contains `usedU`, `RackCapacityBadge`
@@ -162,6 +167,7 @@ Files modified:
 - [x] src/i18n/locales/it/translation.json — contains `serverUHeight`
 
 Commits verified:
+
 - [x] 4412066 — RED tests
 - [x] 60d9df2 — GREEN buildRackDevices
 - [x] 563a855 — ServerDevice, RackCapacityBadge, RackFrame, RackElevationTab

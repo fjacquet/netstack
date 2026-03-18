@@ -7,11 +7,13 @@
 ---
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 **Topology diagram**
+
 - Tree-style vertical layout: spines at root (top), leafs as branches (middle), rack/server nodes as leaves (bottom)
 - Deterministic positioning: same inputs always produce the same node positions
 - Fully interactive: click for details (port info popover), drag to rearrange, pan and zoom
@@ -19,10 +21,12 @@
 - VLT links shown between leaf pairs (dashed or distinct style)
 
 **Topology edges**
+
 - Claude's discretion on edge style (straight vs bezier, color coding by cable type)
 - Must be readable at different deployment scales (2 racks vs 20+ racks)
 
 **Rack elevation view**
+
 - Vertical orientation: classic rack diagram with U-slots numbered bottom-to-top (U1 at bottom)
 - One rack at a time with a dropdown/tab selector (rack summary in selector)
 - Device colors: fill = role color (leaf=blue, spine=purple, OOB=gray), border glow = utilization color (green/amber/red)
@@ -30,17 +34,20 @@
 - Rack view updates automatically when sizing inputs change
 
 **Export formats**
+
 - Claude's discretion on CSV column structure and PDF report layout
 - PDF must include BOM summary, sizing inputs, and topology diagram
 - PDF generated with @react-pdf/renderer (lazy-loaded per CLAUDE.md)
 - Print (Ctrl+P) must render clean layout with no navigation chrome
 
 **Documentation**
+
 - Claude's discretion on depth/format for ARD, PRD, User Guide, and Changelog
 - ARD was deferred from Phase 2 — describes four-layer architecture, data flow, pure-function engine contract
 - All docs in docs/ folder as Markdown
 
 ### Claude's Discretion
+
 - Edge styling for topology (straight vs bezier, color coding)
 - CSV column ordering and naming
 - PDF report sections, branding, and layout
@@ -49,12 +56,14 @@
 - How the rack selector UI looks (dropdown vs mini-tabs vs sidebar)
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None — discussion stayed within phase scope
 </user_constraints>
 
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -113,6 +122,7 @@ The critical integration challenge is capturing the ReactFlow canvas as a PNG im
 | Custom layout algorithm | dagre or ELK | For this fixed 3-tier topology, hand-computed positions are simpler and deterministic without a layout library |
 
 **Installation (Wave 0):**
+
 ```bash
 npm install @xyflow/react @react-pdf/renderer html-to-image
 npx shadcn@latest add popover
@@ -120,6 +130,7 @@ npx shadcn@latest add scroll-area
 ```
 
 **Version verification (confirmed 2026-03-17):**
+
 - `@xyflow/react`: 12.10.1 (npm dist-tag: latest)
 - `@react-pdf/renderer`: 4.3.2 (npm dist-tag: latest)
 - `html-to-image`: 1.11.13 (npm dist-tag: latest)
@@ -170,6 +181,7 @@ src/features/
 **When to use:** Any time the topology shape is known at build time (spines top, leafs middle, racks bottom).
 
 **Example:**
+
 ```typescript
 // Source: Custom — verified against @xyflow/react v12 Node type
 function buildTopologyGraph(
@@ -203,6 +215,7 @@ function buildTopologyGraph(
 **When to use:** Whenever `fitView()` or node queries need to be called from outside the `<ReactFlow />` component itself (e.g., toolbar buttons, export trigger).
 
 **Example:**
+
 ```typescript
 // Source: https://reactflow.dev/learn/advanced-use/hooks-providers
 // TopologyTab.tsx
@@ -228,6 +241,7 @@ function TopologyCanvas() {
 **When to use:** Every custom node — prevents data property typos at compile time.
 
 **Example:**
+
 ```typescript
 // Source: https://reactflow.dev/learn/advanced-use/typescript
 type SwitchNodeData = {
@@ -251,6 +265,7 @@ function SwitchNode({ data }: NodeProps<SwitchNode>) {
 **When to use:** Required for topology canvas background and edge colors to respect the app theme.
 
 **Example:**
+
 ```typescript
 // Source: https://reactflow.dev/learn/customization/theming
 // Import base only, not full style.css (prevents style conflicts with Tailwind)
@@ -273,6 +288,7 @@ const { theme } = useTheme()  // from src/components/theme-provider.tsx
 **When to use:** PDF export button click — do NOT render PDF on page load.
 
 **Example:**
+
 ```typescript
 // Source: https://react-pdf.org/advanced
 // exportPdf.ts — not a React component, just an async function
@@ -310,6 +326,7 @@ async function handleExportPdf() {
 **When to use:** Before PDF generation — must be called while the topology tab is visible or via a hidden off-screen render.
 
 **Example:**
+
 ```typescript
 // Source: https://reactflow.dev/examples/misc/download-image
 import { getNodesBounds, getViewportForBounds } from '@xyflow/react'
@@ -343,6 +360,7 @@ export async function captureTopologyPng(
 **When to use:** CSV export button — synchronous, no spinner needed.
 
 **Example:**
+
 ```typescript
 // Source: Verified via WebSearch — standard browser pattern
 export function downloadBomCsv(bom: NetworkBOM): void {
@@ -365,6 +383,7 @@ export function downloadBomCsv(bom: NetworkBOM): void {
 **When to use:** Rack elevation — simple 1D reorder within a fixed list.
 
 **Example:**
+
 ```typescript
 // Each RackSlot receives a device and knows its slotIndex
 // dragItem ref stores { deviceId, fromSlot }
@@ -596,6 +615,7 @@ function getSaturationBorderClass(usedPorts: number, totalPorts: number): string
 | Full `@xyflow/react/dist/style.css` | `@xyflow/react/dist/base.css` + CSS var overrides | v12 | Required for Tailwind integration without style conflicts |
 
 **Deprecated/outdated:**
+
 - `reactflow` (legacy package name): deprecated, use `@xyflow/react`
 - `dagre` for layout: still works but not needed for a fixed 3-tier topology — hand-computed positions are simpler
 - `@react-pdf/renderer` `<PDFDownloadLink>`: renders PDF on mount — use `pdf().toBlob()` for button-triggered download

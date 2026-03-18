@@ -14,6 +14,7 @@ Rewrote `src/features/sizing/InputForm.tsx` to replace the `totalServers + rackC
 ## Changes
 
 ### InputForm.tsx
+
 - Removed `FormValues` bridge interface and `toRacksArray()` helper
 - New `FormValues` type with `rackCount: number`, `rackServers: number[]`, and all scalar fields
 - **Rack Configuration section** (RACK-01, RACK-02): rack count input + per-rack server count inputs (scrollable when > 4 racks) + total server summary text
@@ -25,8 +26,10 @@ Rewrote `src/features/sizing/InputForm.tsx` to replace the `totalServers + rackC
 - All new inputs have `data-testid` attributes: `rack-count`, `rack-server-{i}`, `ports-frontend`, `ports-backend`, `active-uplinks`
 
 ### i18n locales (all 4: en, fr, de, it)
+
 Added 14 new `sizing` keys: `rackCount`, `rackLabel`, `rackServerCount`, `totalServersDisplay`, `rackConfigHeading`, `serverConnectivityHeading`, `networkConfigHeading`, `physicalHeading`, `portsPerServerFrontend`, `portsPerServerBackend`, `frontendPortsHelp`, `backendPortsHelp`, `activeUplinksPerLeaf`, `activeUplinksHelp`
 
 ## Verification
+
 - `npx tsc --noEmit` — zero errors
 - `npx vitest run` — 189 tests pass (no regressions)

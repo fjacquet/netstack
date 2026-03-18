@@ -100,6 +100,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 2 - Missing Critical] Added TooltipProvider wrapper to test helper**
+
 - **Found during:** Task 1 (test GREEN phase)
 - **Issue:** Radix UI Tooltip requires TooltipProvider in the component tree; RTL renders isolated without the App.tsx wrapper
 - **Fix:** Added `import { TooltipProvider }` and `function Wrapper` helper in test file; all `render()` calls use `{ wrapper: Wrapper }`
@@ -108,6 +109,7 @@ Each task was committed atomically:
 - **Committed in:** 774ad37 (Task 1 commit)
 
 **2. [Rule 1 - Bug] Fixed ambiguous getAllByText assertion for cables heading**
+
 - **Found during:** Task 1 (test GREEN phase — 9/10 passing)
 - **Issue:** Cables heading text appeared both in the visible `<p>` element and the sr-only `<caption>` element; `getByText` threw "Found multiple elements"
 - **Fix:** Changed to `getAllByText()` and checked that at least one element contains "DAC" in its textContent

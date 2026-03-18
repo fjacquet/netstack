@@ -62,9 +62,11 @@ All port counts and speeds reference `SWITCH_CATALOG` constants aliased at modul
 ## TDD Execution
 
 ### RED Phase — Commit `442b70f`
+
 Created `sizing.test.ts` with 29 test cases covering all 7 formula categories. Tests failed with "Cannot find module './sizing'" — confirmed RED state.
 
 ### GREEN Phase — Commit `d14cac7`
+
 Created `sizing.ts` implementing all formulas. All 29 tests passed, TypeScript strict compilation clean. No REFACTOR phase needed (function well within 50-line limit, clean structure).
 
 ## Test Coverage
@@ -99,10 +101,12 @@ None — plan executed exactly as written.
 ## Self-Check
 
 Files created:
+
 - `src/domain/engine/sizing.ts` — exists
 - `src/domain/engine/sizing.test.ts` — exists
 
 Commits:
+
 - `442b70f` — test(01-02): add failing tests for sizing engine
 - `d14cac7` — feat(01-02): implement sizing engine
 

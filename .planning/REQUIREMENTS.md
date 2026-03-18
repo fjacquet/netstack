@@ -76,6 +76,7 @@
 | POS-04 | Phase 11 | Pending |
 
 **Coverage:**
+
 - v2.0 requirements: 18 total
 - Mapped to phases: 18
 - Unmapped: 0

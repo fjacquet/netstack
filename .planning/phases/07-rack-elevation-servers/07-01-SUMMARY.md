@@ -69,6 +69,7 @@ for (let i = 0; i < input.racks.length; i++) {
 ### RackDevice Type
 
 Extended to support server role and U-height for Plan 02 rendering:
+
 - Added `uHeight: number` field
 - Added `'server'` to role union: `'leaf' | 'spine' | 'oob' | 'border' | 'server'`
 
@@ -84,6 +85,7 @@ Extended to support server role and U-height for Plan 02 rendering:
 - 214 total tests across full suite — all pass
 
 New test scenarios:
+
 - Schema acceptance of 2U/8U values
 - Default 1U when omitted
 - 2U overflow (20 servers in 42U: usedU=43)
@@ -110,6 +112,7 @@ None — plan executed exactly as written.
 ## Self-Check
 
 Files created/modified:
+
 - [x] src/domain/schemas/input.ts — contains `serverUHeight`
 - [x] src/domain/schemas/bom.ts — contains `RACK_CAPACITY_EXCEEDED`
 - [x] src/domain/engine/sizing.ts — contains `RACK_CAPACITY_EXCEEDED` and `SWITCH_U_PER_SERVER_RACK`
@@ -118,6 +121,7 @@ Files created/modified:
 - [x] src/store/inputStore.ts — contains `version: 5` and `serverUHeight: '1U'`
 
 Commits verified:
+
 - [x] 36d0dd0 — RED tests
 - [x] 55503d6 — GREEN implementation
 - [x] 1ce31b3 — store migration

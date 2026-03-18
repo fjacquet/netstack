@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -44,6 +45,7 @@ The protocol discriminant on `FC_OPTICS_CATALOG` entries (`protocol: 'fibre-chan
 **No new npm packages are required.** Phase 8 is pure TypeScript constants, interfaces, and Zod schemas.
 
 **Verify existing deps are current:**
+
 ```bash
 npm list zod vitest typescript
 ```
@@ -71,6 +73,7 @@ src/
 ```
 
 Tests:
+
 ```
 src/domain/catalog/
 └── brocade.test.ts              NEW: catalog entry assertions for all 9 models + 3 optics
@@ -86,6 +89,7 @@ src/domain/schemas/
 **When to use:** All catalog constants in this codebase (see `hardware.ts` pattern). Ensures `FC_SWITCH_CATALOG['G720'].basePorts` is typed as `24` (literal), not `number`.
 
 **Example (mirrors existing hardware.ts):**
+
 ```typescript
 // src/domain/catalog/brocade.ts
 import type { FCSwitchSpec } from './fc-types';
@@ -115,6 +119,7 @@ export type FCSwitchModelId = keyof typeof FC_SWITCH_CATALOG;
 **What:** The `FCSwitchSpec` interface captures all fields needed for correct sizing, including the POD licensing model. It lives in `fc-types.ts` parallel to `types.ts`.
 
 **Critical fields that differ from Ethernet `SwitchSpec`:**
+
 - `totalPorts` — physical port count in chassis
 - `basePorts` — ports active without additional POD licenses (must be in BOM as minimum)
 - `podLicenseUnit` — port increment per POD license purchase (0 for directors where blades are the unit)
@@ -124,6 +129,7 @@ export type FCSwitchModelId = keyof typeof FC_SWITCH_CATALOG;
 - `formFactor: 'fixed' | 'director'` — fixed (1U/2U) vs. modular chassis
 
 **Example:**
+
 ```typescript
 // src/domain/catalog/fc-types.ts
 export interface FCSwitchSpec {
@@ -152,6 +158,7 @@ export interface FCSwitchSpec {
 **When to use:** Always. The project convention is strict on this.
 
 **Example (mirrors existing schemas/input.ts):**
+
 ```typescript
 // src/domain/schemas/fc-input.ts
 import { z } from 'zod';
@@ -178,6 +185,7 @@ export type FCSizingInput = z.infer<typeof FCSizingInputSchema>;
 **Why it must be separate:** The SFP28 form factor is shared between 25G Ethernet and 32G FC. Without a protocol discriminant, BOM export cannot tell which `sfp28Count` field belongs to which fabric. This has procurement implications — wrong transceiver type ordered.
 
 **Example:**
+
 ```typescript
 // src/domain/catalog/brocade.ts (same file as FC_SWITCH_CATALOG)
 export interface FCOpticsSpec {
@@ -228,6 +236,7 @@ export const FC_OPTICS_CATALOG = {
 **Why `podLicensesRequired` is a required field, not optional:** The customer receives the BOM and orders switches. If POD licenses are missing, they order base-config switches and discover at delivery time that 24-port G720s do not have 64 ports. This is not recoverable without a new PO.
 
 **Example stub (full engine comes in Phase 10):**
+
 ```typescript
 // src/domain/schemas/fc-bom.ts
 export const FCNetworkBOMSchema = z.object({
@@ -338,10 +347,12 @@ export type FCNetworkBOM = z.infer<typeof FCNetworkBOMSchema>;
 ### Pitfall 3: Separate TypeScript Type Declarations Alongside Zod Schemas
 
 **What goes wrong:** Developer writes:
+
 ```typescript
 // DO NOT DO THIS
 interface FCSizingInput { racks: RackConfig[]; hbaPortsPerServer: number; ... }
 ```
+
 alongside the Zod schema. Over time the two diverge silently.
 
 **Why it happens:** TypeScript-first instinct; developer writes interface before schema.
@@ -391,6 +402,7 @@ export type SwitchModelId = keyof typeof SWITCH_CATALOG;
 ```
 
 Replicate for FC:
+
 ```typescript
 // src/domain/catalog/brocade.ts — NEW, follows same pattern
 import type { FCSwitchSpec, FCOpticsSpec } from './fc-types';
@@ -483,6 +495,7 @@ describe('FC_SWITCH_CATALOG — G720', () => {
 ## Validation Architecture
 
 ### Test Framework
+
 | Property | Value |
 |----------|-------|
 | Framework | Vitest 4.1.0 |
@@ -513,6 +526,7 @@ describe('FC_SWITCH_CATALOG — G720', () => {
 | FC-03 | FC_OPTICS_CATALOG has 3 entries (SFP28/SFP+/SFP+) with protocol='fibre-channel' | unit | `npx vitest run src/domain/catalog/brocade.test.ts` | Wave 0 |
 
 ### Sampling Rate
+
 - **Per task commit:** `npx vitest run src/domain/catalog/brocade.test.ts src/domain/schemas/fc-schemas.test.ts`
 - **Per wave merge:** `npx vitest run`
 - **Phase gate:** Full suite green + `npx tsc --noEmit` before `/gsd:verify-work`
@@ -533,6 +547,7 @@ describe('FC_SWITCH_CATALOG — G720', () => {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [Broadcom TechDocs — G710 Technical Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g710-switch/1-0/technical-specifications-g710.html) — G710 port counts, form factor, power, POD model (updated April 2025)
 - [Broadcom TechDocs — G720 Technical Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html) — G720 port counts (48 SFP+ + 8 SFP-DD = 64), base 24, 1U, 349W typical
 - [Broadcom TechDocs — G730 Technical Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g730-switch/1-0/Brocade-G730-Switch-Technical-Specifications.html) — G730 96 SFP+ + 16 SFP-DD = 128 ports, base 48, 2U, dual 1100W PSU
@@ -543,11 +558,13 @@ describe('FC_SWITCH_CATALOG — G720', () => {
 - Existing codebase — `src/domain/catalog/hardware.ts`, `src/domain/catalog/types.ts`, `src/domain/schemas/input.ts`, `src/domain/schemas/bom.ts` — catalog and schema patterns to replicate
 
 ### Secondary (MEDIUM confidence)
+
 - [Lenovo Press — X7-8 and X7-4 Product Guide](https://lenovopress.lenovo.com/lp1587-lenovo-thinksystem-x7-8-and-x7-4-fc-san-directors) — X7-8 14U, 8 blade slots, 512 ports; X7-4 8U, 4 blade slots
 - [Lenovo Press — X8-4 and X8-8 Product Guide](https://lenovopress.lenovo.com/lp2271-lenovo-x8-4-and-x8-8-gen-8-fc-directors) — X8-4/X8-8 blade counts and port capacity
 - [Broadcom Investor Relations — Gen 8 Launch Announcement, Nov 2025](https://investors.broadcom.com/news-releases/news-release-details/broadcom-introduces-worlds-first-quantum-safe-gen-8-128g-san) — G820, X8-4, X8-8 confirmed available Nov 2025
 
 ### Tertiary (LOW confidence — for awareness only)
+
 - [Broadcom SAN Design and Best Practices, Nov 2025](https://docs.broadcom.com/doc/53-1004781) — ISL fan-in ratios, fabric sizing guidance (relevant to Phase 10, not Phase 8)
 
 ---
@@ -555,6 +572,7 @@ describe('FC_SWITCH_CATALOG — G720', () => {
 ## Metadata
 
 **Confidence breakdown:**
+
 - Switch catalog specs (G710, G720, G730, G820, 7850): HIGH — verified from Broadcom official techdocs
 - Switch catalog specs (X7-4, X7-8): HIGH for port counts; MEDIUM for power (estimated)
 - Switch catalog specs (X8-4, X8-8): MEDIUM — announced Nov 2025; FC128-48 blade confirmed; chassis power estimates only
