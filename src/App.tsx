@@ -8,8 +8,8 @@ import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
 import { ThreeTierSizingPage } from '@/features/sizing/three-tier/ThreeTierSizingPage'
-import { RackElevationTab, ConvergedRackElevationTab } from '@/features/rack-elevation'
-import { TopologyTab, FCTopologyTab, ConvergedTopologyTab } from '@/features/topology'
+import { RackElevationTab, ConvergedRackElevationTab, ThreeTierRackElevationTab } from '@/features/rack-elevation'
+import { TopologyTab, FCTopologyTab, ConvergedTopologyTab, ThreeTierTopologyTab } from '@/features/topology'
 import {
   Tabs,
   TabsContent,
@@ -48,11 +48,11 @@ function AppContent() {
             {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : mode === 'three-tier' ? <ThreeTierSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : mode === 'three-tier' ? <div className="flex items-center justify-center py-12 text-muted-foreground">Three-Tier topology will appear here</div> : <TopologyTab />}
+            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : mode === 'three-tier' ? <ThreeTierTopologyTab /> : <TopologyTab />}
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
-              {mode === 'converged' ? <ConvergedRackElevationTab /> : mode === 'three-tier' ? <div className="flex items-center justify-center py-12 text-muted-foreground">Three-Tier rack elevation will appear here</div> : <RackElevationTab />}
+              {mode === 'converged' ? <ConvergedRackElevationTab /> : mode === 'three-tier' ? <ThreeTierRackElevationTab /> : <RackElevationTab />}
             </TabsContent>
           )}
         </main>
