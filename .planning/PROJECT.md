@@ -52,8 +52,9 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - Converged rack elevation with FC network rack type
 - Combined CSV/PDF export
 
-### Future (v3.0+)
+### Future (v4.0)
 
+- Traditional Core/Aggregation/Access 3-tier topology sizing (GH #9)
 - Save/load named configurations
 - JSON export
 - Multi-pod support for large deployments
