@@ -35,7 +35,7 @@
 
 - [ ] **TEXP-01**: CSV export with 3-tier sections (access/aggregation/core)
 - [ ] **TEXP-02**: PDF export with 3-tier BOM and topology pages
-- [ ] **TEXP-03**: i18n labels for 3-tier mode in all 4 locales (EN/FR/DE/IT)
+- [x] **TEXP-03**: i18n labels for 3-tier mode in all 4 locales (EN/FR/DE/IT)
 
 ## Future Requirements
 
@@ -79,7 +79,7 @@
 | TUI-06 | Phase 19 | Complete |
 | TEXP-01 | Phase 20 | Pending |
 | TEXP-02 | Phase 20 | Pending |
-| TEXP-03 | Phase 20 | Pending |
+| TEXP-03 | Phase 20 | Complete |
 
 **Coverage:**
 - v4.0 requirements: 18 total

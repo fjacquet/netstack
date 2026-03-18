@@ -109,7 +109,7 @@ Plans:
   1. CSV export produces rows grouped into access, aggregation, and core sections (mirroring the BOM panel structure)
   2. PDF export includes 3-tier BOM tables and a topology page showing the hierarchical diagram
   3. All 3-tier mode labels (mode name, tier names, BOM headings, export headers) appear correctly in EN, FR, DE, and IT
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 20-01-PLAN.md — Three-tier CSV/PDF export (standalone + converged) and TopBar wiring
 - [ ] 20-02-PLAN.md — Three-tier export i18n keys for all 4 locales
@@ -137,4 +137,4 @@ Plans:
 | 17. Converged Export & i18n | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 18. Three-Tier Domain & Engine | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
-| 20. Three-Tier Export & i18n | v4.0 | 0/2 | Not started | - |
+| 20. Three-Tier Export & i18n | 1/2 | In Progress|  | - |

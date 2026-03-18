@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: Three-Tier Topology
-status: completed
-stopped_at: Completed 19-03-PLAN.md
-last_updated: "2026-03-18T22:38:32.113Z"
-last_activity: 2026-03-18 — Completed 19-03 converged three-tier integration
+status: in-progress
+stopped_at: Completed 20-02-PLAN.md
+last_updated: "2026-03-18T22:48:00Z"
+last_activity: 2026-03-18 — Completed 20-02 three-tier export i18n keys
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_plans: 8
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine, Brocade FC SAN, and Three-Tier deployments.
-**Current focus:** v4.0 Three-Tier Topology — Phase 19 complete (3/3 plans done), Phase 20 next
+**Current focus:** v4.0 Three-Tier Topology — Phase 20 in progress (plan 02 of 02 complete)
 
 ## Current Position
 
-Phase: 19 of 20 (Three-Tier UI & Converged Integration)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: Phase Complete
-Last activity: 2026-03-18 — Completed 19-03 converged three-tier integration
+Phase: 20 of 20 (Three-Tier Export & i18n)
+Plan: 2 of 2 in current phase
+Status: In Progress
+Last activity: 2026-03-18 — Completed 20-02 three-tier export i18n keys
 
-Progress: [██████████] 100% (v4.0 milestone)
+Progress: [█████████░] 88% (v4.0 milestone)
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100% (v4.0 milestone)
 | Phase 19-01 P01 | 6min | 2 tasks | 16 files |
 | Phase 19-02 P02 | 7min | 2 tasks | 7 files |
 | Phase 19-03 P03 | 7min | 2 tasks | 4 files |
+| Phase 20-02 P02 | 2min | 1 task | 4 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Key architectural decisions relevant to v4.0:
 - [Phase 19-03]: Topology selector in converged form before shared fields -- form.watch('topology') conditional rendering
 - [Phase 19-03]: Three-tier canvas reuses ethNodeTypes and converged-eth-topology:action event channel
 - [Phase 19-03]: Rack elevation tt-net- prefix for three-tier network racks vs eth-net- for Clos
+- [Phase 20-02]: Three-tier export keys follow {mode}CsvButton/{mode}PdfButton convention
+- [Phase 20-02]: Added oversubscription label keys for PDF report usage
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T22:32:00Z
-Stopped at: Completed 19-03-PLAN.md
+Last session: 2026-03-18T22:48:00Z
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None
