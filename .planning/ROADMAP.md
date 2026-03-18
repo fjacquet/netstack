@@ -61,13 +61,16 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 **Goal**: Users can compute a combined Ethernet+FC BOM from a single converged input
 **Depends on**: Phase 14 (v2.0 complete — both Ethernet and FC engines exist)
 **Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05
+**Plans:** 2 plans
+Plans:
+- [ ] 15-01-PLAN.md — Converged schemas (input + BOM) and TDD engine composing calculateBOM + calculateFCBOM
+- [ ] 15-02-PLAN.md — Converged Zustand stores and mode selector wiring (third "Converged" button)
 **Success Criteria** (what must be TRUE):
   1. User can select "Converged" as a third mode alongside Ethernet and FC in the mode selector
   2. User can specify 1-4 Ethernet frontend ports and 0-2 FC HBA ports per server in converged mode
   3. Converged engine produces a combined BOM containing both Ethernet switch counts and FC switch counts from a single input
   4. Setting FC HBA ports to 0 produces an Ethernet-only BOM with no FC switches and no FC violations
   5. Violations from both Ethernet and FC engines appear in a single combined violations array
-**Plans**: TBD
 
 ### Phase 16: Converged UI
 **Goal**: Users can configure and view converged sizing results through a unified interface
@@ -108,6 +111,6 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 | 12. FC Input and BOM UI | v2.0 | 3/3 | Complete | 2026-03-18 |
 | 13. FC Topology Diagram | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
-| 15. Converged Domain & Store | v3.0 | 0/? | Not started | - |
+| 15. Converged Domain & Store | v3.0 | 0/2 | In progress | - |
 | 16. Converged UI | v3.0 | 0/? | Not started | - |
 | 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
