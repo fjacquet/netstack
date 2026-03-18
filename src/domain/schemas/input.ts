@@ -47,6 +47,8 @@ export const SizingInputSchema = z.object({
   rackSize: z.enum(['24U', '42U', '50U']),
   /** U-height of each server for rack elevation rendering (1U default) */
   serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
+  /** Switch placement mode — affects rack overhead U-count, cable length advisory, and DAC compatibility */
+  switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
 });
 
 /** Inferred TypeScript type — do not declare separately */

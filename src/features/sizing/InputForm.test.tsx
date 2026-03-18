@@ -33,6 +33,7 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     borderLeafCount: 0,
     rackSize: '42U',
     serverUHeight: '1U',
+    switchPositioning: 'ToR' as const,
     ...overrides,
   }
 }

@@ -19,6 +19,7 @@ describe('resultStore (derived from inputStore)', () => {
         borderLeafCount: 0,
         rackSize: '42U',
         serverUHeight: '1U',
+        switchPositioning: 'ToR',
       },
     })
   })

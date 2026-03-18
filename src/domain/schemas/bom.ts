@@ -42,6 +42,13 @@ export const ConstraintViolationSchema = z.discriminatedUnion('code', [
     /** Physical U capacity of the rack */
     totalU: z.number().int(),
   }),
+  z.object({
+    code: z.literal('DAC_POSITIONING_INCOMPATIBLE'),
+    /** Switch positioning mode that is incompatible with DAC cables */
+    positioning: z.enum(['MoR', 'BoR']),
+    /** Recommended cable length in metres for the selected positioning mode */
+    recommendedCableLengthM: z.number().int(),
+  }),
 ]);
 
 /** Inferred TypeScript type — do not declare separately */
@@ -78,6 +85,10 @@ export const NetworkBOMSchema = z.object({
   vltCables: z.number().int().min(0),
   /** Oversubscription ratio: serverBandwidth / uplinkBandwidth per rack */
   oversubscriptionRatio: z.number().min(0),
+  /** Switch placement mode echoed from input */
+  switchPositioning: z.enum(['ToR', 'MoR', 'BoR']),
+  /** Recommended cable length in metres based on switch positioning (ToR=3, MoR=15, BoR=30) */
+  recommendedCableLengthM: z.number().int().min(0),
   /** Typed constraint violations produced by the sizing engine */
   violations: z.array(ConstraintViolationSchema),
   /** Original input that produced this BOM */
