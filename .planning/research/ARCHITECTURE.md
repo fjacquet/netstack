@@ -1,372 +1,603 @@
 # Architecture Research
 
-**Domain:** Client-side network sizing calculator (React SPA, no backend)
-**Researched:** 2026-03-16
+**Domain:** NetStack v2.0 — FC SAN sizing + switch positioning extension to existing Ethernet leaf-spine calculator
+**Researched:** 2026-03-18
 **Confidence:** HIGH
 
-## Standard Architecture
+---
 
-### System Overview
+## Context: What This Document Covers
+
+This is a **milestone-scoped** architecture document for v2.0. It describes only what changes or is new. The baseline architecture (Domain → Store → Features one-way layering, Zod schemas, Zustand stores, pure engine pattern) is established and documented in the v1.x research. The central question here is:
+
+> How do FC SAN sizing and switch positioning integrate into the existing architecture, what is new vs modified, and in what order should they be built?
+
+---
+
+## Standard Architecture (unchanged baseline)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         UI Layer                                 │
-├──────────────┬──────────────┬──────────────┬────────────────────┤
-│  InputPanel  │  TopologyView│  RackView    │   BOMPanel         │
-│  (forms)     │  (reactflow) │  (SVG)       │   (table + export) │
-└──────┬───────┴──────┬───────┴──────┬───────┴──────┬─────────────┘
-       │              │              │              │
-       ▼              ▼              ▼              ▼
+│                         Features Layer (React)                   │
+│  InputForm  │  BOMPanel  │  TopologyTab  │  RackElevationTab     │
+└──────┬──────┴──────┬─────┴──────┬────────┴──────┬───────────────┘
+       │             │            │               │
+       ▼             ▼            ▼               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      State Layer (Zustand)                       │
-│  ┌───────────────┐  ┌─────────────────┐  ┌──────────────────┐   │
-│  │  inputStore   │  │   resultStore   │  │    uiStore       │   │
-│  │  (form vals)  │  │   (BOM + topo)  │  │  (active tab,    │   │
-│  │  + persist    │  │   (derived)     │  │   modal flags)   │   │
-│  └───────────────┘  └─────────────────┘  └──────────────────┘   │
+│                   Store Layer (Zustand)                          │
+│  inputStore (persisted)   │   resultStore (derived, not persisted)│
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ read inputs, write results
+                           │ subscribe → calculateBOM(input)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                   Domain / Engine Layer                          │
-│  ┌─────────────────┐  ┌──────────────────┐  ┌───────────────┐   │
-│  │  sizingEngine   │  │  hardwareCatalog  │  │ zodSchemas    │   │
-│  │  pure functions │  │  constants/types  │  │ (validation)  │   │
-│  └─────────────────┘  └──────────────────┘  └───────────────┘   │
-└──────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Export Service Layer                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
-│  │  csvExporter │  │  pdfExporter │  │    jsonExporter      │   │
-│  │  (pure fn)   │  │  (react-pdf  │  │    (pure fn)         │   │
-│  │              │  │   renderer)  │  │                      │   │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘   │
+│                   Domain Layer (pure TypeScript)                  │
+│  catalog/   │  schemas/   │  engine/                             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Component Responsibilities
+The one-way import rule is unchanged: Features → Store → Domain. Domain has zero React/Zustand imports.
 
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| `InputPanel` | Collects user inputs: server count, servers/rack, connectivity type, cable type | React Hook Form + Zod resolver, dispatches to `inputStore` |
-| `TopologyView` | Renders Leaf-Spine logical diagram, node types per switch model | React Flow (XyFlow), reads from `resultStore` |
-| `RackView` | Renders physical rack elevation with U-slot placement per rack | Pure SVG rendered from `resultStore.racks[]`, no external lib needed |
-| `BOMPanel` | Displays BOM table: model, quantity, notes; exposes export buttons | HTML table, reads `resultStore.bom` |
-| `sizingEngine` | Pure functions: `(SizingInput) => NetworkBOM` — all calculations live here | TypeScript pure functions with no imports from React or Zustand |
-| `hardwareCatalog` | Source of truth for switch specs (ports, speeds, power draw) | Plain TypeScript `const` objects, imported by engine and UI |
-| `zodSchemas` | Runtime validation for user inputs and hardware limits | Zod schemas that infer TypeScript types — types come FROM schemas |
-| `inputStore` | Persists user inputs across sessions via Zustand `persist` middleware | Zustand slice + `persist(localStorage)` |
-| `resultStore` | Derived state: BOM + topology graph data computed from `inputStore` | Zustand slice, recomputed when inputs change |
-| `uiStore` | Ephemeral UI state: active view tab, export modal open | Zustand slice, NOT persisted |
-| `csvExporter` | Serialises BOM to RFC 4180 CSV string, triggers download | Pure function, uses browser `Blob` + `URL.createObjectURL` |
-| `pdfExporter` | Renders BOM report as PDF | `@react-pdf/renderer` (declarative JSX → PDF) |
-| `jsonExporter` | Serialises full config (inputs + BOM) to JSON, triggers download | Pure function using `JSON.stringify` |
+---
 
-## Recommended Project Structure
+## New Components for v2.0
+
+### FC SAN Sizing (GH #1)
+
+Four fully new additions at the domain layer. Nothing in the FC domain touches Ethernet domain internals.
+
+**1. `src/domain/catalog/brocade.ts` — NEW**
+
+FC switch catalog, parallel to `hardware.ts` (Dell Ethernet). Typed with a new `FCSwitchSpec` interface that captures FC-specific fields (`fcPorts`, `fcSpeedGbE`, `islPorts`, `islSpeedGbE`, `formFactor`, `maxPowerW`).
+
+Catalog entries to include (confidence: MEDIUM — specs verified from official Broadcom product pages):
+
+| Model | Gen | Ports | FC Speed | ISL | Form | Power |
+|-------|-----|-------|----------|-----|------|-------|
+| G620  | 6   | 48    | 32G SFP+ | Up to 16 ISL | 1U | ~200W |
+| G630  | 6   | 128   | 32G SFP+ | Up to 32 ISL | 2U | ~350W |
+| G720  | 7   | 64    | 64G SFP+ | Up to 16 ISL | 1U | 350W  |
+| G730  | 7   | 128   | 64G SFP+ | Up to 32 ISL | 2U | ~600W |
+| G820  | 8   | 56    | 128G SFP+| Up to 16 ISL | 1U | 650W  |
+
+Note: G610 (24-port, Gen 6) can be added later. G830 (128-port Gen 8) was not yet publicly released as of research date — exclude from v2.0 catalog.
+
+**2. `src/domain/schemas/fc-input.ts` — NEW**
+
+Separate Zod schema for FC-specific inputs. Must NOT be merged into `SizingInputSchema` — FC and Ethernet are mutually exclusive modes with different field sets. A merged union would create a complex discriminated union at every consumer.
+
+```typescript
+export const FCSizingInputSchema = z.object({
+  /** Per-rack server/host count, reuses RackConfigSchema */
+  racks: z.array(RackConfigSchema).min(1).max(200),
+  /** Number of FC HBA ports per server (typically 2 for dual-fabric) */
+  hbaPortsPerServer: z.number().int().min(1).max(8).default(2),
+  /** Number of storage target ports per storage array */
+  storageTargetPorts: z.number().int().min(2).max(128).default(4),
+  /** Number of storage arrays in deployment */
+  storageArrayCount: z.number().int().min(1).max(32).default(1),
+  /** FC switch model for Fabric A (and mirrored Fabric B) */
+  fcSwitchModel: z.enum(['G620', 'G630', 'G720', 'G730', 'G820']),
+  /** Number of ISL trunks between switches (0 = single-hop fabric) */
+  islTrunkCount: z.number().int().min(0).max(8).default(2),
+  /** Rack unit height for servers */
+  serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
+  /** Rack size */
+  rackSize: z.enum(['24U', '42U', '50U']),
+});
+
+export type FCSizingInput = z.infer<typeof FCSizingInputSchema>;
+```
+
+**3. `src/domain/schemas/fc-bom.ts` — NEW**
+
+Separate BOM schema for FC output. FC BOM fields are entirely different from Ethernet BOM fields. Reuse `ConstraintViolationSchema` for violations (add FC-specific codes: `FC_PORT_OVERSUBSCRIPTION`, `ISL_CAPACITY_EXCEEDED`).
+
+```typescript
+export const FCNetworkBOMSchema = z.object({
+  /** Fabric A switch count */
+  fabricASwitches: z.number().int().min(0),
+  /** Fabric B switch count (mirrors Fabric A) */
+  fabricBSwitches: z.number().int().min(0),
+  /** Total host ports consumed (hbaPortsPerServer × totalServers / 2 per fabric) */
+  hostPortsPerFabric: z.number().int().min(0),
+  /** Total storage target ports per fabric */
+  storagePortsPerFabric: z.number().int().min(0),
+  /** ISL ports consumed between switches per fabric */
+  islPortsPerFabric: z.number().int().min(0),
+  /** SFP+ transceivers required (2 per link, all fiber) */
+  sfpPlusCount: z.number().int().min(0),
+  /** ISL trunking cables per fabric */
+  islCables: z.number().int().min(0),
+  /** Fan-in ratio: host initiator ports / storage target ports */
+  fanInRatio: z.number().min(0),
+  violations: z.array(FCConstraintViolationSchema),
+  input: FCSizingInputSchema,
+});
+```
+
+**4. `src/domain/engine/fc-sizing.ts` — NEW**
+
+Pure function parallel to `sizing.ts`. Zero imports from the Ethernet engine.
+
+```typescript
+export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM
+```
+
+Key FC sizing formulas:
+- `totalServers = sum(racks[].serverCount)`
+- `hostPortsPerFabric = totalServers × (hbaPortsPerServer / 2)` — split evenly across dual fabric
+- `storagePortsPerFabric = storageArrayCount × (storageTargetPorts / 2)` — dual fabric split
+- `switchPortsRequired = hostPortsPerFabric + storagePortsPerFabric + islPortsPerFabric`
+- `fabricSwitches = ceil(switchPortsRequired / FC_SWITCH.fcPorts)` — per fabric
+- `fanInRatio = hostPortsPerFabric / storagePortsPerFabric`
+- Violation: `FC_PORT_OVERSUBSCRIPTION` when `fanInRatio > 7` (Broadcom best practice: max 7:1)
+- Violation: `ISL_CAPACITY_EXCEEDED` when ISL port demand exceeds switch ISL port capacity
+
+---
+
+### Switch Positioning (GH #6)
+
+Switch positioning is an **Ethernet-only** extension. It adds one new schema field and modifies two existing computation functions.
+
+**1. `SizingInputSchema` — MODIFIED**
+
+Add `switchPositioning` field:
+
+```typescript
+switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
+```
+
+- `ToR` (Top of Rack): switches in each server rack, cable run ≤ 3m
+- `MoR` (Middle of Row): switches in dedicated rack at row center, cable run up to 15m average
+- `BoR` (Bottom of Row / End of Row): switches in dedicated rack at row end, cable run up to 30m average
+
+**2. `src/domain/engine/sizing.ts` — MODIFIED**
+
+Cable length advisory logic added to the engine. The existing engine does not calculate cable lengths — it only counts cable quantities. For switch positioning, add a `recommendedCableLengthM` output field and a new violation:
+
+- `ToR` → `recommendedCableLengthM: 3` (patch cables, DAC always viable)
+- `MoR` → `recommendedCableLengthM: 15` (AOC or fiber required; DAC advisory if selected)
+- `BoR` → `recommendedCableLengthM: 30` (AOC or fiber required; DAC advisory always fires)
+
+Add new violation code to `ConstraintViolationSchema`:
+
+```typescript
+z.object({
+  code: z.literal('DAC_POSITIONING_ADVISORY'),
+  positioning: z.enum(['MoR', 'BoR']),
+  recommendedCableLengthM: z.number(),
+})
+```
+
+**3. `NetworkBOMSchema` — MODIFIED**
+
+Add two fields:
+
+```typescript
+switchPositioning: z.enum(['ToR', 'MoR', 'BoR']),
+recommendedCableLengthM: z.number().int().min(0),
+```
+
+**4. `src/features/rack-elevation/utils/buildRackDevices.ts` — MODIFIED**
+
+Switches move to a different U-position in the rack based on positioning:
+
+- `ToR`: switches at U1–U3 (bottom of rack) — current behavior, unchanged
+- `MoR`/`BoR`: switches are in a dedicated separate rack (not co-located), so server racks render with NO switch devices. A new `buildPositioningRackDevices()` function handles the positioning rack's layout.
+
+This impacts `RackElevationTab.tsx` — it must show a "positioning rack" in addition to server racks when MoR/BoR is selected.
+
+---
+
+## Mode Selector (new UI component)
+
+**`src/features/sizing/ModeSelector.tsx` — NEW**
+
+A top-level mode switch that selects between `'ethernet'` and `'fc'`. This is a UI concern only — the domain layer has no concept of "mode."
+
+Architecture decision: **mode is not stored in `inputStore`**. Store it in a new ephemeral `uiStore` slice (not persisted). Rationale: mode does not affect BOM computation directly (the input type determines which engine is called); persisting mode would add migration complexity when the schema evolves.
+
+However, `inputStore` already persists Ethernet inputs, and a new `fcInputStore` persists FC inputs. Both are always persisted independently so switching modes and back retains previous inputs.
+
+```typescript
+// store/fcInputStore.ts — NEW (mirrors inputStore.ts)
+export const useFCInputStore = create<FCInputState>()(
+  persist(
+    (set) => ({
+      input: DEFAULT_FC_INPUT,
+      setInput: (partial) => set((state) => ({ input: { ...state.input, ...partial } })),
+      resetInput: () => set({ input: DEFAULT_FC_INPUT }),
+    }),
+    { name: 'netstack-fc-input', version: 1, storage: lazyLocalStorage }
+  )
+)
+```
+
+```typescript
+// store/fcResultStore.ts — NEW (mirrors resultStore.ts)
+// Subscribed to fcInputStore; calls calculateFCBOM
+```
+
+---
+
+## Modified vs New: Complete Inventory
+
+### New Files
+
+| File | Layer | Purpose |
+|------|-------|---------|
+| `src/domain/catalog/brocade.ts` | Domain | FC switch hardware catalog |
+| `src/domain/catalog/fc-types.ts` | Domain | `FCSwitchSpec` interface |
+| `src/domain/schemas/fc-input.ts` | Domain | `FCSizingInputSchema`, `FCSizingInput` type |
+| `src/domain/schemas/fc-bom.ts` | Domain | `FCNetworkBOMSchema`, `FCNetworkBOM`, `FCConstraintViolation` |
+| `src/domain/engine/fc-sizing.ts` | Domain | `calculateFCBOM()` pure function |
+| `src/domain/engine/fc-sizing.test.ts` | Domain | Unit tests for FC engine |
+| `src/store/fcInputStore.ts` | Store | FC inputs, persisted to localStorage |
+| `src/store/fcResultStore.ts` | Store | FC BOM, derived from fcInputStore |
+| `src/features/sizing/ModeSelector.tsx` | Feature | Ethernet / FC mode toggle |
+| `src/features/sizing/FCInputForm.tsx` | Feature | FC-specific input form |
+| `src/features/sizing/FCBOMPanel.tsx` | Feature | FC BOM display |
+| `src/features/topology/utils/buildFCTopologyGraph.ts` | Feature | Dual-fabric FC topology builder |
+| `src/features/topology/TopologyFCTab.tsx` | Feature | FC topology canvas (dual-fabric layout) |
+| `src/features/rack-elevation/utils/buildPositioningRackDevices.ts` | Feature | MoR/BoR switch rack builder |
+
+### Modified Files
+
+| File | Layer | What Changes |
+|------|-------|--------------|
+| `src/domain/schemas/input.ts` | Domain | Add `switchPositioning` field |
+| `src/domain/schemas/bom.ts` | Domain | Add `switchPositioning`, `recommendedCableLengthM`; add `DAC_POSITIONING_ADVISORY` violation |
+| `src/domain/engine/sizing.ts` | Domain | Positioning-based cable length advisory logic |
+| `src/domain/engine/sizing.test.ts` | Domain | New test cases for positioning violations |
+| `src/store/inputStore.ts` | Store | Persist version bump (v5→v6), add `switchPositioning` default in `DEFAULT_INPUT` |
+| `src/features/sizing/InputForm.tsx` | Feature | Add positioning selector (ToR/MoR/BoR) |
+| `src/features/sizing/BOMPanel.tsx` | Feature | Render `recommendedCableLengthM`, new positioning violation |
+| `src/features/sizing/SizingPage.tsx` | Feature | Render `ModeSelector`; conditionally render Ethernet vs FC input/BOM forms |
+| `src/features/rack-elevation/RackElevationTab.tsx` | Feature | Show positioning rack when MoR/BoR selected |
+| `src/features/rack-elevation/utils/buildRackDevices.ts` | Feature | Exclude switches from server racks when MoR/BoR selected |
+| `src/App.tsx` | App | No structural change; mode state drives what renders inside existing tabs |
+| `src/features/export/exportCsv.ts` | Export | Add FC BOM export support |
+| `src/features/export/exportPdf.ts` | Export | Add FC BOM PDF page |
+
+---
+
+## System Overview After v2.0
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                         Features Layer (React)                        │
+│                                                                        │
+│  ModeSelector (ethernet | fc)                                          │
+│     │                  │                                               │
+│  [Ethernet mode]    [FC mode]                                          │
+│  InputForm          FCInputForm                                        │
+│  BOMPanel           FCBOMPanel                                         │
+│  TopologyTab        TopologyFCTab                                      │
+│  RackElevationTab   RackElevationTab (shared, mode-aware)              │
+└──────┬──────────────────────────┬────────────────────────────────────┘
+       │                          │
+       ▼                          ▼
+┌────────────────────┐  ┌──────────────────────────┐
+│   inputStore       │  │   fcInputStore            │
+│   (Ethernet, v6)   │  │   (FC, v1)                │
+│   persisted        │  │   persisted               │
+└────────┬───────────┘  └────────────┬──────────────┘
+         │ subscribe                  │ subscribe
+         ▼                            ▼
+┌────────────────────┐  ┌──────────────────────────┐
+│   resultStore      │  │   fcResultStore           │
+│   (derived, BOM)   │  │   (derived, FC BOM)       │
+└────────┬───────────┘  └────────────┬──────────────┘
+         │                            │
+         ▼                            ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                      Domain Layer (pure TypeScript)                   │
+│                                                                        │
+│  catalog/hardware.ts    catalog/brocade.ts                             │
+│  schemas/input.ts       schemas/fc-input.ts                            │
+│  schemas/bom.ts         schemas/fc-bom.ts                              │
+│  engine/sizing.ts       engine/fc-sizing.ts                            │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+**Mode isolation is total at the domain layer.** The Ethernet engine never imports from the FC catalog, and vice versa. The stores are separate. The only shared domain code is `RackConfigSchema` (imported by both input schemas) and the `rackSize` enum.
+
+---
+
+## Recommended Project Structure (additions only)
 
 ```
 src/
-├── domain/                  # Zero React/Zustand deps — pure TypeScript
+├── domain/
 │   ├── catalog/
-│   │   ├── hardware.ts      # Switch model definitions (S5248F, S5232F, S3248T)
-│   │   └── types.ts         # SwitchModel, PortSpec, CableType interfaces
-│   ├── engine/
-│   │   ├── sizing.ts        # calculateBOM(input: SizingInput): NetworkBOM
-│   │   ├── topology.ts      # buildTopologyGraph(bom: NetworkBOM): TopologyGraph
-│   │   ├── racks.ts         # buildRackLayouts(bom: NetworkBOM): RackLayout[]
-│   │   └── engine.test.ts   # Unit tests — engine is trivially testable
-│   └── schemas/
-│       ├── input.ts         # SizingInputSchema (Zod) + inferred SizingInput type
-│       └── bom.ts           # NetworkBOMSchema (Zod) + inferred NetworkBOM type
+│   │   ├── hardware.ts          # (existing) Dell Ethernet switches
+│   │   ├── brocade.ts           # NEW: Brocade FC switches
+│   │   ├── fc-types.ts          # NEW: FCSwitchSpec interface
+│   │   ├── types.ts             # (modified) keep SwitchSpec for Ethernet only
+│   │   ├── cables.ts            # (existing, unchanged)
+│   │   └── loader.ts            # (existing, unchanged)
+│   ├── schemas/
+│   │   ├── input.ts             # (modified) add switchPositioning field
+│   │   ├── bom.ts               # (modified) add positioning fields + violation
+│   │   ├── fc-input.ts          # NEW: FCSizingInputSchema
+│   │   └── fc-bom.ts            # NEW: FCNetworkBOMSchema
+│   └── engine/
+│       ├── sizing.ts            # (modified) add positioning cable advisory
+│       ├── sizing.test.ts       # (modified) add positioning test cases
+│       ├── fc-sizing.ts         # NEW: calculateFCBOM pure function
+│       └── fc-sizing.test.ts    # NEW: FC engine unit tests
 │
-├── store/                   # Zustand state — depends on domain, not on UI
-│   ├── inputStore.ts        # Persisted: server count, rack config, cable type
-│   ├── resultStore.ts       # Derived: BOM + topology + rack layouts
-│   ├── uiStore.ts           # Ephemeral: active tab, modal visibility
-│   └── index.ts             # Re-exports custom hooks (never raw stores)
+├── store/
+│   ├── inputStore.ts            # (modified) persist version bump + positioning default
+│   ├── resultStore.ts           # (unchanged)
+│   ├── fcInputStore.ts          # NEW: FC inputs persisted
+│   └── fcResultStore.ts         # NEW: FC BOM derived
 │
-├── features/                # UI feature modules — depend on store + domain
-│   ├── input/
-│   │   ├── InputPanel.tsx   # Form container
-│   │   ├── ServerForm.tsx   # Server count + per-rack inputs
-│   │   ├── ConnectivityForm.tsx  # Speed + cable type selectors
-│   │   └── useInputForm.ts  # React Hook Form + zodResolver hook
-│   ├── topology/
-│   │   ├── TopologyView.tsx # React Flow canvas
-│   │   ├── LeafNode.tsx     # Custom node: leaf switch
-│   │   ├── SpineNode.tsx    # Custom node: spine switch
-│   │   └── OobNode.tsx      # Custom node: OOB switch
-│   ├── rack/
-│   │   ├── RackView.tsx     # Container: renders N RackElevation components
-│   │   ├── RackElevation.tsx # Single rack SVG with U-slot grid
-│   │   └── DeviceSlot.tsx   # Single device in a rack (SVG rect + label)
-│   ├── bom/
-│   │   ├── BOMPanel.tsx     # BOM table + port saturation alerts
-│   │   ├── BOMTable.tsx     # Rows per switch model
-│   │   └── ExportButtons.tsx # CSV / PDF / JSON trigger buttons
-│   └── export/
-│       ├── csvExporter.ts   # Pure: NetworkBOM → CSV string
-│       ├── pdfExporter.tsx  # @react-pdf/renderer document component
-│       ├── jsonExporter.ts  # Pure: {inputs, bom} → JSON string
-│       └── download.ts      # Utility: trigger browser file download
-│
-├── components/              # Shared, stateless UI primitives
-│   ├── Card.tsx
-│   ├── Badge.tsx
-│   ├── Alert.tsx
-│   └── Tabs.tsx
-│
-├── App.tsx                  # Layout: InputPanel + tab-switched views
-├── main.tsx                 # Vite entry point
-└── vite-env.d.ts
+└── features/
+    ├── sizing/
+    │   ├── SizingPage.tsx        # (modified) adds ModeSelector, conditional rendering
+    │   ├── ModeSelector.tsx      # NEW: ethernet/fc toggle
+    │   ├── InputForm.tsx         # (modified) adds positioning selector
+    │   ├── BOMPanel.tsx          # (modified) adds positioning output, FC not rendered here
+    │   ├── FCInputForm.tsx       # NEW: FC-specific input fields
+    │   └── FCBOMPanel.tsx        # NEW: FC BOM display
+    ├── topology/
+    │   ├── TopologyTab.tsx       # (unchanged) Ethernet topology
+    │   ├── TopologyFCTab.tsx     # NEW: dual-fabric FC topology
+    │   └── utils/
+    │       ├── buildTopologyGraph.ts     # (unchanged)
+    │       └── buildFCTopologyGraph.ts   # NEW: dual-fabric layout builder
+    ├── rack-elevation/
+    │   ├── RackElevationTab.tsx  # (modified) renders positioning rack when MoR/BoR
+    │   └── utils/
+    │       ├── buildRackDevices.ts             # (modified) positioning-aware
+    │       └── buildPositioningRackDevices.ts  # NEW: MoR/BoR switch rack
+    └── export/
+        ├── exportCsv.ts          # (modified) FC BOM rows
+        └── exportPdf.ts          # (modified) FC BOM PDF page
 ```
 
-### Structure Rationale
-
-- **`domain/`:** Completely framework-free. Can be extracted to a separate package or tested with plain `node`. The engine never imports from React, Zustand, or any UI concern. This is the most important boundary in the project.
-- **`store/`:** Depends only on `domain/` types. Exports custom hooks (`useInputStore`, `useResultStore`) — never the raw Zustand store — so components don't couple to Zustand internals.
-- **`features/`:** Each feature is self-contained: its own components, hooks, and local styles. Features import from `store/` and `domain/` but not from sibling features. This prevents tangled cross-feature dependencies.
-- **`components/`:** Generic primitives with no business logic. Replaced by shadcn/ui or similar if a component library is adopted.
+---
 
 ## Architectural Patterns
 
-### Pattern 1: Pure Domain Engine
+### Pattern 1: Parallel Domain Modules (mode isolation)
 
-**What:** All sizing calculations live in `domain/engine/` as pure TypeScript functions with no side effects. The engine takes a `SizingInput` value and returns a `NetworkBOM` value. It never reads from the DOM, never touches Zustand, never calls `Date.now()`.
+**What:** FC sizing lives in entirely separate files from Ethernet sizing. Schemas, catalog, and engine are parallel, never merged. Neither domain imports from the other.
 
-**When to use:** For all business logic — rack count, leaf count, spine count, OOB count, cable quantities. Anytime you can write `f(input) === expectedOutput` as a unit test.
+**When to use:** When two domain modes have fundamentally different input shapes and output shapes. Merging them into a discriminated union at the schema level propagates that complexity to every consumer (stores, forms, export, topology builder, rack builder, tests).
 
-**Trade-offs:** +Trivially testable, +portable, +deterministic. -Requires a thin adapter in the store to call the engine when inputs change.
-
-**Example:**
-```typescript
-// domain/engine/sizing.ts
-export function calculateBOM(input: SizingInput): NetworkBOM {
-  const racks = Math.ceil(input.totalServers / input.serversPerRack);
-  const leafSwitches = racks * 2;                      // dual ToR
-  const spineSwitches = Math.ceil(leafSwitches / 4);   // 4:1 oversubscription
-  const oobSwitches = Math.ceil(racks / 1);            // 1 per rack
-  // ... cable calculations based on input.cableType
-  return { racks, leafSwitches, spineSwitches, oobSwitches, cables };
-}
-```
-
-### Pattern 2: Zustand Derived State
-
-**What:** `resultStore` does not store raw user inputs — it stores the computed output. When `inputStore` changes, a subscription triggers `resultStore.recalculate()`, which calls the domain engine and updates BOM, topology graph data, and rack layouts.
-
-**When to use:** When computed state depends on another slice of state. Avoids stale derived values and keeps the engine call centralised.
-
-**Trade-offs:** +Single source of truth for derived values, +recalculation is automatic. -Slightly more setup than computing inline in components. -Must avoid circular store subscriptions.
+**Trade-offs:** More files, but each file is smaller and independently testable. No risk of Ethernet regressions from FC changes.
 
 **Example:**
 ```typescript
-// store/resultStore.ts
-import { create } from 'zustand';
-import { useInputStore } from './inputStore';
-import { calculateBOM } from '../domain/engine/sizing';
+// domain/engine/fc-sizing.ts — never imports from sizing.ts
+import { FC_SWITCH_CATALOG } from '../catalog/brocade';
+import type { FCSizingInput } from '../schemas/fc-input';
+import type { FCNetworkBOM } from '../schemas/fc-bom';
 
-export const useResultStore = create<ResultState>((set) => ({
-  bom: null,
-  recalculate: (input: SizingInput) => {
-    set({ bom: calculateBOM(input) });
-  },
-}));
-
-// Subscription wired in App.tsx or a dedicated effect:
-// useInputStore.subscribe(state => useResultStore.getState().recalculate(state))
+export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM { ... }
 ```
 
-### Pattern 3: Zod as the Type System Boundary
+### Pattern 2: Separate Persisted Stores per Mode
 
-**What:** TypeScript types for domain inputs and outputs are inferred from Zod schemas (`z.infer<typeof SizingInputSchema>`), not defined independently. The schema validates runtime values (from forms, localStorage) and the inferred type is used everywhere at compile time.
+**What:** `inputStore` persists Ethernet inputs. `fcInputStore` persists FC inputs. Both live independently in localStorage under different keys (`netstack-input` and `netstack-fc-input`).
 
-**When to use:** At every boundary where data enters from outside TypeScript's control: form submission, localStorage rehydration, JSON import.
+**When to use:** When two modes have different input types that cannot merge (different required fields, different validation rules). Separate stores also make version migration independent — bumping Ethernet input schema version does not require a FC migration.
 
-**Trade-offs:** +One definition for both runtime validation and compile-time types. +Catches schema drift. -Slightly verbose schema definitions. -Zod schemas are not zero-cost at runtime for very large objects (not a concern here).
+**Trade-offs:** Two stores to maintain. However, `fcInputStore` is a near-identical copy of `inputStore` with a different schema and default — low maintenance cost.
 
-**Example:**
-```typescript
-// domain/schemas/input.ts
-import { z } from 'zod';
-import { HARDWARE_CATALOG } from '../catalog/hardware';
+### Pattern 3: Mode as Ephemeral UI State
 
-export const SizingInputSchema = z.object({
-  totalServers:   z.number().int().min(1).max(10_000),
-  serversPerRack: z.number().int().min(1).max(48),
-  connectivityType: z.enum(['25G', '100G']),
-  cableType: z.enum(['DAC', 'AOC', 'fiber']),
-});
+**What:** The `'ethernet' | 'fc'` mode selector value is stored in memory only (component state or an ephemeral Zustand slice without `persist`). It is not persisted to localStorage.
 
-export type SizingInput = z.infer<typeof SizingInputSchema>;
+**When to use:** When mode is a view-level concern that should reset on page reload, or when persisting it would add migration complexity.
+
+**Rationale:** The user's inputs in each mode are persisted. The mode itself (which set of inputs to show) is cheap to default back to `'ethernet'` on load — it is the expected starting state for most users.
+
+### Pattern 4: Switch Positioning as Engine Input (not UI-only)
+
+**What:** `switchPositioning` is a field in `SizingInputSchema`, flows through to the engine, appears in the BOM output, and drives violations. It is not computed in the UI layer.
+
+**When to use:** When a UI selection changes what gets ordered (cable length, switch placement). Positioning affects cable type feasibility and DAC advisories, which are domain concerns.
+
+**Trade-offs:** Engine tests cover positioning logic directly. The UI is thinner (no inline advisory logic in components).
+
+### Pattern 5: FC Topology as Dual-Fabric Layout
+
+**What:** `buildFCTopologyGraph(bom: FCNetworkBOM)` returns two parallel fabric rows (Fabric A top, Fabric B bottom) with host ports on the left and storage ports on the right. ISL links connect switches within each fabric horizontally.
+
+**When to use:** FC topology is always dual-fabric. The function should never produce a single-fabric output — that would misrepresent the design.
+
+```
+Fabric A:  [Switch A1]─ISL─[Switch A2]
+              │   │              │   │
+           hosts  storage    hosts  storage
+
+Fabric B:  [Switch B1]─ISL─[Switch B2]
+              │   │              │   │
+           hosts  storage    hosts  storage
 ```
 
-### Pattern 4: Feature-Sliced Import Direction
-
-**What:** Strict one-way dependency rule enforced by ESLint (or convention):
-
-```
-features/ → store/ → domain/
-features/ → components/
-features/ do NOT import from other features/
-```
-
-**When to use:** Always. Even for this small app, the discipline prevents the spaghetti that makes calculator apps hard to extend.
-
-**Trade-offs:** +Eliminates circular dependencies by construction. +Clear place for every new file. -Slightly more indirection for simple cases.
+---
 
 ## Data Flow
 
-### Sizing Calculation Flow
+### FC Sizing Calculation Flow
 
 ```
-User edits form (InputPanel)
+User edits FCInputForm
     ↓
-React Hook Form + Zod validation
+React Hook Form + Zod (FCSizingInputSchema) validation
     ↓
-inputStore.setInput(validatedInput)  [Zustand, persisted to localStorage]
+fcInputStore.setInput(validatedFCInput)  [Zustand, persisted to 'netstack-fc-input']
     ↓
-inputStore subscription fires
+fcInputStore subscription fires
     ↓
-resultStore.recalculate(input)
+fcResultStore recalculates
     ↓
-domain/engine/sizing.calculateBOM(input)  [pure function]
+domain/engine/fc-sizing.calculateFCBOM(input)  [pure function]
     ↓
-resultStore.bom updated  [Zustand]
+fcResultStore.bom updated  [Zustand, not persisted]
     ↓
-TopologyView, RackView, BOMPanel re-render  [React subscriptions]
+FCBOMPanel, TopologyFCTab re-render
 ```
 
-### Export Flow
+### Switch Positioning Flow
 
 ```
-User clicks "Export CSV" (ExportButtons)
+User selects ToR / MoR / BoR in InputForm
     ↓
-Read resultStore.bom + inputStore.input
+inputStore.setInput({ switchPositioning: 'MoR' })
     ↓
-csvExporter.toBOM(bom)  [pure function → string]
+resultStore recomputes via existing subscription
     ↓
-download.triggerDownload(content, 'netstack-bom.csv')
-    ↓  [uses Blob + URL.createObjectURL + anchor click]
-Browser saves file
+calculateBOM(input) — engine reads switchPositioning
+    ↓
+bom.switchPositioning = 'MoR'
+bom.recommendedCableLengthM = 15
+bom.violations may include DAC_POSITIONING_ADVISORY
+    ↓
+BOMPanel renders advisory, cable length recommendation
+    ↓
+RackElevationTab reads bom.switchPositioning
+    ↓
+If MoR/BoR: buildPositioningRackDevices(bom) renders switch rack
+            buildRackDevices(bom, rackIndex) renders server-only racks
+If ToR: buildRackDevices(bom, rackIndex) unchanged (switches at U1-U3)
 ```
 
-### Persistence Flow
+### Mode Switching Flow
 
 ```
-App loads
+User clicks FC mode in ModeSelector
     ↓
-Zustand persist middleware reads localStorage['netstack-input']
+setMode('fc')  [component state or ephemeral Zustand slice]
     ↓
-inputStore hydrated with previous values
-    ↓
-inputStore subscription fires → resultStore.recalculate()
-    ↓
-UI renders with restored state (no user action required)
+SizingPage conditionally renders:
+  - FCInputForm (reads fcInputStore)
+  - FCBOMPanel (reads fcResultStore)
+App.tsx TopologyTab conditionally renders:
+  - TopologyFCTab when mode === 'fc'
+  - TopologyTab (Ethernet) when mode === 'ethernet'
+RackElevationTab works from whichever mode is active
+  - reads resultStore or fcResultStore based on mode
 ```
 
-### Key Data Flows
-
-1. **Input → BOM:** User form values flow through Zod validation into `inputStore`, triggering domain engine recalculation and populating `resultStore`. All three visualisation panels read from `resultStore`.
-2. **BOM → Diagram:** `topology.buildTopologyGraph(bom)` converts BOM quantities into React Flow node/edge arrays. No React Flow state is stored in Zustand — React Flow manages its own internal canvas state.
-3. **BOM → Rack Layout:** `racks.buildRackLayouts(bom)` converts BOM into an array of rack objects, each containing an ordered list of devices with U-slot positions. `RackElevation` renders these as SVG rectangles.
-4. **Config round-trip:** JSON export includes `{ inputs: SizingInput, bom: NetworkBOM }`. JSON import validates through `SizingInputSchema.parse()` before writing to `inputStore`.
-
-## Scaling Considerations
-
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| Single engineer, v1 | Current flat slice structure is fine. All domain logic in `domain/engine/sizing.ts`. |
-| Multiple models / topologies | Promote `sizingEngine` to a strategy pattern: `engines/leafSpine.ts`, `engines/spine3tier.ts` sharing a common interface. |
-| Multi-site in future | Add a `sites[]` array to `SizingInput`. Engine becomes `calculateMultiSiteBOM`. Store and UI grow to support a list of configurations. |
-| Offline / installable | Wrap the Vite app as a PWA with `vite-plugin-pwa`. No server needed — the domain is already fully client-side. |
-
-### Scaling Priorities
-
-1. **First bottleneck:** Hardware catalog hardcoded in constants. When new Dell models arrive, add a catalog entry — no engine changes required if hardware abstraction is done correctly from day one.
-2. **Second bottleneck:** Topology rendering with many nodes (>100 leafs). React Flow handles this well up to ~500 nodes; above that, consider virtualized rendering or a static SVG export rather than interactive canvas.
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Business Logic in Components
-
-**What people do:** Put `Math.ceil(servers / serversPerRack)` inline in `BOMPanel.tsx` or inside a `useEffect`.
-
-**Why it's wrong:** Logic becomes untestable without rendering a component. Duplicated when the same calculation appears in a different panel. Breaks when components re-render at different times.
-
-**Do this instead:** All sizing logic lives in `domain/engine/sizing.ts`. Components read pre-computed values from `resultStore`. If you need the number, call the engine, not the component.
-
-### Anti-Pattern 2: Storing Derived State Redundantly
-
-**What people do:** Store both `inputs` and `bom` as independent top-level persisted state, updating BOM manually after each input change.
-
-**Why it's wrong:** BOM can drift out of sync with inputs (stale state). Persistence of BOM is wasteful — it can always be recomputed from inputs.
-
-**Do this instead:** Persist only `inputStore`. `resultStore` is derived (not persisted). On hydration, `inputStore` fires a subscription that recomputes `resultStore`.
-
-### Anti-Pattern 3: Tight Coupling Between Features
-
-**What people do:** `TopologyView.tsx` imports directly from `BOMPanel.tsx` to share a helper, or `rack/RackView.tsx` reads from `bom/BOMPanel`'s local state.
-
-**Why it's wrong:** Creates brittle cross-feature dependencies that make refactoring risky and phase-by-phase development impossible.
-
-**Do this instead:** Shared logic lives in `domain/` or `store/`. Features only read from stores and domain utilities, never from sibling feature modules.
-
-### Anti-Pattern 4: Persisting All Zustand State
-
-**What people do:** Wrap the entire combined Zustand store in `persist()`.
-
-**Why it's wrong:** Persists ephemeral UI state (open modal, selected tab), causing surprising UI state on reload. Persists derived BOM data, causing stale state if the engine logic changes between versions.
-
-**Do this instead:** Persist only `inputStore`. Use Zustand's `partialize` option or separate stores with selective `persist` wrapping. Include a `version` field in persisted state for migration.
+---
 
 ## Integration Points
 
-### External Services
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| `localStorage` | Zustand `persist` middleware with `createJSONStorage(() => localStorage)` | Version the schema; include a `migrate` callback for future schema changes |
-| Browser download API | `Blob` + `URL.createObjectURL` + programmatic `<a>` click in `download.ts` | No library needed; works in all modern browsers |
-| `@react-pdf/renderer` | Render a `<PDFDocument>` React component to a Blob in a Web Worker if PDF is large | For a BOM report, synchronous rendering is sufficient; no worker needed |
-| React Flow (XyFlow) | Consume `resultStore.topologyGraph` as React Flow `nodes[]` and `edges[]` props | React Flow manages its own viewport state; do not store pan/zoom in Zustand |
-
-### Internal Boundaries
+### New Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| `InputPanel` → `inputStore` | Direct Zustand store write via custom hook | Form library (React Hook Form) manages local form state; only validated, final values reach the store |
-| `inputStore` → `resultStore` | Zustand `subscribe` subscription | Wire in `App.tsx` or a dedicated `useEngineSync` hook on mount |
-| `resultStore` → views | Zustand selector hooks in each feature | Each component subscribes only to the slice it needs to minimise re-renders |
-| `features/export` → `resultStore` | Read-only access via hooks at export time | Exporters are pure functions; features pass data in, exporters return strings |
-| `domain/engine` → `domain/catalog` | Direct TypeScript import | Catalog is plain constants; engine imports hardware specs for port count calculations |
+| `FCInputForm` → `fcInputStore` | Zustand write via custom hook | Same pattern as `InputForm` → `inputStore` |
+| `fcInputStore` → `fcResultStore` | Module-level `subscribe`, mirrors resultStore | Wire at module load time, not in React lifecycle |
+| `ModeSelector` → tabs | Component state prop or React context | Do NOT use Zustand for this — it is transient display state |
+| `RackElevationTab` → mode | Read from same context/state as ModeSelector | Single source of mode truth; tab reads it to decide which store to consult |
+| `buildRackDevices` → `switchPositioning` | `bom.switchPositioning` field read inside function | Pure function; no new store dependency |
+| `buildFCTopologyGraph` → `FCNetworkBOM` | Direct import; parallel to `buildTopologyGraph` | Entirely separate; never called by Ethernet topology builder |
 
-## Build Order (Phase Implications)
+### Schema Shared Between Modes
 
-The dependency graph dictates this recommended build sequence:
+| Schema | Used By | Notes |
+|--------|---------|-------|
+| `RackConfigSchema` | Both `SizingInputSchema` and `FCSizingInputSchema` | Import from `input.ts` — do not duplicate |
+| `rackSize` enum | Both input schemas | Extract to `src/domain/schemas/shared.ts` or keep inline (acceptable for small enum) |
+| `serverUHeight` enum | Both input schemas | Same — extract or inline |
+| `ConstraintViolationSchema` | Both BOM schemas | `fc-bom.ts` extends with FC-specific violation codes; use a re-exported union |
 
-1. **Domain layer first** (`domain/catalog`, `domain/schemas`, `domain/engine`) — no React deps, immediately testable. All subsequent phases depend on this being correct.
-2. **Store layer** (`inputStore`, `resultStore`, `uiStore`) — depends only on domain types. Enables wiring before any UI exists.
-3. **Input feature** (`InputPanel`, form hooks) — first visible UI. Validates the store integration end-to-end.
-4. **BOM feature** (`BOMPanel`, `BOMTable`) — verifies the full input→engine→store→UI pipeline before adding complex visualisations.
-5. **Topology feature** (`TopologyView`, React Flow nodes) — builds on confirmed BOM data. React Flow setup is self-contained.
-6. **Rack elevation feature** (`RackView`, `RackElevation`) — pure SVG, depends on `resultStore.racks`. Independent of topology view.
-7. **Export feature** (`csvExporter`, `pdfExporter`, `jsonExporter`) — builds on the stable BOM data model. Can be added last.
-8. **Persistence** (Zustand `persist` on `inputStore`, JSON import) — add last to avoid complicating earlier phases with schema migration concerns.
+---
+
+## Build Order (phase recommendations)
+
+Dependencies between components drive this order. Each phase assumes the previous is complete and tested.
+
+**Phase 1: FC Domain Foundation**
+Build `brocade.ts` catalog, `fc-types.ts`, `fc-input.ts`, `fc-bom.ts`, `fc-sizing.ts`, `fc-sizing.test.ts`. This is pure TypeScript with no React dependency. Tests verify all FC formulas before any UI exists.
+
+**Phase 2: FC Store Layer**
+Build `fcInputStore.ts` and `fcResultStore.ts`. Wire subscription. Smoke-test via `fcResultStore.test.ts` in jsdom.
+
+**Phase 3: Switch Positioning (Ethernet)**
+Modify `SizingInputSchema` (add `switchPositioning`), `NetworkBOMSchema` (add fields + violation), `sizing.ts` (cable advisory logic), bump inputStore persist version. This is a smaller change contained to the Ethernet domain — complete it before FC UI so it does not conflict.
+
+**Phase 4: Positioning UI**
+Modify `InputForm.tsx` (add selector), `BOMPanel.tsx` (new advisory rendering), `buildRackDevices.ts` (positioning-aware switch placement), `RackElevationTab.tsx` (positioning rack column), add `buildPositioningRackDevices.ts`.
+
+**Phase 5: FC Input & BOM UI**
+Build `ModeSelector.tsx`, `FCInputForm.tsx`, `FCBOMPanel.tsx`. Modify `SizingPage.tsx` to conditionally render based on mode.
+
+**Phase 6: FC Topology**
+Build `buildFCTopologyGraph.ts` and `TopologyFCTab.tsx`. Modify `App.tsx` (or the tab that hosts topology) to conditionally render the FC topology canvas.
+
+**Phase 7: Export**
+Extend CSV and PDF exporters for FC BOM. This is last because it depends on all FC domain + UI being stable.
+
+---
+
+## Scaling Considerations
+
+This is a pure client-side SPA. Scaling refers to codebase scale, not user scale.
+
+| Concern | Current State | With v2.0 |
+|---------|---------------|-----------|
+| Domain isolation | Single Ethernet domain | Two parallel domains; no cross-contamination risk |
+| Store complexity | 2 stores (input + result) | 4 stores (2 per mode); each simple and independent |
+| Schema migration | inputStore at v5 | inputStore bumps to v6 (positioning field only); fcInputStore starts at v1 |
+| Test surface | 223 tests for Ethernet | FC engine adds ~40-60 unit tests; positioning adds ~15 tests |
+| Bundle size | No change from architecture (same libraries) | `brocade.ts` catalog is trivial in size |
+
+---
+
+## Anti-Patterns for v2.0
+
+### Anti-Pattern 1: Merging FC and Ethernet into One Schema
+
+**What people do:** Add a `mode: z.enum(['ethernet', 'fc'])` field to `SizingInputSchema` and then conditionally handle FC fields in the same schema and engine.
+
+**Why it's wrong:** The Ethernet schema has `leafModel`, `spineModel`, `cableType`, `activeUplinksPerLeaf`. The FC schema has `fcSwitchModel`, `hbaPortsPerServer`, `storageTargetPorts`. These are non-overlapping. A merged schema becomes a partial-object nightmare with many optional fields, and every engine branch must check `input.mode`. The engine loses its pure-function guarantees and tests become complex.
+
+**Do this instead:** Separate schemas, separate engines, separate stores. The mode selector is a UI concern that controls which schema/engine/store is active.
+
+### Anti-Pattern 2: Persisting Mode Selector
+
+**What people do:** Store `mode: 'ethernet' | 'fc'` in `inputStore` (Ethernet) or as a shared persisted value.
+
+**Why it's wrong:** Forces a schema migration whenever mode enum changes. The FC and Ethernet inputs are already persisted separately — the mode is merely a view switch. Persisting it adds no value because either mode's inputs are already restored when the user switches back.
+
+**Do this instead:** Mode is ephemeral component state or a non-persisted Zustand slice. On reload, default to `'ethernet'` (the existing behavior). FC inputs are already in localStorage and will be restored when FC mode is selected.
+
+### Anti-Pattern 3: Shared Rack Elevation for FC Without Abstraction
+
+**What people do:** Pass `fcResultStore.bom` to `buildRackDevices()` (which expects `NetworkBOM`, not `FCNetworkBOM`).
+
+**Why it's wrong:** Type mismatch; FC BOM does not have `leafSwitches`, `spineSwitches`, etc. The rack elevation for FC shows only server racks (FC switches are in a separate "SAN rack") — the layout logic differs.
+
+**Do this instead:** `RackElevationTab` accepts a render prop or a `mode` parameter. When `mode === 'fc'`, it calls `buildFCSANRackDevices(fcBom)` for the SAN rack and builds server racks with only server devices (no leaf/OOB switches — those are in the SAN rack).
+
+### Anti-Pattern 4: Coupling TopologyFCTab to Ethernet buildTopologyGraph
+
+**What people do:** Modify `buildTopologyGraph.ts` to conditionally handle FC topology when a `mode` flag is passed.
+
+**Why it's wrong:** Couples two completely different layout algorithms in one function. FC topology is a dual-fabric parallel layout; Ethernet is a leaf-spine hierarchical layout. Mixing them in one function makes both harder to test and extend.
+
+**Do this instead:** `buildFCTopologyGraph(fcBom: FCNetworkBOM): TopologyGraphResult` is a separate function. `TopologyFCTab` uses it exclusively. `TopologyTab` (Ethernet) uses `buildTopologyGraph` exclusively. The result type `TopologyGraphResult` (nodes + edges) is shared because React Flow accepts the same `Node[]` and `Edge[]` types regardless of topology.
+
+---
 
 ## Sources
 
-- [React Architecture: Business Logic Separation](https://profy.dev/article/react-architecture-business-logic-and-dependency-injection) — MEDIUM confidence (verified with React official docs)
-- [Zustand persist middleware](https://zustand.docs.pmnd.rs/reference/middlewares/persist) — HIGH confidence (official docs)
-- [React Flow / XyFlow](https://reactflow.dev) — HIGH confidence (official docs)
-- [Feature-Sliced Design](https://feature-sliced.design/) — MEDIUM confidence (methodology site, multiple community adoptions)
-- [Zod TypeScript-first schema validation](https://zod.dev/) — HIGH confidence (official docs)
-- [@react-pdf/renderer vs jsPDF comparison](https://npm-compare.com/@react-pdf/renderer,jspdf,pdfmake,react-pdf) — MEDIUM confidence (WebSearch verified against npm download counts)
-- [Zustand Architecture Patterns at Scale](https://brainhub.eu/library/zustand-architecture-patterns-at-scale) — MEDIUM confidence (industry article)
-- [NetBox SVG rack elevation rendering](https://github.com/netbox-community/netbox/issues/2248) — MEDIUM confidence (open-source reference implementation using HTML5 SVG)
+- [Brocade G720 Technical Specifications — Broadcom TechDocs](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html) — HIGH confidence (official Broadcom docs)
+- [Brocade G820 Device Overview — Broadcom TechDocs](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html) — HIGH confidence (official Broadcom docs)
+- [Broadcom Launches Brocade Gen 8 — StorageReview](https://www.storagereview.com/news/broadcom-launches-brocade-gen-8-128g-fibre-channel-for-ai-mission-critical-and-quantum-safe-storage) — MEDIUM confidence (press coverage)
+- [SAN Design and Best Practices — Broadcom](https://docs.broadcom.com/doc/53-1004781) — HIGH confidence (official Broadcom SAN design guide, Nov 2025)
+- [FC SAN Dual Fabric / ISL Best Practices — FlackBox](https://www.flackbox.com/fibre-channel-san-part-3-redundancy-multipathing) — MEDIUM confidence (training content, aligns with vendor docs)
+- [ToR vs EoR/MoR Architecture — ANFKOM](https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/) — MEDIUM confidence (aligns with industry standard definitions)
+- Existing NetStack codebase (`src/domain/engine/sizing.ts`, `src/store/inputStore.ts`, `src/domain/schemas/`) — HIGH confidence (read directly)
 
 ---
-*Architecture research for: NetStack — Dell Leaf-Spine network sizing calculator (React SPA)*
-*Researched: 2026-03-16*
+
+*Architecture research for: NetStack v2.0 — FC SAN sizing and switch positioning*
+*Researched: 2026-03-18*

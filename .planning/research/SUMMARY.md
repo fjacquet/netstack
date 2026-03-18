@@ -1,234 +1,206 @@
 # Project Research Summary
 
-**Project:** NetStack — Dell SONiC Leaf-Spine Network Sizing Calculator
-**Domain:** Client-side infrastructure BOM calculator / network sizing tool (React SPA, no backend)
-**Researched:** 2026-03-16
+**Project:** NetStack v2.0 — FC SAN Sizing + Switch Positioning
+**Domain:** Browser-native network sizing calculator / BOM generator (Dell SONiC Ethernet + Brocade FC SAN)
+**Researched:** 2026-03-18
 **Confidence:** HIGH
 
 ## Executive Summary
 
-NetStack is a specialized, deterministic, client-only tool for engineers sizing Dell SONiC Leaf-Spine fabrics. The research confirms there is no competing tool in this niche: Cisco Nexus Hyperfabric is the closest functional analog but is Cisco-hardware-locked and cloud-managed, while Dell's own EIPT focuses on power and cooling rather than network topology. NetStack fills an unambiguous gap as a locally-run, export-focused, procurement-oriented sizing tool targeting Dell S-series switches and SONiC-managed fabrics. The recommended build strategy is a pure-function domain engine surrounded by a thin React/Zustand shell — all sizing math in framework-free TypeScript, all UI reading from derived Zustand state. This architecture makes the engine trivially testable and keeps the browser-only constraint clean.
+NetStack v2.0 extends a validated, production-ready Ethernet leaf-spine sizing tool with two orthogonal capabilities: Fibre Channel SAN sizing (Brocade Gen7/Gen8 switches, dual-fabric topology, ISL calculations) and switch positioning awareness (ToR/MoR/BoR selector, cable length impact, rack elevation placement). The foundational architecture — Domain → Store → Features one-way layering, Zod schemas as the single source of truth, pure sizing engine functions — is proven and must not be compromised. No new npm runtime dependencies are required; all new functionality is implemented as parallel TypeScript modules following established patterns.
 
-The recommended stack is pre-validated against the project's engineering constitution: React 19 + TypeScript 5 + Vite 8 + Zustand 5 + Zod 4 for the core; @xyflow/react 12 for topology diagrams; custom SVG for rack elevation (no mature React-native library exists); @react-pdf/renderer 4 for PDF generation; Recharts 3 for BOM charts; Tailwind CSS v4 + shadcn/ui for styling. All versions are current as of research date and confirmed compatible with each other. One active compatibility concern exists: `@hookform/resolvers` v5.2.2 has an open GitHub issue (12829) around Zod v4 compatibility that must be verified before the form phase.
+The recommended approach is strict domain isolation between the Ethernet and FC modes. The FC sizing engine, schemas, hardware catalog, and stores are entirely parallel to their Ethernet counterparts — they never share mutable state, import each other's internals, or merge their BOM schemas. The mode selector is a UI-layer concern only. Switch positioning is an additive modifier to the Ethernet engine, not a separate mode. This separation keeps each domain independently testable and prevents a class of integration bugs that have historically been high-cost to recover from.
 
-The dominant risk category is incorrect sizing math, not frontend complexity. Five engineering-domain pitfalls could silently generate wrong BOMs: spine count hardcoded to 2 instead of scaling with leaf count; oversubscription ratio not surfaced; cable count computed from port sums rather than link counts (off-by-2); OOB port saturation not validated; and DAC cable distance constraints ignored. All five must be addressed in Phase 1 — the domain engine — before any UI is built on top. A wrong engine locked behind a polished UI is the worst possible outcome for a tool engineers will use to purchase hardware.
+The key risk is premature coupling: specifically, merging FC fields into the existing `SizingInputSchema` or extending `calculateBOM()` with mode-branch logic. Both feel like the path of least resistance but create cascading problems across the store, export, and test layers. A second equally critical risk is the Brocade POD (Ports on Demand) licensing model — FC switches ship with a base port count well below the catalog maximum, and the BOM must surface POD license quantities as a first-class line item from day one. Getting either of these wrong produces a BOM that fails procurement validation.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack is fully specified by the engineering constitution and confirmed by research. The project is a pure client-side SPA with no backend, no auth, and no server dependencies. All state persists to localStorage via Zustand's `persist` middleware. PDF and CSV generation happen entirely in-browser.
+NetStack v2.0 requires zero new npm dependencies. The existing stack — Vite 8, React 19, TypeScript 5.9, Zustand 5, Zod 4, @xyflow/react, react-hook-form, shadcn/ui, Tailwind v4, @react-pdf/renderer, react-papaparse — covers all v2.0 requirements. FC SAN catalog data, ISL formulas, and dual-fabric topology are implemented as pure TypeScript additions following patterns already established in the Ethernet domain.
+
+See `.planning/research/STACK.md` for full technology details.
 
 **Core technologies:**
-- React 19 + Vite 8: UI framework + build tool — concurrent rendering, fastest cold start, native ESM
-- TypeScript 5 (strict): Type safety — strict mode required; types inferred from Zod schemas, not defined separately
-- Zustand 5: Global state — minimal boilerplate, concurrent-rendering safe, persist middleware for localStorage
-- Zod 4: Runtime validation — 14x faster than v3, 57% smaller bundle; validates all data entering from outside TypeScript's control
-- @xyflow/react 12: Topology diagram — standard for node-based React UIs, confirmed React 19 + Tailwind v4 compatible
-- @react-pdf/renderer 4: PDF export — declarative JSX-to-PDF, client-only, 860K weekly downloads
-- Recharts 3: BOM charts — pure React/D3, fully declarative, typed `dataKey` generics
-- react-hook-form 7 + @hookform/resolvers 5: Form management — minimal re-renders, Zod integration (verify Zod v4 compat before use)
-- Tailwind CSS v4 + @tailwindcss/vite: Styling — no PostCSS config needed; `@import "tailwindcss"` in one CSS file
-- shadcn/ui (CLI): Component primitives — copy-owned, tree-shakable, updated for React 19 + Tailwind v4
-- Vitest 4 + @testing-library/react 16: Testing — Vite-native, Jest-compatible API, no separate config
-
-**Do not use:** `reactflow` (old package name, v11 only), Zod v3, `react-pdf` (vojtekmaj, it is a viewer not a generator), Redux Toolkit, PostCSS for Tailwind, `any` TypeScript type.
-
-See: `.planning/research/STACK.md` for full version table and alternatives rationale.
+- TypeScript 5.9 (strict): type-safe domain models for both Ethernet and FC — critical because FC port/speed/fabric semantics are meaningfully different from Ethernet
+- Zod 4.3.6: separate `FCSizingInputSchema` and `FCNetworkBOMSchema` following exact same `z.infer<>` pattern as existing Ethernet schemas
+- Zustand 5.0.12: separate `fcInputStore` (persisted, key `netstack-fc-input`) and `fcResultStore` (derived) — no cross-mode state contamination
+- @xyflow/react 12.10.1: two independent `<ReactFlow>` instances for FC dual-fabric topology; each needs its own `ReactFlowProvider`
+- @react-pdf/renderer 4.3.2: FC BOM added as a new `<Page>` section in existing PDF; separate `FCNetStackDocument` component
 
 ### Expected Features
 
-The competitor analysis (Cisco Nexus Hyperfabric, Nutanix Sizer, Dell EIPT, Juniper Apstra) confirms a clear feature hierarchy. NetStack's differentiating position is Dell SONiC specificity combined with local execution, deterministic math, and procurement-grade export.
+See `.planning/research/FEATURES.md` for full feature prioritization matrix and competitor analysis.
 
-**Must have — v1 table stakes:**
-- Parameterized input form (server count, servers/rack, link speed, cable type) — entry point for all calculations
-- Hardware catalog as typed constants (S5248F-ON, S5232F-ON, S3248T-ON) — sizing foundation; must exist before engine
-- Pure sizing engine: rack, leaf, spine, OOB counts + cable quantities — core value; all competing tools have this
-- Oversubscription ratio + port utilization display — engineers validate before sign-off; not displaying this is a critical omission
-- Port saturation alerts (OOB >48 ports, spine capacity limits) — prevents hardware over/under orders
-- BOM summary table (switch model, quantity, cable type, quantity by category) — primary procurement artifact
-- CSV export — universally expected in procurement workflows
-- Topology diagram (logical Leaf-Spine view, React Flow) — visual design validation
-- Rack elevation view (physical per-rack device placement, custom SVG) — physical build documentation
-- Save/load via localStorage — engineers iterate on designs; losing work destroys trust
-- PDF/print report — stakeholder and procurement handoff
-- Zod-based input validation with inline error messages — tool must not silently accept bad input
+**Must have for v2.0 launch (P1):**
+- Mode selector (Ethernet / FC) — root of the FC feature tree; renders either subtree, never both simultaneously
+- Brocade FC switch catalog (9 models: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8) — sizing foundation
+- FC input form: HBA ports per server, storage target ports, FC switch model, ISL trunk count
+- Dual-fabric sizing engine: per-fabric switch count, ISL count, POD license requirement, port utilization
+- FC BOM panel: switches per fabric (A+B), ISL cables, SFP optics, fan-in oversubscription ratio, POD license count as a top-level line item
+- FC dual-fabric topology diagram: two independent fabric views (Fabric A blue, Fabric B orange)
+- FC constraint violations: `FC_PORT_SATURATION`, `FC_OVERSUBSCRIPTION_EXCEEDED` (>7:1 fan-in), `FC_ISL_UNDERPROVISIONED`
+- FC export: additional rows/sections in CSV and PDF, with Fabric A / Fabric B as separate BOM sections
+- Switch positioning selector (ToR / MoR / BoR) — modifies Ethernet mode only
+- Rack elevation switch U-position based on positioning
+- Cable length advisory and DAC incompatibility violation for MoR/BoR
 
-**Should have — v1.x differentiators:**
-- Cable type selector (DAC/AOC/fiber) — different environments require different cabling; affects cable SKUs
-- JSON export — enables automation pipeline and IaC consumption
-- Multiple named configurations — compare design A vs. design B
-- Topology port labels — wiring documentation for rack build teams
+**Should have, add in v2.x (P2):**
+- 7850 extension switch sizing (niche, validate demand first)
+- Gen8 vs Gen7 recommendation engine
+- Director vs fixed switch cost breakeven hint
 
-**Defer to v2+:**
-- Growth scenario projector (what-if: add 20 more servers) — requires save/load foundation; complex UX
-- Oversubscription ratio target input (reverse solver) — power-user feature; validate core first
-- Spine scaling visualization (graph of spine count vs. leaf count growth)
-- Real-time pricing / procurement integration — prices change daily; explicitly an anti-feature
-- BGP/VLAN config generation — separate tool domain; out of scope
-- Mobile-optimized UI — desktop-first is correct; network engineers size at a desk
+**Defer to v3.0+ (P3):**
+- Combined Ethernet + FC unified session (requires data model redesign)
+- NPIV virtualization sizing guidance
+- FC zone count estimation
 
-See: `.planning/research/FEATURES.md` for full competitor feature matrix and dependency graph.
+NetStack v2.0 becomes the only sizing tool covering both Dell SONiC Ethernet leaf-spine and Brocade FC SAN from a single browser-native, offline-capable interface — a strong differentiator against Cisco Hyperfabric, Nutanix Sizer, and Dell EIPT, none of which cover this combination.
 
 ### Architecture Approach
 
-The architecture follows a strict four-layer separation: Domain (pure TypeScript, no React), Store (Zustand, depends only on Domain), Features (React components, depend on Store and Domain), Shared Components (stateless primitives). The critical architectural invariant is that the domain engine (`domain/engine/sizing.ts`) never imports from React, Zustand, or any UI concern — it is a pure function `(SizingInput) => NetworkBOM` that can be tested with plain Node.js. Only `inputStore` is persisted to localStorage; `resultStore` is always derived from inputs on hydration. `uiStore` (active tab, modal state) is never persisted.
+The v2.0 architecture extends the baseline Domain → Store → Features one-way layered pattern with a strict parallel-module approach: FC and Ethernet domains are entirely separate at every layer. Neither domain imports from the other. The mode selector is ephemeral UI state (not persisted) that controls which parallel subtree is rendered. Switch positioning is an additive Ethernet-only engine input that flows through to the BOM and drives new violation types.
+
+See `.planning/research/ARCHITECTURE.md` for the full file inventory (14 new files, 13 modified files) and data flow diagrams.
 
 **Major components:**
-1. `domain/` — Hardware catalog constants, Zod schemas, pure sizing engine functions; no framework dependencies; first thing built, last thing touched
-2. `store/` — Three Zustand slices: `inputStore` (persisted), `resultStore` (derived from engine), `uiStore` (ephemeral); wire subscription from inputStore to resultStore in App.tsx
-3. `features/input/` — React Hook Form + Zod resolver; writes validated input to `inputStore`
-4. `features/bom/` — BOM table + port saturation alerts + export buttons; reads from `resultStore`
-5. `features/topology/` — React Flow canvas with custom LeafNode, SpineNode, OobNode; reads topology graph from `resultStore`; layout computed deterministically (spines top, leafs middle, racks bottom)
-6. `features/rack/` — Custom SVG rack elevation; reads rack layout array from `resultStore`; no external library needed
-7. `features/export/` — Pure functions for CSV, PDF (@react-pdf/renderer), JSON; lazy-loaded to avoid bundle weight on initial render
-
-**Build order dictated by dependencies:** Domain layer → Store layer → Input feature → BOM feature → Topology feature → Rack elevation → Export → Persistence schema versioning.
-
-See: `.planning/research/ARCHITECTURE.md` for full data-flow diagrams, anti-patterns, and integration boundaries.
+1. `src/domain/catalog/brocade.ts` — FC switch hardware catalog (parallel to `hardware.ts`); typed with `FCSwitchSpec` including `basePorts`, `podLicenseUnit`, `maxIslPorts`
+2. `src/domain/engine/fc-sizing.ts` — `calculateFCBOM(input: FCSizingInput): FCNetworkBOM` pure function; zero imports from Ethernet engine
+3. `src/store/fcInputStore.ts` + `fcResultStore.ts` — parallel stores with independent localStorage keys; subscription pattern mirrors existing Ethernet store
+4. `src/features/sizing/ModeSelector.tsx` — UI toggle only; mode is ephemeral component state, not persisted to localStorage
+5. `src/features/topology/TopologyFCTab.tsx` — two independent `<ReactFlow>` instances for Fabric A and Fabric B
+6. `src/domain/schemas/input.ts` (modified) — adds `switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR')` to existing Ethernet schema
+7. `src/features/rack-elevation/RackElevationTab.tsx` (modified) — renders dedicated network rack when MoR/BoR selected; replaces hardcoded `SWITCH_U_PER_SERVER_RACK` constant with `switchOverheadU(positioning)` function
 
 ### Critical Pitfalls
 
-All five critical pitfalls originate in the domain engine and must be prevented in Phase 1. A wrong engine cannot be fixed by adding better UI later.
+See `.planning/research/PITFALLS.md` for all 8 pitfalls with recovery cost estimates and phase-to-pitfall mapping.
 
-1. **Spine count hardcoded to 2** — Compute from formula: max leafs per pod = spine_port_count (32 for S5232F-ON); alert user when rack count exceeds this limit. Never use `const SPINE_COUNT = 2`.
+1. **FC domain logic leaking into Ethernet engine** — never add FC fields to `SizingInputSchema` or branch `calculateBOM()` on a `mode` flag. Separate schema, separate engine, separate store. Recovery cost is HIGH if mixed early.
 
-2. **Oversubscription ratio not surfaced** — Add `oversubscriptionRatio: number` as a required field on `NetworkBOM` from day one. Format output as "3:1" not "0.333". Apply tiered color warnings: green ≤3:1, amber 3:1–6:1, red >6:1.
+2. **Dynamic POD licensing absent from BOM** — `FC_SWITCH_CATALOG` must model both `basePorts` and `totalPorts` with `podLicenseUnit` increments. BOM must output `podLicensesRequired` as a first-class line item, not a footnote. Missing this on launch damages customer trust.
 
-3. **Cable count from port sums (off-by-2)** — Model cables as links, not as endpoint port counts. Leaf-spine cables = `N_leafs × uplinks_per_leaf`. Write the unit test before writing the formula.
+3. **ISL formula copied from Ethernet uplink formula** — FC ISL sizing derives from host-to-storage fan-in ratio and bandwidth budget, not a per-switch uplink multiplier. Implement `calculateIslCount()` as a separate function with `targetFanIn` input (Broadcom 7:1 default). `FCNetworkBOM` requires `islOversubscriptionRatio` as a non-optional field.
 
-4. **OOB port saturation not validated at engine level** — Implement as a typed `ConstraintViolation` from the engine, not a UI string check. `oobPortsRequired = servers_per_rack + 2` (ToR pair); must not exceed S3248T's 48-port limit.
+4. **Dual-fabric FC topology rendered as a single interconnected graph** — FC redundancy depends on fabrics being independent. `buildFCTopologyGraph()` must return `{ fabricA, fabricB }` — two structurally isolated subgraphs. Cross-fabric edges must be architecturally impossible in the data model.
 
-5. **DAC cable distance constraints ignored** — Store `max_distance_m` on each cable type in the hardware catalog. Flag DAC as likely infeasible for spine connections in pods larger than adjacent-rack topology.
+5. **Mode switch corrupting persisted Ethernet state** — Ethernet store (`netstack-input`, v5) and FC store (`netstack-fc-input`, v1) use separate localStorage keys with independent schemas and migrations. No FC field ever appears in an Ethernet schema migration branch.
 
-**Top integration gotchas:**
-- Zustand v5 selectors that return new object/array references cause infinite render loops — use `useShallow`
-- @react-pdf/renderer must be lazy-loaded; importing in main bundle blocks initial render by 1–3 seconds
-- React Flow auto-layout produces random positions; compute deterministic positions from topology math
-- Zod `.parse()` on every keypress is wasteful; use `.safeParse()` with 150ms debounce on `onChange`
-- localStorage JSON must be wrapped in try-catch; corrupt entries throw synchronously and crash the app
-- Persisted Zustand state must include a `version` field with a `migrate` callback; schema changes without migration corrupt stored configs silently
-
-See: `.planning/research/PITFALLS.md` for the full checklist, recovery costs, and phase-to-pitfall mapping.
+6. **Hardcoded `SWITCH_U_PER_SERVER_RACK = 3` constant breaking MoR/BoR rack elevation** — replace with `switchOverheadU(positioning): number` function before any positioning UI is written. MoR/BoR returns 1 (OOB only in server rack); ToR returns 3 (OOB + leaf pair).
 
 ## Implications for Roadmap
 
-The dependency graph in ARCHITECTURE.md and the pitfall-to-phase mapping in PITFALLS.md together dictate a clear build sequence. The sizing engine must be correct before any UI is built on it. Visualizations are independent of each other and can be parallelized after the BOM pipeline is verified.
+Based on combined research, seven phases are recommended for v2.0. The build order is driven by domain-layer dependencies: catalog and schemas must precede engine, store layer must precede UI, and mode isolation must be established before either FC engine or positioning engine to prevent cross-contamination.
 
-### Phase 1: Domain Foundation
-**Rationale:** Every subsequent phase depends on correct sizing math. Building UI before the engine is verified invites silent errors that are expensive to detect and fix. This phase has no React dependency, making it the fastest to test and the safest to build first.
-**Delivers:** Typed hardware catalog, Zod schemas with inferred TypeScript types, pure sizing engine (`calculateBOM`, `buildTopologyGraph`, `buildRackLayouts`), unit test suite covering spine scaling, cable link counts, OOB saturation, oversubscription ratio.
-**Addresses:** Input form foundation, hardware catalog (P1 features from FEATURES.md)
-**Avoids:** All 5 critical domain pitfalls — spine scaling, cable off-by-2, OOB saturation, oversubscription omission, DAC distance constraints
+### Phase 1: FC Catalog and Schema Foundation
+**Rationale:** All FC computation depends on correct hardware specs and input/output types. This phase has zero React dependency — pure TypeScript that can be verified with unit tests before any UI exists. POD licensing must be modelled here before the engine is written; it cannot be retrofitted without a BOM schema change.
+**Delivers:** `brocade.ts` (FC_SWITCH_CATALOG with `basePorts`/`podLicenseUnit`), `fc-types.ts` (FCSwitchSpec), `fc-input.ts` (FCSizingInputSchema), `fc-bom.ts` (FCNetworkBOMSchema with FCConstraintViolation), `fc-optics.ts` (FC_OPTICS_CATALOG with `protocol` discriminant)
+**Addresses:** FC switch catalog (9 models), FC input schema, POD licensing model
+**Avoids:** Pitfall 2 (POD licensing absent), Pitfall 6 (FC optics confused with Ethernet optics)
 
-### Phase 2: State Layer and Input Form
-**Rationale:** Store layer is the bridge between domain engine and UI. Input form is the only way to exercise the engine in the browser. This phase validates the full input→engine→store pipeline with minimal UI surface area before adding complex visualizations.
-**Delivers:** Three Zustand stores (inputStore persisted, resultStore derived, uiStore ephemeral), React Hook Form + Zod resolver, inline validation error messages, server count/rack density/connectivity type inputs, App shell with tab layout.
-**Uses:** Zustand 5, Zod 4, react-hook-form 7, @hookform/resolvers 5 (verify Zod v4 compat), Tailwind v4, shadcn/ui
-**Avoids:** Zustand persist-all antipattern, Zod .parse() on keypress, localStorage without try-catch
+### Phase 2: Mode Store Isolation
+**Rationale:** Must precede both FC engine and positioning engine. Establishes separate localStorage keys for Ethernet and FC stores. Validates that switching modes never corrupts the other mode's persisted state. Cheap to build in isolation; expensive to retrofit after cross-mode coupling is established.
+**Delivers:** `fcInputStore.ts` (persisted, key `netstack-fc-input`, v1), `fcResultStore.ts` (derived), mode selector state strategy (ephemeral, key `netstack-mode`), Vitest test: mode switch leaves Ethernet inputStore unchanged
+**Addresses:** Store architecture for dual-mode operation
+**Avoids:** Pitfall 5 (mode switch corrupting Ethernet state), Pitfall 1 (FC/Ethernet domain mixing in store layer)
 
-### Phase 3: BOM Output and Metrics Display
-**Rationale:** The BOM table + oversubscription display validates the engine output before adding complex visualization layers. A working BOM panel confirms the full data pipeline. Port saturation alerts are low-complexity but high-value; add them here.
-**Delivers:** BOM summary table (grouped by Switches / Cables category), oversubscription ratio display with tiered color coding (green/amber/red), port utilization per switch, port saturation alerts as typed violations, save/load via localStorage persistence.
-**Addresses:** BOM table, oversubscription display, port utilization, port saturation alerts, save/load (all P1 from FEATURES.md)
-**Avoids:** "0 results vs invalid configuration" ambiguity UX pitfall; oversubscription as decimal format
+### Phase 3: FC Sizing Engine
+**Rationale:** Pure function with no React/UI dependency. Can be fully unit-tested before any UI exists. ISL formula must be implemented correctly here — cannot be patched after UI is built around incorrect numbers. This phase gates all FC UI phases.
+**Delivers:** `fc-sizing.ts` (`calculateFCBOM()` pure function, dual-fabric calculation, ISL bandwidth formula with fan-in ratio, POD license requirement calculation), `fc-sizing.test.ts` (40-60 unit tests covering all FC formulas and violations)
+**Addresses:** Dual-fabric sizing engine, ISL calculation, fan-in oversubscription, FC constraint violations
+**Avoids:** Pitfall 3 (ISL formula copied from Ethernet), Pitfall 1 (FC logic leaking into Ethernet engine)
 
-### Phase 4: Topology Diagram
-**Rationale:** React Flow setup is self-contained and independent of rack elevation. Topology is high-user-value (visual design validation) and well-documented. Builds on confirmed BOM data from Phase 3.
-**Delivers:** @xyflow/react canvas with custom LeafNode, SpineNode, OobNode components; deterministic layout (spine top row, leaf middle row, rack bottom row); dagre/elk auto-layout for position computation; SVG snapshot for PDF embedding.
-**Uses:** @xyflow/react 12.10.1, custom node types with hardware metadata in `data` prop
-**Avoids:** React Flow auto-layout producing random positions; React Flow nodes subscribing to full Zustand state; @xyflow/react v11 old package name
+### Phase 4: Switch Positioning (Ethernet Domain)
+**Rationale:** Self-contained Ethernet-only change, smaller scope than FC. Complete it before FC UI is added so that rack elevation changes are isolated and don't conflict with FC UI work. `SWITCH_U_PER_SERVER_RACK` must be refactored here before rack elevation touches positioning.
+**Delivers:** `switchPositioning` field in `SizingInputSchema`, `recommendedCableLengthM` and `DAC_POSITIONING_INCOMPATIBLE` violation in `NetworkBOMSchema`, cable advisory logic in `sizing.ts`, inputStore version bump (v5 to v6), new positioning violation test cases
+**Addresses:** Switch positioning selector, DAC distance advisory update, cable length advisory
+**Avoids:** Pitfall 7 (U-slot math breaking rack elevation), Pitfall 8 (cable length formula ignoring row geometry)
 
-### Phase 5: Rack Elevation View
-**Rationale:** Pure SVG rendering from `resultStore.racks[]` — no library dependency. Independent of topology view. Completes the physical documentation capability needed for data center planning and procurement handoff.
-**Delivers:** Per-rack SVG elevation components (RackView, RackElevation, DeviceSlot); U-slot grid with device placement; renders N racks from the resultStore rack layout array.
-**Uses:** Custom SVG in JSX — no external library; SVG `<rect>` elements per device, per U-slot position
-**Avoids:** Importing heavyweight DCIM or netbox dependencies; mixing domain state with SVG presentation positions
+### Phase 5: FC Input and BOM UI
+**Rationale:** Domain layer is now stable (Phases 1-3). FC UI components can be built against verified engine output. Mode selector renders here for the first time.
+**Delivers:** `ModeSelector.tsx` (ethernet/fc toggle), `FCInputForm.tsx` (HBA ports, storage ports, switch model, ISL trunk count), `FCBOMPanel.tsx` (per-fabric counts, ISL cables, SFP optics, fan-in ratio, POD license count as top-level line item), `SizingPage.tsx` modified to conditionally render Ethernet vs FC subtree
+**Addresses:** FC input form, FC BOM panel, POD license display, FC constraint violation banners
+**Avoids:** UX pitfalls — POD license hidden in tooltip, wrong oversubscription formula label for FC context
 
-### Phase 6: Export Suite
-**Rationale:** Export is a transformation of stable BOM data. Building it last ensures the data model is fully validated before committing to an export schema. CSV and JSON are low-effort; PDF is medium-effort but required for stakeholder handoff.
-**Delivers:** CSV export (procurement-ready with category grouping); PDF report via @react-pdf/renderer (BOM table + inputs summary + topology SVG); JSON export (schema-stable for automation pipelines); browser download utility (Blob + URL.createObjectURL).
-**Uses:** react-papaparse 4 (useCSVDownloader), @react-pdf/renderer 4 (lazy-loaded), JSON.stringify for JSON export
-**Avoids:** PDF generation blocking main thread (lazy-load required); screenshotting React DOM via html2canvas; Excel xlsx bundle for CSV-only use case
+### Phase 6: FC Topology Diagram + Positioning Rack Elevation
+**Rationale:** Visualization depends on stable BOM output from Phases 3 and 5. FC topology requires two independent ReactFlow instances. Positioning rack elevation requires the `switchOverheadU()` function from Phase 4. Both are grouped here because they share the visual output layer.
+**Delivers:** `buildFCTopologyGraph.ts` (returns `{ fabricA, fabricB }` — isolated subgraphs), `TopologyFCTab.tsx` (dual ReactFlow with fabric color coding — blue for A, orange for B), `buildPositioningRackDevices.ts` (MoR/BoR network rack), `RackElevationTab.tsx` modified (positioning-aware switch placement, separate network rack column for MoR/BoR)
+**Addresses:** FC dual-fabric topology diagram, rack elevation switch U-position, MoR/BoR network rack view
+**Avoids:** Pitfall 4 (dual-fabric rendered as single graph), Pitfall 7 (U-slot math breaking rack elevation)
 
-### Phase 7: v1.x Differentiators
-**Rationale:** After v1 is validated with real users, add features that differentiate NetStack from comparable tools. These are independent of the core pipeline and can be added without architecture changes.
-**Delivers:** Cable type selector (DAC/AOC/fiber) with distance advisory in BOM; JSON import (round-trip from Phase 6 export); multiple named configurations in localStorage; topology port labels (interface ID overlay).
-**Addresses:** P2 features from FEATURES.md (cable selector, JSON export, named configs, port labels)
+### Phase 7: Export Extension
+**Rationale:** Last because it depends on all FC domain and UI being stable. Export format is the final artifact that reaches procurement — errors here directly cause wrong orders. Deferring reduces iteration cost during domain development.
+**Delivers:** `exportCsv.ts` extended (FC BOM rows with Protocol column, Fabric A / Fabric B sections, POD license row), `exportPdf.ts` extended (FC BOM as separate page/section, dual-fabric totals row), i18n keys for all FC labels in FR/EN/DE/IT
+**Addresses:** FC CSV/PDF export, BOM disambiguation (Ethernet vs FC transceivers), i18n completeness
+**Avoids:** UX pitfall (dual fabric shown as single fabric in exported PDF), Pitfall 6 (optics ambiguity in BOM output)
 
 ### Phase Ordering Rationale
 
-- Domain first because engine correctness cannot be validated incrementally — all five critical pitfalls are domain-layer bugs, not UI bugs. Testing engine in isolation (plain TypeScript, no render setup) is the cheapest verification path.
-- Store before UI because the store subscription wiring (`inputStore → resultStore`) must be correct for any component to show accurate data; building UI before wiring the store produces misleading results.
-- BOM before visualizations because topology and rack views are renderings of BOM data; a working BOM panel confirms the full data pipeline cheaply before investing in complex rendering.
-- Topology before rack elevation because React Flow setup is more complex and better to isolate; rack elevation is pure SVG and can be done quickly once topology confirms BOM data is correct.
-- Export last because it depends on a stable BOM data model schema; adding export earlier risks locking in a schema that changes as features are added.
+- **Catalog before engine:** FC hardware specs drive formula constants. Wrong specs produce wrong BOM quantities that are hard to catch without reference data in place.
+- **Store isolation before UI:** If FC and Ethernet stores are not isolated first, any UI work risks embedding coupling assumptions that are expensive to unwind.
+- **Positioning before FC UI:** Switch positioning is a smaller, self-contained Ethernet change. Completing it cleanly before adding the FC UI layer reduces the regression surface area.
+- **Engine before topology:** The FC topology builder consumes `FCNetworkBOM` — it cannot be implemented or meaningfully tested until the engine produces correct output.
+- **Export last:** CSV/PDF format is a stabilization artifact. Changing it forces regeneration of test fixtures. Deferring it reduces iteration cost during domain development.
 
 ### Research Flags
 
-Phases that need no additional research (standard, well-documented patterns):
-- **Phase 2 (State + Input Form):** Zustand 5 persist + react-hook-form + Zod is a thoroughly documented combination
-- **Phase 4 (Topology Diagram):** React Flow is extensively documented; official guides cover custom nodes and performance
-- **Phase 6 (Export Suite):** @react-pdf/renderer and papaparse are mature libraries with clear API docs
+Phases likely needing deeper research during planning:
 
-Phases that warrant targeted validation before or during implementation:
-- **Phase 1 (Domain Engine):** Leaf-Spine Clos fabric math must be verified against Dell S5248F-ON and S5232F-ON spec sheets before coding — wrong port counts silently corrupt all downstream calculations. Verify: S5248F-ON uplink port count (4 × 100GbE QSFP28 confirmed), S5232F-ON total port count (32 × 100GbE confirmed), S3248T-ON management port count (48 × 1GbE confirmed).
-- **Phase 2 (State + Input Form):** Verify `@hookform/resolvers` v5.2.2 resolves Zod v4 compatibility (GitHub issue 12829 open at research date). If unresolved, use the standard schema adapter pattern instead of zodResolver directly.
-- **Phase 3 (BOM + Metrics):** Oversubscription ratio thresholds (green ≤3:1, amber ≤6:1, red >6:1) should be confirmed against Dell EMC L3 Leaf-Spine Design Guide before implementation — these are published industry standards but worth citing explicitly in code comments.
+- **Phase 1 (FC Catalog):** G820 Gen8 switch specs were announced November 2025. Power figures for X7-4, X7-8, X8-4, X8-8 chassis directors are estimated in the research — verify against final Broadcom datasheets before encoding in catalog constants.
+- **Phase 3 (FC Engine):** ISL formula uses Broadcom's 7:1 fan-in guideline. For NVMe-oF workloads the recommendation is 3:1. Decide before implementation: expose workload type as an input parameter in v2.0 or hard-code 7:1 with a documentation note? Research recommends hard-code 7:1 for v2.0, expose in v2.x.
+- **Phase 6 (FC Topology):** Multiple `<ReactFlow>` instances in the same React tree are confirmed to work with independent `ReactFlowProvider` wrappers, but performance at >20 racks with dual-fabric has not been benchmarked. If node count is large, investigate virtualization.
+
+Phases with well-documented standard patterns (skip research-phase):
+
+- **Phase 2 (Store Isolation):** Zustand `persist` with separate `name` keys is a standard pattern. Existing inputStore at v5 provides a migration template.
+- **Phase 4 (Switch Positioning):** Positioning is an additive field on an existing schema. The violation pattern (`DAC_DISTANCE_ADVISORY`) and store version bump pattern are both established in the codebase.
+- **Phase 7 (Export):** CSV/PDF extension follows existing `exportCsv.ts` and `exportPdf.ts` patterns. No new library research needed.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions verified against npm registry; official changelogs confirm cross-compatibility; one open compatibility issue flagged (hookform/resolvers + Zod v4) |
-| Features | MEDIUM | Competitor analysis is thorough (Cisco, Nutanix, Dell, Juniper); feature expectations are well-grounded; some differentiator value assumptions require real user validation |
-| Architecture | HIGH | Pattern is standard for React SPA with pure domain logic; Zustand persist and Feature-Sliced Design are production-proven; data-flow diagrams align with official library docs |
-| Pitfalls | HIGH | Networking pitfalls sourced from official Dell and Juniper design guides; frontend pitfalls from official library docs and community post-mortems; all five critical pitfalls have verified reproduction paths |
+| Stack | HIGH | No new dependencies required; all existing library versions confirmed compatible with v2.0 requirements; verified against official package docs |
+| Features | MEDIUM-HIGH | Brocade switch specs from Broadcom official techdocs (HIGH). ISL/oversubscription ratios from Broadcom SAN Design guide Nov 2025 (HIGH). Gen8 X8-4/X8-8 director power figures estimated (MEDIUM — datasheets pending) |
+| Architecture | HIGH | Parallel-module pattern derived directly from existing codebase analysis. Zustand and Zod integration patterns verified against the running codebase (v5 store, Zod v4). @xyflow dual-instance pattern confirmed working |
+| Pitfalls | HIGH | Domain isolation pitfalls derived from codebase analysis of existing patterns. POD licensing pitfall confirmed via Broadcom official Fabric OS licensing docs. Rack elevation U-slot pitfall identified from direct code review of `buildRackDevices.ts` |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **@hookform/resolvers Zod v4 compatibility (GitHub issue 12829):** Check issue status at the start of Phase 2. If unresolved, use `z.toJSONSchema()` or the standard schema adapter. This is a known gap, not a blocker.
-- **Exact port counts from Dell spec sheets:** S5248F-ON uplink count (4 × QSFP28) and S5232F-ON total port count (32 × QSFP28) drive the spine scaling formula. Confirm against the current Dell PowerSwitch S5200-ON spec sheet before coding the engine, not after. A one-port discrepancy in the catalog produces systematically wrong BOMs.
-- **DAC distance rules for specific Dell cable SKUs:** Research identified the 3m/5m distance limits as general industry standards. Verify the exact Dell-recommended DAC cable SKUs and their rated distances in the Dell networking catalog before populating the hardware catalog constants.
-- **OOB switch second-unit threshold:** The S3248T-ON 48-port limit is confirmed. Verify whether the standard deployment adds a second OOB switch per rack or one OOB switch per pod when saturation is reached — this affects the `ceil(N_racks / threshold)` formula.
-- **Zustand selector infinite loop prevention:** Using `useShallow` is the documented fix, but the exact import path changed between Zustand v4 and v5. Confirm import as `import { useShallow } from 'zustand/shallow'` before Phase 2.
+- **Gen8 X8-4 and X8-8 director power figures:** Estimated in research (~2000W and ~4000W). Verify against Lenovo Press product guides before encoding in `FC_SWITCH_CATALOG`. Low risk — power display is informational only in the BOM.
+- **NVMe-oF workload fan-in threshold:** Research confirms Broadcom 7:1 default and 3:1 for high-IOPS workloads. Decision needed before Phase 3: hard-code 7:1 for v2.0 or expose workload type as an input. Recommendation: hard-code 7:1, expose in v2.x.
+- **MoR cable length model vs actual row geometry:** Research provides typical cable run estimates (MoR ~15m average) but actual length depends on row depth and rack spacing. The BOM emits `estimatedCableRunMeters` as an advisory — the UI must clearly label this as an estimate requiring site survey.
+- **G820 availability date:** Gen8 G820 announced November 2025, production availability not confirmed in research. If G820 is unavailable when v2.0 ships, the catalog entry should carry an availability advisory flag.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Dell EMC Networking L3 Leaf-Spine Design Guide (OS10) — spine scaling, oversubscription thresholds, port counts
-- Dell PowerSwitch S5200-ON Series Spec Sheet — S5248F-ON and S5232F-ON hardware specifications
-- Dell PowerSwitch S3248T-ON spec — OOB switch port count
-- Juniper Design Considerations for Spine-and-Leaf IP Fabrics (white paper) — Clos fabric capacity math
-- ipSpace.net — spine count scaling methodology
-- https://reactflow.dev — @xyflow/react official docs (v12, React 19 + Tailwind v4 confirmed)
-- https://zod.dev/v4 — Zod v4 release notes, 14x perf improvement, mini subpackage
-- https://tailwindcss.com/docs — Tailwind v4 + Vite plugin installation
-- https://ui.shadcn.com/docs/tailwind-v4 — shadcn/ui Tailwind v4 update
-- https://zustand.docs.pmnd.rs/reference/middlewares/persist — Zustand persist middleware
-- npm registry — all package versions verified directly via `npm view`
+
+- [Broadcom TechDocs — G720 Switch Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html) — port counts, form factor, power, ISL trunking
+- [Broadcom TechDocs — G730 Switch Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g730-switch/1-0/Brocade-G730-Switch-Technical-Specifications.html) — 128-port Gen7 core switch specs
+- [Broadcom TechDocs — G820 Device Overview](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html) — Gen8 128G specs
+- [Broadcom — Gen7 Switch FAQ](https://docs.broadcom.com/doc/Gen7-Switch-FAQ) — G720/G730 POD scaling and port counts
+- [Broadcom — SAN Design and Best Practices, Nov 2025](https://docs.broadcom.com/doc/53-1004781) — ISL sizing, fan-in ratios, oversubscription thresholds
+- [Broadcom TechDocs — Ports on Demand (Fabric OS 9.1.x)](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-software-licensing/9-1-x/v26544088.html) — POD licensing model
+- [Broadcom TechDocs — MAPS Oversubscription Monitoring](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-maps/9-1-x/) — fan-in monitoring thresholds
+- NetStack codebase — `src/store/inputStore.ts` (v5 migration pattern), `src/domain/schemas/bom.ts` (ConstraintViolation discriminated union), `src/domain/catalog/hardware.ts` (SWITCH_CATALOG pattern)
 
 ### Secondary (MEDIUM confidence)
-- Cisco Nexus Hyperfabric Getting Started Guide + Data Sheet — competitor feature benchmarking
-- Nutanix Sizer product page and overview — competitor feature benchmarking
-- Dell EIPT user guide — competitor feature benchmarking
-- Juniper Apstra rack types (v5.0) — competitor feature benchmarking
-- https://github.com/recharts/recharts/releases — Recharts 3.8.0 release confirmation
-- https://www.npmjs.com/package/@react-pdf/renderer — v4.3.2 download stats
-- https://reactflow.dev/whats-new/2025-10-28 — React Flow v12 React 19 + Tailwind v4 changelog
-- React Flow performance guide — custom node memoization patterns
-- @react-pdf/renderer vs jsPDF comparison — npm download counts for library selection
-- Zustand architecture patterns at scale — derived state patterns
-- Zod best practices — safeParse vs parse usage patterns
-- DAC vs AOC cable distance limits — Cables and Kits learning center
-- localStorage pitfalls comprehensive guide — crash recovery patterns
 
-### Tertiary (LOW confidence / inference)
-- Graphical networks rack diagram guide — rack elevation UX patterns (corroborated by multiple DCIM tools)
-- FS.com oversubscription guide — oversubscription threshold conventions (corroborated by Dell EMC guide)
+- [StorageReview — Gen8 Launch Nov 2025](https://www.storagereview.com/news/broadcom-launches-brocade-gen-8-128g-fibre-channel-for-ai-mission-critical-and-quantum-safe-storage) — G820 128G autosensing, quantum-safe ISL encryption
+- [Lenovo Press — X7-4/X7-8 Product Guide](https://lenovopress.lenovo.com/lp1587-lenovo-thinksystem-x7-8-and-x7-4-fc-san-directors) — director chassis specs
+- [Lenovo Press — X8-4/X8-8 Product Guide](https://lenovopress.lenovo.com/lp2271-lenovo-x8-4-and-x8-8-gen-8-fc-directors) — Gen8 director chassis
+- [dc.mynetworkinsights — ToR/MoR/EoR architecture](https://dc.mynetworkinsights.com/data-center-switching-centralized-eor-mor-top-of-rack-tor/) — switch positioning cable length implications
+- [Cisco Community — TOR/EOR/BOR/MOR terminology](https://community.cisco.com/t5/data-center-switches/what-is-tor-eor-bor-mor/td-p/4990184) — authoritative on positioning terminology
+- [FlackBox — FC SAN Dual Fabric / ISL Best Practices](https://www.flackbox.com/fibre-channel-san-part-3-redundancy-multipathing) — ISL redundancy patterns, aligns with vendor docs
+
+### Tertiary (LOW confidence)
+
+- npm registry search for FC SAN calculation libraries — negative result confirmed; pure TypeScript implementation is the correct approach
+- Power figures for X7-4 (~2000W), X7-8 (~4000W), X8-4 (~2000W), X8-8 (~4000W) — estimated from chassis class analogy; must be verified against final datasheets
 
 ---
-*Research completed: 2026-03-16*
+*Research completed: 2026-03-18*
 *Ready for roadmap: yes*
