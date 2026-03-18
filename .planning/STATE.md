@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 10-01-PLAN.md (fc-sizing TDD RED phase test suite)
-last_updated: "2026-03-18T10:28:24.533Z"
+stopped_at: Completed 10-02-PLAN.md (calculateFCBOM TDD GREEN phase)
+last_updated: "2026-03-18T10:33:37.729Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
 | Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
 | Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
+| Phase 10-fc-sizing-engine P02 | 4 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Key v2.0 architectural decisions from research:
 - [Phase 09-02]: fcInputStore uses 'netstack-fc-input' v1 key — Ethernet 'netstack-input' v5 never touched; localStorage polyfill added to test setup for Node 25 WebStorage compatibility
 - [Phase 10-fc-sizing-engine]: TDD RED phase: 29 test cases, 13 fail against zero-value stub — real assertions confirmed
 - [Phase 10-fc-sizing-engine]: makeInput() self-contained in test files — no external DEFAULT_FC_INPUT import (Phase 09-01 convention)
+- [Phase 10-02]: ISL formula uses hostBandwidth/targetFanIn — not min(host,storage) — so ISL count scales with server count
+- [Phase 10-02]: FC_PORT_SATURATION fires against single-switch max device port capacity (totalPorts - effectiveIslPerSwitch), not total fabric capacity
+- [Phase 10-02]: computeEffectivePorts() uses demand without ISL for POD license count; ISL reservation applied separately to devicePortsPerSwitch
 
 ### Research Flags
 
@@ -99,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:28:24.530Z
-Stopped at: Completed 10-01-PLAN.md (fc-sizing TDD RED phase test suite)
+Last session: 2026-03-18T10:33:37.727Z
+Stopped at: Completed 10-02-PLAN.md (calculateFCBOM TDD GREEN phase)
 Resume file: None
