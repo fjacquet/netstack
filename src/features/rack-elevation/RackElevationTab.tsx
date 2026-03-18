@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { buildRackDevices, buildNetworkRackDevices } from './utils/buildRackDevices'
 import { RackFrame } from './RackFrame'
+import { RackCapacityBadge } from './RackCapacityBadge'
 import type { RackDevice } from './types'
 
 /**
@@ -80,6 +81,10 @@ export function RackElevationTab() {
 
   const rackUnits = parseInt(bom.input.rackSize)
 
+  // Compute used U and overflow for the selected rack
+  const usedU = devices.reduce((sum, d) => sum + d.uHeight, 0)
+  const overflow = usedU > rackUnits
+
   return (
     <div className="flex h-full flex-col">
       {/* Rack selector bar */}
@@ -106,13 +111,13 @@ export function RackElevationTab() {
             ))}
           </SelectContent>
         </Select>
-        <span className="text-xs text-muted-foreground ml-2">{rackUnits}U</span>
+        <RackCapacityBadge usedU={usedU} totalU={rackUnits} />
       </div>
 
       {/* Rack frame with scroll */}
       <ScrollArea className="flex-1">
         <div className="py-6">
-          <RackFrame devices={devices} rackUnits={rackUnits} onReorder={handleReorder} />
+          <RackFrame devices={devices} rackUnits={rackUnits} onReorder={handleReorder} overflow={overflow} />
         </div>
       </ScrollArea>
     </div>
