@@ -28,6 +28,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 const LEAF_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON'] as const
 const SPINE_MODELS = ['S5232F-ON'] as const
+const ACCESS_MODELS = ['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON', 'Z9264F-ON'] as const
+const AGGREGATION_MODELS = ['Z9264F-ON', 'Z9332F-ON', 'Z9432F-ON', 'S5232F-ON'] as const
+const CORE_MODELS = ['Z9332F-ON', 'Z9432F-ON'] as const
 const BORDER_LEAF_OPTIONS = ['none', 'S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON'] as const
 const RACK_SIZES = ['24U', '42U', '50U'] as const
 const SERVER_U_HEIGHTS = ['1U', '2U', '4U', '8U'] as const
@@ -51,9 +54,10 @@ const GENERATION_LABELS: Record<PreferredGeneration, string> = {
 type FCSwitchModelId = keyof typeof FC_SWITCH_CATALOG
 
 interface ConvergedFormValues {
+  topology: 'leaf-spine' | 'three-tier'
   rackCount: number
   rackServers: number[]
-  // Ethernet fields
+  // Ethernet leaf-spine fields
   portsPerServerFrontend: number
   portsPerServerBackend: number
   activeUplinksPerLeaf: number
@@ -63,6 +67,11 @@ interface ConvergedFormValues {
   spineModel: 'S5232F-ON'
   borderLeafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'S5296F-ON' | 'none'
   borderLeafCount: number
+  // Three-tier fields
+  accessModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'S5296F-ON' | 'Z9264F-ON'
+  aggregationModel: 'Z9264F-ON' | 'Z9332F-ON' | 'Z9432F-ON' | 'S5232F-ON'
+  activeUplinksPerAggregation: number
+  coreModel: 'Z9332F-ON' | 'Z9432F-ON'
   // FC fields
   hbaPortsPerServer: number
   storageTargetPorts: number
@@ -77,6 +86,7 @@ interface ConvergedFormValues {
 }
 
 const DEFAULT_FORM_VALUES: ConvergedFormValues = {
+  topology: 'leaf-spine',
   rackCount: 3,
   rackServers: [16, 16, 16],
   portsPerServerFrontend: 1,
@@ -88,6 +98,10 @@ const DEFAULT_FORM_VALUES: ConvergedFormValues = {
   spineModel: 'S5232F-ON',
   borderLeafModel: 'none',
   borderLeafCount: 0,
+  accessModel: 'S5248F-ON',
+  aggregationModel: 'Z9264F-ON',
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON',
   hbaPortsPerServer: 0,
   storageTargetPorts: 4,
   storageArrayCount: 1,
@@ -107,6 +121,7 @@ export function ConvergedInputForm() {
 
   const form = useForm<ConvergedFormValues>({
     defaultValues: {
+      topology: input.topology,
       rackCount: input.racks.length,
       rackServers: input.racks.map((r) => r.serverCount),
       portsPerServerFrontend: input.portsPerServerFrontend,
@@ -118,6 +133,10 @@ export function ConvergedInputForm() {
       spineModel: input.spineModel,
       borderLeafModel: input.borderLeafModel,
       borderLeafCount: input.borderLeafCount,
+      accessModel: input.accessModel,
+      aggregationModel: input.aggregationModel,
+      activeUplinksPerAggregation: input.activeUplinksPerAggregation,
+      coreModel: input.coreModel,
       hbaPortsPerServer: input.hbaPortsPerServer,
       storageTargetPorts: input.storageTargetPorts,
       storageArrayCount: input.storageArrayCount,
@@ -192,6 +211,7 @@ export function ConvergedInputForm() {
         name === 'portsPerServerFrontend' ||
         name === 'portsPerServerBackend' ||
         name === 'activeUplinksPerLeaf' ||
+        name === 'activeUplinksPerAggregation' ||
         name === 'hbaPortsPerServer' ||
         name === 'storageTargetPorts' ||
         name === 'storageArrayCount' ||
@@ -215,6 +235,7 @@ export function ConvergedInputForm() {
         portsPerServerFrontend: _pf,
         portsPerServerBackend: _pb,
         activeUplinksPerLeaf: _au,
+        activeUplinksPerAggregation: _uag,
         hbaPortsPerServer: _hba,
         storageTargetPorts: _stp,
         storageArrayCount: _sac,
@@ -327,6 +348,29 @@ export function ConvergedInputForm() {
                 {t('converged.ethernetHeading')}
               </h3>
 
+              {/* Topology Selector */}
+              <FormField
+                control={form.control}
+                name="topology"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('converged.topologySelector')}</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger data-testid="topology-selector">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="leaf-spine">{t('converged.topologyLeafSpine')}</SelectItem>
+                        <SelectItem value="three-tier">{t('converged.topologyThreeTier')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Frontend Ports per Server */}
               <FormField
                 control={form.control}
@@ -426,81 +470,213 @@ export function ConvergedInputForm() {
                 )}
               />
 
-              {/* Leaf Switch Model */}
-              <FormField
-                control={form.control}
-                name="leafModel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('sizing.leafModel')}</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('sizing.selectLeafModel')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {LEAF_MODELS.map((model) => (
-                          <SelectItem key={model} value={model}>{model}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* === Leaf-Spine fields (hidden when topology='three-tier') === */}
+              {form.watch('topology') === 'leaf-spine' && (
+                <>
+                  {/* Leaf Switch Model */}
+                  <FormField
+                    control={form.control}
+                    name="leafModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('sizing.leafModel')}</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t('sizing.selectLeafModel')} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {LEAF_MODELS.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Active Uplinks per Leaf */}
-              <FormField
-                control={form.control}
-                name="activeUplinksPerLeaf"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('sizing.activeUplinksPerLeaf')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={maxUplinks}
-                        data-testid="active-uplinks"
-                        {...field}
-                        onChange={(e) => {
-                          const val = e.target.value
-                          field.onChange(val === '' ? '' : Number(val))
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t('sizing.activeUplinksHelp', { max: maxUplinks, model: currentLeafModel })}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  {/* Active Uplinks per Leaf */}
+                  <FormField
+                    control={form.control}
+                    name="activeUplinksPerLeaf"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('sizing.activeUplinksPerLeaf')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={maxUplinks}
+                            data-testid="active-uplinks"
+                            {...field}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              field.onChange(val === '' ? '' : Number(val))
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('sizing.activeUplinksHelp', { max: maxUplinks, model: currentLeafModel })}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Spine Switch Model */}
-              <FormField
-                control={form.control}
-                name="spineModel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('sizing.spineModel')}</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('sizing.selectSpineModel')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {SPINE_MODELS.map((model) => (
-                          <SelectItem key={model} value={model}>{model}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  {/* Spine Switch Model */}
+                  <FormField
+                    control={form.control}
+                    name="spineModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('sizing.spineModel')}</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={t('sizing.selectSpineModel')} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {SPINE_MODELS.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {/* === Three-Tier fields (shown when topology='three-tier') === */}
+              {form.watch('topology') === 'three-tier' && (
+                <>
+                  {/* Access Switch Model */}
+                  <FormField
+                    control={form.control}
+                    name="accessModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('threeTier.accessModel')}</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {ACCESS_MODELS.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Active Uplinks per Access (reuses activeUplinksPerLeaf store field) */}
+                  <FormField
+                    control={form.control}
+                    name="activeUplinksPerLeaf"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('threeTier.activeUplinksPerAccess')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={64}
+                            data-testid="active-uplinks-access"
+                            {...field}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              field.onChange(val === '' ? '' : Number(val))
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Aggregation Switch Model */}
+                  <FormField
+                    control={form.control}
+                    name="aggregationModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('threeTier.aggregationModel')}</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {AGGREGATION_MODELS.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Active Uplinks per Aggregation */}
+                  <FormField
+                    control={form.control}
+                    name="activeUplinksPerAggregation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('threeTier.activeUplinksPerAggregation')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={32}
+                            data-testid="active-uplinks-aggr"
+                            {...field}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              field.onChange(val === '' ? '' : Number(val))
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Core Switch Model */}
+                  <FormField
+                    control={form.control}
+                    name="coreModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('threeTier.coreModel')}</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {CORE_MODELS.map((model) => (
+                              <SelectItem key={model} value={model}>{model}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
 
             {/* === Border Leaf === */}
