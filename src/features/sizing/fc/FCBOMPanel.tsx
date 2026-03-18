@@ -164,6 +164,10 @@ export function FCBOMPanel() {
                     {bom.hostPortsPerFabric + bom.storagePortsPerFabric + bom.islPortsPerFabric}
                   </TableCell>
                 </TableRow>
+                <TableRow className="text-muted-foreground">
+                  <TableCell>{t('fcbom.switchCapacity')}</TableCell>
+                  <TableCell>{bom.switchPortsPerFabric}</TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </section>

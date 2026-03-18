@@ -186,7 +186,8 @@
     "hostPorts": "Host-Ports",
     "storagePorts": "Storage-Ports",
     "islPorts": "ISL-Ports",
-    "totalPorts": "Gesamt pro Fabric"
+    "totalPorts": "Gesamt pro Fabric",
+    "switchCapacity": "Switch-Kapazitat (mit POD)"
   },
   "bom": {
     "heading": "Stueckliste",

@@ -32,6 +32,7 @@ const validBOM = {
   hostPortsPerFabric: 20,
   storagePortsPerFabric: 2,
   islPortsPerFabric: 4,
+  switchPortsPerFabric: 24,
   podLicensesRequired: 0,
   fcOpticsCount: 44,
   islCables: 4,

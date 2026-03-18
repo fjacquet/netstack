@@ -213,6 +213,7 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
     hostPortsPerFabric,
     storagePortsPerFabric,
     islPortsPerFabric: islCount,
+    switchPortsPerFabric: fullEffectivePorts,
     podLicensesRequired,
     fcOpticsCount,
     islCables,

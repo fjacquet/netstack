@@ -66,6 +66,14 @@ export const FCNetworkBOMSchema = z.object({
   islPortsPerFabric: z.number().int().min(0),
 
   /**
+   * Effective port capacity per switch after POD license expansion.
+   * Equals totalPorts for directors (podLicenseUnit=0).
+   * For fixed-port switches: basePorts + (podLicensesPerSwitch × podLicenseUnit).
+   * Used in the BOM display to show users why N switches are sufficient.
+   */
+  switchPortsPerFabric: z.number().int().min(1),
+
+  /**
    * Total POD license units required across all FC switches.
    * 0 if base port count is sufficient; positive integer otherwise.
    * REQUIRED — not optional. The engine must always compute and return this.

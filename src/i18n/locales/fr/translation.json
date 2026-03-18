@@ -186,7 +186,8 @@
     "hostPorts": "Ports hotes",
     "storagePorts": "Ports stockage",
     "islPorts": "Ports ISL",
-    "totalPorts": "Total par baie"
+    "totalPorts": "Total par baie",
+    "switchCapacity": "Capacite switch (avec POD)"
   },
   "bom": {
     "heading": "Nomenclature",

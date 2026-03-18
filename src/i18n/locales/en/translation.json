@@ -186,7 +186,8 @@
     "hostPorts": "Host ports",
     "storagePorts": "Storage ports",
     "islPorts": "ISL ports",
-    "totalPorts": "Total per fabric"
+    "totalPorts": "Total per fabric",
+    "switchCapacity": "Switch capacity (with POD)"
   },
   "bom": {
     "heading": "Bill of Materials",
