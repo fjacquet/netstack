@@ -47,9 +47,19 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Converged CSV/PDF export combining both Ethernet and FC sections — v3.0
 - ✓ Rack-level switch positioning (ToR/MoR/BoR) with OOB co-location (ADR-0013/0014) — v3.0
 
-### Future (v4.0)
+## Current Milestone: v4.0 Three-Tier Topology
 
-- Traditional Core/Aggregation/Access 3-tier topology sizing (GH #9)
+**Goal:** Add Core/Aggregation/Access (3-tier) topology as an option within Spine-Leaf and Converged modes (GH #9). Not a new mode — a topology selector that changes the sizing engine, BOM output, and topology diagram while reusing rack elevation, export, and i18n infrastructure.
+
+**Target features:**
+- Topology selector: Leaf-Spine (Clos) vs Core/Aggr/Access (3-tier)
+- New sizing formulas for access/aggregation/core switch tiers
+- Oversubscription at each tier boundary
+- Hierarchical topology diagram (tree layout)
+- Works in both Spine-Leaf and Converged modes
+
+### Future (v4.0+)
+
 - Save/load named configurations
 - JSON export
 - Multi-pod support for large deployments
