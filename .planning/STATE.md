@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: Three-Tier Topology
-status: in-progress
-stopped_at: Completed 20-02-PLAN.md
-last_updated: "2026-03-18T22:48:00Z"
-last_activity: 2026-03-18 — Completed 20-02 three-tier export i18n keys
+status: completed
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-03-18T22:52:02Z"
+last_activity: 2026-03-18 — Completed 20-01 three-tier CSV/PDF export and TopBar wiring
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
-  percent: 88
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine, Brocade FC SAN, and Three-Tier deployments.
-**Current focus:** v4.0 Three-Tier Topology — Phase 20 in progress (plan 02 of 02 complete)
+**Current focus:** v4.0 Three-Tier Topology — All phases complete (8/8 plans done)
 
 ## Current Position
 
 Phase: 20 of 20 (Three-Tier Export & i18n)
-Plan: 2 of 2 in current phase
-Status: In Progress
-Last activity: 2026-03-18 — Completed 20-02 three-tier export i18n keys
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Milestone Complete
+Last activity: 2026-03-18 — Completed 20-01 three-tier CSV/PDF export and TopBar wiring
 
-Progress: [█████████░] 88% (v4.0 milestone)
+Progress: [██████████] 100% (v4.0 milestone)
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████████░] 88% (v4.0 milestone)
 | Phase 19-02 P02 | 7min | 2 tasks | 7 files |
 | Phase 19-03 P03 | 7min | 2 tasks | 4 files |
 | Phase 20-02 P02 | 2min | 1 task | 4 files |
+| Phase 20-01 P01 | 6min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Key architectural decisions relevant to v4.0:
 - [Phase 19-03]: Rack elevation tt-net- prefix for three-tier network racks vs eth-net- for Clos
 - [Phase 20-02]: Three-tier export keys follow {mode}CsvButton/{mode}PdfButton convention
 - [Phase 20-02]: Added oversubscription label keys for PDF report usage
+- [Phase 20-01]: ThreeTierViolationsPage separate from Ethernet ViolationsPage -- different discriminated union types
+- [Phase 20-01]: Dual oversubscription display in PDF: access-aggr and aggr-to-core side-by-side with green/amber/red thresholds
+- [Phase 20-01]: Converged CSV uses dynamic section label (Three-Tier vs Ethernet) based on which BOM is present
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T22:48:00Z
-Stopped at: Completed 20-02-PLAN.md
+Last session: 2026-03-18T22:52:02Z
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
