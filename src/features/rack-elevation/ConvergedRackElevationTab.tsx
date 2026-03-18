@@ -44,11 +44,16 @@ export function ConvergedRackElevationTab() {
       setDevices([])
       setSelectedRack('0')
     }
-  }, [bom?.ethernetBom.racks]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bom?.ethernetBom?.racks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Rebuild devices whenever BOM or selectedRack changes
   useEffect(() => {
     if (!bom) {
+      setDevices([])
+      return
+    }
+    // Guard: three-tier topology has no Ethernet BOM
+    if (!bom.ethernetBom) {
       setDevices([])
       return
     }
@@ -80,8 +85,8 @@ export function ConvergedRackElevationTab() {
     setDevices(updated)
   }
 
-  // Empty state -- no BOM computed yet
-  if (!bom) {
+  // Empty state -- no BOM computed yet, or three-tier topology (no Ethernet BOM)
+  if (!bom || !bom.ethernetBom) {
     return (
       <div className="flex h-full items-center justify-center p-6">
         <Card className="max-w-sm w-full">

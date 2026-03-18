@@ -10,6 +10,7 @@ interface ConvergedInputState {
 }
 
 const DEFAULT_CONVERGED_INPUT: ConvergedSizingInput = {
+  topology: 'leaf-spine',
   racks: [
     { serverCount: 16 },
     { serverCount: 16 },
@@ -28,6 +29,11 @@ const DEFAULT_CONVERGED_INPUT: ConvergedSizingInput = {
   borderLeafModel: 'none',
   borderLeafCount: 0,
   switchPositioning: 'ToR',
+  // 3-tier fields (used when topology='three-tier'; ignored for 'leaf-spine')
+  accessModel: 'S5248F-ON',
+  aggregationModel: 'Z9264F-ON',
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON',
   // FC (disabled by default)
   hbaPortsPerServer: 0,
   storageTargetPorts: 4,

@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Separator } from '@/components/ui/separator'
 import type { ConstraintViolation } from '@/domain/schemas/bom'
 import type { FCConstraintViolation } from '@/domain/schemas/fc-bom'
+import type { ThreeTierConstraintViolation } from '@/domain/schemas/three-tier-bom'
 
 // ── Oversubscription badge variants (Ethernet: <=3 optimal, <=6 acceptable, >6 critical) ──
 
@@ -187,15 +188,19 @@ function FCViolationAlert({ v }: { v: FCConstraintViolation }) {
  * Dispatch a combined violation (Ethernet or FC) to the correct alert component.
  * FC violations have codes starting with 'FC_'.
  */
-function CombinedViolationAlert({ v }: { v: ConstraintViolation | FCConstraintViolation }) {
+type AnyViolation = ConstraintViolation | FCConstraintViolation | ThreeTierConstraintViolation
+
+function CombinedViolationAlert({ v }: { v: AnyViolation }) {
   if (v.code.startsWith('FC_')) {
     return <FCViolationAlert v={v as FCConstraintViolation} />
   }
+  // Three-tier violations share some codes with Ethernet (OOB_PORT_SATURATION, etc.)
+  // Render them using the Ethernet alert renderer for now (same shape for shared codes)
   return <EthernetViolationAlert v={v as ConstraintViolation} />
 }
 
 /** Generate a unique key for a violation */
-function violationKey(v: ConstraintViolation | FCConstraintViolation): string {
+function violationKey(v: AnyViolation): string {
   if ('rackNumber' in v) return `${v.code}-${v.rackNumber}`
   return v.code
 }
@@ -217,6 +222,23 @@ export function ConvergedBOMPanel() {
             <BarChart3 className="mb-3 h-12 w-12 text-muted-foreground" />
             <h3 className="mb-2 text-lg font-medium">{t('bom.emptyHeading')}</h3>
             <p className="max-w-sm text-sm text-muted-foreground">{t('bom.emptyBody')}</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // ── Guard: three-tier topology has no Ethernet BOM (handled in future plan) ──
+  if (!bom.ethernetBom) {
+    return (
+      <Card>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <BarChart3 className="mb-3 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-medium">Three-Tier BOM</h3>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Three-tier topology BOM panel is coming in a future release.
+            </p>
           </div>
         </CardContent>
       </Card>

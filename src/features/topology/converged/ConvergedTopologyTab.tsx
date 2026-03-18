@@ -109,7 +109,7 @@ export function ConvergedTopologyTab() {
   const [showEthLegend, setShowEthLegend] = useState(false)
   const [showFCLegend, setShowFCLegend] = useState(false)
 
-  if (!bom) {
+  if (!bom || !bom.ethernetBom) {
     return (
       <div className="flex h-[calc(100vh-120px)] flex-col items-center justify-center gap-2 p-8 text-center">
         <h2 className="text-xl font-semibold">{t('topology.emptyHeading')}</h2>

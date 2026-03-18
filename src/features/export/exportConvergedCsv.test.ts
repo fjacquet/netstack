@@ -65,6 +65,7 @@ const mockFCBom: FCNetworkBOM = {
 }
 
 const mockConvergedInput = {
+  topology: 'leaf-spine' as const,
   racks: [{ serverCount: 20 }, { serverCount: 20 }],
   rackSize: '42U' as const,
   serverUHeight: '1U' as const,
@@ -78,6 +79,10 @@ const mockConvergedInput = {
   borderLeafModel: 'none' as const,
   borderLeafCount: 0,
   switchPositioning: 'ToR' as const,
+  accessModel: 'S5248F-ON' as const,
+  aggregationModel: 'Z9264F-ON' as const,
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON' as const,
   hbaPortsPerServer: 2,
   storageTargetPorts: 8,
   storageArrayCount: 1,
@@ -87,14 +92,18 @@ const mockConvergedInput = {
 }
 
 const convergedBomWithFC: ConvergedBOM = {
+  topology: 'leaf-spine',
   ethernetBom: mockEthernetBom,
+  threeTierBom: null,
   fcBom: mockFCBom,
   violations: [],
   input: mockConvergedInput,
 }
 
 const convergedBomNoFC: ConvergedBOM = {
+  topology: 'leaf-spine',
   ethernetBom: mockEthernetBom,
+  threeTierBom: null,
   fcBom: null,
   violations: [],
   input: { ...mockConvergedInput, hbaPortsPerServer: 0 },

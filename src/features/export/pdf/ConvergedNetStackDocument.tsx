@@ -43,12 +43,16 @@ export function ConvergedNetStackDocument({
       {/* Shared cover page */}
       <CoverPage generatedDate={generatedDate} />
 
-      {/* Ethernet pages */}
-      <InputsPage input={bom.ethernetBom.input} />
-      <BOMPage bom={bom.ethernetBom} />
-      <TopologyPage topoDiagramPng={topoDiagramPng} />
-      {bom.ethernetBom.violations.length > 0 && (
-        <ViolationsPage violations={bom.ethernetBom.violations} />
+      {/* Ethernet pages -- only when leaf-spine topology (ethernetBom is non-null) */}
+      {bom.ethernetBom && (
+        <>
+          <InputsPage input={bom.ethernetBom.input} />
+          <BOMPage bom={bom.ethernetBom} />
+          <TopologyPage topoDiagramPng={topoDiagramPng} />
+          {bom.ethernetBom.violations.length > 0 && (
+            <ViolationsPage violations={bom.ethernetBom.violations} />
+          )}
+        </>
       )}
 
       {/* FC pages — only when FC fabric is enabled */}

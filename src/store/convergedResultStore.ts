@@ -3,11 +3,12 @@ import { calculateConvergedBOM } from '@/domain/engine/converged-sizing'
 import type { ConvergedBOM } from '@/domain/schemas/converged-bom'
 import type { ConstraintViolation } from '@/domain/schemas/bom'
 import type { FCConstraintViolation } from '@/domain/schemas/fc-bom'
+import type { ThreeTierConstraintViolation } from '@/domain/schemas/three-tier-bom'
 import { useConvergedInputStore } from './convergedInputStore'
 
 interface ConvergedResultState {
   bom: ConvergedBOM | null
-  violations: (ConstraintViolation | FCConstraintViolation)[]
+  violations: (ConstraintViolation | FCConstraintViolation | ThreeTierConstraintViolation)[]
 }
 
 export const useConvergedResultStore = create<ConvergedResultState>()(() => ({

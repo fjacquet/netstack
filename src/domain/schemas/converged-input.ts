@@ -16,6 +16,10 @@ import { z } from 'zod';
 import { RackConfigSchema } from './input';
 
 export const ConvergedSizingInputSchema = z.object({
+  // --- Topology selector (TENG-01) ---
+  /** Network topology: 'leaf-spine' (Clos) or 'three-tier' (Core/Aggregation/Access) */
+  topology: z.enum(['leaf-spine', 'three-tier']).default('leaf-spine'),
+
   // --- Shared rack config (same physical racks for both fabrics) ---
   racks: z.array(RackConfigSchema).min(1).max(200),
   rackSize: z.enum(['24U', '42U', '50U']),
@@ -42,6 +46,16 @@ export const ConvergedSizingInputSchema = z.object({
   borderLeafCount: z.number().int().min(0).max(4),
   /** Switch placement mode */
   switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
+
+  // --- 3-tier fields (used when topology='three-tier'; ignored for 'leaf-spine') ---
+  /** Access tier switch model (3-tier topology only) */
+  accessModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON', 'Z9264F-ON']).default('S5248F-ON'),
+  /** Aggregation tier switch model (3-tier topology only) */
+  aggregationModel: z.enum(['Z9264F-ON', 'Z9332F-ON', 'Z9432F-ON', 'S5232F-ON']).default('Z9264F-ON'),
+  /** Number of active uplinks per aggregation switch to core (3-tier topology only) */
+  activeUplinksPerAggregation: z.number().int().min(1).max(32).default(4),
+  /** Core tier switch model (3-tier topology only) */
+  coreModel: z.enum(['Z9332F-ON', 'Z9432F-ON']).default('Z9332F-ON'),
 
   // --- FC fields (from FCSizingInputSchema, but hbaPortsPerServer min=0) ---
   /** Number of HBA ports per server (0=FC disabled, 1-8=FC enabled). min=0 per CONV-04. */

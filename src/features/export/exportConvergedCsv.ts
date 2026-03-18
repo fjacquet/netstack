@@ -21,7 +21,8 @@ export function buildConvergedCsvString(bom: ConvergedBOM): string {
   const header = 'Category,Model / Type,Role,Quantity,Unit,Connectivity,Notes'
 
   // Ethernet rows (buildCsvRows returns pre-joined comma-separated strings)
-  const ethernetRows = buildCsvRows(bom.ethernetBom)
+  // Guard: when topology='three-tier', ethernetBom is null -- skip Ethernet rows
+  const ethernetRows = bom.ethernetBom ? buildCsvRows(bom.ethernetBom) : []
 
   const allRows: string[] = []
 
