@@ -11,7 +11,7 @@ export function wrapCsvValue(value: string): string {
   return value
 }
 
-function buildCsvRows(bom: NetworkBOM): string[] {
+export function buildCsvRows(bom: NetworkBOM): string[] {
   const rows: string[][] = []
   const conn = bom.input.connectivityType
   const cableLabel =

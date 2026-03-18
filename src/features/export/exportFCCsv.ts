@@ -6,7 +6,7 @@ import { wrapCsvValue } from './exportCsv'
  * All data rows use 'FC' as the Connectivity column value (column index 5).
  * Section separator rows use 'Section' as the Category value.
  */
-function buildFCCsvRows(bom: FCNetworkBOM): string[][] {
+export function buildFCCsvRows(bom: FCNetworkBOM): string[][] {
   const rows: string[][] = []
 
   // Fabric A section
