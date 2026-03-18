@@ -96,6 +96,45 @@ describe('FCSizingInputSchema', () => {
       expect(result.data.islPortsPerSwitch).toBe(4);
     }
   });
+
+  describe('preferredGeneration field', () => {
+    it('defaults to "any" when omitted', () => {
+      const result = FCSizingInputSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.preferredGeneration).toBe('any');
+      }
+    });
+
+    it('accepts "gen7" as a valid value', () => {
+      const result = FCSizingInputSchema.safeParse({ ...validInput, preferredGeneration: 'gen7' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.preferredGeneration).toBe('gen7');
+      }
+    });
+
+    it('accepts "gen8" as a valid value', () => {
+      const result = FCSizingInputSchema.safeParse({ ...validInput, preferredGeneration: 'gen8' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.preferredGeneration).toBe('gen8');
+      }
+    });
+
+    it('accepts "any" as a valid value', () => {
+      const result = FCSizingInputSchema.safeParse({ ...validInput, preferredGeneration: 'any' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.preferredGeneration).toBe('any');
+      }
+    });
+
+    it('rejects an invalid value "invalid"', () => {
+      const result = FCSizingInputSchema.safeParse({ ...validInput, preferredGeneration: 'invalid' });
+      expect(result.success).toBe(false);
+    });
+  });
 });
 
 // ---------------------------------------------------------------------------

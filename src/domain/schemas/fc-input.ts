@@ -47,6 +47,14 @@ export const FCSizingInputSchema = z.object({
 
   /** U-height of each server for rack elevation rendering (1U default) */
   serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
+
+  /**
+   * Preferred Brocade generation filter.
+   * 'gen7' = 64G switches only (G710, G720, G730, X7-4, X7-8, 7850)
+   * 'gen8' = 128G switches only (G820, X8-4, X8-8)
+   * 'any'  = no generation filter (default)
+   */
+  preferredGeneration: z.enum(['gen7', 'gen8', 'any']).default('any'),
 });
 
 /** Inferred TypeScript type — do not declare separately */
