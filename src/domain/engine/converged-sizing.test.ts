@@ -5,6 +5,7 @@ import type { ConvergedSizingInput } from '../schemas/converged-input';
 
 function makeConvergedInput(overrides: Partial<ConvergedSizingInput> = {}): ConvergedSizingInput {
   return {
+    topology: 'leaf-spine' as const,
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     rackSize: '42U',
     serverUHeight: '1U',
@@ -19,6 +20,11 @@ function makeConvergedInput(overrides: Partial<ConvergedSizingInput> = {}): Conv
     borderLeafModel: 'none',
     borderLeafCount: 0,
     switchPositioning: 'ToR',
+    // 3-tier fields (defaults, ignored when topology='leaf-spine')
+    accessModel: 'S5248F-ON',
+    aggregationModel: 'Z9264F-ON',
+    activeUplinksPerAggregation: 4,
+    coreModel: 'Z9332F-ON',
     // FC fields (default: FC enabled)
     hbaPortsPerServer: 2,
     storageTargetPorts: 4,
@@ -34,9 +40,9 @@ function makeConvergedInput(overrides: Partial<ConvergedSizingInput> = {}): Conv
 describe('CONV-03: Combined BOM', () => {
   it('returns ethernetBom with correct leaf/spine counts', () => {
     const result = calculateConvergedBOM(makeConvergedInput());
-    expect(result.ethernetBom).toBeDefined();
-    expect(result.ethernetBom.leafSwitches).toBe(6); // 3 racks * 2
-    expect(result.ethernetBom.spineSwitches).toBeGreaterThanOrEqual(2);
+    expect(result.ethernetBom).not.toBeNull();
+    expect(result.ethernetBom!.leafSwitches).toBe(6); // 3 racks * 2
+    expect(result.ethernetBom!.spineSwitches).toBeGreaterThanOrEqual(2);
   });
 
   it('returns fcBom with fabric switches when hbaPortsPerServer > 0', () => {
@@ -48,8 +54,8 @@ describe('CONV-03: Combined BOM', () => {
 
   it('ethernetBom.input matches the Ethernet portion of converged input', () => {
     const result = calculateConvergedBOM(makeConvergedInput());
-    expect(result.ethernetBom.input.racks).toEqual(result.input.racks);
-    expect(result.ethernetBom.input.leafModel).toBe('S5248F-ON');
+    expect(result.ethernetBom!.input.racks).toEqual(result.input.racks);
+    expect(result.ethernetBom!.input.leafModel).toBe('S5248F-ON');
   });
 
   it('fcBom.input matches the FC portion of converged input', () => {
@@ -75,8 +81,8 @@ describe('CONV-04: FC optional (hbaPortsPerServer=0)', () => {
 
   it('ethernetBom is still computed when hbaPortsPerServer is 0', () => {
     const result = calculateConvergedBOM(makeConvergedInput({ hbaPortsPerServer: 0 }));
-    expect(result.ethernetBom).toBeDefined();
-    expect(result.ethernetBom.leafSwitches).toBeGreaterThan(0);
+    expect(result.ethernetBom).not.toBeNull();
+    expect(result.ethernetBom!.leafSwitches).toBeGreaterThan(0);
   });
 
   it('no FC violations when hbaPortsPerServer is 0', () => {
@@ -150,6 +156,96 @@ describe('CONV-02: Converged input ranges', () => {
   it('accepts hbaPortsPerServer=2 (standard dual-fabric)', () => {
     const result = calculateConvergedBOM(makeConvergedInput({ hbaPortsPerServer: 2 }));
     expect(result.fcBom).not.toBeNull();
+  });
+});
+
+// TENG-01: Topology selector
+describe('TENG-01: Topology selector', () => {
+  // Test 1: topology='leaf-spine' (default) -> ethernetBom populated, threeTierBom null
+  it('topology=leaf-spine -> ethernetBom populated, threeTierBom null', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({ topology: 'leaf-spine' }));
+    expect(result.ethernetBom).not.toBeNull();
+    expect(result.threeTierBom).toBeNull();
+    expect(result.topology).toBe('leaf-spine');
+  });
+
+  // Test 2: topology='three-tier' -> threeTierBom populated, ethernetBom null
+  it('topology=three-tier -> threeTierBom populated, ethernetBom null', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'three-tier',
+      hbaPortsPerServer: 0,
+    }));
+    expect(result.threeTierBom).not.toBeNull();
+    expect(result.ethernetBom).toBeNull();
+    expect(result.topology).toBe('three-tier');
+  });
+
+  // Test 3: topology='three-tier' + hbaPortsPerServer > 0 -> both threeTierBom and fcBom populated
+  it('topology=three-tier + FC enabled -> both threeTierBom and fcBom populated', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'three-tier',
+      hbaPortsPerServer: 2,
+    }));
+    expect(result.threeTierBom).not.toBeNull();
+    expect(result.fcBom).not.toBeNull();
+    expect(result.ethernetBom).toBeNull();
+  });
+
+  // Test 4: topology='three-tier' + hbaPortsPerServer=0 -> threeTierBom populated, fcBom null
+  it('topology=three-tier + FC disabled -> threeTierBom populated, fcBom null', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'three-tier',
+      hbaPortsPerServer: 0,
+    }));
+    expect(result.threeTierBom).not.toBeNull();
+    expect(result.fcBom).toBeNull();
+  });
+
+  // Test 5: topology defaults to 'leaf-spine' when omitted (backward compatibility)
+  it('topology defaults to leaf-spine when not specified', () => {
+    const input = makeConvergedInput();
+    // topology is explicitly 'leaf-spine' in our helper; test the schema default
+    const parsed = ConvergedSizingInputSchema.parse({
+      ...input,
+      topology: undefined,
+    });
+    expect(parsed.topology).toBe('leaf-spine');
+  });
+
+  // Test 6: topology='leaf-spine' violations contain only Ethernet+FC violations
+  it('leaf-spine violations contain no 3-tier violations', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'leaf-spine',
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 16 })),
+      cableType: 'DAC',
+      hbaPortsPerServer: 0,
+    }));
+    const threeTierCodes = ['AGGREGATION_CAPACITY_EXCEEDED', 'CORE_CAPACITY_EXCEEDED'];
+    const has3Tier = result.violations.some(v => threeTierCodes.includes(v.code));
+    expect(has3Tier).toBe(false);
+  });
+
+  // Test 7: topology='three-tier' violations contain no Clos-specific violations
+  it('three-tier violations contain no Clos-specific violations', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'three-tier',
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 16 })),
+      cableType: 'DAC',
+      hbaPortsPerServer: 0,
+    }));
+    const closCodes = ['SPINE_CAPACITY_EXCEEDED'];
+    const hasClos = result.violations.some(v => closCodes.includes(v.code));
+    expect(hasClos).toBe(false);
+  });
+
+  // Test: threeTierBom has access switches = 2 * racks when three-tier
+  it('three-tier BOM has correct access switch count', () => {
+    const result = calculateConvergedBOM(makeConvergedInput({
+      topology: 'three-tier',
+      hbaPortsPerServer: 0,
+    }));
+    expect(result.threeTierBom).not.toBeNull();
+    expect(result.threeTierBom!.accessSwitches).toBe(6); // 3 racks * 2
   });
 });
 

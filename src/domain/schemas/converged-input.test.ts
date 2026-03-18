@@ -70,4 +70,76 @@ describe('ConvergedSizingInputSchema', () => {
     expect(result.connectivityType).toBe('25G');
     expect(result.fcSwitchModel).toBe('G720');
   });
+
+  // TENG-01: Topology field
+  it('topology defaults to leaf-spine when omitted', () => {
+    const result = ConvergedSizingInputSchema.parse(makeValidInput());
+    expect(result.topology).toBe('leaf-spine');
+  });
+
+  it('accepts topology=three-tier', () => {
+    const result = ConvergedSizingInputSchema.parse({
+      ...makeValidInput(),
+      topology: 'three-tier',
+    });
+    expect(result.topology).toBe('three-tier');
+  });
+
+  it('rejects invalid topology value', () => {
+    expect(() =>
+      ConvergedSizingInputSchema.parse({
+        ...makeValidInput(),
+        topology: 'flat',
+      }),
+    ).toThrow();
+  });
+
+  // 3-tier model selectors
+  it('accessModel defaults to S5248F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse(makeValidInput());
+    expect(result.accessModel).toBe('S5248F-ON');
+  });
+
+  it('accepts accessModel=Z9264F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse({
+      ...makeValidInput(),
+      accessModel: 'Z9264F-ON',
+    });
+    expect(result.accessModel).toBe('Z9264F-ON');
+  });
+
+  it('aggregationModel defaults to Z9264F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse(makeValidInput());
+    expect(result.aggregationModel).toBe('Z9264F-ON');
+  });
+
+  it('accepts aggregationModel=Z9332F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse({
+      ...makeValidInput(),
+      aggregationModel: 'Z9332F-ON',
+    });
+    expect(result.aggregationModel).toBe('Z9332F-ON');
+  });
+
+  it('coreModel defaults to Z9332F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse(makeValidInput());
+    expect(result.coreModel).toBe('Z9332F-ON');
+  });
+
+  it('accepts coreModel=Z9432F-ON', () => {
+    const result = ConvergedSizingInputSchema.parse({
+      ...makeValidInput(),
+      coreModel: 'Z9432F-ON',
+    });
+    expect(result.coreModel).toBe('Z9432F-ON');
+  });
+
+  it('rejects invalid coreModel', () => {
+    expect(() =>
+      ConvergedSizingInputSchema.parse({
+        ...makeValidInput(),
+        coreModel: 'S5248F-ON',
+      }),
+    ).toThrow();
+  });
 });
