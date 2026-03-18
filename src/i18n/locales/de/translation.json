@@ -140,7 +140,9 @@
     "fcCsvButton": "FC CSV exportieren",
     "fcPdfButton": "FC PDF exportieren",
     "convergedCsvButton": "Konvergiertes CSV exportieren",
-    "convergedPdfButton": "Konvergiertes PDF exportieren"
+    "convergedPdfButton": "Konvergiertes PDF exportieren",
+    "threeTierCsvButton": "Drei-Schicht CSV exportieren",
+    "threeTierPdfButton": "Drei-Schicht PDF exportieren"
   },
   "mode": {
     "ethernet": "Spine-Leaf",
@@ -222,7 +224,9 @@
     "networkRacks": "Netzwerk-Racks",
     "oobSwitches": "OOB-Switches",
     "vltCables": "VLT-Kabel",
-    "borderLeafSwitches": "Border-Leaf-Switches"
+    "borderLeafSwitches": "Border-Leaf-Switches",
+    "accessToAggrOversubLabel": "Access-Aggregation-Uberzeichnung",
+    "aggrToCoreOversubLabel": "Aggregation-Core-Uberzeichnung"
   },
   "bom": {
     "heading": "Stueckliste",

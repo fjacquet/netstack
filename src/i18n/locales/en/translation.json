@@ -140,7 +140,9 @@
     "fcCsvButton": "Export FC CSV",
     "fcPdfButton": "Export FC PDF",
     "convergedCsvButton": "Export Converged CSV",
-    "convergedPdfButton": "Export Converged PDF"
+    "convergedPdfButton": "Export Converged PDF",
+    "threeTierCsvButton": "Export Three-Tier CSV",
+    "threeTierPdfButton": "Export Three-Tier PDF"
   },
   "mode": {
     "ethernet": "Spine-Leaf",
@@ -222,7 +224,9 @@
     "networkRacks": "Network Racks",
     "oobSwitches": "OOB Switches",
     "vltCables": "VLT Cables",
-    "borderLeafSwitches": "Border Leaf Switches"
+    "borderLeafSwitches": "Border Leaf Switches",
+    "accessToAggrOversubLabel": "Access-Aggregation Oversubscription",
+    "aggrToCoreOversubLabel": "Aggregation-Core Oversubscription"
   },
   "bom": {
     "heading": "Bill of Materials",

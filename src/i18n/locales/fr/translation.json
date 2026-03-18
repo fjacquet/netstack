@@ -140,7 +140,9 @@
     "fcCsvButton": "Exporter CSV FC",
     "fcPdfButton": "Exporter PDF FC",
     "convergedCsvButton": "Exporter CSV Converge",
-    "convergedPdfButton": "Exporter PDF Converge"
+    "convergedPdfButton": "Exporter PDF Converge",
+    "threeTierCsvButton": "Exporter CSV Trois niveaux",
+    "threeTierPdfButton": "Exporter PDF Trois niveaux"
   },
   "mode": {
     "ethernet": "Spine-Leaf",
@@ -222,7 +224,9 @@
     "networkRacks": "Baies reseau",
     "oobSwitches": "Commutateurs OOB",
     "vltCables": "Cables VLT",
-    "borderLeafSwitches": "Commutateurs Border Leaf"
+    "borderLeafSwitches": "Commutateurs Border Leaf",
+    "accessToAggrOversubLabel": "Sursouscription acces-agregation",
+    "aggrToCoreOversubLabel": "Sursouscription agregation-coeur"
   },
   "bom": {
     "heading": "Nomenclature",
