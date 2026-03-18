@@ -16,10 +16,10 @@
 
 ### FC Sizing Engine
 
-- [ ] **FC-05**: Dual-fabric SAN topology calculation (Fabric A + Fabric B, switch count always doubles)
-- [ ] **FC-06**: ISL (Inter-Switch Link) calculation based on host-to-storage fan-in ratio (max 7:1)
-- [ ] **FC-07**: FC optics BOM (SFP28 for 32G, SFP56 for 64G, SFP112 for 128G)
-- [ ] **FC-08**: FC oversubscription ratio reporting with severity thresholds
+- [x] **FC-05**: Dual-fabric SAN topology calculation (Fabric A + Fabric B, switch count always doubles)
+- [x] **FC-06**: ISL (Inter-Switch Link) calculation based on host-to-storage fan-in ratio (max 7:1)
+- [x] **FC-07**: FC optics BOM (SFP28 for 32G, SFP56 for 64G, SFP112 for 128G)
+- [x] **FC-08**: FC oversubscription ratio reporting with severity thresholds
 
 ### FC User Interface
 
@@ -60,10 +60,10 @@
 | FC-02 | Phase 8 | Complete |
 | FC-03 | Phase 8 | Complete |
 | FC-04 | Phase 8 | Complete |
-| FC-05 | Phase 10 | Pending |
-| FC-06 | Phase 10 | Pending |
-| FC-07 | Phase 10 | Pending |
-| FC-08 | Phase 10 | Pending |
+| FC-05 | Phase 10 | Complete |
+| FC-06 | Phase 10 | Complete |
+| FC-07 | Phase 10 | Complete |
+| FC-08 | Phase 10 | Complete |
 | FC-09 | Phase 9 | Complete |
 | FC-10 | Phase 12 | Pending |
 | FC-11 | Phase 12 | Pending |

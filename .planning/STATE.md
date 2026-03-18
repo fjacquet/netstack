@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 09-02-PLAN.md (fcInputStore + fcResultStore + isolation tests GREEN)
-last_updated: "2026-03-18T10:05:49.485Z"
+stopped_at: Completed 10-01-PLAN.md (fc-sizing TDD RED phase test suite)
+last_updated: "2026-03-18T10:28:24.533Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
   percent: 0
 ---
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 08 P01 | 3 | 2 tasks | 3 files |
 | Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
 | Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
+| Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 09-01]: FC engine stub returns zero-value FCNetworkBOM: satisfies compiler for fcResultStore import chain
 - [Phase 09-01]: DEFAULT_FC_INPUT inlined in each test file: keeps tests self-contained
 - [Phase 09-02]: fcInputStore uses 'netstack-fc-input' v1 key — Ethernet 'netstack-input' v5 never touched; localStorage polyfill added to test setup for Node 25 WebStorage compatibility
+- [Phase 10-fc-sizing-engine]: TDD RED phase: 29 test cases, 13 fail against zero-value stub — real assertions confirmed
+- [Phase 10-fc-sizing-engine]: makeInput() self-contained in test files — no external DEFAULT_FC_INPUT import (Phase 09-01 convention)
 
 ### Research Flags
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:02:01.850Z
-Stopped at: Completed 09-02-PLAN.md (fcInputStore + fcResultStore + isolation tests GREEN)
+Last session: 2026-03-18T10:28:24.530Z
+Stopped at: Completed 10-01-PLAN.md (fc-sizing TDD RED phase test suite)
 Resume file: None
