@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Enhancements
 status: planning
-stopped_at: Completed 07-rack-elevation-servers-01-PLAN.md
-last_updated: "2026-03-18T06:23:27.879Z"
+stopped_at: Completed 07-rack-elevation-servers-02-PLAN.md
+last_updated: "2026-03-18T06:33:26.522Z"
 last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1)
 | Phase 05-engine-enhancements P01 | 9 | 2 tasks | 16 files |
 | Phase 05-engine-enhancements P02 | 19 | 2 tasks | 11 files |
 | Phase 07-rack-elevation-servers P01 | 3 | 2 tasks | 6 files |
+| Phase 07-rack-elevation-servers P02 | 20 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,9 @@ Recent decisions affecting current work:
 - [Phase 07-rack-elevation-servers]: SWITCH_U_PER_SERVER_RACK=3 constant: OOB+2 leaf switches fixed overhead per server rack
 - [Phase 07-rack-elevation-servers]: Per-rack RACK_CAPACITY_EXCEEDED violations (not aggregated) — one per overflowing rack with rackNumber
 - [Phase 07-rack-elevation-servers]: Store version 5 via spread pattern — no explicit migration branch for serverUHeight needed
+- [Phase 07-rack-elevation-servers]: ServerDevice uses inline style height (not dynamic Tailwind class) — Tailwind purges dynamic class names at build time
+- [Phase 07-rack-elevation-servers]: coveredSlots Set computed before render loop — O(n) upfront vs O(n) per slot with find()
+- [Phase 07-rack-elevation-servers]: violation map key uses rackNumber discriminant for RACK_CAPACITY_EXCEEDED — prevents duplicate key collisions
 
 ### Research Flags
 
@@ -132,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T06:23:27.877Z
-Stopped at: Completed 07-rack-elevation-servers-01-PLAN.md
+Last session: 2026-03-18T06:33:19.457Z
+Stopped at: Completed 07-rack-elevation-servers-02-PLAN.md
 Resume file: None
