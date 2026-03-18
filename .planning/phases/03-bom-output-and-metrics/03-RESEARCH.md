@@ -46,6 +46,7 @@ Phase 3 requires significant i18n extension: the `results.*` namespace holds onl
 | Single `BOMPanel.tsx` | Multiple smaller files | Phase 3 scope is narrow; premature splitting adds indirection without benefit |
 
 **Installation:**
+
 ```bash
 npx shadcn@latest add table
 npx shadcn@latest add alert
@@ -78,6 +79,7 @@ No new domain, store, or schema files are needed. The BOM panel is a pure consum
 **What:** `useResultStore` with `useShallow` to select `bom` and `violations` without triggering extra re-renders.
 **When to use:** Whenever selecting multiple fields from a Zustand store in one call (required per CLAUDE.md).
 **Example:**
+
 ```typescript
 // Source: src/features/sizing/InputForm.tsx (established pattern)
 import { useShallow } from 'zustand/shallow'
@@ -93,6 +95,7 @@ const { bom, violations } = useResultStore(
 **What:** A typed variant function that returns the correct Tailwind classes for the three oversubscription severity levels.
 **When to use:** When a single element has 3+ semantic color states.
 **Example:**
+
 ```typescript
 // Pattern consistent with src/components/ui/badge.tsx
 import { cva } from 'class-variance-authority'
@@ -122,6 +125,7 @@ function getSeverity(ratio: number): 'optimal' | 'acceptable' | 'critical' {
 **What:** shadcn Progress + shadcn Tooltip, with explicit ARIA attributes on the Progress element.
 **When to use:** Every switch model row in the Switches table.
 **Example:**
+
 ```typescript
 // Source: Radix UI Progress docs + shadcn Tooltip docs
 import { Progress } from '@/components/ui/progress'
@@ -160,6 +164,7 @@ const progressClass =
 **What:** `TooltipProvider` must wrap the component tree that contains any `Tooltip`.
 **When to use:** Must be added to `App.tsx` or `SizingPage.tsx` — NOT per-tooltip.
 **Example:**
+
 ```typescript
 // Source: shadcn Tooltip docs
 // Add to src/App.tsx wrapping the existing ThemeProvider or inside it
@@ -176,6 +181,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 **What:** shadcn Alert only ships `default` and `destructive` variants. A custom `warning` variant is needed for `DAC_DISTANCE_ADVISORY`.
 **When to use:** Only for `DAC_DISTANCE_ADVISORY` violations.
 **Example:**
+
 ```typescript
 // The alert.tsx copy-owned file can be extended with a new variant via cva
 // Add to src/components/ui/alert.tsx alertVariants:
@@ -189,6 +195,7 @@ warning: 'border-[hsl(38_92%_50%)] dark:border-[hsl(38_95%_64%)] ...'
 **What:** Show an empty state when `bom === null` (initial store state before first valid input).
 **When to use:** Top of BOMPanel render.
 **Example:**
+
 ```typescript
 // Consistent with ResultsPlaceholder pattern but using BarChart3 icon per UI-SPEC
 if (!bom) {
@@ -266,6 +273,7 @@ if (!bom) {
 **What goes wrong:** Using `SWITCH_CATALOG[model].downlinkPorts` for "available" but the BOM schema does not store per-model port utilization directly.
 **Why it happens:** `NetworkBOM` stores aggregate counts (leafSwitches, spineSwitches), not per-model port usage.
 **How to avoid:** Derive port utilization in the component from `bom` + `SWITCH_CATALOG`:
+
 - Leaf: `used = bom.input.serversPerRack` per leaf switch (each leaf connects one rack), `available = SWITCH_CATALOG[bom.input.leafModel].downlinkPorts`
 - Spine: `used = bom.leafSwitches`, `available = SWITCH_CATALOG['S5232F-ON'].downlinkPorts * bom.spineSwitches` — but display per-switch: `used = bom.leafSwitches / bom.spineSwitches` (may not be integer)
 - OOB: `used = bom.input.serversPerRack + 2` (serversPerRack + 2 leaf ToR switches per OOB switch), `available = 48`
@@ -283,6 +291,7 @@ The spine per-switch port utilization should show `ceil(bom.leafSwitches / bom.s
 ## Code Examples
 
 ### Switches Table Structure
+
 ```typescript
 // Source: shadcn Table docs (verified)
 import {
@@ -316,6 +325,7 @@ import {
 ```
 
 ### Violation Alert for OOB_PORT_SATURATION
+
 ```typescript
 // Source: shadcn Alert docs (verified), ConstraintViolation schema (codebase)
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -338,6 +348,7 @@ import { AlertCircle } from 'lucide-react'
 ```
 
 ### i18n Key Structure for BOM Panel (EN canonical)
+
 ```json
 {
   "bom": {
@@ -389,6 +400,7 @@ import { AlertCircle } from 'lucide-react'
 | Separate `vitest.config.ts` | `vite.config.ts` test block | Phase 2 | Single config file — no separate vitest config to create |
 
 **Deprecated/outdated:**
+
 - `ResultsPlaceholder.tsx`: Replaced by `BOMPanel.tsx` in this phase — delete after wiring.
 
 ## Open Questions
@@ -478,6 +490,7 @@ import { AlertCircle } from 'lucide-react'
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |

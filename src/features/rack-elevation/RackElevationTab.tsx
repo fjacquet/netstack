@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { buildRackDevices, buildNetworkRackDevices } from './utils/buildRackDevices'
+import { buildPositioningRackDevices } from './utils/buildPositioningRackDevices'
 import { RackFrame } from './RackFrame'
+import { RackCapacityBadge } from './RackCapacityBadge'
 import type { RackDevice } from './types'
 
 /**
@@ -38,13 +40,23 @@ export function RackElevationTab() {
     }
   }, [bom?.racks]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // When positioning changes back to ToR, reset from positioning rack view to first server rack
+  useEffect(() => {
+    if (bom?.input.switchPositioning === 'ToR' && selectedRack === 'positioning') {
+      setSelectedRack('0')
+    }
+  }, [bom?.input.switchPositioning]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Rebuild devices whenever BOM or selectedRack changes
   useEffect(() => {
     if (!bom) {
       setDevices([])
       return
     }
-    if (selectedRack.startsWith('net-')) {
+    if (selectedRack === 'positioning') {
+      // Positioning rack: centralized leaf switches for MoR/BoR mode
+      setDevices(buildPositioningRackDevices(bom))
+    } else if (selectedRack.startsWith('net-')) {
       // Network rack
       setDevices(buildNetworkRackDevices(bom))
     } else {
@@ -80,6 +92,10 @@ export function RackElevationTab() {
 
   const rackUnits = parseInt(bom.input.rackSize)
 
+  // Compute used U and overflow for the selected rack
+  const usedU = devices.reduce((sum, d) => sum + d.uHeight, 0)
+  const overflow = usedU > rackUnits
+
   return (
     <div className="flex h-full flex-col">
       {/* Rack selector bar */}
@@ -104,15 +120,20 @@ export function RackElevationTab() {
                 {t('rack.networkRack', { n: i + 1 })}
               </SelectItem>
             ))}
+            {bom.input.switchPositioning !== 'ToR' && (
+              <SelectItem value="positioning">
+                {t('rack.positioningRack', { type: bom.input.switchPositioning })}
+              </SelectItem>
+            )}
           </SelectContent>
         </Select>
-        <span className="text-xs text-muted-foreground ml-2">{rackUnits}U</span>
+        <RackCapacityBadge usedU={usedU} totalU={rackUnits} />
       </div>
 
       {/* Rack frame with scroll */}
       <ScrollArea className="flex-1">
         <div className="py-6">
-          <RackFrame devices={devices} rackUnits={rackUnits} onReorder={handleReorder} />
+          <RackFrame devices={devices} rackUnits={rackUnits} onReorder={handleReorder} overflow={overflow} />
         </div>
       </ScrollArea>
     </div>

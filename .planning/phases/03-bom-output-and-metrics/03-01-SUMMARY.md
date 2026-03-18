@@ -110,6 +110,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Used node execSync workaround for shadcn install**
+
 - **Found during:** Task 1 (shadcn component installation)
 - **Issue:** `npx shadcn@latest add` fails with "Missing script: shadcn@latest" when called from bash — same non-interactive issue encountered in Phase 2
 - **Fix:** Wrapped in `node -e "require('child_process').execSync(..., { cwd: '...' })"` to provide correct working directory and interactive context

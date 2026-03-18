@@ -7,29 +7,34 @@
 ---
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 **Language switching**
+
 - Default language detected from browser locale; fall back to EN if locale is not FR/DE/IT
 - Language switcher is a dropdown in the header/navbar (top-right area), always visible
 - Full UI + labels translated: all buttons, labels, tooltips, error messages, empty states — but technical terms (S5248F-ON, DAC, 25G, QSFP28) stay in English
 - Language choice persisted to localStorage so it survives page reloads
 
 **App shell structure**
+
 - Tabbed layout with 4 tabs: Sizing (Input + BOM), Topology, Rack Elevation, Export
 - The Sizing tab shows input form and results side-by-side (form on the left, results on the right)
 - Topology, Rack Elevation, and Export tabs are empty placeholders in Phase 2 — filled in Phases 3-4
 - Top bar contains: app logo/title, tab navigation, language switcher, theme toggle
 
 **Form layout**
+
 - Input form lives in the left panel of the Sizing tab
 - Fields: total server count, servers per rack, connectivity type (25G/100G), cable type (DAC/AOC/fiber), leaf model selection
 - Inline Zod validation error messages on each field
 - Changing any input triggers immediate engine recalculation (no submit button)
 
 ### Claude's Discretion
+
 - Responsive tablet behavior (stack vs collapse at 768px)
 - Form field grouping and visual ordering
 - Theme toggle icon/placement style within the header
@@ -38,12 +43,14 @@
 - i18n library choice (react-i18next vs lightweight alternative)
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 - ADR (Architecture Decision Record) document — user wants to redact this, noted for Documentation phase (Phase 4, DOC-01)
 </user_constraints>
 
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -72,6 +79,7 @@ Tailwind v4 removes the `darkMode: 'class'` config option; dark mode is now conf
 ## Standard Stack
 
 ### Core
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | react | 19.2.4 | UI rendering | Current LTS; shadcn/ui requires React 18+ |
@@ -88,6 +96,7 @@ Tailwind v4 removes the `darkMode: 'class'` config option; dark mode is now conf
 | lucide-react | bundled | Icon library | Bundled with shadcn/ui; Sun/Moon/AlertCircle icons needed |
 
 ### Supporting
+
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | react-i18next | 16.5.8 | React i18n bindings | Wraps i18next with React hooks; useTranslation hook |
@@ -98,6 +107,7 @@ Tailwind v4 removes the `darkMode: 'class'` config option; dark mode is now conf
 | jsdom | 29.0.0 | DOM simulation for Vitest | Required for jsdom test environment |
 
 ### Alternatives Considered
+
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | react-i18next | @lingui/react, next-intl | react-i18next has the widest React ecosystem adoption; built-in LanguageDetector plugin handles localStorage persistence automatically |
@@ -105,6 +115,7 @@ Tailwind v4 removes the `darkMode: 'class'` config option; dark mode is now conf
 | derive-zustand | manual subscribe | derive-zustand is clean but adds a dependency; manual `store.subscribe()` call in a module-level setup is zero-dep and easy to understand |
 
 **Installation (after shadcn init):**
+
 ```bash
 npm install react react-dom @vitejs/plugin-react
 npm install zustand react-hook-form @hookform/resolvers
@@ -113,6 +124,7 @@ npm install --save-dev @testing-library/react @testing-library/user-event jsdom
 ```
 
 **Version verification (confirmed 2026-03-17 against npm registry):**
+
 ```
 react                            19.2.4
 vite                              8.0.0
@@ -136,6 +148,7 @@ tailwindcss                       4.2.1
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
 ├── domain/              # Existing Phase 1 — pure TS, no React (DO NOT MODIFY)
@@ -168,9 +181,11 @@ src/
 ```
 
 ### Pattern 1: shadcn/ui Initialization Gate
+
 **What:** shadcn/ui CLI must be initialized before any component code is written. It creates `components.json` and generates the initial `src/components/ui/` directory.
 **When to use:** First task of Phase 2, before any other work.
 **Example:**
+
 ```bash
 # Source: https://ui.shadcn.com/docs/installation/vite
 npx shadcn@latest init
@@ -181,9 +196,11 @@ npx shadcn@latest add tabs card form input select label badge button separator d
 ```
 
 ### Pattern 2: Tailwind v4 Dark Mode via @custom-variant
+
 **What:** Tailwind v4 removes the `darkMode: 'class'` config option. Class-based dark mode is now declared in CSS.
 **When to use:** In `src/index.css` alongside shadcn CSS variable definitions.
 **Example:**
+
 ```css
 /* Source: https://tailwindcss.com/docs/dark-mode */
 @import "tailwindcss";
@@ -195,9 +212,11 @@ npx shadcn@latest add tabs card form input select label badge button separator d
 ```
 
 ### Pattern 3: ThemeProvider (shadcn/ui Vite variant)
+
 **What:** Context-based theme provider that toggles `.dark` class on `<html>`, reads/writes localStorage.
 **When to use:** Wrap root App. Use `storageKey="netstack-theme"` per UI-SPEC.
 **Example:**
+
 ```typescript
 // Source: https://ui.shadcn.com/docs/dark-mode/vite
 // src/components/theme-provider.tsx
@@ -226,9 +245,11 @@ export function ThemeProvider({ children, defaultTheme = "system", storageKey = 
 ```
 
 ### Pattern 4: react-i18next Bootstrap
+
 **What:** i18n must be initialized before the React tree renders. Import the bootstrap module in `main.tsx` BEFORE importing `App`.
 **When to use:** `src/i18n/index.ts` — required boilerplate.
 **Example:**
+
 ```typescript
 // Source: https://react.i18next.com/guides/quick-start
 // src/i18n/index.ts
@@ -276,9 +297,11 @@ createRoot(document.getElementById("root")!).render(
 ```
 
 ### Pattern 5: Zustand inputStore (persisted) + resultStore (derived)
+
 **What:** inputStore persists user inputs to localStorage. resultStore is a module-level subscribe that recomputes on every inputStore change — never persisted.
 **When to use:** Both stores in `src/store/`.
 **Example:**
+
 ```typescript
 // Source: https://zustand.docs.pmnd.rs/reference/integrations/persisting-store-data
 // src/store/inputStore.ts
@@ -340,9 +363,11 @@ const { totalServers } = useInputStore(useShallow((s) => ({ totalServers: s.inpu
 ```
 
 ### Pattern 6: react-hook-form + zodResolver + Zod v4 (CRITICAL)
+
 **What:** Using shadcn Form components with react-hook-form and zodResolver. The critical rule: do NOT pass generic type to useForm when using Zod v4.
 **When to use:** InputForm component.
 **Example:**
+
 ```typescript
 // Source: https://ui.shadcn.com/docs/forms/react-hook-form
 // CONFIRMED: @hookform/resolvers v5.2.2 resolves Zod v4 type issue when useForm has no explicit generic
@@ -386,9 +411,11 @@ export function InputForm() {
 ```
 
 ### Pattern 7: GitHub Pages CI/CD Workflow
+
 **What:** Official Vite GitHub Actions workflow for static deployment.
 **When to use:** `.github/workflows/deploy.yml`
 **Example:**
+
 ```yaml
 # Source: https://vite.dev/guide/static-deploy#github-pages
 name: Deploy to GitHub Pages
@@ -429,6 +456,7 @@ jobs:
 ```
 
 Also set `base` in `vite.config.ts` to match the repo name:
+
 ```typescript
 // vite.config.ts
 export default defineConfig({
@@ -439,6 +467,7 @@ export default defineConfig({
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Passing generic to useForm with Zod v4:** `useForm<z.infer<T>>()` causes TypeScript incompatibility. Use `useForm()` with no generic and let zodResolver infer types.
 - **Importing i18n after App:** The `i18n/index.ts` module MUST be imported before App renders or translations will be undefined on first render.
 - **Using tailwind.config.js with v4:** Tailwind v4 does not use `tailwind.config.js`. All configuration (dark mode variant, custom tokens) goes in CSS.
@@ -466,42 +495,49 @@ export default defineConfig({
 ## Common Pitfalls
 
 ### Pitfall 1: @hookform/resolvers + Zod v4 TypeScript Error
+
 **What goes wrong:** TypeScript error "Argument of type ZodObject is not assignable to parameter type Zod3Type" when calling `zodResolver(SizingInputSchema)`.
 **Why it happens:** @hookform/resolvers v5 had an internal Zod type detection issue. Fixed in v5.2.2 when `useForm` is called without a generic type argument.
 **How to avoid:** Use `const form = useForm({ resolver: zodResolver(schema), ... })` — no `<T>` generic. Confirmed working with @hookform/resolvers 5.2.2 + zod 4.3.6.
 **Warning signs:** TypeScript errors mentioning `Zod3Type`, `typeName`, or `_input`/`_output` type mismatches.
 
 ### Pitfall 2: shadcn components.json Missing Before Component Adds
+
 **What goes wrong:** `npx shadcn@latest add button` fails or generates into wrong directory.
 **Why it happens:** shadcn CLI reads `components.json` to know where to write files and which CSS variables to use. If it doesn't exist, the CLI will re-run init interactively.
 **How to avoid:** Always run `npx shadcn@latest init` and confirm `components.json` exists in project root before any `add` commands.
 **Warning signs:** CLI prompts for init config when running `add`; files generated to unexpected paths.
 
 ### Pitfall 3: Tailwind v4 Dark Mode Class Not Applied
+
 **What goes wrong:** `dark:` classes in components have no effect even though `.dark` is on `<html>`.
 **Why it happens:** Tailwind v4 removed `darkMode: 'class'` from config. Without the `@custom-variant dark` directive in CSS, the `dark:` variant is treated as an unknown variant and stripped.
 **How to avoid:** Add `@custom-variant dark (&:where(.dark, .dark *));` to `src/index.css` immediately after `@import "tailwindcss";`.
 **Warning signs:** Dark mode toggle changes localStorage and HTML class but no visual change in styles.
 
 ### Pitfall 4: SizingInputSchema Missing leafModel Field
+
 **What goes wrong:** InputForm has a Leaf Model dropdown but SizingInputSchema only has `connectivityType`, `cableType`, `totalServers`, `serversPerRack`. Zod validation will strip the `leafModel` field.
 **Why it happens:** The existing `SizingInputSchema` in `src/domain/schemas/input.ts` does not include `leafModel`. The sizing engine currently uses the hardcoded `SWITCH_CATALOG['S5248F-ON']` alias.
 **How to avoid:** Phase 2 must extend `SizingInputSchema` to add `leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON'])` and update `calculateBOM()` to use `input.leafModel` instead of the hardcoded alias. This is a planned Phase 2 task.
 **Warning signs:** leafModel dropdown value disappears on form resubmit; engine always uses S5248F-ON regardless of user selection.
 
 ### Pitfall 5: i18n Not Initialized Before First Render
+
 **What goes wrong:** Translation keys render as raw key strings (e.g., "totalServers") on first load, then update after hydration.
 **Why it happens:** React renders synchronously; if i18n is async-initialized (via http-backend plugin), translations are unavailable on first render.
 **How to avoid:** Bundle translations directly as JSON imports (not http-backend). Import `./i18n/index` as the FIRST import in `main.tsx`. This ensures synchronous initialization before React tree renders.
 **Warning signs:** Flash of translation keys on page load; keys visible for a brief moment before translations appear.
 
 ### Pitfall 6: Number Input Type Coercion
+
 **What goes wrong:** `totalServers` and `serversPerRack` are `z.number()` fields, but `<input type="number">` returns a string via `onChange`. Zod validation fails with "Expected number, received string."
 **Why it happens:** React's `onChange` event on `<input type="number">` returns `e.target.value` as a string, not a number.
 **How to avoid:** In the `render` prop of FormField, coerce the value: `field.onChange(Number(e.target.value))`. Alternatively use `z.coerce.number()` in the schema (but this changes schema semantics — prefer explicit coercion in the component).
 **Warning signs:** Valid-looking numbers fail Zod validation; error messages say "Expected number, received string."
 
 ### Pitfall 7: Zustand useShallow Omission Causing Infinite Render Loops
+
 **What goes wrong:** Component re-renders on every store update regardless of whether the selected slice changed.
 **Why it happens:** When selecting an object from Zustand without `useShallow`, a new object reference is returned on every state update. React treats new references as changed values, triggering re-renders.
 **How to avoid:** Always use `import { useShallow } from "zustand/shallow"` when selecting multiple properties from a Zustand store. Per CLAUDE.md project convention.
@@ -514,6 +550,7 @@ export default defineConfig({
 Verified patterns from official sources:
 
 ### Select Field with react-hook-form + shadcn
+
 ```typescript
 // Source: https://ui.shadcn.com/docs/forms/react-hook-form
 import { Controller } from "react-hook-form"
@@ -544,6 +581,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 ```
 
 ### Leaf Model Dropdown Sourced from Catalog
+
 ```typescript
 // Source: CLAUDE.md — "form dropdowns should source options from catalog, not hardcode"
 import { SWITCH_CATALOG } from "@/domain/catalog/hardware"
@@ -557,6 +595,7 @@ const LEAF_MODELS = ["S5248F-ON", "S5224F-ON", "S5212F-ON"] as const
 ```
 
 ### i18next Language Switch
+
 ```typescript
 // Source: https://react.i18next.com/guides/quick-start
 import { useTranslation } from "react-i18next"
@@ -583,6 +622,7 @@ function LanguageSwitcher() {
 ```
 
 ### Vitest + jsdom + RTL Configuration
+
 ```typescript
 // Source: https://vitest.dev/config/
 // vite.config.ts additions for Phase 2 testing
@@ -625,6 +665,7 @@ afterEach(() => { cleanup() })
 | `npx create-vite` + manual shadcn setup | `npx shadcn@latest init -t vite` | shadcn 2024+ | Init handles Vite project scaffolding including Tailwind v4 |
 
 **Deprecated/outdated:**
+
 - `tailwind.config.js`: Not used in Tailwind v4 for theme or dark mode configuration
 - `postcss.config.js` for Tailwind: Replaced by `@tailwindcss/vite` plugin; PostCSS no longer needed
 - `@testing-library/jest-dom` without `/vitest` suffix: Use `@testing-library/jest-dom/vitest` for Vitest compatibility
@@ -654,6 +695,7 @@ afterEach(() => { cleanup() })
 ## Validation Architecture
 
 ### Test Framework
+
 | Property | Value |
 |----------|-------|
 | Framework | Vitest 4.1.0 |
@@ -662,6 +704,7 @@ afterEach(() => { cleanup() })
 | Full suite command | `npx vitest run` |
 
 ### Phase Requirements → Test Map
+
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
 | SIZE-01 | InputForm renders all 5 fields and submits valid data to store | unit | `npx vitest run src/features/sizing/InputForm.test.tsx -x` | Wave 0 |
@@ -675,11 +718,13 @@ afterEach(() => { cleanup() })
 | UX-04 | GitHub Actions workflow file exists and passes CI syntax check | manual | Manual review of `.github/workflows/deploy.yml` | Wave 0 |
 
 ### Sampling Rate
+
 - **Per task commit:** `npx vitest run src/`
 - **Per wave merge:** `npx vitest run`
 - **Phase gate:** Full suite green before `/gsd:verify-work`
 
 ### Wave 0 Gaps
+
 - [ ] `vite.config.ts` — add `test: { globals: true, environment: "jsdom", setupFiles: ["./src/test/setup.ts"] }`
 - [ ] `src/test/setup.ts` — RTL + jest-dom setup
 - [ ] `src/features/sizing/InputForm.test.tsx` — covers SIZE-01
@@ -689,6 +734,7 @@ afterEach(() => { cleanup() })
 - [ ] `src/features/sizing/SizingPage.test.tsx` — covers UX-03 layout
 
 Framework install additions needed:
+
 ```bash
 npm install --save-dev @testing-library/react @testing-library/user-event jsdom @testing-library/jest-dom
 ```
@@ -698,6 +744,7 @@ npm install --save-dev @testing-library/react @testing-library/user-event jsdom 
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - shadcn/ui official docs (ui.shadcn.com/docs) — Vite installation, dark mode ThemeProvider, form with react-hook-form patterns
 - Tailwind CSS official docs (tailwindcss.com/docs/dark-mode) — `@custom-variant dark` directive for v4
 - Vite official docs (vite.dev/guide/static-deploy) — GitHub Pages deployment workflow YAML
@@ -705,12 +752,14 @@ npm install --save-dev @testing-library/react @testing-library/user-event jsdom 
 - npm registry (2026-03-17) — verified current versions of all packages listed in Standard Stack
 
 ### Secondary (MEDIUM confidence)
+
 - github.com/react-hook-form/resolvers/issues/813 — Zod v4 type compatibility resolution confirmed in v5.2.2; workaround verified via multiple reporter confirmations
 - github.com/colinhacks/zod/issues/4992 — Closed COMPLETED; `useForm()` without generic resolves type issues with Zod v4
 - github.com/zustandjs/derive-zustand — derived store pattern reference
 - zustand.docs.pmnd.rs persist middleware — createJSONStorage localStorage pattern
 
 ### Tertiary (LOW confidence)
+
 - Various community blog posts on react-i18next Vite setup — cross-verified with official docs; used only for configuration ordering guidance
 
 ---
@@ -718,6 +767,7 @@ npm install --save-dev @testing-library/react @testing-library/user-event jsdom 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — all versions verified against npm registry 2026-03-17
 - Architecture: HIGH — patterns drawn from official shadcn/ui, Vite, react-i18next docs
 - Pitfalls: HIGH — Zod v4 + hookform issue verified via GitHub issues; Tailwind v4 dark mode verified via official docs; other pitfalls verified via project conventions (CLAUDE.md) or official docs

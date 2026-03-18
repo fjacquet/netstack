@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A client-side network sizing calculator for Dell Leaf-Spine + OOB infrastructure running SONiC. Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser app deployed to GitHub Pages.
+A client-side network sizing calculator for Dell Leaf-Spine + OOB infrastructure (Ethernet) and Brocade/Broadcom Fibre Channel SAN fabrics. Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Supports both Ethernet and FC modes with a unified UI. Pure browser app deployed to GitHub Pages.
 
 ## Core Value
 
-Answer the question *"How many boxes and cables do I need to order?"* instantly and accurately for any Dell SONiC Leaf-Spine deployment.
+Answer the question *"How many boxes and cables do I need to order?"* instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
 
 ## Requirements
 
@@ -28,20 +28,24 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ GitHub Pages deployment via GitHub Actions — v1.0
 - ✓ Border leaf switches for WAN connectivity — v1.0
 - ✓ Rack sizes: 24U, 42U, 50U — v1.0
+- ✓ Per-rack server count configuration with variable density (GH #2) — v1.1
+- ✓ Configurable frontend (data) and backend (storage/backup) port count per server (GH #3) — v1.1
+- ✓ Servers in rack elevation with U-height proportional rendering and RACK_CAPACITY_EXCEEDED alerts (GH #4) — v1.1
+- ✓ Selectable active uplinks per leaf switch (1 to model maximum) (GH #5) — v1.1
+- ✓ Fibre Channel SAN sizing with Brocade Gen7/Gen8 catalog (9 switch models, POD licensing) (GH #1) — v2.0
+- ✓ ToR / MoR / BoR switch positioning selection with cable advisory (GH #6) — v2.0
+- ✓ Dual-fabric FC topology diagram (Fabric A blue / Fabric B orange) — v2.0
+- ✓ FC BOM panel with per-fabric counts, ISLs, POD licenses, oversubscription ratio — v2.0
+- ✓ FC export: CSV with Fabric A/B sections, PDF with 5 dedicated FC pages — v2.0
 
-### Active (v1.1)
+### Active (v3.0)
 
-- [ ] Per-rack server count configuration (GH #2)
-- [ ] Configurable frontend/backend port count per server (GH #3)
-- [ ] Show servers in rack elevation with U-height validation (GH #4)
-- [ ] Selectable number of uplinks per switch (GH #5)
+- [ ] Save/load named configurations
+- [ ] JSON export
+- [ ] Multi-pod support for large deployments
 
-### Future (v2.0+)
+### Future (v3.0+)
 
-- Fibre Channel SAN sizing with Brocade Gen7/Gen8 (GH #1)
-- Save/load named configurations
-- JSON export
-- Multi-pod support for large deployments
 - Power budget calculation per rack
 - Weight/cooling estimates
 
@@ -54,28 +58,22 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - SONiC configuration generation — separate tool
 - Backend / user accounts — pure client-side
 
-## Current Milestone: v1.1 Enhancements
-
-**Goal:** Improve the Ethernet calculator with per-rack configuration, configurable server ports, rack capacity validation, and selectable uplinks.
-
-**Target features:**
-- Per-rack server count (variable density per rack) — GH #2
-- Configurable frontend/backend port count per server — GH #3
-- Servers visible in rack elevation with U-height + fit validation — GH #4
-- Selectable number of uplinks per switch — GH #5
-
 ## Context
 
+Shipped v2.0 with 13,283 LOC TypeScript, 388 tests, 50 commits across 7 phases (8–14), 169 files changed.
+Shipped v1.1 with 223 tests, 34 commits across 3 phases (5–7), 55 files changed.
 Shipped v1.0 with 6,990 LOC TypeScript, 144 tests, 50 commits.
 Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflow/react, @react-pdf/renderer.
 5 Dell PowerSwitch models: S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON.
+9 Brocade FC switch models: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8.
 
 ## Constraints
 
 - **Tech stack**: Vite 6 + React 19 + TypeScript strict + Zustand v5 + Zod v4
 - **No `any`**: TypeScript strict mode
-- **Immutability**: Sizing engine is a pure function
-- **Hardware source of truth**: Switch specs in `SWITCH_CATALOG` constants
+- **Immutability**: Sizing engines are pure functions (both Ethernet and FC)
+- **Hardware source of truth**: Switch specs in `SWITCH_CATALOG` / `FC_SWITCH_CATALOG` constants
+- **Domain isolation**: FC and Ethernet are parallel — no cross-mode imports or shared state
 
 ## Key Decisions
 
@@ -91,6 +89,11 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | Export buttons in header (not tab) | Saves screen space, always accessible | ✓ Good |
 | Inline theme script in index.html | Prevents flash-of-wrong-theme before React renders | ✓ Good |
 | Zustand persist with version + merge | Handles schema evolution without breaking cached data | ✓ Good |
+| Parallel FC/Ethernet architecture (no generics) | Strict isolation; generics couple the two domains | ✓ Good |
+| FC mode as ephemeral component state (not persisted) | Prevents stale mode on page reload | ✓ Good |
+| Two independent ReactFlowProvider instances for FC fabric A/B | Prevents cross-fabric edge rendering bugs | ✓ Good |
+| TDD (RED→GREEN) for all pure domain functions | Catches formula errors before UI is written | ✓ Good |
+| FC ISL formula: fan-in ratio 7:1 (Broadcom threshold) | Matches Broadcom advisory; differs from Ethernet uplink formula | ✓ Good |
 
 ---
-*Last updated: 2026-03-17 after v1.0 milestone*
+*Last updated: 2026-03-18 after v2.0 milestone*

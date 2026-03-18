@@ -131,6 +131,7 @@ _Note: TDD tasks have RED (test) then GREEN (feat) commits_
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Added src/placeholder.ts for initial TypeScript compilation**
+
 - **Found during:** Task 1 (project initialization)
 - **Issue:** TypeScript returns error TS18003 (no inputs found) when src/ directory has no .ts files — tsc fails with exit code 2
 - **Fix:** Created src/placeholder.ts with `export {};` to allow initial tsc --noEmit to pass; removed in Task 2 GREEN commit when real files were added
@@ -158,12 +159,13 @@ None - no external service configuration required.
 - S5212F-ON has `uplinkPorts: 3` — sizing engine must use catalog values, not assume 4 uplinks per leaf for all models
 
 ---
-*Phase: 01-domain-engine*
-*Completed: 2026-03-16*
+_Phase: 01-domain-engine_
+_Completed: 2026-03-16_
 
 ## Self-Check: PASSED
 
 All files exist and all commits verified:
+
 - FOUND: src/domain/catalog/hardware.ts (dc6ae41, 821607f)
 - FOUND: src/domain/catalog/cables.ts (821607f)
 - FOUND: src/domain/catalog/types.ts (821607f)

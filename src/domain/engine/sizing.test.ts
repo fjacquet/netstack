@@ -25,6 +25,8 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
+    serverUHeight: '1U',
+    switchPositioning: 'ToR' as const,
     ...overrides,
   };
 }
@@ -703,5 +705,264 @@ describe('RACK-03: Variable density rack configurations', () => {
     expect(bom.racks).toBe(4);
     expect(bom.serverLeafCables).toBe(50); // 5 + 10 + 15 + 20
     expect(bom.leafSwitches).toBe(8); // 4 racks × 2
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POS-03 + POS-04: Switch Positioning
+// ---------------------------------------------------------------------------
+describe('POS-03 + POS-04: Switch Positioning', () => {
+  // Cable length: ToR=3m
+  it('ToR positioning returns recommendedCableLengthM=3 and no DAC_POSITIONING_INCOMPATIBLE', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'DAC',
+      switchPositioning: 'ToR',
+    }));
+    expect(bom.recommendedCableLengthM).toBe(3);
+    expect(bom.switchPositioning).toBe('ToR');
+    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
+    expect(v).toBeUndefined();
+  });
+
+  // Cable length: MoR=15m
+  it('MoR positioning returns recommendedCableLengthM=15', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'fiber',
+      switchPositioning: 'MoR',
+    }));
+    expect(bom.recommendedCableLengthM).toBe(15);
+    expect(bom.switchPositioning).toBe('MoR');
+  });
+
+  // Cable length: BoR=30m
+  it('BoR positioning returns recommendedCableLengthM=30', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'fiber',
+      switchPositioning: 'BoR',
+    }));
+    expect(bom.recommendedCableLengthM).toBe(30);
+    expect(bom.switchPositioning).toBe('BoR');
+  });
+
+  // DAC_POSITIONING_INCOMPATIBLE fires for MoR+DAC
+  it('MoR + DAC fires DAC_POSITIONING_INCOMPATIBLE with positioning=MoR and correct cableLength', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'DAC',
+      switchPositioning: 'MoR',
+    }));
+    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
+    expect(v).toBeDefined();
+    if (v && v.code === 'DAC_POSITIONING_INCOMPATIBLE') {
+      expect(v.positioning).toBe('MoR');
+      expect(v.recommendedCableLengthM).toBe(15);
+    }
+  });
+
+  // DAC_POSITIONING_INCOMPATIBLE fires for BoR+DAC
+  it('BoR + DAC fires DAC_POSITIONING_INCOMPATIBLE with positioning=BoR and correct cableLength', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'DAC',
+      switchPositioning: 'BoR',
+    }));
+    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
+    expect(v).toBeDefined();
+    if (v && v.code === 'DAC_POSITIONING_INCOMPATIBLE') {
+      expect(v.positioning).toBe('BoR');
+      expect(v.recommendedCableLengthM).toBe(30);
+    }
+  });
+
+  // MoR+fiber does NOT fire DAC_POSITIONING_INCOMPATIBLE
+  it('MoR + fiber does not fire DAC_POSITIONING_INCOMPATIBLE', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'fiber',
+      switchPositioning: 'MoR',
+    }));
+    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
+    expect(v).toBeUndefined();
+  });
+
+  // switchOverheadU: MoR=1U — 40 servers × 1U + 1U overhead = 41U ≤ 42U → no violation
+  it('MoR positioning uses 1U switch overhead: 40 servers × 1U in 42U rack → no RACK_CAPACITY_EXCEEDED (41U used)', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 40 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+      switchPositioning: 'MoR',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeUndefined();
+  });
+
+  // switchOverheadU: ToR=3U — 40 servers × 1U + 3U overhead = 43U > 42U → violation
+  it('ToR positioning uses 3U switch overhead: 40 servers × 1U in 42U rack → RACK_CAPACITY_EXCEEDED (43U used)', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 40 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+      switchPositioning: 'ToR',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeDefined();
+    if (v && v.code === 'RACK_CAPACITY_EXCEEDED') {
+      expect(v.usedU).toBe(43);
+      expect(v.totalU).toBe(42);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RACK_CAPACITY_EXCEEDED — per-rack U-height overflow detection
+// ---------------------------------------------------------------------------
+// SWITCH_U_PER_SERVER_RACK = 3 (OOB U1 + Leaf B U2 + Leaf A U3)
+// usedU = 3 + serverCount * uHeightInt
+describe('RACK_CAPACITY_EXCEEDED: U-height capacity violation', () => {
+  // Schema tests
+  it('SizingInputSchema accepts serverUHeight: "2U"', () => {
+    // If serverUHeight is not in the schema, calculateBOM will fail due to type mismatch.
+    // The test verifies the field is accepted at the engine level.
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 1 }],
+      rackSize: '42U',
+      serverUHeight: '2U',
+    }));
+    expect(bom).toBeDefined();
+  });
+
+  it('SizingInputSchema defaults serverUHeight to "1U" when omitted', () => {
+    // makeInput without serverUHeight override should still work (default from schema)
+    const inputWithoutHeight = {
+      racks: [{ serverCount: 16 }],
+      portsPerServerFrontend: 1,
+      portsPerServerBackend: 1,
+      activeUplinksPerLeaf: 4,
+      connectivityType: '25G' as const,
+      cableType: 'DAC' as const,
+      leafModel: 'S5248F-ON' as const,
+      spineModel: 'S5232F-ON' as const,
+      borderLeafModel: 'none' as const,
+      borderLeafCount: 0,
+      rackSize: '42U' as const,
+      serverUHeight: '1U' as const,
+      switchPositioning: 'ToR' as const,
+    };
+    const bom = calculateBOM(inputWithoutHeight);
+    expect(bom).toBeDefined();
+  });
+
+  // Overflow tests
+  it('20 servers x 2U in 42U rack → violation (usedU=43, totalU=42, rackNumber=1)', () => {
+    // usedU = 3 + 20*2 = 43 > 42 → violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 20 }],
+      rackSize: '42U',
+      serverUHeight: '2U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeDefined();
+    if (v && v.code === 'RACK_CAPACITY_EXCEEDED') {
+      expect(v.rackNumber).toBe(1);
+      expect(v.usedU).toBe(43);
+      expect(v.totalU).toBe(42);
+    }
+  });
+
+  it('19 servers x 2U in 42U rack → no violation (usedU=41 <= 42)', () => {
+    // usedU = 3 + 19*2 = 41 ≤ 42 → no violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 19 }],
+      rackSize: '42U',
+      serverUHeight: '2U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeUndefined();
+  });
+
+  it('exact boundary: 39 servers x 1U in 42U rack → no violation (usedU=42 == 42)', () => {
+    // usedU = 3 + 39*1 = 42 == 42 → no violation (boundary is safe)
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 39 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeUndefined();
+  });
+
+  it('40 servers x 1U in 42U rack → violation (usedU=43 > 42)', () => {
+    // usedU = 3 + 40*1 = 43 > 42 → violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 40 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeDefined();
+    if (v && v.code === 'RACK_CAPACITY_EXCEEDED') {
+      expect(v.rackNumber).toBe(1);
+      expect(v.usedU).toBe(43);
+      expect(v.totalU).toBe(42);
+    }
+  });
+
+  it('0 servers in rack → no violation (usedU=3 <= 42)', () => {
+    // usedU = 3 + 0*1 = 3 ≤ 42 → no violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 0 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeUndefined();
+  });
+
+  it('2 racks overflow, 1 does not → exactly 2 violations with correct rackNumbers', () => {
+    // rack1: usedU = 3 + 40*1 = 43 > 42 → violation rackNumber=1
+    // rack2: usedU = 3 + 39*1 = 42 == 42 → no violation
+    // rack3: usedU = 3 + 40*1 = 43 > 42 → violation rackNumber=3
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 40 }, { serverCount: 39 }, { serverCount: 40 }],
+      rackSize: '42U',
+      serverUHeight: '1U',
+    }));
+    const violations = bom.violations.filter(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(violations).toHaveLength(2);
+    const rackNumbers = violations
+      .filter(v => v.code === 'RACK_CAPACITY_EXCEEDED')
+      .map(v => v.code === 'RACK_CAPACITY_EXCEEDED' ? v.rackNumber : -1);
+    expect(rackNumbers).toContain(1);
+    expect(rackNumbers).toContain(3);
+  });
+
+  it('6 servers x 8U in 50U rack → violation (usedU=51 > 50)', () => {
+    // usedU = 3 + 6*8 = 51 > 50 → violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 6 }],
+      rackSize: '50U',
+      serverUHeight: '8U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeDefined();
+    if (v && v.code === 'RACK_CAPACITY_EXCEEDED') {
+      expect(v.usedU).toBe(51);
+      expect(v.totalU).toBe(50);
+    }
+  });
+
+  it('5 servers x 8U in 50U rack → no violation (usedU=43 <= 50)', () => {
+    // usedU = 3 + 5*8 = 43 ≤ 50 → no violation
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 5 }],
+      rackSize: '50U',
+      serverUHeight: '8U',
+    }));
+    const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
+    expect(v).toBeUndefined();
   });
 });

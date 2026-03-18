@@ -1,74 +1,86 @@
-# Requirements: NetStack
+# Requirements: NetStack v2.0
 
-**Defined:** 2026-03-17
+**Defined:** 2026-03-18
 **Core Value:** Answer "How many boxes and cables do I need?" instantly and accurately
 
-## v1.1 Requirements
+> v1.1 requirements archived to `.planning/milestones/v1.1-REQUIREMENTS.md` (11/11 satisfied).
 
-### Rack Configuration
+## v2.0 Requirements
 
-- [ ] **RACK-01**: User can define number of racks explicitly (not just derived from totalServers / serversPerRack)
-- [ ] **RACK-02**: User can set different server counts per rack (variable density)
-- [x] **RACK-03**: Engine calculates BOM from per-rack configuration array instead of uniform scalars
+### Fibre Channel Catalog
 
-### Server Ports
+- [x] **FC-01**: Brocade Gen7 (64G) switch catalog with verified specs (G710, G720, G730, X7-4, X7-8)
+- [x] **FC-02**: Brocade Gen8 (128G) switch catalog with verified specs (G820, X8-4, X8-8)
+- [x] **FC-03**: Dynamic POD licensing modeled per switch (basePorts vs totalPorts, podLicenseUnit)
+- [x] **FC-04**: 7850 FCIP extension switch in catalog
 
-- [ ] **PORT-01**: User can configure frontend (data) port count per server (0-8, default 1)
-- [ ] **PORT-02**: User can configure backend (OOB) port count per server (0-8, default 1)
-- [x] **PORT-03**: Cable and transceiver counts adjust based on per-server port configuration
+### FC Sizing Engine
 
-### Rack Elevation
+- [x] **FC-05**: Dual-fabric SAN topology calculation (Fabric A + Fabric B, switch count always doubles)
+- [x] **FC-06**: ISL (Inter-Switch Link) calculation based on host-to-storage fan-in ratio (max 7:1)
+- [x] **FC-07**: FC optics BOM (SFP28 for 32G, SFP56 for 64G, SFP112 for 128G)
+- [x] **FC-08**: FC oversubscription ratio reporting with severity thresholds
 
-- [ ] **ELEV-01**: Servers are visible in the rack elevation view with correct U-height
-- [ ] **ELEV-02**: User can configure server U-height (1U, 2U, 4U, 8U)
-- [ ] **ELEV-03**: RACK_CAPACITY_EXCEEDED constraint violation fires when total device U-height exceeds rack size
+### FC User Interface
 
-### Uplink Configuration
+- [x] **FC-09**: Mode selector at app level (Ethernet OR Fibre Channel, mutually exclusive)
+- [x] **FC-10**: FC-specific input form (server count, HBA ports per server, FC speed, preferred generation)
+- [x] **FC-11**: FC BOM panel with switches, optics, ISL links, and POD license requirements
+- [x] **FC-12**: FC topology diagram with dual-fabric layout (Fabric A | Fabric B)
 
-- [ ] **UPLN-01**: User can select number of active uplinks per leaf switch (1 to model maximum)
-- [x] **UPLN-02**: Oversubscription ratio and cable counts recalculate based on active uplink count
+### FC Export
 
-## v2 Requirements
+- [x] **FC-13**: CSV export includes FC BOM (switches, optics, ISLs, POD licenses)
+- [x] **FC-14**: PDF report includes FC BOM summary, inputs, and dual-fabric topology
 
-### Fibre Channel SAN (GH #1)
+### Switch Positioning (Ethernet)
 
-- **FC-01**: FC sizing mode with Brocade Gen7 (64G) switch catalog
-- **FC-02**: FC sizing mode with Brocade Gen8 (128G) switch catalog
-- **FC-03**: FC topology diagram with director/switch tiers
-- **FC-04**: User selects Ethernet OR Fibre Channel mode (not both)
+- [x] **POS-01**: Switch position selector (ToR / MoR / BoR) with ToR as default
+- [x] **POS-02**: Rack elevation renders switches at correct U-position based on positioning
+- [x] **POS-03**: Cable length calculations adjusted per switch position (MoR halves max run)
+- [x] **POS-04**: DAC distance advisory updated to account for switch positioning
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Multi-site / multi-datacenter | Single site focus |
-| BGP/VLAN configuration | Physical sizing only |
-| Real-time pricing | BOM is quantities only |
-| Mobile app | Web-first (PWA works) |
-| SONiC configuration generation | Separate tool |
-| Backend / user accounts | Pure client-side |
+| Mixed Ethernet + FC sizing | Mutually exclusive modes per GH #1 |
+| NVMe-oF specific thresholds | Deferred — standard FC fan-in ratios sufficient for v2.0 |
+| MoR shared switches across racks | v2.0 keeps per-rack model; shared MoR is v3.0 |
+| FC rack elevation view | FC switches don't go in server racks; omit from rack view in v2.0 |
+| G830 (unreleased Gen8) | Not publicly available yet |
+| Save/load named configurations | Deferred to v3.0 |
+| Multi-pod support | Deferred to v3.0 |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RACK-01 | Phase 6 | Pending |
-| RACK-02 | Phase 6 | Pending |
-| RACK-03 | Phase 5 | Complete |
-| PORT-01 | Phase 6 | Pending |
-| PORT-02 | Phase 6 | Pending |
-| PORT-03 | Phase 5 | Complete |
-| ELEV-01 | Phase 7 | Pending |
-| ELEV-02 | Phase 7 | Pending |
-| ELEV-03 | Phase 7 | Pending |
-| UPLN-01 | Phase 6 | Pending |
-| UPLN-02 | Phase 5 | Complete |
+| FC-01 | Phase 8 | Complete |
+| FC-02 | Phase 8 | Complete |
+| FC-03 | Phase 8 | Complete |
+| FC-04 | Phase 8 | Complete |
+| FC-05 | Phase 10 | Complete |
+| FC-06 | Phase 10 | Complete |
+| FC-07 | Phase 10 | Complete |
+| FC-08 | Phase 10 | Complete |
+| FC-09 | Phase 9 | Complete |
+| FC-10 | Phase 12 | Complete |
+| FC-11 | Phase 12 | Complete |
+| FC-12 | Phase 13 | Complete |
+| FC-13 | Phase 14 | Complete |
+| FC-14 | Phase 14 | Complete |
+| POS-01 | Phase 11 | Complete |
+| POS-02 | Phase 11 | Complete |
+| POS-03 | Phase 11 | Complete |
+| POS-04 | Phase 11 | Complete |
 
 **Coverage:**
-- v1.1 requirements: 11 total
-- Mapped to phases: 11
+
+- v2.0 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after v1.1 roadmap creation*
+*Requirements defined: 2026-03-18*
+*Last updated: 2026-03-18 after v2.0 roadmap creation (18/18 mapped)*

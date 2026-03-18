@@ -84,6 +84,7 @@ completed: "2026-03-17"
 - **Files modified:** 16
 
 ## Accomplishments
+
 - CSV export with UTF-8 BOM prefix, RFC 4180 quoting, and 8 data rows (switches, cables, transceivers, violation notes)
 - PDF report via lazy-loaded @react-pdf/renderer: 5-page document (cover, inputs, BOM, topology, violations)
 - Inter font files downloaded to public/fonts/ and registered in @react-pdf/renderer
@@ -99,6 +100,7 @@ Each task was committed atomically:
 2. **Task 2: Build ExportTab, print stylesheet, and wire into App.tsx** - `5781bc2` (feat)
 
 ## Files Created/Modified
+
 - `src/features/export/exportCsv.ts` - buildCsvString, wrapCsvValue, downloadBomCsv
 - `src/features/export/exportCsv.test.ts` - 7 tests: BOM prefix, header, switch rows, cable rows, quoting
 - `src/features/export/exportPdf.ts` - generatePdfBlob with lazy-loaded @react-pdf/renderer
@@ -117,6 +119,7 @@ Each task was committed atomically:
 - `src/App.tsx` - ExportTab replaces PlaceholderTab; PlaceholderTab import removed
 
 ## Decisions Made
+
 - UTF-8 BOM placed on its own CRLF-terminated line before CSV header, so `split('\r\n')[1]` is the header row
 - Double-cast through `unknown` for @react-pdf/renderer `pdf()` call — structural type incompatibility between component props and DocumentProps
 - `aria-disabled="true"` (not HTML `disabled`) for inaccessible buttons — allows tooltip hover and maintains focus
@@ -127,6 +130,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed CSV BOM character placement causing header row test failure**
+
 - **Found during:** Task 1 (GREEN phase)
 - **Issue:** Plan code sample puts `\uFEFF` directly prepended to header string. Test expects `split('\r\n')[1]` to be the header, meaning `lines[0]` must be just the BOM character. With `\uFEFF + header`, `lines[0]` would be `\uFEFFCategory,...` — the test expects header at index 1.
 - **Fix:** Changed to `BOM_CHAR + '\r\n' + [header, ...rows].join('\r\n')` so BOM occupies its own line
@@ -135,6 +139,7 @@ Each task was committed atomically:
 - **Committed in:** 8e7be90 (Task 1 commit)
 
 **2. [Rule 1 - Bug] Fixed TypeScript type error in exportPdf.ts for pdf() call**
+
 - **Found during:** Task 1 (TypeScript verification)
 - **Issue:** `pdf()` expects `ReactElement<DocumentProps>` but `React.createElement(NetStackDocument, ...)` returns `ReactElement<NetStackDocumentProps>`. TypeScript rejected both direct cast and `Record<string, unknown>` cast.
 - **Fix:** Double-cast through `unknown`: `as unknown as React.ReactElement<any>`
@@ -148,12 +153,15 @@ Each task was committed atomically:
 **Impact on plan:** Both fixes required for correctness. No scope creep.
 
 ## Issues Encountered
+
 - `rtk npx vitest run` was intercepted and run as `npm vitest run` (no such npm script). Used direct `npx vitest run` to bypass rtk routing issue for this project.
 
 ## User Setup Required
+
 None - no external service configuration required. Font files included in public/ directory.
 
 ## Next Phase Readiness
+
 - All 4 tabs now have real content: Sizing, Topology, Rack Elevation, Export
 - Export pipeline complete: CSV, PDF, Print all functional
 - Phase 04 fully complete — all plans executed

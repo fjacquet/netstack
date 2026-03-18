@@ -27,6 +27,9 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
   const rackConfig = bom.input.racks[rackIndex]
   const serverCount = rackConfig?.serverCount ?? 0
 
+  // MoR/BoR: leaf switches are moved to the positioning rack — only OOB stays in server rack
+  const isToR = bom.input.switchPositioning === 'ToR'
+
   const devices: RackDevice[] = [
     {
       id: `rack-${rackIndex}-oob-0`,
@@ -34,28 +37,54 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'oob',
       label: 'OOB Management',
       uSlot: 1,
+      uHeight: 1,
       usedPorts: serverCount + 2,
       totalPorts: oobSpec.downlinkPorts,
     },
-    {
-      id: `rack-${rackIndex}-leaf-1`,
-      model: leafModel,
-      role: 'leaf',
-      label: 'Leaf B (ToR)',
-      uSlot: 2,
-      usedPorts: serverCount,
-      totalPorts: leafSpec.downlinkPorts,
-    },
-    {
-      id: `rack-${rackIndex}-leaf-0`,
-      model: leafModel,
-      role: 'leaf',
-      label: 'Leaf A (ToR)',
-      uSlot: 3,
-      usedPorts: serverCount,
-      totalPorts: leafSpec.downlinkPorts,
-    },
   ]
+
+  if (isToR) {
+    devices.push(
+      {
+        id: `rack-${rackIndex}-leaf-1`,
+        model: leafModel,
+        role: 'leaf',
+        label: 'Leaf B (ToR)',
+        uSlot: 2,
+        uHeight: 1,
+        usedPorts: serverCount,
+        totalPorts: leafSpec.downlinkPorts,
+      },
+      {
+        id: `rack-${rackIndex}-leaf-0`,
+        model: leafModel,
+        role: 'leaf',
+        label: 'Leaf A (ToR)',
+        uSlot: 3,
+        uHeight: 1,
+        usedPorts: serverCount,
+        totalPorts: leafSpec.downlinkPorts,
+      }
+    )
+  }
+
+  // Server devices above switches
+  // ToR: servers start at U4 (after OOB + 2 leaves); MoR/BoR: servers start at U2 (after OOB only)
+  const uHeight = parseInt(bom.input.serverUHeight, 10)
+  let currentUSlot = isToR ? 4 : 2
+  for (let s = 0; s < serverCount; s++) {
+    devices.push({
+      id: `rack-${rackIndex}-server-${s}`,
+      model: '',
+      role: 'server',
+      label: `Server ${s + 1}`,
+      uSlot: currentUSlot,
+      uHeight,
+      usedPorts: 0,
+      totalPorts: 0,
+    })
+    currentUSlot += uHeight
+  }
 
   return devices
 }
@@ -77,6 +106,7 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
       role: 'spine',
       label: `Spine ${i + 1}`,
       uSlot: uSlot++,
+      uHeight: 1,
       usedPorts: Math.ceil(bom.leafSwitches / bom.spineSwitches),
       totalPorts: spineSpec.downlinkPorts,
     })
@@ -92,6 +122,7 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
         role: 'border',
         label: `Border Leaf ${i + 1}`,
         uSlot: uSlot++,
+        uHeight: 1,
         usedPorts: 0,
         totalPorts: borderSpec.downlinkPorts,
       })

@@ -56,6 +56,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ### buildRackDevices (pure function)
 
 `src/features/rack-elevation/utils/buildRackDevices.ts` — accepts `NetworkBOM` and `rackIndex`, returns `RackDevice[]`:
+
 - U1: OOB switch (S3248T-ON), `usedPorts = serversPerRack + 2`
 - U2: Leaf B (second of redundant ToR pair)
 - U3: Leaf A (first of redundant ToR pair)
@@ -64,6 +65,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ### RackFrame
 
 `src/features/rack-elevation/RackFrame.tsx` — visual rack with U-slot grid:
+
 - U-slots numbered bottom-to-top (U1 at bottom), rendered top-to-bottom visually
 - `Math.max(4, devices.length + 1)` total slots (at least 4 visible)
 - HTML5 drag-and-drop (`onDragOver`, `onDrop`) — invalid drop onto occupied slot snaps back
@@ -73,6 +75,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ### RackDevice
 
 `src/features/rack-elevation/RackDevice.tsx` — draggable device block:
+
 - Role-based fill: leaf=`bg-[hsl(213_94%_80%)] dark:bg-[hsl(213_94%_28%)]`, OOB=`bg-muted`
 - Saturation border via `getSaturationBorderClass(usedPorts, totalPorts)`
 - `draggable="true"`, `role="button"`, full aria-label per accessibility contract
@@ -81,6 +84,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ### RackElevationTab
 
 `src/features/rack-elevation/RackElevationTab.tsx` — tab wrapper:
+
 - `useResultStore(useShallow(s => s.bom))` — shallow selector
 - Rack selector `<Select>` dropdown with `aria-label="Select rack to view"`
 - Options: `Rack {n} — 3 switches` (1-indexed, using i18n key `rack.selectorOptionFormat`)
@@ -97,6 +101,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ## TDD Record
 
 **Task 1 followed TDD process:**
+
 - RED: Test file confirmed existing `buildRackDevices.test.ts` (from Plan 01) — 8 tests all PASS (function already existed from Plan 01)
 - GREEN: Implementation `buildRackDevices.ts` already correct from Plan 01
 - No REFACTOR needed
@@ -111,6 +116,7 @@ The rack elevation feature provides engineers with a physical device placement v
 ### Pre-existing Issue Discovered (Out of Scope — Deferred)
 
 **TopologyCanvas.tsx L105 TypeScript error (pre-existing, not caused by this plan)**
+
 - RTK filter initially reported a TypeScript error in `TopologyCanvas.tsx` at L105
 - Verified pre-existing by `git stash` before any changes — same error present
 - On closer inspection: `npx tsc --noEmit` exits 0; RTK was showing a stale cached error
@@ -122,6 +128,7 @@ No actual deviations from the plan. All tasks executed exactly as specified.
 ## Self-Check
 
 Verified files exist:
+
 - `src/features/rack-elevation/utils/buildRackDevices.ts` — FOUND
 - `src/features/rack-elevation/utils/buildRackDevices.test.ts` — FOUND
 - `src/features/rack-elevation/RackFrame.tsx` — FOUND
@@ -131,5 +138,6 @@ Verified files exist:
 - `src/App.tsx` (contains `<RackElevationTab />`) — FOUND
 
 Commits verified:
+
 - `5a3505f` — feat(04-03): build rack device utility and UI components
 - `dcfad6a` — feat(04-03): build RackElevationTab and wire into App.tsx

@@ -66,21 +66,25 @@ metrics:
 ## What Was Built
 
 ### inputStore (`src/store/inputStore.ts`)
+
 - Persists `SizingInput` to localStorage under key `'netstack-input'`
 - Custom `PersistStorage<InputState>` implementation (lazy window.localStorage access)
 - Default: 48 servers, 16 per rack, 25G, DAC, S5248F-ON
 - Exports `useInputStore`
 
 ### resultStore (`src/store/resultStore.ts`)
+
 - Derives `NetworkBOM | null` from inputStore via module-level `useInputStore.subscribe`
 - Initial computation at module load ensures store is populated on app start
 - NEVER persisted — always derived from inputStore
 - Exports `useResultStore`
 
 ### resultStore tests (`src/store/resultStore.test.ts`)
+
 - 4 tests verifying: default BOM computation, reactive recalculation, violation propagation, leafModel impact
 
 ### i18n bootstrap (`src/i18n/index.ts` + 4 locale files)
+
 - EN, FR, DE, IT with all UI strings from Copywriting Contract
 - Browser locale detection: checks localStorage first, then navigator
 - Falls back to EN for unsupported locales
@@ -88,6 +92,7 @@ metrics:
 - Imported in `src/main.tsx` before App (synchronous init, no translation key flash)
 
 ### ThemeProvider (`src/components/theme-provider.tsx`)
+
 - system/light/dark modes with `prefers-color-scheme: dark` media query
 - Persists to `'netstack-theme'` localStorage key
 - Adds `.dark` class to `document.documentElement` enabling Tailwind v4 dark mode
@@ -98,6 +103,7 @@ metrics:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed localStorage captured at module import time**
+
 - **Found during:** Task 1, first test run
 - **Issue:** `createJSONStorage(() => localStorage)` in Zustand persist middleware captures `localStorage` immediately when the module is imported. In jsdom test environment, `localStorage` at import time is a broken node mock (`setItem` is undefined). This causes `TypeError: storage.setItem is not a function` on every `useInputStore.setState` call in tests.
 - **Fix:** Replaced `createJSONStorage` with a custom `PersistStorage<InputState>` implementation (`lazyLocalStorage`) where `getItem/setItem/removeItem` access `window.localStorage` at call time, not at module initialization. This also adds proper try/catch error handling for private browsing and storage quota errors.

@@ -89,6 +89,37 @@ function ViolationAlert({ v }: { v: ConstraintViolation }) {
     )
   }
 
+  if (v.code === 'RACK_CAPACITY_EXCEEDED') {
+    return (
+      <Alert variant="destructive" role="alert" key={`${v.code}-${v.rackNumber}`}>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>{t('bom.violationRackCapacityTitle')}</AlertTitle>
+        <AlertDescription>
+          {t('bom.violationRackCapacityBody', {
+            rackN: v.rackNumber,
+            used: v.usedU,
+            total: v.totalU,
+          })}
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  if (v.code === 'DAC_POSITIONING_INCOMPATIBLE') {
+    return (
+      <Alert variant="destructive" role="alert" key={v.code}>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>{t('bom.violationDacPositioningTitle')}</AlertTitle>
+        <AlertDescription>
+          {t('bom.violationDacPositioningBody', {
+            positioning: v.positioning,
+            maxLength: v.recommendedCableLengthM,
+          })}
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
   return null
 }
 
@@ -385,6 +416,14 @@ export function BOMPanel() {
                 )}
               </TableBody>
             </Table>
+            {bom.recommendedCableLengthM > 0 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                {t('bom.cableLengthAdvisory', {
+                  maxLength: bom.recommendedCableLengthM,
+                  positioning: bom.switchPositioning,
+                })}
+              </p>
+            )}
           </div>
 
           {/* ── Section D: Violations ───────────────────────────────────── */}
@@ -395,7 +434,7 @@ export function BOMPanel() {
               </p>
               <div className="space-y-2">
                 {violations.map((v) => (
-                  <ViolationAlert key={v.code} v={v} />
+                  <ViolationAlert key={'rackNumber' in v ? `${v.code}-${v.rackNumber}` : v.code} v={v} />
                 ))}
               </div>
             </div>

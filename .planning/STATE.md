@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Enhancements
+milestone: v2.0
+milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 05-02-PLAN.md — port multipliers and active uplinks engine enhancements
-last_updated: "2026-03-17T20:28:21.408Z"
-last_activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-18T16:35:14.009Z"
+last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
-  total_phases: 3
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 16
+  completed_plans: 16
   percent: 0
 ---
 
@@ -18,26 +18,26 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-17)
+See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
-**Current focus:** Phase 5 — Engine Enhancements (v1.1)
+**Current focus:** Phase 12 — FC Input and BOM UI (ready to plan)
 
 ## Current Position
 
-Phase: 5 of 7 (Engine Enhancements)
-Plan: 0 of TBD in current phase
+Phase: 12 of 14 (FC Input and BOM UI)
+Plan: — (not yet planned)
 Status: Ready to plan
-Last activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
+Last activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 
-Progress: [░░░░░░░░░░] 0% (v1.1)
+Progress: [░░░░░░░░░░] 0% (v2.0)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v1.1)
-- Average duration: — min
+- Total plans completed: 0 (v2.0)
+- Average duration: — min (v1.1 reference: ~10 min/plan)
 - Total execution time: 0 hours
 
 **By Phase:**
@@ -52,70 +52,80 @@ Progress: [░░░░░░░░░░] 0% (v1.1)
 - Trend: —
 
 *Updated after each plan completion*
-| Phase 05-engine-enhancements P01 | 9 | 2 tasks | 16 files |
-| Phase 05-engine-enhancements P02 | 19 | 2 tasks | 11 files |
+| Phase 08 P02 | 129 | 2 tasks | 3 files |
+| Phase 08 P01 | 3 | 2 tasks | 3 files |
+| Phase 09-mode-store-isolation P01 | 8 | 2 tasks | 4 files |
+| Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
+| Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
+| Phase 10-fc-sizing-engine P02 | 4 | 1 tasks | 1 files |
+| Phase 11-switch-positioning-ethernet P01 | 395 | 2 tasks | 14 files |
+| Phase 11-switch-positioning-ethernet P02 | 15 | 2 tasks | 9 files |
+| Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
+| Phase 12 P01 | 20 | 3 tasks | 10 files |
+| Phase 12 P02 | 15 | 3 tasks | 7 files |
+| Phase 12 P03 | 18 | 3 tasks | 14 files |
+| Phase 13-fc-topology-diagram P01 | 163 | 2 tasks | 3 files |
+| Phase 13-fc-topology-diagram P02 | 203 | 2 tasks | 6 files |
+| Phase 14-fc-export P01 | 3 | 2 tasks | 9 files |
+| Phase 14-fc-export P02 | 4 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Key v2.0 architectural decisions from research:
 
-- [v1.0 Pre-Phase 1]: Spine scales with leaf count — fixed 2-spine won't work for >32 leafs
-- [v1.0 Pre-Phase 1]: Extensible hardware catalog — future Dell models addable without code changes
-- [v1.0 Pre-Phase 1]: Browser localStorage for persistence — no backend needed
-- [v1.0 Pre-Phase 1]: GitHub Pages hosting — static SPA deployment with CI/CD
-- [Phase 01-domain-engine]: uplinkPorts: 4 for S5248F-ON — standard Dell reference design uses 4 QSFP28 ports to spine; additionalUplinkPorts: 2 stores QSFP28-DD for future extension
-- [Phase 01-domain-engine]: oversubscriptionRatio required on NetworkBOM from day one — retrofitting later breaks all consumers
-- [Phase 01-domain-engine]: ConstraintViolation as typed discriminated union (not raw strings) — enables type-safe switch on violation.code in UI
-- [Phase 01-domain-engine]: mergeCatalog fails fast on first invalid entry — matches catalog fail-fast design
-- [Phase 01-domain-engine]: Returning { ...base, ...validatedOverrides } guarantees immutability and key-level override semantics
-- [Phase 01-domain-engine]: Empty/undefined override returns shallow copy (not original reference) to prevent future mutation surprises
-- [Phase 01-domain-engine]: Oversubscription denominator uses spineSwitches (not uplinkPorts) — ratio reflects actual deployed topology
-- [Phase 01-domain-engine]: OOB violation fires when oobPortsRequired strictly > OOB.downlinkPorts (48), confirming boundary at 46 (no violation) vs 47 (violation)
-- [Phase 02-app-shell-and-input-form]: vite@6 used instead of vite@8 due to @tailwindcss/vite@4 peer dependency requiring ^5.2.0 || ^6 || ^7
-- [Phase 02-app-shell-and-input-form]: shadcn interactive init replaced with manual components.json + npx shadcn add for CLI automation
-- [Phase 02-app-shell-and-input-form]: leafModel as required field (not optional with default) — forces explicit selection in UI, prevents silent S5248F-ON assumption
-- [Phase 02-app-shell-and-input-form]: vitest.config.ts deleted — vite.config.ts test block supersedes it completely
-- [Phase 02-app-shell-and-input-form]: Lazy PersistStorage<InputState> pattern: createJSONStorage captures localStorage at import time (broken in jsdom); custom PersistStorage accesses window.localStorage at call time for jsdom compatibility
-- [Phase 02-app-shell-and-input-form]: resultStore uses module-level subscribe (not React useEffect) so BOM recomputes regardless of component mount state
-- [Phase 02-app-shell-and-input-form]: AppContent split from App so useTranslation() works inside ThemeProvider wrapper
-- [Phase 02-app-shell-and-input-form]: useForm() without generic type — required for @hookform/resolvers v5.2.2 + Zod v4 compatibility
-- [Phase 02-app-shell-and-input-form]: xl: breakpoint (1280px) for side-by-side layout — Tailwind xl: maps to 1280px per UI-SPEC
-- [Phase 03-bom-output-and-metrics]: TooltipProvider placed inside ThemeProvider to inherit theme context for tooltip styling
-- [Phase 03-bom-output-and-metrics]: Alert warning variant uses explicit HSL amber values (hsl 38_92%_50%) not CSS variables — amber has no CSS var in shadcn neutral theme
-- [Phase 03-bom-output-and-metrics]: Progress indicatorClassName falls back to bg-primary when undefined — backward-compatible with existing Progress usage
-- [Phase 03-bom-output-and-metrics]: data-testid='oversub-badge' with data-severity attribute enables RTL testing of cva-styled badge without brittle class name assertions
-- [Phase 03-bom-output-and-metrics]: ViolationAlert extracted as sub-component for clean discriminated union switch pattern — each v.code case renders correct Alert variant
-- [Phase 03-bom-output-and-metrics]: TooltipProvider wrapper in test helper required — App.tsx provides it globally but RTL tests render in isolation and Radix requires context
-- [Phase 04-visualization-export-and-documentation]: getSaturationBorderClass uses border- prefix (not bg-) — topology nodes use border colors to show saturation on node outline, not background fill
-- [Phase 04-visualization-export-and-documentation]: CsvRow.category typed as 'Switch' | 'Cable' | 'Transceiver' discriminated union — enables exhaustive switch in CSV generator
-- [Phase 04-visualization-export-and-documentation]: Empty barrel index.ts files created for topology, rack-elevation, export features — Plans 02-05 populate them without structural file changes
-- [Phase Phase 04-visualization-export-and-documentation]: Device reorder state is local UI only — NOT persisted to store or localStorage (v2 scope per UI-SPEC)
-- [Phase Phase 04-visualization-export-and-documentation]: totalSlots = Math.max(4, devices.length + 1) in RackFrame — minimum 4 slots always visible
-- [Phase 04-visualization-export-and-documentation]: PRD formalized with all 28 v1 requirements, acceptance criteria, and phase traceability
-- [Phase 04-visualization-export-and-documentation]: ADRs 0005-0008 document @xyflow/react topology, @react-pdf/renderer lazy-load, VLT cable modeling, react-i18next synchronous imports
-- [Phase 04-visualization-export-and-documentation]: Custom DOM event 'topology:action' used for toolbar -> canvas communication — avoids prop-drilling through ReactFlowProvider context boundary
-- [Phase 04-visualization-export-and-documentation]: Module-level PNG cache with 500ms delay for PDF export — captures after nodes render, accessible even when Topology tab hidden
-- [Phase 04-visualization-export-and-documentation]: nodeTypes at module scope — React Flow reference equality check causes infinite re-renders if defined inside component
-- [Phase 04-visualization-export-and-documentation]: UTF-8 BOM placed on own CRLF line before CSV header so split lines[1] is the actual header row
-- [Phase 04-visualization-export-and-documentation]: Double-cast through unknown for @react-pdf/renderer pdf() call — structural type incompatibility between NetStackDocumentProps and DocumentProps
-- [Phase 04-visualization-export-and-documentation]: aria-disabled=true (not HTML disabled) for CSV/PDF buttons when BOM is null — allows tooltip hover and maintains focus
-- [Phase 04-visualization-export-and-documentation]: PDF components use hardcoded hex/rgb values — CSS variables not supported in @react-pdf/renderer (no DOM, no CSS cascade)
-- [Phase 05-engine-enhancements]: racks array replaces totalServers/serversPerRack — foundational RACK-03 schema change enabling per-rack density
-- [Phase 05-engine-enhancements]: maxServersPerRack = Math.max(...racks.map(r => r.serverCount)) for OOB and oversubscription worst-case
-- [Phase 05-engine-enhancements]: Persist version bumped 2 to 3 with merge() migrating v2 scalar format to v3 racks array seamlessly
-- [Phase 05-engine-enhancements]: InputForm bridges UI totalServers+rackCount to racks array via toRacksArray() — full per-rack UI is future
-- [Phase 05-engine-enhancements]: effectiveUplinks-based oversubscription: changed from spineSwitches*uplinkSpeed to effectiveUplinks*uplinkSpeed — ratio reflects actual configured uplinks not spine topology
-- [Phase 05-engine-enhancements]: Zod .default() for new port fields: portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf use .default() for backward-compatible schema evolution without engine conditional checks
-- [Phase 05-engine-enhancements]: Runtime clamp pattern: effectiveUplinks = min(activeUplinksPerLeaf, LEAF.uplinkPorts) keeps schema max at 8 while enforcing model-specific uplink limits at runtime
-- [Phase 05-engine-enhancements]: Persist version bumped 3 to 4 for activeUplinksPerLeaf/port multiplier fields; merge() spread pattern handles missing fields automatically
+- [v2.0 Pre-Phase 8]: FC and Ethernet are parallel domains — separate schemas, engines, stores, never shared mutable state
+- [v2.0 Pre-Phase 8]: Mode selector is ephemeral UI state — not persisted to localStorage; prevents stale-mode reload bug
+- [v2.0 Pre-Phase 8]: FC store uses separate localStorage keys (netstack-fc-input v1) — Ethernet store schema never touched
+- [v2.0 Pre-Phase 8]: POD licensing modeled as basePorts + podLicenseUnit in catalog — must precede engine; cannot retrofit
+- [v2.0 Pre-Phase 8]: ISL formula uses fan-in ratio (7:1 Broadcom default), not Ethernet uplink multiplier
+- [v2.0 Pre-Phase 8]: FC topology returns {fabricA, fabricB} isolated subgraphs — cross-fabric edges architecturally impossible
+- [v2.0 Pre-Phase 8]: SWITCH_U_PER_SERVER_RACK=3 constant must become switchOverheadU(positioning) before Phase 11 UI
+- [Phase 08-02]: FC schemas isolated from Ethernet — fc-bom.ts does not import from bom.ts
+- [Phase 08-02]: podLicensesRequired, fanInRatio, islOversubscriptionRatio required (not optional) in FCNetworkBOMSchema
+- [Phase 08-01]: fc-types.ts has zero imports — complete Ethernet domain isolation; FCOpticsSpec uses protocol: fibre-channel as structural discriminant
+- [Phase 08-01]: 7850 extension switch: podLicenseUnit=0 because WAN port licensing differs from FC POD licensing; all 24 FC ports are base-licensed
+- [Phase 08-01]: X7-4 totalPorts=256 (4x64 data ports), not 265 — 9 ICL ports are internal fabric routing ports excluded from host connectivity sizing
+- [Phase 09-01]: FC engine stub returns zero-value FCNetworkBOM: satisfies compiler for fcResultStore import chain
+- [Phase 09-01]: DEFAULT_FC_INPUT inlined in each test file: keeps tests self-contained
+- [Phase 09-02]: fcInputStore uses 'netstack-fc-input' v1 key — Ethernet 'netstack-input' v5 never touched; localStorage polyfill added to test setup for Node 25 WebStorage compatibility
+- [Phase 10-fc-sizing-engine]: TDD RED phase: 29 test cases, 13 fail against zero-value stub — real assertions confirmed
+- [Phase 10-fc-sizing-engine]: makeInput() self-contained in test files — no external DEFAULT_FC_INPUT import (Phase 09-01 convention)
+- [Phase 10-02]: ISL formula uses hostBandwidth/targetFanIn — not min(host,storage) — so ISL count scales with server count
+- [Phase 10-02]: FC_PORT_SATURATION fires against single-switch max device port capacity (totalPorts - effectiveIslPerSwitch), not total fabric capacity
+- [Phase 10-02]: computeEffectivePorts() uses demand without ISL for POD license count; ISL reservation applied separately to devicePortsPerSwitch
+- [Phase 11-01]: switchOverheadU as inner function inside calculateBOM — avoids module-level pollution while remaining testable via engine outputs
+- [Phase 11-01]: DAC_POSITIONING_INCOMPATIBLE fires independently from DAC_DISTANCE_ADVISORY — different concerns (cable physics vs deployment span)
+- [Phase 11-switch-positioning-ethernet]: inputStore v6 uses existing merge spread for switchPositioning migration — no new migration branch needed
+- [Phase 11-switch-positioning-ethernet]: buildPositioningRackDevices separate utility (not inline in buildRackDevices) — positioning rack is architecturally distinct from server rack
+- [Phase 11-switch-positioning-ethernet]: buildRackDevices positioning-aware: MoR/BoR racks omit leaf devices (servers start U2 vs U4 for ToR)
+- [Phase 11-03]: Tasks 0 and 1 were pre-implemented in 11-02 commit; selectedRack 'positioning' sentinel follows net-N pattern for rack type routing
+- [Phase 12-01]: scrollIntoView mocked for Radix Select + jsdom compatibility in FCInputForm tests
+- [Phase 12-01]: FCInputForm uses Object.keys(FC_SWITCH_CATALOG) — never hardcodes model list
+- [Phase 12-01]: Mode selector state is ephemeral useState in AppContent — not persisted
+- [Phase 12]: FCViolationAlert: FC_ISL_UNDERPROVISIONED uses variant=warning (advisory), not destructive
+- [Phase 12]: FCBOMPanel fan-in uses getFCSeverity with <= 7 (Broadcom FC standard), not <= 6 (Ethernet)
+- [Phase 12-03]: preferredGeneration uses form.watch() outside useEffect for reactive filteredModels computation
+- [Phase 12-03]: Test uses labelFor attribute to find switch model combobox trigger — data-slot='form-item' not present in FormItem
+- [Phase 13-fc-topology-diagram]: Ring ISL topology when islPortsPerFabric >= switchCount — creates N edges (i→i+1 mod N); linear chain when M < N; 0 edges for single-switch or M=0
+- [Phase 13-fc-topology-diagram]: FCSwitchNodeData.totalPorts is a proxy (equals usedPorts) — FC_SWITCH_CATALOG lookup deferred to Plan 13-02 when visual rendering needs accurate port capacity
+- [Phase 13-02]: FCTopologyTab reads bom from fcResultStore in parent, passes as prop to FCTopologyCanvas — avoids store coupling inside canvas
+- [Phase 13-02]: Custom event namespaces fc-topology:action-a/b prevent cross-interference with Ethernet topology:action events
+- [Phase 13-02]: getLastFCTopologyPng(fabric) per-fabric module-level cache enables Phase 14 PDF export for both fabrics independently
+- [Phase 14-01]: ExportTab uses activeBom (mode-derived) for disabled/enabled state — avoids null checks on wrong store
+- [Phase 14-01]: FC PDF export stubbed in handlePdfExport for Plan 02 — branch exists, implementation deferred
+- [Phase 14-01]: Export tab un-gated in App.tsx for both modes — rackElevation stays Ethernet-only
+- [Phase 14-02]: FC PDF export lazy-loads @react-pdf/renderer via dynamic import — same pattern as Ethernet PDF; no bundle cost at page load
+- [Phase 14-02]: FCTopologyPage accepts separate pngFabricA/pngFabricB props and renders placeholders independently when either PNG is absent
+- [Phase 14-02]: FCBOMPage uses 7:1 fan-in threshold (Broadcom FC standard) vs Ethernet 6:1 — matches FCBOMPanel.tsx severity logic
 
 ### Research Flags
 
-- Phase 5: Verify per-rack input schema design — SizingInput currently uses scalar totalServers/serversPerRack; migration to racks array must handle Zustand persist schema versioning
-- Phase 6: Confirm RACK_CAPACITY_EXCEEDED violation is best surfaced in BOM panel vs inline in rack elevation (align with existing violation pattern from Phase 3)
+- Phase 8: G820 Gen8 power figures estimated — verify X8-4/X8-8 director power against Lenovo Press datasheets before encoding
+- Phase 10: Hard-code ISL fan-in at 7:1 for v2.0; expose workload type (NVMe-oF 3:1) in v2.x
+- Phase 13: Multiple ReactFlow instances confirmed working with independent ReactFlowProvider wrappers; benchmark at >20 racks if needed
 
 ### Pending Todos
 
@@ -127,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T20:25:12.278Z
-Stopped at: Completed 05-02-PLAN.md — port multipliers and active uplinks engine enhancements
+Last session: 2026-03-18T16:24:13.811Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None

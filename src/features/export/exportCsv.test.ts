@@ -16,6 +16,8 @@ const mockBom: NetworkBOM = {
   qsfp28Count: 0,
   vltCables: 2,
   oversubscriptionRatio: 3,
+  switchPositioning: 'ToR',
+  recommendedCableLengthM: 3,
   violations: [],
   input: {
     racks: [{ serverCount: 20 }, { serverCount: 20 }],
@@ -29,6 +31,8 @@ const mockBom: NetworkBOM = {
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
+    serverUHeight: '1U',
+    switchPositioning: 'ToR',
   },
 }
 
