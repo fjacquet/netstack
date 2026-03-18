@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow'
 import { FileSpreadsheet, FileText, Printer, Loader2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { ModeSelector } from '@/components/ModeSelector'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -15,7 +16,12 @@ import { downloadBomCsv } from '@/features/export/exportCsv'
 import { generatePdfBlob } from '@/features/export/exportPdf'
 import { getLastTopologyPng } from '@/features/topology'
 
-export function TopBar() {
+interface TopBarProps {
+  mode: 'ethernet' | 'fc'
+  onModeChange: (m: 'ethernet' | 'fc') => void
+}
+
+export function TopBar({ mode, onModeChange }: TopBarProps) {
   const { t } = useTranslation()
   const bom = useResultStore(useShallow((s) => s.bom))
   const [pdfGenerating, setPdfGenerating] = useState(false)
@@ -51,6 +57,8 @@ export function TopBar() {
       <span className="text-[28px] font-semibold leading-none tracking-tight">
         {t('app.title')}
       </span>
+
+      <ModeSelector mode={mode} onModeChange={onModeChange} />
 
       <div className="ml-auto flex items-center gap-1">
         {/* Export buttons */}

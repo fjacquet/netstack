@@ -6,6 +6,13 @@ import { useFCInputStore } from '@/store/fcInputStore'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { FCSizingInput } from '@/domain/schemas/fc-input'
 
+// Local shape matching FCInputState (avoid importing unexported type)
+interface MockFCState {
+  input: FCSizingInput
+  setInput: (partial: Partial<FCSizingInput>) => void
+  resetInput: () => void
+}
+
 // Mock the fcInputStore to inject controlled FC input data
 vi.mock('@/store/fcInputStore', () => ({
   useFCInputStore: vi.fn(),
@@ -37,11 +44,11 @@ function makeInput(overrides: Partial<FCSizingInput> = {}): FCSizingInput {
 // Helper: mock useFCInputStore with a given state
 function mockStore(
   input: FCSizingInput,
-  setInput: ReturnType<typeof vi.fn>,
-  resetInput: ReturnType<typeof vi.fn>
+  setInput: (partial: Partial<FCSizingInput>) => void,
+  resetInput: () => void
 ) {
   vi.mocked(useFCInputStore).mockImplementation(
-    (selector: (s: { input: FCSizingInput; setInput: typeof setInput; resetInput: typeof resetInput }) => unknown) =>
+    (selector: (s: MockFCState) => unknown) =>
       selector({ input, setInput, resetInput })
   )
 }

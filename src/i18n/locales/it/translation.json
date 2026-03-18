@@ -139,6 +139,11 @@
     "pdfErrorHeading": "Generazione PDF non riuscita",
     "pdfErrorBody": "Impossibile generare il report. Verifica i parametri e riprova."
   },
+  "mode": {
+    "ethernet": "Ethernet",
+    "fc": "Fibre Channel",
+    "selectLabel": "Modalita"
+  },
   "bom": {
     "heading": "Distinta materiali",
     "switchesHeading": "Switch",

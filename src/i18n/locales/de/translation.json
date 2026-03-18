@@ -139,6 +139,11 @@
     "pdfErrorHeading": "PDF-Erstellung fehlgeschlagen",
     "pdfErrorBody": "Der Bericht konnte nicht erstellt werden. \u00dcberpr\u00fcfen Sie Ihre Parameter und versuchen Sie es erneut."
   },
+  "mode": {
+    "ethernet": "Ethernet",
+    "fc": "Fibre Channel",
+    "selectLabel": "Modus"
+  },
   "bom": {
     "heading": "Stueckliste",
     "switchesHeading": "Switches",

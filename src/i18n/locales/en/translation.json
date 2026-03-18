@@ -139,6 +139,11 @@
     "pdfErrorHeading": "PDF generation failed",
     "pdfErrorBody": "Unable to generate the report. Check your sizing inputs and try again."
   },
+  "mode": {
+    "ethernet": "Ethernet",
+    "fc": "Fibre Channel",
+    "selectLabel": "Mode"
+  },
   "bom": {
     "heading": "Bill of Materials",
     "switchesHeading": "Switches",
