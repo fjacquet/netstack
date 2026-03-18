@@ -744,25 +744,36 @@ describe('POS-03 + POS-04: Switch Positioning', () => {
     expect(bom.switchPositioning).toBe('BoR');
   });
 
-  // DAC_POSITIONING_INCOMPATIBLE never fires — all positioning modes use short in-rack cables
-  it('MoR + DAC does not fire DAC_POSITIONING_INCOMPATIBLE (in-rack run ≈1m)', () => {
+  // DAC_POSITIONING_INCOMPATIBLE removed from schema — all positioning modes use short
+  // in-rack cables (≤2m), fully DAC-compatible. TypeScript union guarantees this at compile time.
+  it('MoR + DAC produces no positioning-related violations', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'MoR',
     }));
-    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
-    expect(v).toBeUndefined();
+    const posViolations = bom.violations.filter(v =>
+      v.code !== 'OOB_PORT_SATURATION' &&
+      v.code !== 'SPINE_CAPACITY_EXCEEDED' &&
+      v.code !== 'DAC_DISTANCE_ADVISORY' &&
+      v.code !== 'RACK_CAPACITY_EXCEEDED'
+    );
+    expect(posViolations).toHaveLength(0);
   });
 
-  it('BoR + DAC does not fire DAC_POSITIONING_INCOMPATIBLE (in-rack run ≈2m)', () => {
+  it('BoR + DAC produces no positioning-related violations', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'BoR',
     }));
-    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
-    expect(v).toBeUndefined();
+    const posViolations = bom.violations.filter(v =>
+      v.code !== 'OOB_PORT_SATURATION' &&
+      v.code !== 'SPINE_CAPACITY_EXCEEDED' &&
+      v.code !== 'DAC_DISTANCE_ADVISORY' &&
+      v.code !== 'RACK_CAPACITY_EXCEEDED'
+    );
+    expect(posViolations).toHaveLength(0);
   });
 
   // switchOverheadU: MoR=3U (leaves stay in server rack) — 40 servers × 1U + 3U overhead = 43U > 42U → violation
