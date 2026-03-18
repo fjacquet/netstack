@@ -132,7 +132,12 @@ Plans:
   3. The FC BOM panel displays per-fabric switch counts (Fabric A and Fabric B separately), ISL cable count, SFP optics quantities, and fan-in oversubscription ratio
   4. POD license requirement appears as a top-level line item in the FC BOM panel — not hidden in a tooltip or footnote — with the license unit count clearly labeled
   5. FC constraint violation banners (FC_PORT_SATURATION, FC_OVERSUBSCRIPTION_EXCEEDED) render in the FC BOM panel using the same Alert component pattern as Ethernet violations
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 12-01-PLAN.md — ModeSelector + App.tsx mode gate + FCInputForm (Wave 1)
+- [ ] 12-02-PLAN.md — FCBOMPanel + i18n keys all 4 locales (Wave 2, depends on 12-01)
 
 ### Phase 13: FC Topology Diagram
 
@@ -175,6 +180,6 @@ Plans:
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
 | 11. Switch Positioning (Ethernet) | 3/3 | Complete   | 2026-03-18 | - |
-| 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
+| 12. FC Input and BOM UI | v2.0 | 0/2 | Not started | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |
