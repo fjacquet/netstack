@@ -91,7 +91,7 @@ Plans:
 **Goal**: Users can export converged sizing results and use the app in all four languages
 **Depends on**: Phase 16
 **Requirements**: CONV-10, CONV-11, CONV-12
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 17-01-PLAN.md — Converged CSV + PDF export functions and TopBar wiring (CONV-10, CONV-11)
 - [ ] 17-02-PLAN.md — Converged export i18n keys in all 4 locales (CONV-12)
@@ -120,4 +120,4 @@ Plans:
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 15. Converged Domain & Store | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 16. Converged UI | 3/3 | Complete    | 2026-03-18 | - |
-| 17. Converged Export & i18n | v3.0 | 0/2 | Not started | - |
+| 17. Converged Export & i18n | 1/2 | In Progress|  | - |

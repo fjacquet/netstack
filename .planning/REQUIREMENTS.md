@@ -26,7 +26,7 @@
 
 - [ ] **CONV-10**: CSV export with Ethernet section + FC section under single header
 - [ ] **CONV-11**: PDF export combining Ethernet and FC pages in one document
-- [ ] **CONV-12**: i18n labels for converged mode in all 4 locales (EN/FR/DE/IT)
+- [x] **CONV-12**: i18n labels for converged mode in all 4 locales (EN/FR/DE/IT)
 
 ## Future Requirements
 
@@ -63,7 +63,7 @@
 | CONV-09 | Phase 16 | Complete |
 | CONV-10 | Phase 17 | Pending |
 | CONV-11 | Phase 17 | Pending |
-| CONV-12 | Phase 17 | Pending |
+| CONV-12 | Phase 17 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 12 total
