@@ -35,6 +35,15 @@ const U_HEIGHT_LABELS: Record<string, string> = {
   '8U': 'sizing.uHeight8U',
 }
 
+const GENERATION_OPTIONS = ['any', 'gen7', 'gen8'] as const
+type PreferredGeneration = typeof GENERATION_OPTIONS[number]
+
+const GENERATION_LABELS: Record<PreferredGeneration, string> = {
+  any: 'fc.genAny',
+  gen7: 'fc.gen7',
+  gen8: 'fc.gen8',
+}
+
 type FCSwitchModelId = keyof typeof FC_SWITCH_CATALOG
 
 type FCFormValues = {
@@ -47,6 +56,7 @@ type FCFormValues = {
   islPortsPerSwitch: number
   rackSize: '24U' | '42U' | '50U'
   serverUHeight: '1U' | '2U' | '4U' | '8U'
+  preferredGeneration: PreferredGeneration
 }
 
 export function FCInputForm() {
@@ -67,6 +77,7 @@ export function FCInputForm() {
       islPortsPerSwitch: input.islPortsPerSwitch,
       rackSize: input.rackSize,
       serverUHeight: input.serverUHeight,
+      preferredGeneration: input.preferredGeneration,
     },
     mode: 'onChange',
   })
@@ -149,8 +160,15 @@ export function FCInputForm() {
   const watchedRackServers = form.watch('rackServers') ?? []
   const totalServers = watchedRackServers.reduce((sum, c) => sum + (Number(c) || 0), 0)
 
-  // Derive model list from catalog — never hardcode
-  const fcSwitchModels = Object.keys(FC_SWITCH_CATALOG) as FCSwitchModelId[]
+  // Derive model list from catalog — filtered by preferredGeneration
+  const watchedGeneration = (form.watch('preferredGeneration') as PreferredGeneration) ?? 'any'
+  const filteredModels: FCSwitchModelId[] =
+    watchedGeneration === 'any'
+      ? (Object.keys(FC_SWITCH_CATALOG) as FCSwitchModelId[])
+      : (Object.keys(FC_SWITCH_CATALOG) as FCSwitchModelId[]).filter((m) => {
+          const gen = FC_SWITCH_CATALOG[m].generation
+          return watchedGeneration === 'gen7' ? gen === 7 : gen === 8
+        })
 
   return (
     <Card>
@@ -320,6 +338,31 @@ export function FCInputForm() {
 
             {/* === Switch Configuration === */}
             <div className="space-y-3">
+              {/* Preferred Generation selector */}
+              <FormField
+                control={form.control}
+                name="preferredGeneration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('fc.preferredGeneration')}</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('fc.genAny')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {GENERATION_OPTIONS.map((gen) => (
+                          <SelectItem key={gen} value={gen}>{t(GENERATION_LABELS[gen])}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>{t('fc.preferredGenerationHelp')}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* FC Switch Model */}
               <FormField
                 control={form.control}
@@ -334,7 +377,7 @@ export function FCInputForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {fcSwitchModels.map((model) => (
+                        {filteredModels.map((model) => (
                           <SelectItem key={model} value={model}>{model}</SelectItem>
                         ))}
                       </SelectContent>
@@ -444,6 +487,7 @@ export function FCInputForm() {
                   islPortsPerSwitch: 4,
                   rackSize: '42U',
                   serverUHeight: '1U',
+                  preferredGeneration: 'any',
                 })
               }}
             >

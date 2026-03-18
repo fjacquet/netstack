@@ -205,4 +205,52 @@ describe('FCInputForm', () => {
 
     expect(resetInput).toHaveBeenCalledTimes(1)
   })
+
+  // ── FC-10: preferredGeneration selector ──────────────────────────────────
+
+  it('renders a field labelled fc.preferredGeneration', () => {
+    mockStore(makeInput(), vi.fn(), vi.fn())
+    render(<FCInputForm />, { wrapper: Wrapper })
+    expect(screen.getByText('fc.preferredGeneration')).toBeInTheDocument()
+  })
+
+  it('when preferredGeneration is gen7, model dropdown shows 6 Gen 7 options', async () => {
+    mockStore(makeInput({ preferredGeneration: 'gen7' }), vi.fn(), vi.fn())
+    render(<FCInputForm />, { wrapper: Wrapper })
+
+    // Open the switch model select — use label's htmlFor to find the correct trigger
+    const selectTriggers = screen.getAllByRole('combobox')
+    const switchModelLabel = screen.getByText('fc.switchModel')
+    const switchModelTrigger = selectTriggers.find((el) => {
+      const labelFor = switchModelLabel.getAttribute('for')
+      return labelFor ? el.id === labelFor : el.closest('[data-slot="form-item"]') === switchModelLabel.closest('[data-slot="form-item"]')
+    }) ?? selectTriggers[1]
+    await act(async () => { fireEvent.click(switchModelTrigger) })
+
+    const gen7Models = ['G710', 'G720', 'G730', 'X7-4', 'X7-8', '7850']
+    for (const m of gen7Models) {
+      expect(screen.getByRole('option', { name: m })).toBeInTheDocument()
+    }
+    // Gen8-only models must NOT appear
+    expect(screen.queryByRole('option', { name: 'G820' })).not.toBeInTheDocument()
+  })
+
+  it('changing preferredGeneration calls setInput with { preferredGeneration: value }', async () => {
+    vi.useFakeTimers()
+    const setInput = vi.fn()
+    mockStore(makeInput({ preferredGeneration: 'any' }), setInput, vi.fn())
+    render(<FCInputForm />, { wrapper: Wrapper })
+
+    // Open and select from the generation selector (the combobox in the preferredGeneration form-item)
+    const genLabel = screen.getByText('fc.preferredGeneration')
+    const genTrigger = screen.getAllByRole('combobox').find((el) =>
+      el.closest('[data-slot="form-item"]') === genLabel.closest('[data-slot="form-item"]')
+    )
+    await act(async () => { fireEvent.click(genTrigger!) })
+    const gen7Option = screen.getByRole('option', { name: 'fc.gen7' })
+    await act(async () => { fireEvent.click(gen7Option) })
+
+    expect(setInput).toHaveBeenCalledWith(expect.objectContaining({ preferredGeneration: 'gen7' }))
+    vi.useRealTimers()
+  })
 })
