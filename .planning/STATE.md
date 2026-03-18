@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-03-18T16:18:01.609Z"
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-18T16:24:13.814Z"
 last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
   percent: 0
 ---
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 13-fc-topology-diagram P01 | 163 | 2 tasks | 3 files |
 | Phase 13-fc-topology-diagram P02 | 203 | 2 tasks | 6 files |
 | Phase 14-fc-export P01 | 3 | 2 tasks | 9 files |
+| Phase 14-fc-export P02 | 4 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,9 @@ Key v2.0 architectural decisions from research:
 - [Phase 14-01]: ExportTab uses activeBom (mode-derived) for disabled/enabled state — avoids null checks on wrong store
 - [Phase 14-01]: FC PDF export stubbed in handlePdfExport for Plan 02 — branch exists, implementation deferred
 - [Phase 14-01]: Export tab un-gated in App.tsx for both modes — rackElevation stays Ethernet-only
+- [Phase 14-02]: FC PDF export lazy-loads @react-pdf/renderer via dynamic import — same pattern as Ethernet PDF; no bundle cost at page load
+- [Phase 14-02]: FCTopologyPage accepts separate pngFabricA/pngFabricB props and renders placeholders independently when either PNG is absent
+- [Phase 14-02]: FCBOMPage uses 7:1 fan-in threshold (Broadcom FC standard) vs Ethernet 6:1 — matches FCBOMPanel.tsx severity logic
 
 ### Research Flags
 
@@ -133,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T16:18:01.605Z
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-03-18T16:24:13.811Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None

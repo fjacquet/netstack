@@ -31,7 +31,7 @@
 ### FC Export
 
 - [x] **FC-13**: CSV export includes FC BOM (switches, optics, ISLs, POD licenses)
-- [ ] **FC-14**: PDF report includes FC BOM summary, inputs, and dual-fabric topology
+- [x] **FC-14**: PDF report includes FC BOM summary, inputs, and dual-fabric topology
 
 ### Switch Positioning (Ethernet)
 
@@ -69,7 +69,7 @@
 | FC-11 | Phase 12 | Complete |
 | FC-12 | Phase 13 | Complete |
 | FC-13 | Phase 14 | Complete |
-| FC-14 | Phase 14 | Pending |
+| FC-14 | Phase 14 | Complete |
 | POS-01 | Phase 11 | Complete |
 | POS-02 | Phase 11 | Complete |
 | POS-03 | Phase 11 | Complete |
