@@ -36,9 +36,13 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Servers in rack elevation with U-height proportional rendering and RACK_CAPACITY_EXCEEDED alerts (GH #4)
 - ✓ Selectable active uplinks per leaf switch (1 to model maximum) (GH #5)
 
-### Future (v2.0+)
+### Active (v2.0)
 
-- Fibre Channel SAN sizing with Brocade Gen7/Gen8 (GH #1)
+- [ ] Fibre Channel SAN sizing with Brocade Gen7/Gen8 (GH #1)
+- [ ] ToR / MoR / BoR switch positioning selection (GH #6)
+
+### Future (v3.0+)
+
 - Save/load named configurations
 - JSON export
 - Multi-pod support for large deployments
@@ -54,15 +58,17 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - SONiC configuration generation — separate tool
 - Backend / user accounts — pure client-side
 
-## Current State: v1.1 Shipped
+## Current Milestone: v2.0 FC SAN & Switch Positioning
 
-**Shipped:** 2026-03-18 | **Tag:** v1.1.0
-**Status:** All v1.1 requirements satisfied (11/11). 223 tests, 0 TypeScript errors.
+**Goal:** Add Fibre Channel SAN sizing with Brocade Gen7/Gen8 switch catalog, and allow ToR/MoR/BoR switch positioning in the existing Ethernet mode.
 
-## Next Milestone: v2.0 (TBD)
-
-Candidate: Fibre Channel SAN sizing with Brocade Gen7/Gen8 switch catalog.
-Start with `/gsd:new-milestone` to define requirements.
+**Target features:**
+- Fibre Channel SAN sizing mode with Brocade Gen7 (64G) and Gen8 (128G) switch catalogs (GH #1)
+- Mode selector: Ethernet OR Fibre Channel (mutually exclusive)
+- FC-specific input form, BOM output, dual-fabric topology diagram
+- ToR / MoR / BoR switch positioning selector for Ethernet mode (GH #6)
+- Rack elevation renders switches at correct U-position based on positioning
+- Cable length calculations adjusted for switch position
 
 ## Context
 
@@ -94,4 +100,4 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | Zustand persist with version + merge | Handles schema evolution without breaking cached data | ✓ Good |
 
 ---
-*Last updated: 2026-03-18 after v1.1 milestone*
+*Last updated: 2026-03-18 after v2.0 milestone start*

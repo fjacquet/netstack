@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0
-milestone_name: TBD
-status: idle
-stopped_at: v1.1 milestone archived 2026-03-18
+milestone_name: FC SAN & Switch Positioning
+status: defining-requirements
+stopped_at: Milestone v2.0 started
 last_updated: "2026-03-18T00:00:00.000Z"
-last_activity: 2026-03-18 — v1.1 milestone archived, v1.1.0 tagged, 223 tests passing
+last_activity: 2026-03-18 — Milestone v2.0 started (FC SAN + switch positioning)
 progress:
   total_phases: 0
   completed_phases: 0
@@ -18,19 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-17)
+See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
-**Current focus:** Phase 5 — Engine Enhancements (v1.1)
+**Current focus:** Defining v2.0 requirements (FC SAN + switch positioning)
 
 ## Current Position
 
-Phase: 5 of 7 (Engine Enhancements)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-17 — v1.1 roadmap created, 11 requirements mapped across 3 phases (5-7)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-18 — Milestone v2.0 started
 
-Progress: [░░░░░░░░░░] 0% (v1.1)
+Progress: [░░░░░░░░░░] 0% (v2.0)
 
 ## Performance Metrics
 
