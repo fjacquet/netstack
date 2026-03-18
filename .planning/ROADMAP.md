@@ -86,7 +86,11 @@ Plans:
   3. The FC BOM output includes podLicensesRequired as a first-class field (not a footnote) whenever the switch's basePorts is less than the ports required
   4. FCNetworkBOM.fcOversubscriptionRatio is always present with a severity classification (ok, warning, critical) matching Broadcom thresholds
   5. FC constraint violations (FC_PORT_SATURATION, FC_OVERSUBSCRIPTION_EXCEEDED, FC_ISL_UNDERPROVISIONED) fire at the correct thresholds and are typed discriminated unions
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Write failing test suite for calculateFCBOM() (TDD RED phase)
+- [ ] 10-02-PLAN.md — Implement calculateFCBOM() to pass all tests (TDD GREEN phase)
 
 ### Phase 11: Switch Positioning (Ethernet)
 **Goal**: Ethernet mode users can select ToR, MoR, or BoR switch placement and see accurate cable length advisories and correct rack elevation rendering
@@ -146,7 +150,7 @@ Plans:
 | 7. Rack Elevation Servers | v1.1 | 3/3 | Complete | 2026-03-18 |
 | 8. FC Catalog and Schema Foundation | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
-| 10. FC Sizing Engine | v2.0 | 0/? | Not started | - |
+| 10. FC Sizing Engine | v2.0 | 0/2 | Not started | - |
 | 11. Switch Positioning (Ethernet) | v2.0 | 0/? | Not started | - |
 | 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
