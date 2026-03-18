@@ -137,7 +137,9 @@
     "disabledTooltip": "Calculate a BOM first",
     "pdfGenerating": "Generating PDF\u2026",
     "pdfErrorHeading": "PDF generation failed",
-    "pdfErrorBody": "Unable to generate the report. Check your sizing inputs and try again."
+    "pdfErrorBody": "Unable to generate the report. Check your sizing inputs and try again.",
+    "fcCsvButton": "Export FC CSV",
+    "fcPdfButton": "Export FC PDF"
   },
   "mode": {
     "ethernet": "Ethernet",

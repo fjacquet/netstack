@@ -7,6 +7,7 @@ import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { RackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab, FCTopologyTab } from '@/features/topology'
+import { ExportTab } from '@/features/export'
 import {
   Tabs,
   TabsContent,
@@ -38,6 +39,9 @@ function AppContent() {
                 {t('tabs.rackElevation')}
               </TabsTrigger>
             )}
+            <TabsTrigger value="export" className="gap-1.5">
+              {t('tabs.export')}
+            </TabsTrigger>
           </TabsList>
         </div>
         <main className="flex-1 overflow-auto">
@@ -52,6 +56,9 @@ function AppContent() {
               <RackElevationTab />
             </TabsContent>
           )}
+          <TabsContent value="export" className="mt-0">
+            <ExportTab mode={mode} />
+          </TabsContent>
         </main>
       </Tabs>
     </div>

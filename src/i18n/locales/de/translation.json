@@ -137,7 +137,9 @@
     "disabledTooltip": "Berechnen Sie zuerst eine St\u00fcckliste",
     "pdfGenerating": "PDF wird erstellt\u2026",
     "pdfErrorHeading": "PDF-Erstellung fehlgeschlagen",
-    "pdfErrorBody": "Der Bericht konnte nicht erstellt werden. \u00dcberpr\u00fcfen Sie Ihre Parameter und versuchen Sie es erneut."
+    "pdfErrorBody": "Der Bericht konnte nicht erstellt werden. \u00dcberpr\u00fcfen Sie Ihre Parameter und versuchen Sie es erneut.",
+    "fcCsvButton": "FC CSV exportieren",
+    "fcPdfButton": "FC PDF exportieren"
   },
   "mode": {
     "ethernet": "Ethernet",

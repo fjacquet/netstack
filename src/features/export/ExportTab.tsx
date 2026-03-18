@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/shallow'
 import { FileSpreadsheet, FileText, Printer, Loader2 } from 'lucide-react'
 import { useResultStore } from '@/store/resultStore'
+import { useFCResultStore } from '@/store/fcResultStore'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,21 +19,38 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { downloadBomCsv } from './exportCsv'
+import { downloadFCBomCsv } from './exportFCCsv'
 import { generatePdfBlob } from './exportPdf'
 import { getLastTopologyPng } from '@/features/topology'
 
-export function ExportTab() {
+interface ExportTabProps {
+  mode: 'ethernet' | 'fc'
+}
+
+export function ExportTab({ mode }: ExportTabProps) {
   const { t } = useTranslation()
   const { bom } = useResultStore(useShallow((state) => ({ bom: state.bom })))
+  const { bom: fcBom } = useFCResultStore(useShallow((state) => ({ bom: state.bom })))
   const [pdfGenerating, setPdfGenerating] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
 
+  const activeBom = mode === 'fc' ? fcBom : bom
+
   const handleCsvExport = () => {
+    if (mode === 'fc') {
+      if (!fcBom) return
+      downloadFCBomCsv(fcBom)
+      return
+    }
     if (!bom) return
     downloadBomCsv(bom)
   }
 
   const handlePdfExport = async () => {
+    if (mode === 'fc') {
+      // FC PDF export — implemented in Plan 02
+      return
+    }
     if (!bom) return
     setPdfGenerating(true)
     setPdfError(null)
@@ -70,9 +88,9 @@ export function ExportTab() {
           </div>
         </CardHeader>
         <CardContent>
-          {bom ? (
+          {activeBom ? (
             <Button className="w-full" onClick={handleCsvExport}>
-              {t('export.csvButton')}
+              {mode === 'fc' ? t('export.fcCsvButton') : t('export.csvButton')}
             </Button>
           ) : (
             <Tooltip>
@@ -82,7 +100,7 @@ export function ExportTab() {
                   aria-disabled="true"
                   tabIndex={-1}
                 >
-                  {t('export.csvButton')}
+                  {mode === 'fc' ? t('export.fcCsvButton') : t('export.csvButton')}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('export.disabledTooltip')}</TooltipContent>
@@ -103,7 +121,7 @@ export function ExportTab() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {bom ? (
+          {activeBom ? (
             <Button
               className="w-full"
               onClick={handlePdfExport}
@@ -115,6 +133,8 @@ export function ExportTab() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                   {t('export.pdfGenerating')}
                 </>
+              ) : mode === 'fc' ? (
+                t('export.fcPdfButton')
               ) : (
                 t('export.pdfButton')
               )}
@@ -127,7 +147,7 @@ export function ExportTab() {
                   aria-disabled="true"
                   tabIndex={-1}
                 >
-                  {t('export.pdfButton')}
+                  {mode === 'fc' ? t('export.fcPdfButton') : t('export.pdfButton')}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('export.disabledTooltip')}</TooltipContent>

@@ -137,7 +137,9 @@
     "disabledTooltip": "Calcola prima una distinta materiali",
     "pdfGenerating": "Generazione PDF in corso\u2026",
     "pdfErrorHeading": "Generazione PDF non riuscita",
-    "pdfErrorBody": "Impossibile generare il report. Verifica i parametri e riprova."
+    "pdfErrorBody": "Impossibile generare il report. Verifica i parametri e riprova.",
+    "fcCsvButton": "Esporta CSV FC",
+    "fcPdfButton": "Esporta PDF FC"
   },
   "mode": {
     "ethernet": "Ethernet",
