@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
-status: executing
-stopped_at: Phase 11 complete — ready for Phase 12 (FC Input and BOM UI)
-last_updated: "2026-03-18T13:30:00.000Z"
-last_activity: 2026-03-18 — Phase 11 verified (335 tests, all 4 POS requirements satisfied)
+status: planning
+stopped_at: Completed 12-01-PLAN.md (FC Input form and mode selector)
+last_updated: "2026-03-18T13:16:57.776Z"
+last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 11
+  completed_plans: 10
   percent: 0
 ---
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 11-switch-positioning-ethernet P01 | 395 | 2 tasks | 14 files |
 | Phase 11-switch-positioning-ethernet P02 | 15 | 2 tasks | 9 files |
 | Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
+| Phase 12 P01 | 20 | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Key v2.0 architectural decisions from research:
 - [Phase 11-switch-positioning-ethernet]: buildPositioningRackDevices separate utility (not inline in buildRackDevices) — positioning rack is architecturally distinct from server rack
 - [Phase 11-switch-positioning-ethernet]: buildRackDevices positioning-aware: MoR/BoR racks omit leaf devices (servers start U2 vs U4 for ToR)
 - [Phase 11-03]: Tasks 0 and 1 were pre-implemented in 11-02 commit; selectedRack 'positioning' sentinel follows net-N pattern for rack type routing
+- [Phase 12-01]: scrollIntoView mocked for Radix Select + jsdom compatibility in FCInputForm tests
+- [Phase 12-01]: FCInputForm uses Object.keys(FC_SWITCH_CATALOG) — never hardcodes model list
+- [Phase 12-01]: Mode selector state is ephemeral useState in AppContent — not persisted
 
 ### Research Flags
 
@@ -112,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T12:29:32.687Z
-Stopped at: Completed 11-03-PLAN.md (RackElevationTab positioning rack selector)
+Last session: 2026-03-18T13:16:57.774Z
+Stopped at: Completed 12-01-PLAN.md (FC Input form and mode selector)
 Resume file: None
