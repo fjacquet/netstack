@@ -35,7 +35,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 
 **Milestone Goal:** Add Fibre Channel SAN sizing with Brocade Gen7/Gen8 switches and dual-fabric topology, plus ToR/MoR/BoR switch positioning awareness for Ethernet mode. Zero new npm dependencies. Strict domain isolation: FC and Ethernet are parallel, never coupled.
 
-- [ ] **Phase 8: FC Catalog and Schema Foundation** — Brocade switch catalog, POD licensing model, FC schemas
+- [x] **Phase 8: FC Catalog and Schema Foundation** — Brocade switch catalog, POD licensing model, FC schemas (completed 2026-03-18)
 - [ ] **Phase 9: Mode Store Isolation** — Separate FC stores, mode selector architecture, no cross-mode state contamination
 - [ ] **Phase 10: FC Sizing Engine** — Pure calculateFCBOM() function, dual-fabric, ISL formula, violations
 - [ ] **Phase 11: Switch Positioning (Ethernet)** — ToR/MoR/BoR selector, cable length advisory, rack elevation U-position
@@ -140,7 +140,7 @@ Plans:
 | 5. Engine Enhancements | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 6. Input Configuration UI | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 7. Rack Elevation Servers | v1.1 | 3/3 | Complete | 2026-03-18 |
-| 8. FC Catalog and Schema Foundation | 1/2 | In Progress|  | - |
+| 8. FC Catalog and Schema Foundation | 2/2 | Complete   | 2026-03-18 | - |
 | 9. Mode Store Isolation | v2.0 | 0/? | Not started | - |
 | 10. FC Sizing Engine | v2.0 | 0/? | Not started | - |
 | 11. Switch Positioning (Ethernet) | v2.0 | 0/? | Not started | - |

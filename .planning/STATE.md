@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 08-02-PLAN.md (FC Zod schemas)
-last_updated: "2026-03-18T09:26:50.838Z"
+stopped_at: "Completed 08-01-PLAN.md (FC catalog: fc-types.ts, brocade.ts, brocade.test.ts)"
+last_updated: "2026-03-18T09:27:29.350Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 
 *Updated after each plan completion*
 | Phase 08 P02 | 129 | 2 tasks | 3 files |
+| Phase 08 P01 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Key v2.0 architectural decisions from research:
 - [v2.0 Pre-Phase 8]: SWITCH_U_PER_SERVER_RACK=3 constant must become switchOverheadU(positioning) before Phase 11 UI
 - [Phase 08-02]: FC schemas isolated from Ethernet — fc-bom.ts does not import from bom.ts
 - [Phase 08-02]: podLicensesRequired, fanInRatio, islOversubscriptionRatio required (not optional) in FCNetworkBOMSchema
+- [Phase 08-01]: fc-types.ts has zero imports — complete Ethernet domain isolation; FCOpticsSpec uses protocol: fibre-channel as structural discriminant
+- [Phase 08-01]: 7850 extension switch: podLicenseUnit=0 because WAN port licensing differs from FC POD licensing; all 24 FC ports are base-licensed
+- [Phase 08-01]: X7-4 totalPorts=256 (4x64 data ports), not 265 — 9 ICL ports are internal fabric routing ports excluded from host connectivity sizing
 
 ### Research Flags
 
@@ -87,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T09:26:50.835Z
-Stopped at: Completed 08-02-PLAN.md (FC Zod schemas)
+Last session: 2026-03-18T09:27:29.348Z
+Stopped at: Completed 08-01-PLAN.md (FC catalog: fc-types.ts, brocade.ts, brocade.test.ts)
 Resume file: None
