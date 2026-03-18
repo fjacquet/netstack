@@ -150,7 +150,11 @@ Plans:
   2. No edges cross between Fabric A nodes and Fabric B nodes in the rendered diagram — cross-fabric edges are architecturally impossible in buildFCTopologyGraph output
   3. The FC topology view is accessible via the existing tab navigation and does not break the Ethernet topology tab
   4. The diagram correctly reflects the switch count and ISL link count from the current FC BOM output
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — buildFCTopologyGraph pure function + FCSwitchNodeData type (TDD, Wave 1)
+- [ ] 13-02-PLAN.md — FCTopologyTab dual-fabric component + FCTopologyCanvas + App.tsx mode gate (Wave 2)
 
 ### Phase 14: FC Export
 
