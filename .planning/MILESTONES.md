@@ -1,5 +1,14 @@
 # Milestones
 
+## v2.0 FC SAN and Switch Positioning (Shipped: 2026-03-18)
+
+**Phases completed:** 7 phases, 16 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 ## v1.0 MVP (Shipped: 2026-03-17)
 
 **Phases completed:** 4 phases, 13 plans | 50 commits | 6,990 LOC TypeScript | 144 tests
