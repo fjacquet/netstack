@@ -29,6 +29,7 @@ const DEFAULT_INPUT: SizingInput = {
   borderLeafModel: 'none',
   borderLeafCount: 0,
   rackSize: '42U',
+  serverUHeight: '1U',
 }
 
 /**
@@ -75,12 +76,13 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 4,
+      version: 5,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
-       * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array)
-       * and v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf).
+       * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array),
+       * v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf),
+       * and v4 to v5 (adds serverUHeight).
        * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields.
        */
       merge: (persisted, current) => {
