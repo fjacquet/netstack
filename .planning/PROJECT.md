@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A client-side network sizing calculator for Dell Leaf-Spine + OOB infrastructure (Ethernet) and Brocade/Broadcom Fibre Channel SAN fabrics. Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Supports both Ethernet and FC modes with a unified UI. Pure browser app deployed to GitHub Pages.
+A client-side network sizing calculator supporting three modes: Dell Leaf-Spine Ethernet (Spine-Leaf), Brocade Fibre Channel SAN, and Converged (Ethernet + FC combined). Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser PWA deployed to GitHub Pages.
 
 ## Core Value
 
@@ -38,19 +38,14 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ FC BOM panel with per-fabric counts, ISLs, POD licenses, oversubscription ratio — v2.0
 - ✓ FC export: CSV with Fabric A/B sections, PDF with 5 dedicated FC pages — v2.0
 
-### Active (v3.0)
-
-## Current Milestone: v3.0 Converged Mode
-
-**Goal:** Add a third "Converged" sizing mode that combines Ethernet leaf-spine + FC SAN in a single BOM per server: 1 OOB port, 1–4 Ethernet frontend ports, 0–2 FC backend ports.
-
-**Target features:**
-- Converged sizing engine composing existing Ethernet and FC engines
-- Unified input form with shared rack config + Ethernet section + FC section
-- Combined BOM panel showing both Ethernet and FC switch counts
-- Topology view with Ethernet + Fabric A + Fabric B diagrams
-- Converged rack elevation with FC network rack type
-- Combined CSV/PDF export
+- ✓ Converged mode: combined Ethernet + FC sizing from a single input (1–4 Ethernet ports + 0–2 FC HBA ports) — v3.0
+- ✓ Converged engine composing `calculateBOM()` + `calculateFCBOM()` with nullable FC BOM — v3.0
+- ✓ Unified converged input form with shared rack config + Ethernet section + FC section — v3.0
+- ✓ Combined BOM panel showing Ethernet + FC switches, cables, and violations — v3.0
+- ✓ Converged topology: Ethernet leaf-spine + FC Fabric A/B in stacked view — v3.0
+- ✓ Converged rack elevation: server racks + Ethernet network racks + FC network racks — v3.0
+- ✓ Converged CSV/PDF export combining both Ethernet and FC sections — v3.0
+- ✓ Rack-level switch positioning (ToR/MoR/BoR) with OOB co-location (ADR-0013/0014) — v3.0
 
 ### Future (v4.0)
 
@@ -72,6 +67,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ## Context
 
+Shipped v3.0 with 16,248 LOC TypeScript, 416 tests, 30 commits across 3 phases (15–17).
 Shipped v2.0 with 13,283 LOC TypeScript, 388 tests, 50 commits across 7 phases (8–14), 169 files changed.
 Shipped v1.1 with 223 tests, 34 commits across 3 phases (5–7), 55 files changed.
 Shipped v1.0 with 6,990 LOC TypeScript, 144 tests, 50 commits.
@@ -102,10 +98,13 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | Inline theme script in index.html | Prevents flash-of-wrong-theme before React renders | ✓ Good |
 | Zustand persist with version + merge | Handles schema evolution without breaking cached data | ✓ Good |
 | Parallel FC/Ethernet architecture (no generics) | Strict isolation; generics couple the two domains | ✓ Good |
+| Converged engine composes existing engines | Zero logic duplication; FC optional via nullable fcBom | ✓ Good |
+| Rack-level positioning (not row-level) | MoR = Middle of Rack, all cable runs < 3m, DAC always compatible | ✓ Good |
+| OOB co-located with data switches | Physical cable management; OOB adjacent to leaves in all modes | ✓ Good |
 | FC mode as ephemeral component state (not persisted) | Prevents stale mode on page reload | ✓ Good |
 | Two independent ReactFlowProvider instances for FC fabric A/B | Prevents cross-fabric edge rendering bugs | ✓ Good |
 | TDD (RED→GREEN) for all pure domain functions | Catches formula errors before UI is written | ✓ Good |
 | FC ISL formula: fan-in ratio 7:1 (Broadcom threshold) | Matches Broadcom advisory; differs from Ethernet uplink formula | ✓ Good |
 
 ---
-*Last updated: 2026-03-18 after v2.0 milestone*
+*Last updated: 2026-03-18 after v3.0 milestone*
