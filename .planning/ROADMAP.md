@@ -111,6 +111,6 @@ Plans:
 | 12. FC Input and BOM UI | v2.0 | 3/3 | Complete | 2026-03-18 |
 | 13. FC Topology Diagram | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
-| 15. Converged Domain & Store | 2/2 | Complete   | 2026-03-18 | - |
+| 15. Converged Domain & Store | 2/2 | Complete    | 2026-03-18 | - |
 | 16. Converged UI | v3.0 | 0/? | Not started | - |
 | 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
