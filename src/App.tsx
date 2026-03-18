@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { ReloadPrompt } from '@/components/ReloadPrompt'
 import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
 import { RackElevationTab } from '@/features/rack-elevation'
-import { TopologyTab, FCTopologyTab } from '@/features/topology'
+import { TopologyTab, FCTopologyTab, ConvergedTopologyTab } from '@/features/topology'
 import {
   Tabs,
   TabsContent,
@@ -46,7 +47,7 @@ function AppContent() {
             {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <TopologyTab /> : <TopologyTab />}
+            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : <TopologyTab />}
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
@@ -64,6 +65,7 @@ function App() {
     <ThemeProvider defaultTheme="system" storageKey="netstack-theme">
       <TooltipProvider delayDuration={300}>
         <AppContent />
+        <ReloadPrompt />
       </TooltipProvider>
     </ThemeProvider>
   )
