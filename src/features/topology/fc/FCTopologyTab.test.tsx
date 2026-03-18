@@ -37,6 +37,7 @@ const makeMockBOM = (): FCNetworkBOM => ({
   fabricASwitches: 2,
   fabricBSwitches: 2,
   islPortsPerFabric: 2,
+  switchPortsPerFabric: 32,
   islCables: 4,
   fcOpticsCount: 8,
   hostPortsPerFabric: 8,

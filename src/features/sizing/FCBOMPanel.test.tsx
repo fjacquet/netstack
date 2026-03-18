@@ -27,6 +27,7 @@ function makeBom(overrides: Partial<FCNetworkBOM> = {}): FCNetworkBOM {
     hostPortsPerFabric: 48,
     storagePortsPerFabric: 2,
     islPortsPerFabric: 4,
+    switchPortsPerFabric: 48,
     podLicensesRequired: 2,
     fcOpticsCount: 96,
     islCables: 4,
@@ -167,7 +168,7 @@ describe('FCBOMPanel', () => {
 
   it('FC_OVERSUBSCRIPTION_EXCEEDED violation renders Alert with role="alert"', () => {
     const bom = makeBom({
-      violations: [{ code: 'FC_OVERSUBSCRIPTION_EXCEEDED', ratio: 8.5, maxRatio: 7 }],
+      violations: [{ code: 'FC_OVERSUBSCRIPTION_EXCEEDED', ratio: 8.5, maxRatio: 7, minStoragePorts: 7 }],
     })
     mockStore(bom, bom.violations)
 
