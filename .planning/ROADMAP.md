@@ -180,6 +180,6 @@ Plans:
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
 | 11. Switch Positioning (Ethernet) | 3/3 | Complete   | 2026-03-18 | - |
-| 12. FC Input and BOM UI | 2/2 | Complete   | 2026-03-18 | - |
+| 12. FC Input and BOM UI | 3/3 | Complete   | 2026-03-18 | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |

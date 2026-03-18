@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 12-02-PLAN.md (FCBOMPanel component and i18n)
-last_updated: "2026-03-18T13:24:00.242Z"
+stopped_at: Completed 12-03-PLAN.md (preferredGeneration gap closure)
+last_updated: "2026-03-18T13:43:22.035Z"
 last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
   percent: 0
 ---
 
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
 | Phase 12 P01 | 20 | 3 tasks | 10 files |
 | Phase 12 P02 | 15 | 3 tasks | 7 files |
+| Phase 12 P03 | 18 | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 12-01]: Mode selector state is ephemeral useState in AppContent — not persisted
 - [Phase 12]: FCViolationAlert: FC_ISL_UNDERPROVISIONED uses variant=warning (advisory), not destructive
 - [Phase 12]: FCBOMPanel fan-in uses getFCSeverity with <= 7 (Broadcom FC standard), not <= 6 (Ethernet)
+- [Phase 12-03]: preferredGeneration uses form.watch() outside useEffect for reactive filteredModels computation
+- [Phase 12-03]: Test uses labelFor attribute to find switch model combobox trigger — data-slot='form-item' not present in FormItem
 
 ### Research Flags
 
@@ -119,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:24:00.239Z
-Stopped at: Completed 12-02-PLAN.md (FCBOMPanel component and i18n)
+Last session: 2026-03-18T13:43:22.032Z
+Stopped at: Completed 12-03-PLAN.md (preferredGeneration gap closure)
 Resume file: None
