@@ -27,6 +27,9 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
   const rackConfig = bom.input.racks[rackIndex]
   const serverCount = rackConfig?.serverCount ?? 0
 
+  // MoR/BoR: leaf switches are moved to the positioning rack — only OOB stays in server rack
+  const isToR = bom.input.switchPositioning === 'ToR'
+
   const devices: RackDevice[] = [
     {
       id: `rack-${rackIndex}-oob-0`,
@@ -38,31 +41,37 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       usedPorts: serverCount + 2,
       totalPorts: oobSpec.downlinkPorts,
     },
-    {
-      id: `rack-${rackIndex}-leaf-1`,
-      model: leafModel,
-      role: 'leaf',
-      label: 'Leaf B (ToR)',
-      uSlot: 2,
-      uHeight: 1,
-      usedPorts: serverCount,
-      totalPorts: leafSpec.downlinkPorts,
-    },
-    {
-      id: `rack-${rackIndex}-leaf-0`,
-      model: leafModel,
-      role: 'leaf',
-      label: 'Leaf A (ToR)',
-      uSlot: 3,
-      uHeight: 1,
-      usedPorts: serverCount,
-      totalPorts: leafSpec.downlinkPorts,
-    },
   ]
 
-  // Server devices above switches — starting at U4
+  if (isToR) {
+    devices.push(
+      {
+        id: `rack-${rackIndex}-leaf-1`,
+        model: leafModel,
+        role: 'leaf',
+        label: 'Leaf B (ToR)',
+        uSlot: 2,
+        uHeight: 1,
+        usedPorts: serverCount,
+        totalPorts: leafSpec.downlinkPorts,
+      },
+      {
+        id: `rack-${rackIndex}-leaf-0`,
+        model: leafModel,
+        role: 'leaf',
+        label: 'Leaf A (ToR)',
+        uSlot: 3,
+        uHeight: 1,
+        usedPorts: serverCount,
+        totalPorts: leafSpec.downlinkPorts,
+      }
+    )
+  }
+
+  // Server devices above switches
+  // ToR: servers start at U4 (after OOB + 2 leaves); MoR/BoR: servers start at U2 (after OOB only)
   const uHeight = parseInt(bom.input.serverUHeight, 10)
-  let currentUSlot = 4
+  let currentUSlot = isToR ? 4 : 2
   for (let s = 0; s < serverCount; s++) {
     devices.push({
       id: `rack-${rackIndex}-server-${s}`,

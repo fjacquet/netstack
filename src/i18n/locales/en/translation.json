@@ -51,7 +51,13 @@
     "uHeight1U": "1U (standard)",
     "uHeight2U": "2U (storage / GPU)",
     "uHeight4U": "4U (dense storage)",
-    "uHeight8U": "8U (blade chassis)"
+    "uHeight8U": "8U (blade chassis)",
+    "switchPositioning": "Switch Positioning",
+    "selectSwitchPositioning": "Select positioning",
+    "positionToR": "ToR — Top of Rack",
+    "positionMoR": "MoR — Middle of Row",
+    "positionBoR": "BoR — Bottom of Row",
+    "positioningHelp": "Affects cable run length and DAC compatibility"
   },
   "results": {
     "heading": "Results",
@@ -114,7 +120,8 @@
     "serverLabel": "Server {{n}}",
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — overflow",
-    "overflowStrip": "+{{over}}U overflow"
+    "overflowStrip": "+{{over}}U overflow",
+    "positioningRack": "Positioning Rack ({{type}})"
   },
   "export": {
     "heading": "Export",
@@ -174,6 +181,9 @@
     "violationDacTitle": "DAC Distance Advisory",
     "violationDacBody": "DAC cables are limited to 3m. With {{rackCount}} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances.",
     "violationRackCapacityTitle": "Rack Capacity Exceeded",
-    "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack."
+    "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack.",
+    "violationDacPositioningTitle": "DAC Incompatible with Positioning",
+    "violationDacPositioningBody": "DAC cables are limited to 3m. {{positioning}} positioning requires up to {{maxLength}}m runs. Replace DAC with AOC or fiber.",
+    "cableLengthAdvisory": "Recommended cable run: up to {{maxLength}}m ({{positioning}} positioning)"
   }
 }

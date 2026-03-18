@@ -51,6 +51,7 @@ interface FormValues {
   borderLeafCount: number
   rackSize: '24U' | '42U' | '50U'
   serverUHeight: '1U' | '2U' | '4U' | '8U'
+  switchPositioning: 'ToR' | 'MoR' | 'BoR'
 }
 
 export function InputForm() {
@@ -75,6 +76,7 @@ export function InputForm() {
       borderLeafCount: input.borderLeafCount,
       rackSize: input.rackSize,
       serverUHeight: input.serverUHeight,
+      switchPositioning: input.switchPositioning,
     },
     mode: 'onChange',
   })
@@ -539,6 +541,31 @@ export function InputForm() {
                   </FormItem>
                 )}
               />
+
+              {/* Switch Positioning */}
+              <FormField
+                control={form.control}
+                name="switchPositioning"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('sizing.switchPositioning')}</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('sizing.selectSwitchPositioning')} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ToR">{t('sizing.positionToR')}</SelectItem>
+                        <SelectItem value="MoR">{t('sizing.positionMoR')}</SelectItem>
+                        <SelectItem value="BoR">{t('sizing.positionBoR')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>{t('sizing.positioningHelp')}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Reset button */}
@@ -563,6 +590,7 @@ export function InputForm() {
                   borderLeafCount: 0,
                   rackSize: '42U',
                   serverUHeight: '1U',
+                  switchPositioning: 'ToR',
                 })
               }}
             >
