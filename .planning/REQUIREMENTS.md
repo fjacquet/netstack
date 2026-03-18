@@ -56,30 +56,30 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FC-01 | TBD | Pending |
-| FC-02 | TBD | Pending |
-| FC-03 | TBD | Pending |
-| FC-04 | TBD | Pending |
-| FC-05 | TBD | Pending |
-| FC-06 | TBD | Pending |
-| FC-07 | TBD | Pending |
-| FC-08 | TBD | Pending |
-| FC-09 | TBD | Pending |
-| FC-10 | TBD | Pending |
-| FC-11 | TBD | Pending |
-| FC-12 | TBD | Pending |
-| FC-13 | TBD | Pending |
-| FC-14 | TBD | Pending |
-| POS-01 | TBD | Pending |
-| POS-02 | TBD | Pending |
-| POS-03 | TBD | Pending |
-| POS-04 | TBD | Pending |
+| FC-01 | Phase 8 | Pending |
+| FC-02 | Phase 8 | Pending |
+| FC-03 | Phase 8 | Pending |
+| FC-04 | Phase 8 | Pending |
+| FC-05 | Phase 10 | Pending |
+| FC-06 | Phase 10 | Pending |
+| FC-07 | Phase 10 | Pending |
+| FC-08 | Phase 10 | Pending |
+| FC-09 | Phase 9 | Pending |
+| FC-10 | Phase 12 | Pending |
+| FC-11 | Phase 12 | Pending |
+| FC-12 | Phase 13 | Pending |
+| FC-13 | Phase 14 | Pending |
+| FC-14 | Phase 14 | Pending |
+| POS-01 | Phase 11 | Pending |
+| POS-02 | Phase 11 | Pending |
+| POS-03 | Phase 11 | Pending |
+| POS-04 | Phase 11 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after v2.0 milestone definition*
+*Last updated: 2026-03-18 after v2.0 roadmap creation (18/18 mapped)*
