@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: Three-Tier Topology
-status: completed
-stopped_at: Completed 18-03-PLAN.md (Phase 18 complete)
-last_updated: "2026-03-18T21:59:47.073Z"
-last_activity: 2026-03-18 — Completed 18-03 converged integration (topology branching)
+status: in-progress
+stopped_at: Completed 19-01-PLAN.md
+last_updated: "2026-03-18T22:21:00Z"
+last_activity: 2026-03-18 — Completed 19-01 standalone three-tier UI (stores, form, BOM panel, mode selector)
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_plans: 6
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine, Brocade FC SAN, and Three-Tier deployments.
-**Current focus:** v4.0 Three-Tier Topology — Phase 18 complete (3/3 plans), phase 19 next
+**Current focus:** v4.0 Three-Tier Topology — Phase 19 in progress (1/3 plans done)
 
 ## Current Position
 
-Phase: 18 of 20 (Three-Tier Domain & Engine)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: Phase Complete
-Last activity: 2026-03-18 — Completed 18-03 converged integration (topology branching)
+Phase: 19 of 20 (Three-Tier UI & Converged Integration)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-03-18 — Completed 19-01 standalone three-tier UI
 
-Progress: [██████████] 100% (Phase 18)
+Progress: [███████░░░] 67% (v4.0 milestone)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100% (Phase 18)
 | Phase 18-01 P01 | 4min | 2 tasks | 6 files |
 | Phase 18-02 P02 | 4min | 1 task | 2 files |
 | Phase 18-03 P03 | 11min | 2 tasks | 15 files |
+| Phase 19-01 P01 | 6min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,10 @@ Key architectural decisions relevant to v4.0:
 - [Phase 18-03]: activeUplinksPerLeaf reused as activeUplinksPerAccess -- same purpose, no new field
 - [Phase 18-03]: ethernetBom made nullable -- UI components use null guards, three-tier UI deferred to phase 19
 - [Phase 18-03]: Topology branching pattern -- converged engine selects sub-engine via topology field
+- [Phase 19-01]: Three-tier store pair follows exact Ethernet/FC pattern: persisted input + derived result
+- [Phase 19-01]: 4-mode ModeSelector replaces 3-mode -- three-tier is 4th button
+- [Phase 19-01]: Rack-elevation types extended with access/aggregation/core alongside topology types
+- [Phase 19-01]: Oversubscription thresholds use green <=3, amber 3-5, red >5 for three-tier
 
 ### Pending Todos
 
@@ -87,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T21:53:28Z
-Stopped at: Completed 18-03-PLAN.md (Phase 18 complete)
+Last session: 2026-03-18T22:21:00Z
+Stopped at: Completed 19-01-PLAN.md
 Resume file: None

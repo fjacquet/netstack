@@ -24,10 +24,10 @@
 
 ### Three-Tier UI
 
-- [ ] **TUI-01**: Three-Tier standalone mode as 4th button in mode selector
+- [x] **TUI-01**: Three-Tier standalone mode as 4th button in mode selector
 - [ ] **TUI-02**: Topology selector in Converged mode to pick Clos or 3-tier for Ethernet portion
-- [ ] **TUI-03**: Three-tier input form with access/aggregation/core model selectors + uplink counts per tier
-- [ ] **TUI-04**: BOM panel adapted for 3-tier breakdown (access/aggr/core instead of leaf/spine)
+- [x] **TUI-03**: Three-tier input form with access/aggregation/core model selectors + uplink counts per tier
+- [x] **TUI-04**: BOM panel adapted for 3-tier breakdown (access/aggr/core instead of leaf/spine)
 - [ ] **TUI-05**: Hierarchical topology diagram (tree layout: core → aggr → access → racks)
 - [ ] **TUI-06**: Rack elevation for 3-tier: server racks (access switches) + aggregation/core network racks
 
@@ -71,10 +71,10 @@
 | TENG-05 | Phase 18 | Complete |
 | TENG-06 | Phase 18 | Complete |
 | TENG-07 | Phase 18 | Complete |
-| TUI-01 | Phase 19 | Pending |
+| TUI-01 | Phase 19 | Complete |
 | TUI-02 | Phase 19 | Pending |
-| TUI-03 | Phase 19 | Pending |
-| TUI-04 | Phase 19 | Pending |
+| TUI-03 | Phase 19 | Complete |
+| TUI-04 | Phase 19 | Complete |
 | TUI-05 | Phase 19 | Pending |
 | TUI-06 | Phase 19 | Pending |
 | TEXP-01 | Phase 20 | Pending |
