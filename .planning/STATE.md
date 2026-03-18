@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 12-01-PLAN.md (FC Input form and mode selector)
-last_updated: "2026-03-18T13:16:57.776Z"
+stopped_at: Completed 12-02-PLAN.md (FCBOMPanel component and i18n)
+last_updated: "2026-03-18T13:24:00.242Z"
 last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 0
 ---
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 11-switch-positioning-ethernet P02 | 15 | 2 tasks | 9 files |
 | Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
 | Phase 12 P01 | 20 | 3 tasks | 10 files |
+| Phase 12 P02 | 15 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 12-01]: scrollIntoView mocked for Radix Select + jsdom compatibility in FCInputForm tests
 - [Phase 12-01]: FCInputForm uses Object.keys(FC_SWITCH_CATALOG) — never hardcodes model list
 - [Phase 12-01]: Mode selector state is ephemeral useState in AppContent — not persisted
+- [Phase 12]: FCViolationAlert: FC_ISL_UNDERPROVISIONED uses variant=warning (advisory), not destructive
+- [Phase 12]: FCBOMPanel fan-in uses getFCSeverity with <= 7 (Broadcom FC standard), not <= 6 (Ethernet)
 
 ### Research Flags
 
@@ -116,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:16:57.774Z
-Stopped at: Completed 12-01-PLAN.md (FC Input form and mode selector)
+Last session: 2026-03-18T13:24:00.239Z
+Stopped at: Completed 12-02-PLAN.md (FCBOMPanel component and i18n)
 Resume file: None
