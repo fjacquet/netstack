@@ -40,12 +40,23 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ### Active (v3.0)
 
-- [ ] Save/load named configurations
-- [ ] JSON export
-- [ ] Multi-pod support for large deployments
+## Current Milestone: v3.0 Converged Mode
+
+**Goal:** Add a third "Converged" sizing mode that combines Ethernet leaf-spine + FC SAN in a single BOM per server: 1 OOB port, 1–4 Ethernet frontend ports, 0–2 FC backend ports.
+
+**Target features:**
+- Converged sizing engine composing existing Ethernet and FC engines
+- Unified input form with shared rack config + Ethernet section + FC section
+- Combined BOM panel showing both Ethernet and FC switch counts
+- Topology view with Ethernet + Fabric A + Fabric B diagrams
+- Converged rack elevation with FC network rack type
+- Combined CSV/PDF export
 
 ### Future (v3.0+)
 
+- Save/load named configurations
+- JSON export
+- Multi-pod support for large deployments
 - Power budget calculation per rack
 - Weight/cooling estimates
 

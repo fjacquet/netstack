@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: FC SAN & Switch Positioning
+milestone: v3.0
+milestone_name: Converged Mode
 status: planning
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-03-18T16:35:14.009Z"
-last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
+stopped_at: —
+last_updated: "2026-03-18T18:00:00.000Z"
+last_activity: 2026-03-18 — Milestone v3.0 started
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 16
-  completed_plans: 16
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -20,15 +20,15 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-03-18)
 
-**Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
-**Current focus:** Phase 12 — FC Input and BOM UI (ready to plan)
+**Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
+**Current focus:** Phase 15 — Converged Domain & Store (not yet planned)
 
 ## Current Position
 
-Phase: 12 of 14 (FC Input and BOM UI)
+Phase: 15 of 17 (Converged Domain & Store)
 Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
+Status: Defining requirements
+Last activity: 2026-03-18 — Milestone v3.0 started
 
 Progress: [░░░░░░░░░░] 0% (v2.0)
 
