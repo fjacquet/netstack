@@ -25,6 +25,10 @@ export interface SwitchSpec {
   typicalPowerW?: number;
   /** Total switching capacity in Tbps */
   switchingCapacityTbps?: number;
+  /** Valid roles in a 3-tier topology. Undefined = not usable in 3-tier mode. */
+  tier?: ('access' | 'aggregation' | 'core')[];
+  /** Rack unit height (default 1U if omitted, 2U for Z9264F-ON) */
+  uHeight?: number;
 }
 
 /** Specification for a cable type */

@@ -27,6 +27,10 @@ export const SwitchSpecSchema = z.object({
   typicalPowerW: z.number().optional(),
   /** Total switching capacity in Tbps */
   switchingCapacityTbps: z.number().optional(),
+  /** Valid roles in a 3-tier topology. Undefined = not usable in 3-tier mode. */
+  tier: z.array(z.enum(['access', 'aggregation', 'core'])).optional(),
+  /** Rack unit height (default 1U if omitted, 2U for Z9264F-ON) */
+  uHeight: z.number().int().min(1).optional(),
 });
 
 /** Inferred TypeScript type — do not declare separately */

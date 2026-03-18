@@ -20,6 +20,7 @@ export const SWITCH_CATALOG = {
   'S5248F-ON': {
     modelId: 'S5248F-ON',
     role: 'leaf',
+    tier: ['access'],
     downlinkPorts: 48,
     downlinkSpeedGbE: 25,
     uplinkPorts: 4,             // Standard reference: 4 × 100GbE QSFP28 to spine
@@ -38,6 +39,7 @@ export const SWITCH_CATALOG = {
   'S5232F-ON': {
     modelId: 'S5232F-ON',
     role: 'spine',
+    tier: ['aggregation'],
     downlinkPorts: 32,          // 32 × 100GbE QSFP28 — one connection per leaf
     downlinkSpeedGbE: 100,
     uplinkPorts: 0,             // Spine has no upstream; terminates at this tier
@@ -53,6 +55,7 @@ export const SWITCH_CATALOG = {
   'S5224F-ON': {
     modelId: 'S5224F-ON',
     role: 'leaf',
+    tier: ['access'],
     downlinkPorts: 24,
     downlinkSpeedGbE: 25,
     uplinkPorts: 4,
@@ -68,6 +71,7 @@ export const SWITCH_CATALOG = {
   'S5212F-ON': {
     modelId: 'S5212F-ON',
     role: 'leaf',
+    tier: ['access'],
     downlinkPorts: 12,
     downlinkSpeedGbE: 25,
     uplinkPorts: 3,
@@ -84,6 +88,7 @@ export const SWITCH_CATALOG = {
   'S5296F-ON': {
     modelId: 'S5296F-ON',
     role: 'leaf',
+    tier: ['access'],
     downlinkPorts: 96,
     downlinkSpeedGbE: 25,
     uplinkPorts: 8,
@@ -105,6 +110,63 @@ export const SWITCH_CATALOG = {
     uplinkPorts: 4,             // 4 × 10GbE SFP+ uplinks
     uplinkSpeedGbE: 10,
     maxPowerW: 550,
+  },
+
+  /**
+   * Z9264F-ON — High-density 100G switch (2U)
+   * 64 × 100GbE QSFP28 configurable ports (symmetric — uplink/downlink split is logical)
+   * uplinkPorts=0: the engine computes effective splits from user-specified uplink counts
+   */
+  'Z9264F-ON': {
+    modelId: 'Z9264F-ON',
+    role: 'leaf',
+    tier: ['access', 'aggregation'],
+    downlinkPorts: 64,
+    downlinkSpeedGbE: 100,
+    uplinkPorts: 0,
+    uplinkSpeedGbE: 100,
+    maxPowerW: 750,
+    typicalPowerW: 340,
+    switchingCapacityTbps: 12.8,
+    uHeight: 2,
+  },
+
+  /**
+   * Z9332F-ON — 400G spine/core switch (1U)
+   * 32 × 400GbE QSFP-DD configurable ports (symmetric — uplink/downlink split is logical)
+   * uplinkPorts=0: the engine computes effective splits from user-specified uplink counts
+   */
+  'Z9332F-ON': {
+    modelId: 'Z9332F-ON',
+    role: 'spine',
+    tier: ['aggregation', 'core'],
+    downlinkPorts: 32,
+    downlinkSpeedGbE: 400,
+    uplinkPorts: 0,
+    uplinkSpeedGbE: 400,
+    maxPowerW: 1500,
+    typicalPowerW: 900,
+    switchingCapacityTbps: 25.6,
+    uHeight: 1,
+  },
+
+  /**
+   * Z9432F-ON — 400G spine/core switch (1U)
+   * 32 × 400GbE QSFP-DD configurable ports (symmetric — uplink/downlink split is logical)
+   * uplinkPorts=0: the engine computes effective splits from user-specified uplink counts
+   */
+  'Z9432F-ON': {
+    modelId: 'Z9432F-ON',
+    role: 'spine',
+    tier: ['aggregation', 'core'],
+    downlinkPorts: 32,
+    downlinkSpeedGbE: 400,
+    uplinkPorts: 0,
+    uplinkSpeedGbE: 400,
+    maxPowerW: 1404,
+    typicalPowerW: 900,
+    switchingCapacityTbps: 25.6,
+    uHeight: 1,
   },
 } as const satisfies Record<string, SwitchSpec>;
 
