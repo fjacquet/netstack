@@ -143,7 +143,7 @@
   },
   "mode": {
     "ethernet": "Ethernet",
-    "fc": "Canal Fibre",
+    "fc": "Fibre Channel",
     "selectLabel": "Mode"
   },
   "fc": {
