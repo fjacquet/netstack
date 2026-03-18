@@ -45,6 +45,8 @@ export const SizingInputSchema = z.object({
   borderLeafCount: z.number().int().min(0).max(4),
   /** Rack unit height — standard rack sizes */
   rackSize: z.enum(['24U', '42U', '50U']),
+  /** U-height of each server for rack elevation rendering (1U default) */
+  serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
 });
 
 /** Inferred TypeScript type — do not declare separately */

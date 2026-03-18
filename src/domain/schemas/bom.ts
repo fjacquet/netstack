@@ -33,6 +33,15 @@ export const ConstraintViolationSchema = z.discriminatedUnion('code', [
     /** Cable type that triggered the advisory (always DAC) */
     cableType: z.literal('DAC'),
   }),
+  z.object({
+    code: z.literal('RACK_CAPACITY_EXCEEDED'),
+    /** 1-based rack number that overflows */
+    rackNumber: z.number().int(),
+    /** Total U-height of all devices in this rack */
+    usedU: z.number().int(),
+    /** Physical U capacity of the rack */
+    totalU: z.number().int(),
+  }),
 ]);
 
 /** Inferred TypeScript type — do not declare separately */

@@ -137,6 +137,21 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     });
   }
 
+  // RACK_CAPACITY_EXCEEDED: total device U-height exceeds rack physical size
+  const SWITCH_U_PER_SERVER_RACK = 3; // OOB (U1) + Leaf B (U2) + Leaf A (U3)
+  const uHeightInt = parseInt(input.serverUHeight, 10);
+  for (let i = 0; i < input.racks.length; i++) {
+    const usedU = SWITCH_U_PER_SERVER_RACK + input.racks[i].serverCount * uHeightInt;
+    if (usedU > rackSizeU) {
+      violations.push({
+        code: 'RACK_CAPACITY_EXCEEDED',
+        rackNumber: i + 1,
+        usedU,
+        totalU: rackSizeU,
+      });
+    }
+  }
+
   return {
     racks,
     networkRacks,
