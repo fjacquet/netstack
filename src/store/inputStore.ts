@@ -77,13 +77,13 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 5,
+      version: 6,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
        * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array),
        * v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf),
-       * and v4 to v5 (adds serverUHeight).
+       * v4 to v5 (adds serverUHeight), and v5 to v6 (adds switchPositioning).
        * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields.
        */
       merge: (persisted, current) => {
