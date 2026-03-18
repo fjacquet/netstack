@@ -55,7 +55,11 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
   3. FCSizingInputSchema and FCNetworkBOMSchema are defined with Zod v4 and all TypeScript types are derived via z.infer — no separately declared types
   4. FC_OPTICS_CATALOG contains SFP28 (32G), SFP56 (64G), and SFP112 (128G) entries with a protocol discriminant that prevents Ethernet optics from mixing into FC BOM output
   5. Unit tests cover all catalog entries with typed assertions — a wrong port count fails a test, not a code review
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — FCSwitchSpec/FCOpticsSpec interfaces and FC_SWITCH_CATALOG/FC_OPTICS_CATALOG catalog constants with TDD tests
+- [ ] 08-02-PLAN.md — FCSizingInputSchema and FCNetworkBOMSchema Zod schemas with TDD tests
 
 ### Phase 9: Mode Store Isolation
 **Goal**: Ethernet and FC stores occupy separate localStorage keys with independent schemas — switching modes never corrupts the other mode's persisted data
@@ -136,7 +140,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 | 5. Engine Enhancements | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 6. Input Configuration UI | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 7. Rack Elevation Servers | v1.1 | 3/3 | Complete | 2026-03-18 |
-| 8. FC Catalog and Schema Foundation | v2.0 | 0/? | Not started | - |
+| 8. FC Catalog and Schema Foundation | v2.0 | 0/2 | Not started | - |
 | 9. Mode Store Isolation | v2.0 | 0/? | Not started | - |
 | 10. FC Sizing Engine | v2.0 | 0/? | Not started | - |
 | 11. Switch Positioning (Ethernet) | v2.0 | 0/? | Not started | - |
