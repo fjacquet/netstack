@@ -23,6 +23,7 @@ This constitution defines the technical principles and conventions for the NetSt
 | Forms | react-hook-form + @hookform/resolvers | Zod integration |
 | i18n | i18next + react-i18next | FR, EN, DE, IT with browser detection |
 | Testing | Vitest + Testing Library | Domain tests in node env, component tests in jsdom |
+| PWA | vite-plugin-pwa + Workbox | Service worker with prompt-based updates |
 
 ## 3 Project Structure
 
@@ -31,20 +32,28 @@ src/
 ├── domain/                 # Pure TypeScript — zero React dependencies
 │   ├── catalog/
 │   │   ├── hardware.ts     # SWITCH_CATALOG — Dell switch specs
+│   │   ├── brocade.ts      # FC_SWITCH_CATALOG — Brocade FC switch specs
 │   │   ├── cables.ts       # CABLE_CATALOG — cable specs
+│   │   ├── fc-types.ts     # FCSwitchSpec, FCOpticsSpec interfaces
 │   │   ├── types.ts        # SwitchSpec, CableSpec interfaces
 │   │   └── loader.ts       # JSON override loader for extensibility
 │   ├── schemas/
 │   │   ├── input.ts        # SizingInput Zod schema
+│   │   ├── fc-input.ts     # FCSizingInput Zod schema
+│   │   ├── converged-input.ts # ConvergedSizingInput Zod schema
 │   │   └── bom.ts          # NetworkBOM, ConstraintViolation schemas
 │   └── engine/
-│       └── sizing.ts       # calculateBOM() — core sizing logic
+│       ├── sizing.ts       # calculateBOM() — Ethernet sizing
+│       ├── fc-sizing.ts    # calculateFCBOM() — FC sizing
+│       └── converged-sizing.ts # calculateConvergedBOM() — Converged sizing
 ├── store/
 │   ├── inputStore.ts       # User inputs (persisted to localStorage)
 │   └── resultStore.ts      # Derived BOM (recomputed via subscription)
 ├── features/               # React components organized by feature
-│   ├── sizing/             # BOM panel, input form
-│   └── placeholder/        # Placeholder tabs (topology, rack, export)
+│   ├── sizing/             # BOM panel, input form (Ethernet + FC + Converged)
+│   ├── topology/           # Network topology diagrams
+│   ├── rack-elevation/     # Physical rack views
+│   └── export/             # CSV, PDF, print
 ├── components/             # Shared UI components (shadcn/ui patterns)
 ├── i18n/                   # Translation files (en, fr, de, it)
 └── lib/                    # Utility functions (cn, etc.)
@@ -69,3 +78,5 @@ Domain (pure TS) → Store (Zustand) → Features (React)
 - **Hardware catalog** — All port counts and power specs come from `SWITCH_CATALOG`, never hardcoded inline in formulas
 - **Cable calculations** — Based on link counts, not port sums (avoids off-by-2 errors)
 - **Oversubscription** — Required field on every BOM output
+- **Parallel domain isolation** — Ethernet and FC have separate catalog/schemas/engine; no shared generics (ADR-0009)
+- **PWA offline** — vite-plugin-pwa with Workbox service worker, prompt-based updates (ADR-0017)

@@ -242,5 +242,11 @@
     "violationRackCapacityTitle": "Rack Capacity Exceeded",
     "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack.",
     "cableLengthAdvisory": "Recommended cable run: up to {{maxLength}}m ({{positioning}} positioning)"
+  },
+  "pwa": {
+    "offlineReady": "App ready to work offline.",
+    "newContent": "New content available. Click reload to update.",
+    "reload": "Reload",
+    "close": "Close"
   }
 }

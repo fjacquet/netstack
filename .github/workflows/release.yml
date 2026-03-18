@@ -1,0 +1,47 @@
+name: Release with Offline Package
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      # Build portable offline package (base: ./ for local file:// usage)
+      - name: Build offline package
+        run: npm run build
+        env:
+          NETSTACK_BASE: './'
+
+      - name: Create offline archives
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          cd dist
+          zip -r "../netstack-${VERSION}-offline.zip" .
+          cd ..
+          tar -czf "netstack-${VERSION}-offline.tar.gz" -C dist .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            netstack-*-offline.zip
+            netstack-*-offline.tar.gz

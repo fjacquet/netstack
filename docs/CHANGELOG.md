@@ -4,6 +4,50 @@ All notable changes to NetStack are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+- Progressive Web App (PWA) with offline support via vite-plugin-pwa + Workbox
+- Service worker precaches all app assets for full offline functionality
+- ReloadPrompt component notifies users when updates are available (i18n in all 4 languages)
+- Installable from browser as standalone app (display: standalone, maskable icons)
+- Release workflow (.github/workflows/release.yml) creates offline zip/tar.gz packages on tag push
+- Portable offline build with relative asset paths (NETSTACK_BASE env var)
+
+## [2.0.0] - 2026-03-18
+
+### Added
+- **Fibre Channel SAN sizing** — 9 Brocade/Broadcom switch models (G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8)
+- Dual-fabric architecture — Fabric A and Fabric B sized independently, always redundant
+- FC sizing engine: `calculateFCBOM()` pure function with ISL formula (7:1 Broadcom fan-in threshold)
+- FC input form — HBA ports, storage targets, switch model selector, generation preference (Gen 7 64G / Gen 8 128G)
+- FC BOM panel — per-fabric switch counts, ISL cables, SFP optics, POD licenses, oversubscription ratio
+- FC topology diagram — dual-fabric ReactFlow canvases (Fabric A blue, Fabric B orange)
+- FC CSV and PDF export with dedicated Fabric A/B sections and Protocol: FC column
+- **Switch positioning** — ToR / MoR / BoR selector for Ethernet mode
+- Cable length advisory adjusted by switch position
+- DAC incompatibility violation for MoR/BoR with DAC cables
+- Mode selector in top bar (Spine-Leaf / Fibre Channel)
+- Architecture Decision Records: ADR-0009 through ADR-0016
+
+### Changed
+- Spine minimum reduced from 4 to 2 (ADR-0011)
+- Export buttons moved to header — always accessible, no dedicated tab
+- FC optics exported with Protocol: FC column to prevent procurement confusion
+
+## [1.1.0] - 2026-03-18
+
+### Added
+- Per-rack server count configuration (variable density across racks)
+- Explicit rack count field (not just derived from total servers)
+- Frontend and backend port count per server (1-2 data ports, 0-2 storage ports)
+- Active uplinks per leaf switch selector (1 to model maximum)
+- Server U-height selector (1U, 2U, 4U, 8U)
+- Rack capacity exceeded constraint violation (RACK_CAPACITY_EXCEEDED)
+- Servers visible in rack elevation view with proportional U-height
+- Spine switch model selector
+- Border leaf switch model selector with configurable count
+
 ## [1.0.0] - 2026-03-17
 
 ### Added

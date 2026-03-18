@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-NetStack is a client-side network sizing calculator for Dell Leaf-Spine + OOB infrastructure under SONiC. It takes server count and connectivity inputs and produces a Bill of Materials with topology diagrams. No backend — pure browser app deployed to GitHub Pages.
+NetStack is a client-side network sizing calculator supporting three modes: **Ethernet** (Dell Leaf-Spine + OOB under SONiC), **FC SAN** (Brocade Fibre Channel fabrics), and **Converged** (combined Ethernet + FC in a single design — v3.0, in progress). It takes server count and connectivity inputs and produces a Bill of Materials with topology diagrams. No backend — pure browser PWA deployed to GitHub Pages with offline support via Workbox service worker.
+
+**Status**: v2.0 shipped (Ethernet + FC SAN complete), v3.0 in progress (converged mode).
 
 ## Build & Test Commands
 
@@ -41,16 +43,33 @@ Domain (pure TS, no React) → Store (Zustand) → Features (React components)
 
 ### Domain Layer (`src/domain/`)
 
-Pure TypeScript — zero React dependencies. Testable in isolation with Vitest (node environment).
+Pure TypeScript — zero React dependencies. Testable in isolation with Vitest (node environment). The Ethernet and FC domains are kept as **parallel architectures** per ADR-0009 — separate catalog/schemas/engine with no shared generics.
+
+#### Ethernet Domain
 
 - **`catalog/`** — Hardware specs as typed constants (`SWITCH_CATALOG`, `CABLE_CATALOG`), plus JSON override loader for extensibility
 - **`schemas/`** — Zod v4 schemas as the single source of truth for types. All TypeScript types are inferred via `z.infer<>`, never declared separately
 - **`engine/`** — Sizing logic: `calculateBOM(input: SizingInput): NetworkBOM` — a pure function with no side effects
 
+#### FC SAN Domain
+
+- **`catalog/brocade.ts`** — `FC_SWITCH_CATALOG` (9 Brocade models) and `FC_OPTICS_CATALOG` (SFPs/QSFPs by speed)
+- **`schemas/fc-input.ts`** — `FCSizingInput` Zod schema for FC fabric inputs
+- **`engine/fc-sizing.ts`** — `calculateFCBOM()` pure function for Brocade fabric sizing
+
+#### Converged Domain (v3.0 — in progress)
+
+- **`schemas/converged-input.ts`** — `ConvergedSizingInput` schema combining Ethernet + FC inputs
+- **`engine/converged-sizing.ts`** — Converged engine orchestrating both sizing functions
+
 ### Store Layer (`src/store/`)
 
-- `inputStore` — persisted to localStorage (user inputs)
+- `inputStore` — persisted to localStorage (Ethernet user inputs)
 - `resultStore` — derived (recomputed from inputStore on every change via Zustand subscription)
+- `fcInputStore` — persisted to localStorage (FC SAN user inputs)
+- `fcResultStore` — derived (recomputed from fcInputStore)
+- `convergedInputStore` — persisted (converged mode inputs, v3.0)
+- `convergedResultStore` — derived (converged mode results, v3.0)
 
 ### Features Layer (`src/features/`)
 
@@ -58,7 +77,7 @@ React components organized by feature: input form, BOM panel, topology diagram, 
 
 ## Hardware Catalog
 
-Five Dell switch models with verified specs:
+### Ethernet — Dell Switches (5 models)
 
 | Model | Role | Downlink Ports | Uplink Ports | Power |
 |-------|------|----------------|--------------|-------|
@@ -68,11 +87,25 @@ Five Dell switch models with verified specs:
 | S5212F-ON | Leaf | 12×25G SFP28 | 3×100G QSFP28 | 304W |
 | S3248T-ON | OOB | 48×1G RJ45 | 4×10G | 550W |
 
+### FC SAN — Brocade Switches (9 models)
+
+| Model | Gen | Speed | Total Ports | Base Ports | POD |
+|-------|-----|-------|-------------|------------|-----|
+| G610 | Gen6 | 32G | 24 | 24 | No |
+| G620 | Gen6 | 32G | 64 | 24 | Yes |
+| G630 | Gen6 | 32G | 128 | 48 | Yes |
+| G720 | Gen7 | 64G | 64 | 24 | Yes |
+| G730 | Gen7 | 64G | 128 | 48 | Yes |
+| X6-4 | Gen6 | 32G | 192 | 48 | Yes |
+| X6-8 | Gen6 | 32G | 384 | 96 | Yes |
+| X7-4 | Gen7 | 64G | 192 | 48 | Yes |
+| X7-8 | Gen7 | 64G | 384 | 96 | Yes |
+
 ## Sizing Formulas
 
 - **Racks**: `ceil(totalServers / serversPerRack)`
 - **Leafs**: `2 × racks` (redundant ToR pair)
-- **Spines**: `max(4, ceil(leafSwitches / 32))` — scales with leaf count, never hardcoded
+- **Spines**: `max(2, ceil(leafSwitches / 32))` — scales with leaf count (see ADR-0011)
 - **OOB**: `racks × ceil((serversPerRack + 2) / 48)` — alert when ports > 48
 - **Cables**: computed from link counts, not port sums (avoids off-by-2 error)
 - **Oversubscription**: required field on every BOM output
@@ -88,14 +121,17 @@ Five Dell switch models with verified specs:
 - **@xyflow/react** — for topology diagrams (not the deprecated `reactflow` package).
 - **i18n** — FR, EN, DE, IT with language switcher.
 - **Theme** — light/dark mode with system preference detection.
+- **`vite-plugin-pwa`** — PWA with Workbox service worker, prompt-based updates for offline support.
+- **FC parallel domain** — separate catalog/schemas/engine per ADR-0009, no shared generics between Ethernet and FC.
+- **Switch positioning** — ToR/MoR/BoR selector affects rack elevation layout and cable distance advisory.
 
 ## Planning
 
 Project planning lives in `.planning/`:
 
 - `PROJECT.md` — project charter and requirements overview
-- `REQUIREMENTS.md` — 28 v1 requirements with REQ-IDs and phase traceability
-- `ROADMAP.md` — 4-phase delivery plan
+- `REQUIREMENTS.md` — v1/v2/v3 requirements with REQ-IDs and phase traceability, including v3.0 converged requirements (CONV-01 through CONV-12)
+- `ROADMAP.md` — 17 phases across 4 milestones (v1.0, v1.1, v2.0, v3.0)
 - `STATE.md` — current progress and accumulated context
 - `research/` — stack, features, architecture, pitfalls research
 - `phases/` — per-phase plans, research, and execution summaries

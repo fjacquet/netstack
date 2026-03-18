@@ -242,5 +242,11 @@
     "violationRackCapacityTitle": "Capacita rack superata",
     "violationRackCapacityBody": "Il rack {{rackN}} richiede {{used}}U ma il rack e solo {{total}}U. Riduci l'altezza U dei server o sposta i server.",
     "cableLengthAdvisory": "Lunghezza cavo consigliata: fino a {{maxLength}}m (posizionamento {{positioning}})"
+  },
+  "pwa": {
+    "offlineReady": "App pronta per l'uso offline.",
+    "newContent": "Nuovo contenuto disponibile. Clicca su ricarica per aggiornare.",
+    "reload": "Ricarica",
+    "close": "Chiudi"
   }
 }

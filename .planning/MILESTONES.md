@@ -2,10 +2,36 @@
 
 ## v2.0 FC SAN and Switch Positioning (Shipped: 2026-03-18)
 
-**Phases completed:** 7 phases, 16 plans, 0 tasks
+**Phases completed:** 7 phases (8–14), 16 plans | 165 commits | ~15,000 LOC TypeScript | 388 tests
+**Timeline:** 1 day (2026-03-18)
 
 **Key accomplishments:**
-- (none recorded)
+
+- Fibre Channel SAN sizing engine with 9 Brocade switch models (Gen 7 64G + Gen 8 128G)
+- Dual-fabric architecture (Fabric A + Fabric B), always redundant
+- POD licensing model with basePorts and podLicenseUnit per switch
+- ISL calculation with 7:1 Broadcom fan-in threshold
+- FC topology diagram with dual-fabric ReactFlow canvases
+- FC CSV and PDF export with Protocol: FC column
+- Switch positioning selector (ToR / MoR / BoR) for Ethernet mode
+- Mode selector in top bar (Spine-Leaf / Fibre Channel)
+- Architecture Decision Records: ADR-0009 through ADR-0016
+
+---
+
+## v1.1 Enhancements (Shipped: 2026-03-18)
+
+**Phases completed:** 3 phases (5–7), 8 plans | 11 requirements satisfied
+**Timeline:** 1 day (2026-03-18)
+
+**Key accomplishments:**
+
+- Per-rack server count configuration (variable density)
+- Frontend/backend port count per server
+- Active uplinks per leaf switch selector
+- Server U-height (1U/2U/4U/8U) with rack capacity exceeded violation
+- Servers visible in rack elevation with proportional height
+- Spine and border leaf switch model selectors
 
 ---
 

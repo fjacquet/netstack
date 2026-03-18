@@ -242,5 +242,11 @@
     "violationRackCapacityTitle": "Capacite du rack depassee",
     "violationRackCapacityBody": "Le rack {{rackN}} necessite {{used}}U mais ne dispose que de {{total}}U. Reduisez la hauteur U des serveurs ou deplacez-les.",
     "cableLengthAdvisory": "Longueur de cable recommandee : jusqu'a {{maxLength}}m (positionnement {{positioning}})"
+  },
+  "pwa": {
+    "offlineReady": "Application disponible hors ligne.",
+    "newContent": "Nouveau contenu disponible. Cliquez sur recharger pour mettre a jour.",
+    "reload": "Recharger",
+    "close": "Fermer"
   }
 }

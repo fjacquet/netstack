@@ -24,7 +24,7 @@ The calculation engine (`src/domain/engine/sizing.ts`) applies the following for
 
 - **Racks**: `ceil(totalServers / serversPerRack)`
 - **Leaf switches**: `2 × N_racks` (redundant Top-of-Rack pair)
-- **Spine switches**: `max(4, ceil(leafCount / 32))` — scales with leaf count, never fixed
+- **Spine switches**: `max(2, ceil(leafCount / 32))` — scales with leaf count, never fixed
 - **OOB (S3248T-ON)**: `N_racks × ceil((serversPerRack + 2) / 48)`
 - **OOB port alert**: fires when ports required > 48 per rack
 - **Cables**: Computed from link counts (not port sums) to avoid off-by-2 errors
@@ -58,7 +58,7 @@ The engine returns typed discriminated-union violations:
 | SIZE-01 | User can input total server count, servers per rack, and connectivity type (25G/100G) | Form validates input range; results update on change | Phase 2 | Complete |
 | SIZE-02 | Engine calculates rack count as `ceil(total_servers / servers_per_rack)` | Rack count matches formula for all valid inputs | Phase 1 | Complete |
 | SIZE-03 | Engine calculates leaf switches as `2 × N_racks` (redundant ToR pair per rack) | Leaf count is always even; equals 2× rack count | Phase 1 | Complete |
-| SIZE-04 | Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity | `spines = max(4, ceil(leafs/32))`; never < 4 | Phase 1 | Complete |
+| SIZE-04 | Engine auto-scales spine switches based on leaf count and S5232F-ON 32-port capacity | `spines = max(2, ceil(leafs/32))`; never < 2 | Phase 1 | Complete |
 | SIZE-05 | Engine calculates OOB switches as `N_racks × ceil((servers_per_rack + 2) / 48)` with port saturation alert | Alert fires when ports > 48; boundary at 46 (no alert) vs 47 (alert) | Phase 1 | Complete |
 | SIZE-06 | Engine is a pure function: `(SizingInput) => NetworkBOM` with no side effects | Deterministic output; same input always yields same BOM | Phase 1 | Complete |
 | SIZE-07 | Engine validates all physical constraints via Zod schemas (port counts, cable compatibility) | Invalid inputs are rejected with typed ConstraintViolation | Phase 1 | Complete |
@@ -126,7 +126,54 @@ The engine returns typed discriminated-union violations:
 | Backend / server-side | Pure client-side app; no user accounts needed |
 | Multi-user collaboration | Single-user tool; share via export |
 
-## 8 v2 Roadmap
+## v2.0 Requirements
+
+### Fibre Channel SAN
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| FC-01 | Brocade Gen7 (64G) switch catalog — G710, G720, G730, X7-4, X7-8 | Complete |
+| FC-02 | Brocade Gen8 (128G) switch catalog — G820, X8-4, X8-8 | Complete |
+| FC-03 | Dynamic POD licensing per switch (basePorts, podLicenseUnit) | Complete |
+| FC-04 | 7850 FCIP extension switch in catalog | Complete |
+| FC-05 | Dual-fabric SAN topology (Fabric A + Fabric B) | Complete |
+| FC-06 | ISL calculation with 7:1 fan-in threshold | Complete |
+| FC-07 | FC optics BOM (SFP28/SFP56/SFP112 by generation) | Complete |
+| FC-08 | FC oversubscription ratio reporting | Complete |
+| FC-09 | Mode selector (Ethernet / FC) | Complete |
+| FC-10 | FC input form (HBA ports, storage targets, generation) | Complete |
+| FC-11 | FC BOM panel (switches, optics, ISL, POD licenses) | Complete |
+| FC-12 | FC dual-fabric topology diagram | Complete |
+| FC-13 | FC CSV export with Protocol: FC column | Complete |
+| FC-14 | FC PDF report with dual-fabric layout | Complete |
+
+### Switch Positioning (Ethernet)
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| POS-01 | Switch position selector (ToR / MoR / BoR) | Complete |
+| POS-02 | Rack elevation renders switches at correct U-position | Complete |
+| POS-03 | Cable length calculations adjusted per position | Complete |
+| POS-04 | DAC distance advisory updated for positioning | Complete |
+
+## 8 v3.0 Requirements (In Progress)
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| CONV-01 | Converged input schema combining Ethernet + FC | Complete |
+| CONV-02 | Converged sizing engine | Complete |
+| CONV-03 | Converged Zustand stores | Complete |
+| CONV-04 | Mode selector includes Converged option | Complete |
+| CONV-05 | Converged input form | Complete |
+| CONV-06 | Converged BOM panel | In Progress |
+| CONV-07 | Converged topology diagram | Planned |
+| CONV-08 | Converged rack elevation | Planned |
+| CONV-09 | Converged CSV export | Planned |
+| CONV-10 | Converged PDF export | Planned |
+
+## 9 Future Roadmap
+
+> **Note:** Some items below were delivered in v1.1/v2.0.
 
 | ID | Feature | Category |
 |----|---------|----------|
@@ -139,14 +186,14 @@ The engine returns typed discriminated-union violations:
 | VIZ-04 | Topology port labels showing connection details | Visualization |
 | VIZ-05 | Interactive diagram — click node to see device details inline | Visualization |
 
-## 9 Architecture Overview
+## 10 Architecture Overview
 
 ```
 Domain (pure TS, no React) → Store (Zustand) → Features (React components)
 ```
 
-- **Domain layer** (`src/domain/`): Pure TypeScript, zero React dependencies. Catalog, schemas, and engine.
-- **Store layer** (`src/store/`): Zustand stores. `inputStore` persisted to localStorage; `resultStore` derived via subscription.
-- **Features layer** (`src/features/`): React components organized by feature (input-form, bom-panel, topology, rack-elevation, export).
+- **Domain layer** (`src/domain/`): Pure TypeScript, zero React dependencies. Catalog, schemas, and engine. Includes parallel Ethernet, FC, and converged domains with separate catalog/schemas/engine per protocol.
+- **Store layer** (`src/store/`): Zustand stores. `inputStore` persisted to localStorage; `resultStore` derived via subscription. FC and converged stores follow the same pattern.
+- **Features layer** (`src/features/`): React components organized by feature (input-form, bom-panel, topology, rack-elevation, export). Mode selector switches between Ethernet, FC, and converged views.
 
-See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0008).
+See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0017).
