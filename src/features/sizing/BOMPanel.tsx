@@ -89,6 +89,22 @@ function ViolationAlert({ v }: { v: ConstraintViolation }) {
     )
   }
 
+  if (v.code === 'RACK_CAPACITY_EXCEEDED') {
+    return (
+      <Alert variant="destructive" role="alert" key={`${v.code}-${v.rackNumber}`}>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>{t('bom.violationRackCapacityTitle')}</AlertTitle>
+        <AlertDescription>
+          {t('bom.violationRackCapacityBody', {
+            rackN: v.rackNumber,
+            used: v.usedU,
+            total: v.totalU,
+          })}
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
   return null
 }
 
@@ -395,7 +411,7 @@ export function BOMPanel() {
               </p>
               <div className="space-y-2">
                 {violations.map((v) => (
-                  <ViolationAlert key={v.code} v={v} />
+                  <ViolationAlert key={'rackNumber' in v ? `${v.code}-${v.rackNumber}` : v.code} v={v} />
                 ))}
               </div>
             </div>

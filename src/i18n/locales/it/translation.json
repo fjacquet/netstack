@@ -31,7 +31,27 @@
     "borderLeafCount": "Numero di Border Leaf",
     "resetButton": "Ripristina",
     "rackSize": "Dimensione rack",
-    "selectRackSize": "Selezionare la dimensione del rack"
+    "selectRackSize": "Selezionare la dimensione del rack",
+    "rackCount": "Numero di rack",
+    "rackLabel": "Rack {{n}}",
+    "rackServerCount": "Server nel rack {{n}}",
+    "totalServersDisplay": "Totale: {{count}} server",
+    "rackConfigHeading": "Configurazione rack",
+    "serverConnectivityHeading": "Connettivita server",
+    "networkConfigHeading": "Configurazione di rete",
+    "physicalHeading": "Fisico",
+    "portsPerServerFrontend": "Porte frontend per server",
+    "portsPerServerBackend": "Porte backend per server",
+    "frontendPortsHelp": "Porte di rete dati (lato leaf), 0 = nessuna connettivita frontend",
+    "backendPortsHelp": "Porte di gestione (lato OOB), 0 = nessuna connettivita OOB",
+    "activeUplinksPerLeaf": "Uplink attivi per Leaf",
+    "activeUplinksHelp": "Da 1 a {{max}} per {{model}} (limitato a runtime dal motore)",
+    "serverUHeight": "Altezza U server",
+    "selectServerUHeight": "Seleziona altezza U",
+    "uHeight1U": "1U (standard)",
+    "uHeight2U": "2U (storage / GPU)",
+    "uHeight4U": "4U (storage denso)",
+    "uHeight8U": "8U (chassis blade)"
   },
   "results": {
     "heading": "Risultati",
@@ -90,7 +110,11 @@
     "serverRack": "Rack server {{n}}",
     "networkRack": "Rack di rete {{n}}",
     "emptyHeading": "Nessun rack da visualizzare",
-    "emptyBody": "Inserisci i parametri di dimensionamento nella scheda Dimensionamento per generare la vista rack."
+    "emptyBody": "Inserisci i parametri di dimensionamento nella scheda Dimensionamento per generare la vista rack.",
+    "serverLabel": "Server {{n}}",
+    "capacityWithin": "{{used}}U / {{total}}U",
+    "capacityExceeded": "{{used}}U / {{total}}U — overflow",
+    "overflowStrip": "+{{over}}U overflow"
   },
   "export": {
     "heading": "Esporta",
@@ -148,6 +172,8 @@
     "violationSpineTitle": "Capacita Spine superata",
     "violationSpineBody": "{{leafCount}} switch leaf superano la capacita di {{maxLeafs}} porte del livello spine. Scalare gli switch spine o segmentare in piu pod.",
     "violationDacTitle": "Avviso distanza DAC",
-    "violationDacBody": "I cavi DAC sono limitati a 3m. Con {{rackCount}} rack, verificare che tutti i collegamenti leaf-spine rientrino nelle specifiche. Considerare AOC o fibra per distanze maggiori."
+    "violationDacBody": "I cavi DAC sono limitati a 3m. Con {{rackCount}} rack, verificare che tutti i collegamenti leaf-spine rientrino nelle specifiche. Considerare AOC o fibra per distanze maggiori.",
+    "violationRackCapacityTitle": "Capacita rack superata",
+    "violationRackCapacityBody": "Il rack {{rackN}} richiede {{used}}U ma il rack e solo {{total}}U. Riduci l'altezza U dei server o sposta i server."
   }
 }

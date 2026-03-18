@@ -31,7 +31,27 @@
     "borderLeafCount": "Border Leaf Count",
     "resetButton": "Reset to Defaults",
     "rackSize": "Rack Size",
-    "selectRackSize": "Select rack size"
+    "selectRackSize": "Select rack size",
+    "rackCount": "Number of Racks",
+    "rackLabel": "Rack {{n}}",
+    "rackServerCount": "Servers in Rack {{n}}",
+    "totalServersDisplay": "Total: {{count}} servers",
+    "rackConfigHeading": "Rack Configuration",
+    "serverConnectivityHeading": "Server Connectivity",
+    "networkConfigHeading": "Network Configuration",
+    "physicalHeading": "Physical",
+    "portsPerServerFrontend": "Frontend Ports per Server",
+    "portsPerServerBackend": "Backend Ports per Server",
+    "frontendPortsHelp": "Data network ports (leaf-facing), 0 = no frontend connectivity",
+    "backendPortsHelp": "Management ports (OOB-facing), 0 = no OOB connectivity",
+    "activeUplinksPerLeaf": "Active Uplinks per Leaf",
+    "activeUplinksHelp": "1 to {{max}} for {{model}} (engine clamps at runtime)",
+    "serverUHeight": "Server U-Height",
+    "selectServerUHeight": "Select U-height",
+    "uHeight1U": "1U (standard)",
+    "uHeight2U": "2U (storage / GPU)",
+    "uHeight4U": "4U (dense storage)",
+    "uHeight8U": "8U (blade chassis)"
   },
   "results": {
     "heading": "Results",
@@ -90,7 +110,11 @@
     "serverRack": "Server Rack {{n}}",
     "networkRack": "Network Rack {{n}}",
     "emptyHeading": "No racks to display",
-    "emptyBody": "Enter sizing parameters in the Sizing tab to generate the rack elevation view."
+    "emptyBody": "Enter sizing parameters in the Sizing tab to generate the rack elevation view.",
+    "serverLabel": "Server {{n}}",
+    "capacityWithin": "{{used}}U / {{total}}U",
+    "capacityExceeded": "{{used}}U / {{total}}U — overflow",
+    "overflowStrip": "+{{over}}U overflow"
   },
   "export": {
     "heading": "Export",
@@ -148,6 +172,8 @@
     "violationSpineTitle": "Spine Capacity Exceeded",
     "violationSpineBody": "{{leafCount}} leaf switches exceed the {{maxLeafs}}-port capacity of the spine tier. Scale out spine switches or segment into multiple pods.",
     "violationDacTitle": "DAC Distance Advisory",
-    "violationDacBody": "DAC cables are limited to 3m. With {{rackCount}} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances."
+    "violationDacBody": "DAC cables are limited to 3m. With {{rackCount}} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances.",
+    "violationRackCapacityTitle": "Rack Capacity Exceeded",
+    "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack."
   }
 }

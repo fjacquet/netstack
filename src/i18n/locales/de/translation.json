@@ -31,7 +31,27 @@
     "borderLeafCount": "Anzahl Border-Leaf",
     "resetButton": "Zurücksetzen",
     "rackSize": "Rack-Groesse",
-    "selectRackSize": "Rack-Groesse waehlen"
+    "selectRackSize": "Rack-Groesse waehlen",
+    "rackCount": "Anzahl Racks",
+    "rackLabel": "Rack {{n}}",
+    "rackServerCount": "Server in Rack {{n}}",
+    "totalServersDisplay": "Gesamt: {{count}} Server",
+    "rackConfigHeading": "Rack-Konfiguration",
+    "serverConnectivityHeading": "Server-Konnektivitaet",
+    "networkConfigHeading": "Netzwerk-Konfiguration",
+    "physicalHeading": "Physisch",
+    "portsPerServerFrontend": "Frontend-Ports pro Server",
+    "portsPerServerBackend": "Backend-Ports pro Server",
+    "frontendPortsHelp": "Datennetzwerk-Ports (Leaf-seitig), 0 = keine Frontend-Konnektivitaet",
+    "backendPortsHelp": "Management-Ports (OOB-seitig), 0 = keine OOB-Konnektivitaet",
+    "activeUplinksPerLeaf": "Aktive Uplinks pro Leaf",
+    "activeUplinksHelp": "1 bis {{max}} fuer {{model}} (Engine begrenzt zur Laufzeit)",
+    "serverUHeight": "Server U-Hoehe",
+    "selectServerUHeight": "U-Hoehe waehlen",
+    "uHeight1U": "1U (Standard)",
+    "uHeight2U": "2U (Storage / GPU)",
+    "uHeight4U": "4U (Dense Storage)",
+    "uHeight8U": "8U (Blade-Chassis)"
   },
   "results": {
     "heading": "Ergebnisse",
@@ -90,7 +110,11 @@
     "serverRack": "Server-Rack {{n}}",
     "networkRack": "Netzwerk-Rack {{n}}",
     "emptyHeading": "Keine Racks vorhanden",
-    "emptyBody": "Geben Sie Dimensionierungsparameter im Reiter Dimensionierung ein, um die Rack-Ansicht zu erstellen."
+    "emptyBody": "Geben Sie Dimensionierungsparameter im Reiter Dimensionierung ein, um die Rack-Ansicht zu erstellen.",
+    "serverLabel": "Server {{n}}",
+    "capacityWithin": "{{used}}U / {{total}}U",
+    "capacityExceeded": "{{used}}U / {{total}}U — Ueberlauf",
+    "overflowStrip": "+{{over}}U Ueberlauf"
   },
   "export": {
     "heading": "Exportieren",
@@ -148,6 +172,8 @@
     "violationSpineTitle": "Spine-Kapazitaet ueberschritten",
     "violationSpineBody": "{{leafCount}} Leaf-Switches ueberschreiten die {{maxLeafs}}-Port-Kapazitaet der Spine-Ebene. Skalieren Sie die Spine-Switches oder segmentieren Sie in mehrere Pods.",
     "violationDacTitle": "DAC-Distanzwarnung",
-    "violationDacBody": "DAC-Kabel sind auf 3m begrenzt. Bei {{rackCount}} Racks ueberpruefen Sie, ob alle Leaf-Spine-Verbindungen innerhalb der Spezifikation liegen. Erwaegen Sie AOC oder Glasfaser fuer laengere Distanzen."
+    "violationDacBody": "DAC-Kabel sind auf 3m begrenzt. Bei {{rackCount}} Racks ueberpruefen Sie, ob alle Leaf-Spine-Verbindungen innerhalb der Spezifikation liegen. Erwaegen Sie AOC oder Glasfaser fuer laengere Distanzen.",
+    "violationRackCapacityTitle": "Rack-Kapazitaet ueberschritten",
+    "violationRackCapacityBody": "Rack {{rackN}} benoetigt {{used}}U, aber das Rack hat nur {{total}}U. Reduzieren Sie die Server-U-Hoehe oder verschieben Sie Server."
   }
 }

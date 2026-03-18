@@ -41,6 +41,7 @@ const mockBOM: NetworkBOM = {
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
+    serverUHeight: '1U',
   },
 }
 

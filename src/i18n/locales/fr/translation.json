@@ -31,7 +31,27 @@
     "borderLeafCount": "Nombre de Border Leaf",
     "resetButton": "Réinitialiser",
     "rackSize": "Taille du rack",
-    "selectRackSize": "Choisir la taille du rack"
+    "selectRackSize": "Choisir la taille du rack",
+    "rackCount": "Nombre de baies",
+    "rackLabel": "Baie {{n}}",
+    "rackServerCount": "Serveurs dans la baie {{n}}",
+    "totalServersDisplay": "Total : {{count}} serveurs",
+    "rackConfigHeading": "Configuration des baies",
+    "serverConnectivityHeading": "Connectivite serveur",
+    "networkConfigHeading": "Configuration reseau",
+    "physicalHeading": "Physique",
+    "portsPerServerFrontend": "Ports frontend par serveur",
+    "portsPerServerBackend": "Ports backend par serveur",
+    "frontendPortsHelp": "Ports reseau de donnees (cote leaf), 0 = pas de connectivite frontend",
+    "backendPortsHelp": "Ports de gestion (cote OOB), 0 = pas de connectivite OOB",
+    "activeUplinksPerLeaf": "Uplinks actifs par Leaf",
+    "activeUplinksHelp": "1 a {{max}} pour {{model}} (limite au runtime par le moteur)",
+    "serverUHeight": "Hauteur U serveur",
+    "selectServerUHeight": "Hauteur U",
+    "uHeight1U": "1U (standard)",
+    "uHeight2U": "2U (stockage / GPU)",
+    "uHeight4U": "4U (stockage dense)",
+    "uHeight8U": "8U (chassis lame)"
   },
   "results": {
     "heading": "Resultats",
@@ -90,7 +110,11 @@
     "serverRack": "Baie serveur {{n}}",
     "networkRack": "Baie réseau {{n}}",
     "emptyHeading": "Aucune baie \u00e0 afficher",
-    "emptyBody": "Saisissez les param\u00e8tres de dimensionnement dans l\u2019onglet Dimensionnement pour g\u00e9n\u00e9rer la vue."
+    "emptyBody": "Saisissez les param\u00e8tres de dimensionnement dans l\u2019onglet Dimensionnement pour g\u00e9n\u00e9rer la vue.",
+    "serverLabel": "Serveur {{n}}",
+    "capacityWithin": "{{used}}U / {{total}}U",
+    "capacityExceeded": "{{used}}U / {{total}}U — depassement",
+    "overflowStrip": "+{{over}}U depassement"
   },
   "export": {
     "heading": "Exporter",
@@ -148,6 +172,8 @@
     "violationSpineTitle": "Capacite Spine depassee",
     "violationSpineBody": "{{leafCount}} switches leaf depassent la capacite de {{maxLeafs}} ports du tier spine. Ajoutez des switches spine ou segmentez en plusieurs pods.",
     "violationDacTitle": "Avertissement distance DAC",
-    "violationDacBody": "Les cables DAC sont limites a 3m. Avec {{rackCount}} baies, verifiez que toutes les liaisons leaf-spine respectent la specification. Envisagez l'AOC ou la fibre pour les distances plus longues."
+    "violationDacBody": "Les cables DAC sont limites a 3m. Avec {{rackCount}} baies, verifiez que toutes les liaisons leaf-spine respectent la specification. Envisagez l'AOC ou la fibre pour les distances plus longues.",
+    "violationRackCapacityTitle": "Capacite du rack depassee",
+    "violationRackCapacityBody": "Le rack {{rackN}} necessite {{used}}U mais ne dispose que de {{total}}U. Reduisez la hauteur U des serveurs ou deplacez-les."
   }
 }

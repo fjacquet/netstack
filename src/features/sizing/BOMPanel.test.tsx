@@ -48,6 +48,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
       borderLeafModel: 'none',
       borderLeafCount: 0,
       rackSize: '42U',
+      serverUHeight: '1U',
     },
     ...overrides,
   }
@@ -156,6 +157,7 @@ describe('BOMPanel', () => {
           borderLeafModel: 'none',
           borderLeafCount: 0,
           rackSize: '42U',
+          serverUHeight: '1U',
         },
       })
       mockStore({ bom, violations: [] })
@@ -200,6 +202,7 @@ describe('BOMPanel', () => {
           borderLeafModel: 'none',
           borderLeafCount: 0,
           rackSize: '42U',
+          serverUHeight: '1U',
         },
       })
       mockStore({ bom, violations: [] })
