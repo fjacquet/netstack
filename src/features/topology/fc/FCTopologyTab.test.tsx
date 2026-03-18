@@ -32,13 +32,13 @@ vi.mock('../utils/captureTopologyPng', () => ({
   captureTopologyPng: vi.fn(() => Promise.resolve('data:image/png;base64,test')),
 }))
 
-// Minimal FCNetworkBOM for smoke testing
+// Minimal FCNetworkBOM for smoke testing — matches FCNetworkBOMSchema shape
 const makeMockBOM = (): FCNetworkBOM => ({
   fabricASwitches: 2,
   fabricBSwitches: 2,
   islPortsPerFabric: 2,
   islCables: 4,
-  totalSwitches: 4,
+  fcOpticsCount: 8,
   hostPortsPerFabric: 8,
   storagePortsPerFabric: 4,
   podLicensesRequired: 0,
@@ -46,21 +46,23 @@ const makeMockBOM = (): FCNetworkBOM => ({
   islOversubscriptionRatio: 1,
   violations: [],
   input: {
+    racks: [{ serverCount: 10 }],
+    hbaPortsPerServer: 2,
+    storageTargetPorts: 4,
+    storageArrayCount: 1,
     fcSwitchModel: 'G720',
-    totalServers: 10,
-    fcInitiatorsPerServer: 2,
-    storageControllers: 2,
-    targetPortsPerController: 4,
     islPortsPerSwitch: 2,
-    targetFanIn: 7,
+    rackSize: '42U',
+    serverUHeight: '1U',
+    preferredGeneration: 'any',
   },
 })
 
-// Mock useFCResultStore
-const mockUseFCResultStore = vi.fn()
+// Mock useFCResultStore — selector receives { bom }
+const mockStoreState: { bom: FCNetworkBOM | null } = { bom: null }
 vi.mock('@/store/fcResultStore', () => ({
-  useFCResultStore: (selector: (s: { bom: FCNetworkBOM | null; violations: unknown[] }) => unknown) =>
-    mockUseFCResultStore(selector),
+  useFCResultStore: (selector: (s: { bom: FCNetworkBOM | null }) => unknown) =>
+    selector(mockStoreState),
 }))
 
 // Import after mocks are set up
@@ -72,11 +74,7 @@ describe('FCTopologyTab', () => {
   })
 
   it('renders without crash when bom is available', () => {
-    const bom = makeMockBOM()
-    // useShallow selector — return bom directly
-    mockUseFCResultStore.mockImplementation((selector: (s: { bom: FCNetworkBOM | null }) => unknown) =>
-      selector({ bom, violations: [] }),
-    )
+    mockStoreState.bom = makeMockBOM()
 
     expect(() => render(<FCTopologyTab />)).not.toThrow()
     // Two react-flow canvases (one per fabric) should render
@@ -85,9 +83,7 @@ describe('FCTopologyTab', () => {
   })
 
   it('shows empty state when bom is null', () => {
-    mockUseFCResultStore.mockImplementation((selector: (s: { bom: null; violations: [] }) => unknown) =>
-      selector({ bom: null, violations: [] }),
-    )
+    mockStoreState.bom = null
 
     render(<FCTopologyTab />)
     // The empty state heading uses t('topology.emptyHeading')

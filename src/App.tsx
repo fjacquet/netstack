@@ -6,7 +6,7 @@ import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { RackElevationTab } from '@/features/rack-elevation'
-import { TopologyTab } from '@/features/topology'
+import { TopologyTab, FCTopologyTab } from '@/features/topology'
 import {
   Tabs,
   TabsContent,
@@ -45,7 +45,7 @@ function AppContent() {
             {mode === 'fc' ? <FCSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            <TopologyTab />
+            {mode === 'fc' ? <FCTopologyTab /> : <TopologyTab />}
           </TabsContent>
           {mode === 'ethernet' && (
             <TabsContent value="rackElevation" className="mt-0">
