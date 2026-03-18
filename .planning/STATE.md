@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Converged Mode
 status: executing
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-03-18T20:07:41.950Z"
-last_activity: 2026-03-18 — Completed 16-01 converged input form + page wiring
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-03-18T20:13:28.158Z"
+last_activity: 2026-03-18 — Completed 16-02 ConvergedBOMPanel with combined Ethernet + FC display
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -21,31 +21,31 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
-**Current focus:** Phase 16 — Converged UI (plan 1 of 3 complete)
+**Current focus:** Phase 16 — Converged UI (plan 2 of 3 complete)
 
 ## Current Position
 
 Phase: 16 of 17 (Converged UI)
-Plan: 1 of 3 (in progress)
+Plan: 2 of 3 (in progress)
 Status: Executing
-Last activity: 2026-03-18 — Completed 16-01 converged input form + page wiring
+Last activity: 2026-03-18 — Completed 16-02 ConvergedBOMPanel with combined Ethernet + FC display
 
-Progress: [██████░░░░] 60% (v3.0)
+Progress: [████████░░] 80% (v3.0)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3 (v3.0)
+- Total plans completed: 4 (v3.0)
 - Average duration: 5 min
-- Total execution time: 0.25 hours
+- Total execution time: 0.30 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 15-converged-domain-store | 2/2 | 11min | 5.5min |
-| 16-converged-ui | 1/3 | 4min | 4min |
+| 16-converged-ui | 2/3 | 7min | 3.5min |
 
 **Recent Trend (from v2.0):**
 
@@ -54,6 +54,7 @@ Progress: [██████░░░░] 60% (v3.0)
 
 *Updated after each plan completion*
 | Phase 16 P01 | 4min | 2 tasks | 8 files |
+| Phase 16 P02 | 3min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Key architectural decisions relevant to v3.0:
 - [15-02]: Rack elevation guard uses mode !== 'fc' so converged mode shows rack elevation
 - [16-01]: Converged form uses single useForm instance for all fields (no nested sub-forms)
 - [16-01]: ConvergedBOMPanel placeholder created -- Plan 02 replaces it
+- [16-02]: Dispatch combined violations via FC_ prefix check rather than TypeScript discriminated union parsing
+- [16-02]: Reuse existing bom.* and fcbom.* i18n keys -- no new converged BOM keys needed
+- [16-02]: Ethernet and FC sections in separate Card components for visual separation
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T20:07:41.948Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-03-18T20:13:28.154Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None
