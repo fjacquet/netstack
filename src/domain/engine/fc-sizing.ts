@@ -176,10 +176,13 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
 
   // FC_OVERSUBSCRIPTION_EXCEEDED: host-to-storage fan-in exceeds Broadcom 7:1 recommendation
   if (fanInRatio > FC_FAN_IN_MAX) {
+    // Minimum total storage target ports (both fabrics) to satisfy the fan-in constraint
+    const minStoragePorts = Math.ceil(hostPortsPerFabric / FC_FAN_IN_MAX) * 2;
     violations.push({
       code: 'FC_OVERSUBSCRIPTION_EXCEEDED',
       ratio: fanInRatio,
       maxRatio: FC_FAN_IN_MAX,
+      minStoragePorts,
     });
   }
 

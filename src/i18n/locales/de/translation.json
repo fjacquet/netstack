@@ -179,7 +179,7 @@
     "violationPortSatTitle": "FC-Port-Sattigung",
     "violationPortSatBody": "{{requiredPorts}} Ports benotigt, {{availablePorts}} verfugbar am gewahlten Switch.",
     "violationOversubTitle": "FC-Uberzeichnung uberschritten",
-    "violationOversubBody": "Fan-in-Verhaltnis {{ratio}}:1 uberschreitet Maximum {{maxRatio}}:1.",
+    "violationOversubBody": "Fan-in-Verhaltnis {{ratio}}:1 uberschreitet Maximum {{maxRatio}}:1. Erhohen Sie die Storage-Zielports auf mindestens {{minStoragePorts}}.",
     "violationIslTitle": "ISL unterdimensioniert",
     "violationIslBody": "{{islsAvailable}} ISL-Ports verfugbar, {{islsRequired}} benotigt.",
     "portsHeading": "Portverteilung (pro Fabric)",

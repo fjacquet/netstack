@@ -31,6 +31,8 @@ export const FCConstraintViolationSchema = z.discriminatedUnion('code', [
     ratio: z.number(),
     /** Maximum acceptable fan-in ratio (typically 7:1 for Broadcom Gen7) */
     maxRatio: z.number(),
+    /** Minimum total storage target ports (both fabrics) needed to satisfy maxRatio */
+    minStoragePorts: z.number().int(),
   }),
   z.object({
     code: z.literal('FC_ISL_UNDERPROVISIONED'),

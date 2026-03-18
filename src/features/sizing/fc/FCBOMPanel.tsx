@@ -67,6 +67,7 @@ function FCViolationAlert({ v }: { v: FCConstraintViolation }) {
           {t('fcbom.violationOversubBody', {
             ratio: v.ratio.toFixed(1),
             maxRatio: v.maxRatio,
+            minStoragePorts: v.minStoragePorts,
           })}
         </AlertDescription>
       </Alert>

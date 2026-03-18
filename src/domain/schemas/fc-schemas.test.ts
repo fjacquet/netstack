@@ -181,6 +181,7 @@ describe('FCNetworkBOMSchema', () => {
       code: 'FC_OVERSUBSCRIPTION_EXCEEDED',
       ratio: 15,
       maxRatio: 7,
+      minStoragePorts: 6,
     };
     const result = FCNetworkBOMSchema.safeParse({ ...validBOM, violations: [violation] });
     expect(result.success).toBe(true);
@@ -225,6 +226,7 @@ describe('FCConstraintViolationSchema', () => {
       code: 'FC_OVERSUBSCRIPTION_EXCEEDED',
       ratio: 15,
       maxRatio: 7,
+      minStoragePorts: 6,
     });
     expect(result.success).toBe(true);
   });

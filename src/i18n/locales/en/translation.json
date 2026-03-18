@@ -179,7 +179,7 @@
     "violationPortSatTitle": "FC Port Saturation",
     "violationPortSatBody": "{{requiredPorts}} ports required, {{availablePorts}} available on the selected switch.",
     "violationOversubTitle": "FC Oversubscription Exceeded",
-    "violationOversubBody": "Fan-in ratio {{ratio}}:1 exceeds maximum {{maxRatio}}:1.",
+    "violationOversubBody": "Fan-in ratio {{ratio}}:1 exceeds maximum {{maxRatio}}:1. Increase storage target ports to at least {{minStoragePorts}}.",
     "violationIslTitle": "ISL Underprovisioned",
     "violationIslBody": "{{islsAvailable}} ISL ports available, {{islsRequired}} required.",
     "portsHeading": "Port Distribution (per fabric)",

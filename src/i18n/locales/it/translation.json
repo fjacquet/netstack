@@ -179,7 +179,7 @@
     "violationPortSatTitle": "Saturazione porte FC",
     "violationPortSatBody": "{{requiredPorts}} porte richieste, {{availablePorts}} disponibili sullo switch selezionato.",
     "violationOversubTitle": "Sovrascrizione FC superata",
-    "violationOversubBody": "Rapporto fan-in {{ratio}}:1 supera il massimo {{maxRatio}}:1.",
+    "violationOversubBody": "Rapporto fan-in {{ratio}}:1 supera il massimo {{maxRatio}}:1. Aumentare le porte target storage ad almeno {{minStoragePorts}}.",
     "violationIslTitle": "ISL sottodimensionato",
     "violationIslBody": "{{islsAvailable}} porte ISL disponibili, {{islsRequired}} richieste.",
     "portsHeading": "Distribuzione porte (per fabric)",

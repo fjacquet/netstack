@@ -179,7 +179,7 @@
     "violationPortSatTitle": "Saturation ports FC",
     "violationPortSatBody": "{{requiredPorts}} ports requis, {{availablePorts}} disponibles sur le switch selectionne.",
     "violationOversubTitle": "Sursouscription FC depassee",
-    "violationOversubBody": "Ratio fan-in {{ratio}}:1 depasse le maximum {{maxRatio}}:1.",
+    "violationOversubBody": "Ratio fan-in {{ratio}}:1 depasse le maximum {{maxRatio}}:1. Augmentez les ports cible stockage a au moins {{minStoragePorts}}.",
     "violationIslTitle": "ISL sous-dimensionne",
     "violationIslBody": "{{islsAvailable}} ports ISL disponibles, {{islsRequired}} requis.",
     "portsHeading": "Repartition des ports (par baie)",
