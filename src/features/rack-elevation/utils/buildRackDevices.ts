@@ -34,6 +34,7 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'oob',
       label: 'OOB Management',
       uSlot: 1,
+      uHeight: 1,
       usedPorts: serverCount + 2,
       totalPorts: oobSpec.downlinkPorts,
     },
@@ -43,6 +44,7 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'leaf',
       label: 'Leaf B (ToR)',
       uSlot: 2,
+      uHeight: 1,
       usedPorts: serverCount,
       totalPorts: leafSpec.downlinkPorts,
     },
@@ -52,10 +54,28 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       role: 'leaf',
       label: 'Leaf A (ToR)',
       uSlot: 3,
+      uHeight: 1,
       usedPorts: serverCount,
       totalPorts: leafSpec.downlinkPorts,
     },
   ]
+
+  // Server devices above switches — starting at U4
+  const uHeight = parseInt(bom.input.serverUHeight, 10)
+  let currentUSlot = 4
+  for (let s = 0; s < serverCount; s++) {
+    devices.push({
+      id: `rack-${rackIndex}-server-${s}`,
+      model: '',
+      role: 'server',
+      label: `Server ${s + 1}`,
+      uSlot: currentUSlot,
+      uHeight,
+      usedPorts: 0,
+      totalPorts: 0,
+    })
+    currentUSlot += uHeight
+  }
 
   return devices
 }
@@ -77,6 +97,7 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
       role: 'spine',
       label: `Spine ${i + 1}`,
       uSlot: uSlot++,
+      uHeight: 1,
       usedPorts: Math.ceil(bom.leafSwitches / bom.spineSwitches),
       totalPorts: spineSpec.downlinkPorts,
     })
@@ -92,6 +113,7 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
         role: 'border',
         label: `Border Leaf ${i + 1}`,
         uSlot: uSlot++,
+        uHeight: 1,
         usedPorts: 0,
         totalPorts: borderSpec.downlinkPorts,
       })

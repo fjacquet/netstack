@@ -47,9 +47,9 @@ function bomWithUHeight(serverUHeight: '1U' | '2U' | '4U' | '8U', serverCount = 
 }
 
 describe('buildRackDevices', () => {
-  it('returns exactly 3 devices for rack 0', () => {
+  it('returns exactly 19 devices for rack 0 (3 switches + 16 servers at 1U)', () => {
     const devices = buildRackDevices(mockBOM, 0)
-    expect(devices).toHaveLength(3)
+    expect(devices).toHaveLength(19) // 3 switches + 16 servers
   })
 
   it('U1 is OOB (S3248T-ON) at slot 1', () => {
