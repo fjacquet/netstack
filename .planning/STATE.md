@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 11-01-PLAN.md (switchPositioning domain layer)
-last_updated: "2026-03-18T11:17:39.041Z"
+stopped_at: Completed 11-03-PLAN.md (RackElevationTab positioning rack selector)
+last_updated: "2026-03-18T12:29:32.689Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 9
   percent: 0
 ---
 
@@ -59,6 +59,8 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
 | Phase 10-fc-sizing-engine P02 | 4 | 1 tasks | 1 files |
 | Phase 11-switch-positioning-ethernet P01 | 395 | 2 tasks | 14 files |
+| Phase 11-switch-positioning-ethernet P02 | 15 | 2 tasks | 9 files |
+| Phase 11-switch-positioning-ethernet P03 | 12 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -89,6 +91,10 @@ Key v2.0 architectural decisions from research:
 - [Phase 10-02]: computeEffectivePorts() uses demand without ISL for POD license count; ISL reservation applied separately to devicePortsPerSwitch
 - [Phase 11-01]: switchOverheadU as inner function inside calculateBOM — avoids module-level pollution while remaining testable via engine outputs
 - [Phase 11-01]: DAC_POSITIONING_INCOMPATIBLE fires independently from DAC_DISTANCE_ADVISORY — different concerns (cable physics vs deployment span)
+- [Phase 11-switch-positioning-ethernet]: inputStore v6 uses existing merge spread for switchPositioning migration — no new migration branch needed
+- [Phase 11-switch-positioning-ethernet]: buildPositioningRackDevices separate utility (not inline in buildRackDevices) — positioning rack is architecturally distinct from server rack
+- [Phase 11-switch-positioning-ethernet]: buildRackDevices positioning-aware: MoR/BoR racks omit leaf devices (servers start U2 vs U4 for ToR)
+- [Phase 11-03]: Tasks 0 and 1 were pre-implemented in 11-02 commit; selectedRack 'positioning' sentinel follows net-N pattern for rack type routing
 
 ### Research Flags
 
@@ -106,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T11:17:39.038Z
-Stopped at: Completed 11-01-PLAN.md (switchPositioning domain layer)
+Last session: 2026-03-18T12:29:32.687Z
+Stopped at: Completed 11-03-PLAN.md (RackElevationTab positioning rack selector)
 Resume file: None

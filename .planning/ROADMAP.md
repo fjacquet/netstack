@@ -38,7 +38,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 - [x] **Phase 8: FC Catalog and Schema Foundation** — Brocade switch catalog, POD licensing model, FC schemas (completed 2026-03-18)
 - [x] **Phase 9: Mode Store Isolation** — Separate FC stores, mode selector architecture, no cross-mode state contamination (completed 2026-03-18)
 - [x] **Phase 10: FC Sizing Engine** — Pure calculateFCBOM() function, dual-fabric, ISL formula, violations (completed 2026-03-18)
-- [ ] **Phase 11: Switch Positioning (Ethernet)** — ToR/MoR/BoR selector, cable length advisory, rack elevation U-position
+- [x] **Phase 11: Switch Positioning (Ethernet)** — ToR/MoR/BoR selector, cable length advisory, rack elevation U-position (completed 2026-03-18)
 - [ ] **Phase 12: FC Input and BOM UI** — Mode selector toggle, FC input form, FC BOM panel
 - [ ] **Phase 13: FC Topology Diagram** — Dual-fabric ReactFlow view, Fabric A blue / Fabric B orange
 - [ ] **Phase 14: FC Export** — CSV and PDF extended with FC BOM sections, i18n keys
@@ -174,7 +174,7 @@ Plans:
 | 8. FC Catalog and Schema Foundation | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
-| 11. Switch Positioning (Ethernet) | 1/3 | In Progress|  | - |
+| 11. Switch Positioning (Ethernet) | 3/3 | Complete   | 2026-03-18 | - |
 | 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |
