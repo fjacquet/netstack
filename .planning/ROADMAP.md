@@ -167,7 +167,11 @@ Plans:
   2. In FC mode, the PDF report includes an FC BOM page with dual-fabric totals, switch model, port utilization, and oversubscription ratio
   3. FC optics appear in the export with a Protocol column value of "FC" (not "Ethernet") — preventing procurement confusion between SFP28 FC and SFP28 Ethernet transceivers
   4. All FC export labels (switch names, optic types, violation messages) are present in all four i18n locales (FR, EN, DE, IT)
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — FC CSV export + ExportTab mode gating + i18n keys (FC-13)
+- [ ] 14-02-PLAN.md — FC PDF export with dual-fabric pages + ExportTab PDF wiring (FC-14)
 
 ## Progress
 
