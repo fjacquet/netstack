@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
+import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
 import { RackElevationTab } from '@/features/rack-elevation'
 import { TopologyTab, FCTopologyTab } from '@/features/topology'
 import {
@@ -42,10 +43,10 @@ function AppContent() {
         </div>
         <main className="flex-1 overflow-auto">
           <TabsContent value="sizing" className="mt-0">
-            {mode === 'fc' ? <FCSizingPage /> : <SizingPage />}
+            {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            {mode === 'fc' ? <FCTopologyTab /> : <TopologyTab />}
+            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <TopologyTab /> : <TopologyTab />}
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
