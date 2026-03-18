@@ -55,9 +55,9 @@
     "switchPositioning": "Positionnement des commutateurs",
     "selectSwitchPositioning": "Selectionner le positionnement",
     "positionToR": "ToR — Sommet de baie",
-    "positionMoR": "MoR — Milieu de rangee",
-    "positionBoR": "BoR — Fin de rangee",
-    "positioningHelp": "Affecte la longueur des cables et la compatibilite DAC"
+    "positionMoR": "MoR — Milieu de baie",
+    "positionBoR": "BoR — Fond de baie",
+    "positioningHelp": "Affecte le positionnement des commutateurs et la longueur des cables dans chaque baie"
   },
   "results": {
     "heading": "Resultats",
@@ -121,7 +121,6 @@
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — depassement",
     "overflowStrip": "+{{over}}U depassement",
-    "positioningRack": "Baie de positionnement ({{type}})"
   },
   "export": {
     "heading": "Exporter",
@@ -234,8 +233,6 @@
     "violationDacBody": "Les cables DAC sont limites a 3m. Avec {{rackCount}} baies, verifiez que toutes les liaisons leaf-spine respectent la specification. Envisagez l'AOC ou la fibre pour les distances plus longues.",
     "violationRackCapacityTitle": "Capacite du rack depassee",
     "violationRackCapacityBody": "Le rack {{rackN}} necessite {{used}}U mais ne dispose que de {{total}}U. Reduisez la hauteur U des serveurs ou deplacez-les.",
-    "violationDacPositioningTitle": "DAC incompatible avec le positionnement",
-    "violationDacPositioningBody": "Les cables DAC sont limites a 3m. Le positionnement {{positioning}} necessite jusqu'a {{maxLength}}m. Remplacez les DAC par des AOC ou de la fibre.",
     "cableLengthAdvisory": "Longueur de cable recommandee : jusqu'a {{maxLength}}m (positionnement {{positioning}})"
   }
 }

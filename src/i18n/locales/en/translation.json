@@ -55,9 +55,9 @@
     "switchPositioning": "Switch Positioning",
     "selectSwitchPositioning": "Select positioning",
     "positionToR": "ToR — Top of Rack",
-    "positionMoR": "MoR — Middle of Row",
-    "positionBoR": "BoR — Bottom of Row",
-    "positioningHelp": "Affects cable run length and DAC compatibility"
+    "positionMoR": "MoR — Middle of Rack",
+    "positionBoR": "BoR — Bottom of Rack",
+    "positioningHelp": "Affects switch placement and cable run length within each server rack"
   },
   "results": {
     "heading": "Results",
@@ -121,7 +121,6 @@
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — overflow",
     "overflowStrip": "+{{over}}U overflow",
-    "positioningRack": "Positioning Rack ({{type}})"
   },
   "export": {
     "heading": "Export",
@@ -234,8 +233,6 @@
     "violationDacBody": "DAC cables are limited to 3m. With {{rackCount}} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances.",
     "violationRackCapacityTitle": "Rack Capacity Exceeded",
     "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack.",
-    "violationDacPositioningTitle": "DAC Incompatible with Positioning",
-    "violationDacPositioningBody": "DAC cables are limited to 3m. {{positioning}} positioning requires up to {{maxLength}}m runs. Replace DAC with AOC or fiber.",
     "cableLengthAdvisory": "Recommended cable run: up to {{maxLength}}m ({{positioning}} positioning)"
   }
 }

@@ -712,84 +712,61 @@ describe('RACK-03: Variable density rack configurations', () => {
 // POS-03 + POS-04: Switch Positioning
 // ---------------------------------------------------------------------------
 describe('POS-03 + POS-04: Switch Positioning', () => {
-  // Cable length: ToR=3m
-  it('ToR positioning returns recommendedCableLengthM=3 and no DAC_POSITIONING_INCOMPATIBLE', () => {
+  // All positioning modes are rack-level: cables stay within a single rack.
+  // ToR: ~2m (server at bottom to switch at top), MoR: ~1m (to mid-rack), BoR: ~2m (to bottom).
+  it('ToR positioning returns recommendedCableLengthM=2', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'ToR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(3);
+    expect(bom.recommendedCableLengthM).toBe(2);
     expect(bom.switchPositioning).toBe('ToR');
-    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
-    expect(v).toBeUndefined();
   });
 
-  // Cable length: MoR=15m
-  it('MoR positioning returns recommendedCableLengthM=15', () => {
+  it('MoR positioning returns recommendedCableLengthM=1', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
-      cableType: 'fiber',
+      cableType: 'DAC',
       switchPositioning: 'MoR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(15);
+    expect(bom.recommendedCableLengthM).toBe(1);
     expect(bom.switchPositioning).toBe('MoR');
   });
 
-  // Cable length: BoR=30m
-  it('BoR positioning returns recommendedCableLengthM=30', () => {
+  it('BoR positioning returns recommendedCableLengthM=2', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
-      cableType: 'fiber',
+      cableType: 'DAC',
       switchPositioning: 'BoR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(30);
+    expect(bom.recommendedCableLengthM).toBe(2);
     expect(bom.switchPositioning).toBe('BoR');
   });
 
-  // DAC_POSITIONING_INCOMPATIBLE fires for MoR+DAC
-  it('MoR + DAC fires DAC_POSITIONING_INCOMPATIBLE with positioning=MoR and correct cableLength', () => {
+  // DAC_POSITIONING_INCOMPATIBLE never fires — all positioning modes use short in-rack cables
+  it('MoR + DAC does not fire DAC_POSITIONING_INCOMPATIBLE (in-rack run ≈1m)', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
-      switchPositioning: 'MoR',
-    }));
-    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
-    expect(v).toBeDefined();
-    if (v && v.code === 'DAC_POSITIONING_INCOMPATIBLE') {
-      expect(v.positioning).toBe('MoR');
-      expect(v.recommendedCableLengthM).toBe(15);
-    }
-  });
-
-  // DAC_POSITIONING_INCOMPATIBLE fires for BoR+DAC
-  it('BoR + DAC fires DAC_POSITIONING_INCOMPATIBLE with positioning=BoR and correct cableLength', () => {
-    const bom = calculateBOM(makeInput({
-      racks: [{ serverCount: 10 }],
-      cableType: 'DAC',
-      switchPositioning: 'BoR',
-    }));
-    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
-    expect(v).toBeDefined();
-    if (v && v.code === 'DAC_POSITIONING_INCOMPATIBLE') {
-      expect(v.positioning).toBe('BoR');
-      expect(v.recommendedCableLengthM).toBe(30);
-    }
-  });
-
-  // MoR+fiber does NOT fire DAC_POSITIONING_INCOMPATIBLE
-  it('MoR + fiber does not fire DAC_POSITIONING_INCOMPATIBLE', () => {
-    const bom = calculateBOM(makeInput({
-      racks: [{ serverCount: 10 }],
-      cableType: 'fiber',
       switchPositioning: 'MoR',
     }));
     const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
     expect(v).toBeUndefined();
   });
 
-  // switchOverheadU: MoR=1U — 40 servers × 1U + 1U overhead = 41U ≤ 42U → no violation
-  it('MoR positioning uses 1U switch overhead: 40 servers × 1U in 42U rack → no RACK_CAPACITY_EXCEEDED (41U used)', () => {
+  it('BoR + DAC does not fire DAC_POSITIONING_INCOMPATIBLE (in-rack run ≈2m)', () => {
+    const bom = calculateBOM(makeInput({
+      racks: [{ serverCount: 10 }],
+      cableType: 'DAC',
+      switchPositioning: 'BoR',
+    }));
+    const v = bom.violations.find(v => v.code === 'DAC_POSITIONING_INCOMPATIBLE');
+    expect(v).toBeUndefined();
+  });
+
+  // switchOverheadU: MoR=3U (leaves stay in server rack) — 40 servers × 1U + 3U overhead = 43U > 42U → violation
+  it('MoR positioning uses 3U switch overhead: 40 servers × 1U in 42U rack → RACK_CAPACITY_EXCEEDED (43U used)', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 40 }],
       rackSize: '42U',
@@ -797,7 +774,11 @@ describe('POS-03 + POS-04: Switch Positioning', () => {
       switchPositioning: 'MoR',
     }));
     const v = bom.violations.find(v => v.code === 'RACK_CAPACITY_EXCEEDED');
-    expect(v).toBeUndefined();
+    expect(v).toBeDefined();
+    if (v && v.code === 'RACK_CAPACITY_EXCEEDED') {
+      expect(v.usedU).toBe(43);
+      expect(v.totalU).toBe(42);
+    }
   });
 
   // switchOverheadU: ToR=3U — 40 servers × 1U + 3U overhead = 43U > 42U → violation

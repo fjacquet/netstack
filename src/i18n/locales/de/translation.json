@@ -55,9 +55,9 @@
     "switchPositioning": "Switch-Positionierung",
     "selectSwitchPositioning": "Positionierung waehlen",
     "positionToR": "ToR — Rack-Oberkante",
-    "positionMoR": "MoR — Reihenmitte",
-    "positionBoR": "BoR — Reihenende",
-    "positioningHelp": "Beeinflusst Kabellaenge und DAC-Kompatibilitaet"
+    "positionMoR": "MoR — Rack-Mitte",
+    "positionBoR": "BoR — Rack-Unterseite",
+    "positioningHelp": "Beeinflusst die Switch-Platzierung und Kabellaenge im Rack"
   },
   "results": {
     "heading": "Ergebnisse",
@@ -121,7 +121,6 @@
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — Ueberlauf",
     "overflowStrip": "+{{over}}U Ueberlauf",
-    "positioningRack": "Positionierungs-Rack ({{type}})"
   },
   "export": {
     "heading": "Exportieren",
@@ -234,8 +233,6 @@
     "violationDacBody": "DAC-Kabel sind auf 3m begrenzt. Bei {{rackCount}} Racks ueberpruefen Sie, ob alle Leaf-Spine-Verbindungen innerhalb der Spezifikation liegen. Erwaegen Sie AOC oder Glasfaser fuer laengere Distanzen.",
     "violationRackCapacityTitle": "Rack-Kapazitaet ueberschritten",
     "violationRackCapacityBody": "Rack {{rackN}} benoetigt {{used}}U, aber das Rack hat nur {{total}}U. Reduzieren Sie die Server-U-Hoehe oder verschieben Sie Server.",
-    "violationDacPositioningTitle": "DAC inkompatibel mit Positionierung",
-    "violationDacPositioningBody": "DAC-Kabel sind auf 3m begrenzt. {{positioning}}-Positionierung erfordert bis zu {{maxLength}}m Laeufe. Ersetzen Sie DAC durch AOC oder Glasfaser.",
     "cableLengthAdvisory": "Empfohlene Kabellaenge: bis zu {{maxLength}}m ({{positioning}}-Positionierung)"
   }
 }

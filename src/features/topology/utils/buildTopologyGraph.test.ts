@@ -29,7 +29,7 @@ const mockBOM: NetworkBOM = {
   vltCables: 3,           // 3 leaf pairs
   oversubscriptionRatio: 4,
   switchPositioning: 'ToR',
-  recommendedCableLengthM: 3,
+  recommendedCableLengthM: 2,
   violations: [],
   input: {
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],

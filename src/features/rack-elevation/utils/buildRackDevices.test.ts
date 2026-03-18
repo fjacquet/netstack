@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { buildRackDevices } from './buildRackDevices'
-import { buildPositioningRackDevices } from './buildPositioningRackDevices'
 import type { NetworkBOM } from '@/domain/schemas/bom'
 
-/** Minimal mock BOM: 48 servers (3 racks × 16), S5248F-ON leaf */
+/** Minimal mock BOM: 48 servers (3 racks × 16), S5248F-ON leaf, ToR */
 const mockBOM: NetworkBOM = {
   racks: 3,
   networkRacks: 1,
@@ -19,7 +18,7 @@ const mockBOM: NetworkBOM = {
   vltCables: 3,
   oversubscriptionRatio: 4,
   switchPositioning: 'ToR',
-  recommendedCableLengthM: 3,
+  recommendedCableLengthM: 2,
   violations: [],
   input: {
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
@@ -51,7 +50,7 @@ function bomWithUHeight(serverUHeight: '1U' | '2U' | '4U' | '8U', serverCount = 
 }
 
 /**
- * Helper: create a minimal 2-rack BOM with a given switchPositioning.
+ * Helper: create a minimal BOM with a given switchPositioning.
  * Self-contained — does not import from sizing.ts or sizing.test.ts.
  */
 function makeBom(positioning: 'ToR' | 'MoR' | 'BoR', racks = 2): NetworkBOM {
@@ -71,7 +70,7 @@ function makeBom(positioning: 'ToR' | 'MoR' | 'BoR', racks = 2): NetworkBOM {
     vltCables: racks,
     oversubscriptionRatio: 3,
     switchPositioning: positioning,
-    recommendedCableLengthM: positioning === 'ToR' ? 3 : positioning === 'MoR' ? 15 : 30,
+    recommendedCableLengthM: positioning === 'ToR' ? 2 : positioning === 'MoR' ? 1 : 2,
     violations: [],
     input: {
       racks: rackList,
@@ -97,30 +96,12 @@ describe('buildRackDevices', () => {
     expect(devices).toHaveLength(19) // 3 switches + 16 servers
   })
 
-  it('U1 is OOB (S3248T-ON) at slot 1', () => {
-    const devices = buildRackDevices(mockBOM, 0)
+  it('BoR: OOB is at slot 1 (U1)', () => {
+    const bom = makeBom('BoR')
+    const devices = buildRackDevices(bom, 0)
     const u1 = devices.find((d) => d.uSlot === 1)
-    expect(u1).toBeDefined()
     expect(u1?.model).toBe('S3248T-ON')
     expect(u1?.role).toBe('oob')
-  })
-
-  it('U2 is Leaf B at slot 2', () => {
-    const devices = buildRackDevices(mockBOM, 0)
-    const u2 = devices.find((d) => d.uSlot === 2)
-    expect(u2).toBeDefined()
-    expect(u2?.model).toBe('S5248F-ON')
-    expect(u2?.role).toBe('leaf')
-    expect(u2?.label).toContain('Leaf B')
-  })
-
-  it('U3 is Leaf A at slot 3', () => {
-    const devices = buildRackDevices(mockBOM, 0)
-    const u3 = devices.find((d) => d.uSlot === 3)
-    expect(u3).toBeDefined()
-    expect(u3?.model).toBe('S5248F-ON')
-    expect(u3?.role).toBe('leaf')
-    expect(u3?.label).toContain('Leaf A')
   })
 
   it('OOB device has usedPorts = rack serverCount + 2 and totalPorts = 48', () => {
@@ -128,6 +109,15 @@ describe('buildRackDevices', () => {
     const oob = devices.find((d) => d.role === 'oob')
     expect(oob?.usedPorts).toBe(18) // 16 + 2
     expect(oob?.totalPorts).toBe(48)
+  })
+
+  it('all three positioning modes include 2 leaf devices in the server rack', () => {
+    for (const pos of ['ToR', 'MoR', 'BoR'] as const) {
+      const bom = makeBom(pos)
+      const devices = buildRackDevices(bom, 0)
+      const leafDevices = devices.filter((d) => d.role === 'leaf')
+      expect(leafDevices).toHaveLength(2)
+    }
   })
 
   it('Leaf devices have usedPorts = rack serverCount and totalPorts = 48 (S5248F-ON downlinkPorts)', () => {
@@ -167,7 +157,6 @@ describe('buildRackDevices', () => {
   })
 
   it('uses rack-specific serverCount for usedPorts when rackIndex is provided', () => {
-    // Variable density mock: rack 0 has 10 servers, rack 1 has 20, rack 2 has 30
     const varDensityBOM: NetworkBOM = {
       ...mockBOM,
       input: {
@@ -186,14 +175,6 @@ describe('buildRackDevices', () => {
     expect(oob0?.usedPorts).toBe(12) // 10 + 2
     expect(oob1?.usedPorts).toBe(22) // 20 + 2
     expect(oob2?.usedPorts).toBe(32) // 30 + 2
-
-    const leaf0 = devices0.find((d) => d.role === 'leaf' && d.uSlot === 3)
-    const leaf1 = devices1.find((d) => d.role === 'leaf' && d.uSlot === 3)
-    const leaf2 = devices2.find((d) => d.role === 'leaf' && d.uSlot === 3)
-
-    expect(leaf0?.usedPorts).toBe(10)
-    expect(leaf1?.usedPorts).toBe(20)
-    expect(leaf2?.usedPorts).toBe(30)
   })
 })
 
@@ -216,32 +197,6 @@ describe('server devices', () => {
     expect(labels).toEqual(['Server 1', 'Server 2', 'Server 3'])
   })
 
-  it('server uSlots start at 4 and stack for 1U', () => {
-    const devices = buildRackDevices(bomWithUHeight('1U', 3), 0)
-    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
-    expect(servers[0].uSlot).toBe(4)
-    expect(servers[1].uSlot).toBe(5)
-    expect(servers[2].uSlot).toBe(6)
-  })
-
-  it('2 servers at 2U: uSlot=4 uHeight=2, uSlot=6 uHeight=2', () => {
-    const devices = buildRackDevices(bomWithUHeight('2U', 2), 0)
-    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
-    expect(servers).toHaveLength(2)
-    expect(servers[0].uSlot).toBe(4)
-    expect(servers[0].uHeight).toBe(2)
-    expect(servers[1].uSlot).toBe(6)
-    expect(servers[1].uHeight).toBe(2)
-  })
-
-  it('1 server at 4U: uSlot=4 uHeight=4', () => {
-    const devices = buildRackDevices(bomWithUHeight('4U', 1), 0)
-    const servers = devices.filter((d) => d.role === 'server')
-    expect(servers).toHaveLength(1)
-    expect(servers[0].uSlot).toBe(4)
-    expect(servers[0].uHeight).toBe(4)
-  })
-
   it('0 servers returns only 3 switch devices', () => {
     const devices = buildRackDevices(bomWithUHeight('1U', 0), 0)
     expect(devices).toHaveLength(3)
@@ -258,76 +213,90 @@ describe('server devices', () => {
 })
 
 describe('buildRackDevices — positioning aware', () => {
-  it('ToR: devices include OOB + Leaf B + Leaf A before servers (3 switch devices)', () => {
-    const bom = makeBom('ToR')
+  // BoR: Bottom of Rack — OOB+leaves grouped at physical bottom
+  it('BoR: OOB at U1, Leaf B at U2, Leaf A at U3 (grouped at bottom)', () => {
+    const bom = makeBom('BoR')
     const devices = buildRackDevices(bom, 0)
-    const switchDevices = devices.filter((d) => d.role !== 'server')
-    expect(switchDevices).toHaveLength(3)
+    const oob = devices.find((d) => d.role === 'oob')
+    const leafA = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf A'))
+    const leafB = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf B'))
+    expect(oob?.uSlot).toBe(1)
+    expect(leafB?.uSlot).toBe(2)
+    expect(leafA?.uSlot).toBe(3)
   })
 
-  it('ToR: Leaf A is at uSlot=3, Leaf B is at uSlot=2', () => {
-    const bom = makeBom('ToR')
+  it('BoR: first server starts at uSlot=4', () => {
+    const bom = makeBom('BoR')
     const devices = buildRackDevices(bom, 0)
-    const leafA = devices.find((d) => d.role === 'leaf' && d.uSlot === 3)
-    const leafB = devices.find((d) => d.role === 'leaf' && d.uSlot === 2)
-    expect(leafA).toBeDefined()
-    expect(leafB).toBeDefined()
-  })
-
-  it('ToR: first server starts at uSlot=4', () => {
-    const bom = makeBom('ToR')
-    const devices = buildRackDevices(bom, 0)
-    const servers = devices.filter((d) => d.role === 'server')
+    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
     expect(servers.length).toBeGreaterThan(0)
     expect(servers[0].uSlot).toBe(4)
   })
 
-  it('MoR: only 1 switch device before servers (OOB only)', () => {
-    const bom = makeBom('MoR')
+  // ToR: Top of Rack — OOB+leaves grouped at physical top (42U rack)
+  it('ToR: OOB at U40, Leaf B at U41, Leaf A at U42 (grouped at top)', () => {
+    const bom = makeBom('ToR')
     const devices = buildRackDevices(bom, 0)
-    const switchDevices = devices.filter((d) => d.role !== 'server')
-    expect(switchDevices).toHaveLength(1)
-    expect(switchDevices[0].role).toBe('oob')
+    const oob = devices.find((d) => d.role === 'oob')
+    const leafA = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf A'))
+    const leafB = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf B'))
+    expect(leafA?.uSlot).toBe(42)
+    expect(leafB?.uSlot).toBe(41)
+    expect(oob?.uSlot).toBe(40)
   })
 
-  it('MoR: OOB remains at uSlot=1', () => {
+  it('ToR: first server starts at uSlot=1 (below the switch group)', () => {
+    const bom = makeBom('ToR')
+    const devices = buildRackDevices(bom, 0)
+    const servers = devices.filter((d) => d.role === 'server').sort((a, b) => a.uSlot - b.uSlot)
+    expect(servers.length).toBeGreaterThan(0)
+    expect(servers[0].uSlot).toBe(1)
+  })
+
+  it('ToR: no server occupies the switch group slots (U40–U42)', () => {
+    const bom = makeBom('ToR')
+    const devices = buildRackDevices(bom, 0)
+    const servers = devices.filter((d) => d.role === 'server')
+    expect(servers.every((s) => s.uSlot < 40)).toBe(true)
+  })
+
+  // MoR: Middle of Rack — OOB+leaves grouped at mid-rack (42U: U20/U21/U22)
+  it('MoR: OOB at U20, Leaf B at U21, Leaf A at U22 in a 42U rack (grouped at middle)', () => {
     const bom = makeBom('MoR')
     const devices = buildRackDevices(bom, 0)
     const oob = devices.find((d) => d.role === 'oob')
-    expect(oob).toBeDefined()
-    expect(oob!.uSlot).toBe(1)
+    const leafA = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf A'))
+    const leafB = devices.find((d) => d.role === 'leaf' && d.label.includes('Leaf B'))
+    expect(oob?.uSlot).toBe(20)
+    expect(leafB?.uSlot).toBe(21)
+    expect(leafA?.uSlot).toBe(22)
   })
 
-  it('MoR: first server starts at uSlot=2', () => {
+  it('MoR: no server occupies the switch group slots (U20–U22)', () => {
     const bom = makeBom('MoR')
     const devices = buildRackDevices(bom, 0)
     const servers = devices.filter((d) => d.role === 'server')
-    expect(servers.length).toBeGreaterThan(0)
-    expect(servers[0].uSlot).toBe(2)
+    expect(servers.every((s) => s.uSlot < 20 || s.uSlot > 22)).toBe(true)
   })
 
-  it('BoR: only 1 switch device (OOB only), same as MoR', () => {
-    const bom = makeBom('BoR')
-    const devices = buildRackDevices(bom, 0)
-    const switchDevices = devices.filter((d) => d.role !== 'server')
-    expect(switchDevices).toHaveLength(1)
-    expect(switchDevices[0].role).toBe('oob')
-  })
-})
-
-describe('buildPositioningRackDevices', () => {
-  it('returns 2 × bom.racks leaf devices (one pair per server rack)', () => {
-    const bom = makeBom('MoR', 2)
-    const devices = buildPositioningRackDevices(bom)
-    expect(devices).toHaveLength(4) // 2 racks × 2 leaves
-    expect(devices.every((d) => d.role === 'leaf')).toBe(true)
+  it('all positioning modes include exactly 3 switch devices (OOB + 2 leaves)', () => {
+    for (const pos of ['ToR', 'MoR', 'BoR'] as const) {
+      const bom = makeBom(pos)
+      const devices = buildRackDevices(bom, 0)
+      const switchDevices = devices.filter((d) => d.role !== 'server')
+      expect(switchDevices).toHaveLength(3)
+    }
   })
 
-  it('labels contain "Rack 1" and "Rack 2" for a 2-rack BOM', () => {
-    const bom = makeBom('MoR', 2)
-    const devices = buildPositioningRackDevices(bom)
-    const labels = devices.map((d) => d.label)
-    expect(labels.some((l) => l.includes('Rack 1'))).toBe(true)
-    expect(labels.some((l) => l.includes('Rack 2'))).toBe(true)
+  it('all positioning modes: OOB is always adjacent to leaves (within 2 slots)', () => {
+    for (const pos of ['ToR', 'MoR', 'BoR'] as const) {
+      const bom = makeBom(pos)
+      const devices = buildRackDevices(bom, 0)
+      const oob = devices.find((d) => d.role === 'oob')!
+      const leaves = devices.filter((d) => d.role === 'leaf')
+      for (const leaf of leaves) {
+        expect(Math.abs(oob.uSlot - leaf.uSlot)).toBeLessThanOrEqual(2)
+      }
+    }
   })
 })

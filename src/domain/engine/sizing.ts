@@ -107,13 +107,10 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
       : 0;
 
   // ─── Switch Overhead U-height (POS-04) ───────────────────────────────────
-  // ToR: OOB + Leaf A + Leaf B = 3U; MoR/BoR: OOB only = 1U (leaves in separate network rack)
-  function switchOverheadU(positioning: SizingInput['switchPositioning']): number {
-    switch (positioning) {
-      case 'ToR': return 3;
-      case 'MoR': return 1;
-      case 'BoR': return 1;
-    }
+  // All positioning modes keep leaves inside the server rack (rack-level positioning).
+  // OOB (U1) + Leaf B + Leaf A = 3U regardless of ToR/MoR/BoR.
+  function switchOverheadU(_positioning: SizingInput['switchPositioning']): number {
+    return 3;
   }
 
   // ─── Constraint Violations ───────────────────────────────────────────────
@@ -148,22 +145,17 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
   }
 
   // ─── Cable Length Map (POS-01) ────────────────────────────────────────────
-  // Recommended cable length depends on switch positioning mode.
+  // All modes are rack-level positioning — cables run within a single rack.
+  // ToR: server at bottom to switch at top ≈ 2m max.
+  // MoR: server at rack extreme to switch at mid-rack ≈ 1m max.
+  // BoR: server at top to switch at bottom ≈ 2m max.
+  // All values are DAC-compatible (DAC rated to 5–7m).
   const cableLengthMap: Record<SizingInput['switchPositioning'], number> = {
-    ToR: 3,
-    MoR: 15,
-    BoR: 30,
+    ToR: 2,
+    MoR: 1,
+    BoR: 2,
   };
   const recommendedCableLengthM = cableLengthMap[input.switchPositioning];
-
-  // DAC_POSITIONING_INCOMPATIBLE: DAC cables are short-reach; MoR/BoR distances require AOC/fiber
-  if (input.cableType === 'DAC' && input.switchPositioning !== 'ToR') {
-    violations.push({
-      code: 'DAC_POSITIONING_INCOMPATIBLE',
-      positioning: input.switchPositioning as 'MoR' | 'BoR',
-      recommendedCableLengthM,
-    });
-  }
 
   // RACK_CAPACITY_EXCEEDED: total device U-height exceeds rack physical size
   const overheadU = switchOverheadU(input.switchPositioning);

@@ -55,9 +55,9 @@
     "switchPositioning": "Posizionamento switch",
     "selectSwitchPositioning": "Seleziona posizionamento",
     "positionToR": "ToR — Cima del rack",
-    "positionMoR": "MoR — Centro fila",
-    "positionBoR": "BoR — Fine fila",
-    "positioningHelp": "Influisce sulla lunghezza dei cavi e compatibilita DAC"
+    "positionMoR": "MoR — Centro rack",
+    "positionBoR": "BoR — Fondo rack",
+    "positioningHelp": "Influisce sul posizionamento degli switch e sulla lunghezza dei cavi nel rack"
   },
   "results": {
     "heading": "Risultati",
@@ -121,7 +121,6 @@
     "capacityWithin": "{{used}}U / {{total}}U",
     "capacityExceeded": "{{used}}U / {{total}}U — overflow",
     "overflowStrip": "+{{over}}U overflow",
-    "positioningRack": "Rack di posizionamento ({{type}})"
   },
   "export": {
     "heading": "Esporta",
@@ -234,8 +233,6 @@
     "violationDacBody": "I cavi DAC sono limitati a 3m. Con {{rackCount}} rack, verificare che tutti i collegamenti leaf-spine rientrino nelle specifiche. Considerare AOC o fibra per distanze maggiori.",
     "violationRackCapacityTitle": "Capacita rack superata",
     "violationRackCapacityBody": "Il rack {{rackN}} richiede {{used}}U ma il rack e solo {{total}}U. Riduci l'altezza U dei server o sposta i server.",
-    "violationDacPositioningTitle": "DAC incompatibile con posizionamento",
-    "violationDacPositioningBody": "I cavi DAC sono limitati a 3m. Il posizionamento {{positioning}} richiede run fino a {{maxLength}}m. Sostituire DAC con AOC o fibra.",
     "cableLengthAdvisory": "Lunghezza cavo consigliata: fino a {{maxLength}}m (posizionamento {{positioning}})"
   }
 }

@@ -5,14 +5,16 @@ import type { RackDevice } from '../types'
 /**
  * Build the list of rack devices for a given rack index from a NetworkBOM.
  *
- * RACK-03: Uses rack-specific serverCount from input.racks[rackIndex] for
- * accurate per-rack port utilization display. Falls back to 0 if rackIndex
- * is out of bounds (defensive guard for edge cases).
+ * Switch positioning is rack-level: OOB and leaves are grouped together within
+ * each server rack. The group position depends on ToR/MoR/BoR selection.
  *
- * Default device placement (bottom-to-top):
- *   U1: OOB switch (S3248T-ON)
- *   U2: Leaf B (second of redundant ToR pair)
- *   U3: Leaf A (first of redundant ToR pair)
+ * U-slot convention (matches RackFrame): U1 = physical bottom, U(rackSize) = physical top.
+ * The visual renders U(rackSize) at the top of the screen and U1 at the bottom.
+ *
+ * Device placement by positioning (OOB always adjacent to leaves):
+ *   ToR (Top of Rack):    OOB at U(n-2), Leaf B at U(n-1), Leaf A at U(n), servers U1 upward
+ *   MoR (Middle of Rack): OOB at U(n/2-1), Leaf B at U(n/2), Leaf A at U(n/2+1), servers fill around
+ *   BoR (Bottom of Rack): OOB at U1, Leaf B at U2, Leaf A at U3, servers U4 upward
  *
  * @param bom - The computed NetworkBOM containing input parameters and counts
  * @param rackIndex - Zero-based rack index (used for device IDs and per-rack server count)
@@ -22,13 +24,34 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
   const leafModel = bom.input.leafModel
   const leafSpec = SWITCH_CATALOG[leafModel]
   const oobSpec = SWITCH_CATALOG['S3248T-ON']
+  const positioning = bom.input.switchPositioning
 
-  // Per-rack server count for accurate port utilization (RACK-03)
   const rackConfig = bom.input.racks[rackIndex]
   const serverCount = rackConfig?.serverCount ?? 0
+  const uHeight = parseInt(bom.input.serverUHeight, 10)
+  const rackSizeU = parseInt(bom.input.rackSize, 10)
 
-  // MoR/BoR: leaf switches are moved to the positioning rack — only OOB stays in server rack
-  const isToR = bom.input.switchPositioning === 'ToR'
+  let oobSlot: number
+  let leafBSlot: number
+  let leafASlot: number
+
+  if (positioning === 'BoR') {
+    // Bottom of Rack: OOB + leaves grouped at physical bottom
+    oobSlot = 1
+    leafBSlot = 2
+    leafASlot = 3
+  } else if (positioning === 'ToR') {
+    // Top of Rack: OOB + leaves grouped at physical top
+    leafASlot = rackSizeU
+    leafBSlot = rackSizeU - 1
+    oobSlot = rackSizeU - 2
+  } else {
+    // Middle of Rack: OOB + leaves grouped at mid-rack
+    const midU = Math.floor(rackSizeU / 2)
+    leafASlot = midU + 1
+    leafBSlot = midU
+    oobSlot = midU - 1
+  }
 
   const devices: RackDevice[] = [
     {
@@ -36,43 +59,38 @@ export function buildRackDevices(bom: NetworkBOM, rackIndex: number): RackDevice
       model: 'S3248T-ON',
       role: 'oob',
       label: 'OOB Management',
-      uSlot: 1,
+      uSlot: oobSlot,
       uHeight: 1,
       usedPorts: serverCount + 2,
       totalPorts: oobSpec.downlinkPorts,
     },
+    {
+      id: `rack-${rackIndex}-leaf-1`,
+      model: leafModel,
+      role: 'leaf',
+      label: `Leaf B (${positioning})`,
+      uSlot: leafBSlot,
+      uHeight: 1,
+      usedPorts: serverCount,
+      totalPorts: leafSpec.downlinkPorts,
+    },
+    {
+      id: `rack-${rackIndex}-leaf-0`,
+      model: leafModel,
+      role: 'leaf',
+      label: `Leaf A (${positioning})`,
+      uSlot: leafASlot,
+      uHeight: 1,
+      usedPorts: serverCount,
+      totalPorts: leafSpec.downlinkPorts,
+    },
   ]
 
-  if (isToR) {
-    devices.push(
-      {
-        id: `rack-${rackIndex}-leaf-1`,
-        model: leafModel,
-        role: 'leaf',
-        label: 'Leaf B (ToR)',
-        uSlot: 2,
-        uHeight: 1,
-        usedPorts: serverCount,
-        totalPorts: leafSpec.downlinkPorts,
-      },
-      {
-        id: `rack-${rackIndex}-leaf-0`,
-        model: leafModel,
-        role: 'leaf',
-        label: 'Leaf A (ToR)',
-        uSlot: 3,
-        uHeight: 1,
-        usedPorts: serverCount,
-        totalPorts: leafSpec.downlinkPorts,
-      }
-    )
-  }
-
-  // Server devices above switches
-  // ToR: servers start at U4 (after OOB + 2 leaves); MoR/BoR: servers start at U2 (after OOB only)
-  const uHeight = parseInt(bom.input.serverUHeight, 10)
-  let currentUSlot = isToR ? 4 : 2
+  // Servers fill remaining slots, skipping the three switch slots
+  const reservedSlots = new Set([oobSlot, leafBSlot, leafASlot])
+  let currentUSlot = 1
   for (let s = 0; s < serverCount; s++) {
+    while (reservedSlots.has(currentUSlot)) currentUSlot++
     devices.push({
       id: `rack-${rackIndex}-server-${s}`,
       model: '',
@@ -98,7 +116,6 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
   const devices: RackDevice[] = []
   let uSlot = 1
 
-  // Spines at bottom
   for (let i = 0; i < bom.spineSwitches; i++) {
     devices.push({
       id: `net-spine-${i}`,
@@ -112,7 +129,6 @@ export function buildNetworkRackDevices(bom: NetworkBOM): RackDevice[] {
     })
   }
 
-  // Border leafs above spines
   if (bom.borderLeafSwitches > 0 && bom.input.borderLeafModel !== 'none') {
     const borderSpec = SWITCH_CATALOG[bom.input.borderLeafModel]
     for (let i = 0; i < bom.borderLeafSwitches; i++) {

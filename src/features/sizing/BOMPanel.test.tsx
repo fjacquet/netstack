@@ -36,7 +36,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     vltCables: 3,
     oversubscriptionRatio: 2.4,
     switchPositioning: 'ToR',
-    recommendedCableLengthM: 3,
+    recommendedCableLengthM: 2,
     violations: [],
     input: {
       racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],

@@ -254,7 +254,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       vltCables: 5,
       oversubscriptionRatio: 3.0,
       switchPositioning: 'ToR',
-      recommendedCableLengthM: 3,
+      recommendedCableLengthM: 2,
       violations: [],
       input: {
         racks: [{ serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }, { serverCount: 20 }],
@@ -288,7 +288,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       vltCables: 5,
       oversubscriptionRatio: 5.875,
       switchPositioning: 'ToR',
-      recommendedCableLengthM: 3,
+      recommendedCableLengthM: 2,
       violations: [
         { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC' },
       ],
