@@ -9,18 +9,18 @@
 
 ### Three-Tier Catalog
 
-- [ ] **TIER-01**: Z-series switches added to hardware catalog (Z9264F-ON, Z9332F-ON, Z9432F-ON) with verified specs
-- [ ] **TIER-02**: Switch catalog has a `tier` field mapping each model to valid roles (access, aggregation, core)
+- [x] **TIER-01**: Z-series switches added to hardware catalog (Z9264F-ON, Z9332F-ON, Z9432F-ON) with verified specs
+- [x] **TIER-02**: Switch catalog has a `tier` field mapping each model to valid roles (access, aggregation, core)
 
 ### Three-Tier Engine
 
-- [ ] **TENG-01**: Topology selector in input schema: "leaf-spine" (Clos) vs "three-tier" (Core/Aggregation/Access)
+- [x] **TENG-01**: Topology selector in input schema: "leaf-spine" (Clos) vs "three-tier" (Core/Aggregation/Access)
 - [ ] **TENG-02**: Access switches = 2 per rack (redundant pair, same formula as leaf switches)
 - [ ] **TENG-03**: Aggregation switches = ceil(accessSwitches × uplinksPerAccess / aggrDownlinks), min 2 for redundancy
 - [ ] **TENG-04**: Core switches = ceil(aggrSwitches × uplinksPerAggr / coreDownlinks), min 2 for redundancy
 - [ ] **TENG-05**: Oversubscription calculated at each tier boundary (access→aggr, aggr→core)
 - [ ] **TENG-06**: Cable BOM: server-access + access-aggr + aggr-core cables with correct inter-tier counts
-- [ ] **TENG-07**: User can select access/aggregation/core switch models independently
+- [x] **TENG-07**: User can select access/aggregation/core switch models independently
 
 ### Three-Tier UI
 
@@ -62,15 +62,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIER-01 | Phase 18 | Pending |
-| TIER-02 | Phase 18 | Pending |
-| TENG-01 | Phase 18 | Pending |
+| TIER-01 | Phase 18 | Complete |
+| TIER-02 | Phase 18 | Complete |
+| TENG-01 | Phase 18 | Complete |
 | TENG-02 | Phase 18 | Pending |
 | TENG-03 | Phase 18 | Pending |
 | TENG-04 | Phase 18 | Pending |
 | TENG-05 | Phase 18 | Pending |
 | TENG-06 | Phase 18 | Pending |
-| TENG-07 | Phase 18 | Pending |
+| TENG-07 | Phase 18 | Complete |
 | TUI-01 | Phase 19 | Pending |
 | TUI-02 | Phase 19 | Pending |
 | TUI-03 | Phase 19 | Pending |
