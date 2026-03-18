@@ -181,7 +181,12 @@
     "violationOversubTitle": "FC-Uberzeichnung uberschritten",
     "violationOversubBody": "Fan-in-Verhaltnis {{ratio}}:1 uberschreitet Maximum {{maxRatio}}:1.",
     "violationIslTitle": "ISL unterdimensioniert",
-    "violationIslBody": "{{islsAvailable}} ISL-Ports verfugbar, {{islsRequired}} benotigt."
+    "violationIslBody": "{{islsAvailable}} ISL-Ports verfugbar, {{islsRequired}} benotigt.",
+    "portsHeading": "Portverteilung (pro Fabric)",
+    "hostPorts": "Host-Ports",
+    "storagePorts": "Storage-Ports",
+    "islPorts": "ISL-Ports",
+    "totalPorts": "Gesamt pro Fabric"
   },
   "bom": {
     "heading": "Stueckliste",

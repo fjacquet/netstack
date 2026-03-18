@@ -133,6 +133,43 @@ export function FCBOMPanel() {
 
           <Separator />
 
+          {/* Port distribution — shows host, storage, ISL ports per fabric so users can verify */}
+          <section aria-labelledby="fc-ports-heading">
+            <h3 id="fc-ports-heading" className="text-sm font-medium mb-2">
+              {t('fcbom.portsHeading')}
+            </h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('bom.colRole')}</TableHead>
+                  <TableHead>{t('bom.colQty')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>{t('fcbom.hostPorts')}</TableCell>
+                  <TableCell>{bom.hostPortsPerFabric}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('fcbom.storagePorts')}</TableCell>
+                  <TableCell>{bom.storagePortsPerFabric}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('fcbom.islPorts')}</TableCell>
+                  <TableCell>{bom.islPortsPerFabric}</TableCell>
+                </TableRow>
+                <TableRow className="font-medium">
+                  <TableCell>{t('fcbom.totalPorts')}</TableCell>
+                  <TableCell>
+                    {bom.hostPortsPerFabric + bom.storagePortsPerFabric + bom.islPortsPerFabric}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </section>
+
+          <Separator />
+
           {/* Switches table — Fabric A, Fabric B, ISL cables, optics, POD licenses */}
           <section aria-labelledby="fc-switches-heading">
             <h3 id="fc-switches-heading" className="text-sm font-medium mb-2">

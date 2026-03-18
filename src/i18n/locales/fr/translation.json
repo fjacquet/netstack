@@ -181,7 +181,12 @@
     "violationOversubTitle": "Sursouscription FC depassee",
     "violationOversubBody": "Ratio fan-in {{ratio}}:1 depasse le maximum {{maxRatio}}:1.",
     "violationIslTitle": "ISL sous-dimensionne",
-    "violationIslBody": "{{islsAvailable}} ports ISL disponibles, {{islsRequired}} requis."
+    "violationIslBody": "{{islsAvailable}} ports ISL disponibles, {{islsRequired}} requis.",
+    "portsHeading": "Repartition des ports (par baie)",
+    "hostPorts": "Ports hotes",
+    "storagePorts": "Ports stockage",
+    "islPorts": "Ports ISL",
+    "totalPorts": "Total par baie"
   },
   "bom": {
     "heading": "Nomenclature",

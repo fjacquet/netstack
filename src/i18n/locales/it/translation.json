@@ -181,7 +181,12 @@
     "violationOversubTitle": "Sovrascrizione FC superata",
     "violationOversubBody": "Rapporto fan-in {{ratio}}:1 supera il massimo {{maxRatio}}:1.",
     "violationIslTitle": "ISL sottodimensionato",
-    "violationIslBody": "{{islsAvailable}} porte ISL disponibili, {{islsRequired}} richieste."
+    "violationIslBody": "{{islsAvailable}} porte ISL disponibili, {{islsRequired}} richieste.",
+    "portsHeading": "Distribuzione porte (per fabric)",
+    "hostPorts": "Porte host",
+    "storagePorts": "Porte storage",
+    "islPorts": "Porte ISL",
+    "totalPorts": "Totale per fabric"
   },
   "bom": {
     "heading": "Distinta materiali",

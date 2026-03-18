@@ -181,7 +181,12 @@
     "violationOversubTitle": "FC Oversubscription Exceeded",
     "violationOversubBody": "Fan-in ratio {{ratio}}:1 exceeds maximum {{maxRatio}}:1.",
     "violationIslTitle": "ISL Underprovisioned",
-    "violationIslBody": "{{islsAvailable}} ISL ports available, {{islsRequired}} required."
+    "violationIslBody": "{{islsAvailable}} ISL ports available, {{islsRequired}} required.",
+    "portsHeading": "Port Distribution (per fabric)",
+    "hostPorts": "Host ports",
+    "storagePorts": "Storage ports",
+    "islPorts": "ISL ports",
+    "totalPorts": "Total per fabric"
   },
   "bom": {
     "heading": "Bill of Materials",
