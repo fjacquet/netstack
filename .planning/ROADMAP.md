@@ -40,7 +40,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 - [x] **Phase 10: FC Sizing Engine** — Pure calculateFCBOM() function, dual-fabric, ISL formula, violations (completed 2026-03-18)
 - [x] **Phase 11: Switch Positioning (Ethernet)** — ToR/MoR/BoR selector, cable length advisory, rack elevation U-position (completed 2026-03-18)
 - [x] **Phase 12: FC Input and BOM UI** — Mode selector toggle, FC input form, FC BOM panel (completed 2026-03-18)
-- [ ] **Phase 13: FC Topology Diagram** — Dual-fabric ReactFlow view, Fabric A blue / Fabric B orange
+- [x] **Phase 13: FC Topology Diagram** — Dual-fabric ReactFlow view, Fabric A blue / Fabric B orange (completed 2026-03-18)
 - [ ] **Phase 14: FC Export** — CSV and PDF extended with FC BOM sections, i18n keys
 
 ## Phase Details
@@ -185,5 +185,5 @@ Plans:
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
 | 11. Switch Positioning (Ethernet) | 3/3 | Complete   | 2026-03-18 | - |
 | 12. FC Input and BOM UI | 3/3 | Complete    | 2026-03-18 | - |
-| 13. FC Topology Diagram | 1/2 | In Progress|  | - |
+| 13. FC Topology Diagram | 2/2 | Complete   | 2026-03-18 | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |

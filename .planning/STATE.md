@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 13-01-PLAN.md (buildFCTopologyGraph pure function)
-last_updated: "2026-03-18T14:10:21.050Z"
+stopped_at: "Completed 13-02-PLAN.md (checkpoint:human-verify — awaiting visual confirmation)"
+last_updated: "2026-03-18T14:15:58.003Z"
 last_activity: 2026-03-18 — Phase 11 complete (switch positioning, 335 tests, 4/4 POS requirements)
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 12 P02 | 15 | 3 tasks | 7 files |
 | Phase 12 P03 | 18 | 3 tasks | 14 files |
 | Phase 13-fc-topology-diagram P01 | 163 | 2 tasks | 3 files |
+| Phase 13-fc-topology-diagram P02 | 203 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,9 @@ Key v2.0 architectural decisions from research:
 - [Phase 12-03]: Test uses labelFor attribute to find switch model combobox trigger — data-slot='form-item' not present in FormItem
 - [Phase 13-fc-topology-diagram]: Ring ISL topology when islPortsPerFabric >= switchCount — creates N edges (i→i+1 mod N); linear chain when M < N; 0 edges for single-switch or M=0
 - [Phase 13-fc-topology-diagram]: FCSwitchNodeData.totalPorts is a proxy (equals usedPorts) — FC_SWITCH_CATALOG lookup deferred to Plan 13-02 when visual rendering needs accurate port capacity
+- [Phase 13-02]: FCTopologyTab reads bom from fcResultStore in parent, passes as prop to FCTopologyCanvas — avoids store coupling inside canvas
+- [Phase 13-02]: Custom event namespaces fc-topology:action-a/b prevent cross-interference with Ethernet topology:action events
+- [Phase 13-02]: getLastFCTopologyPng(fabric) per-fabric module-level cache enables Phase 14 PDF export for both fabrics independently
 
 ### Research Flags
 
@@ -125,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T14:10:21.047Z
-Stopped at: Completed 13-01-PLAN.md (buildFCTopologyGraph pure function)
+Last session: 2026-03-18T14:15:58.001Z
+Stopped at: Completed 13-02-PLAN.md (checkpoint:human-verify — awaiting visual confirmation)
 Resume file: None
