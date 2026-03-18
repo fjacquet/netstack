@@ -1,5 +1,6 @@
 import { Separator } from '@/components/ui/separator'
 import { FCInputForm } from './FCInputForm'
+import { FCBOMPanel } from './FCBOMPanel'
 
 export function FCSizingPage() {
   return (
@@ -9,8 +10,7 @@ export function FCSizingPage() {
       </div>
       <Separator className="xl:hidden" />
       <div className="min-w-0 flex-1">
-        {/* FCBOMPanel — added in plan 12-02 */}
-        <div data-testid="fc-bom-placeholder" />
+        <FCBOMPanel />
       </div>
     </div>
   )
