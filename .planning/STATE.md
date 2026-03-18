@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Converged Mode
 status: executing
-stopped_at: Completed 17-02-PLAN.md
-last_updated: "2026-03-18T20:33:47.155Z"
-last_activity: 2026-03-18 — Completed 17-02 converged export i18n keys
+stopped_at: Completed 17-01-PLAN.md
+last_updated: "2026-03-18T20:35:44Z"
+last_activity: 2026-03-18 — Completed 17-01 converged CSV + PDF export
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -21,24 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Leaf-Spine and Brocade FC SAN deployments.
-**Current focus:** Phase 17 — Converged Export & i18n (plan 2 of 2 complete, plan 1 pending)
+**Current focus:** Phase 17 — Converged Export & i18n (2 of 2 complete)
 
 ## Current Position
 
 Phase: 17 of 17 (Converged Export & i18n)
-Plan: 2 of 2 (17-02 complete, 17-01 pending)
+Plan: 2 of 2 (complete)
 Status: Executing
-Last activity: 2026-03-18 — Completed 17-02 converged export i18n keys
+Last activity: 2026-03-18 — Completed 17-01 converged CSV + PDF export
 
-Progress: [████████░░] 86% (v3.0)
+Progress: [██████████] 100% (v3.0)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6 (v3.0)
-- Average duration: 4.5 min
-- Total execution time: 0.42 hours
+- Total plans completed: 7 (v3.0)
+- Average duration: 4.4 min
+- Total execution time: 0.50 hours
 
 **By Phase:**
 
@@ -46,7 +46,7 @@ Progress: [████████░░] 86% (v3.0)
 |-------|-------|-------|----------|
 | 15-converged-domain-store | 2/2 | 11min | 5.5min |
 | 16-converged-ui | 3/3 | 12min | 4min |
-| 17-converged-export-i18n | 1/2 | 2min | 2min |
+| 17-converged-export-i18n | 2/2 | 7min | 3.5min |
 
 **Recent Trend (from v2.0):**
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 86% (v3.0)
 | Phase 16 P02 | 3min | 1 task | 1 file |
 | Phase 16 P03 | 5min | 2 tasks | 8 files |
 | Phase 17 P02 | 2min | 1 task | 4 files |
+| Phase 17 P01 | 5min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,9 @@ Key architectural decisions relevant to v3.0:
 - [16-03]: fc-switch role added to RackDevice union type with purple/violet color -- backward compatible
 - [17-02]: Converged export keys placed after fcPdfButton in export section for consistent ordering
 - [17-02]: Pre-existing TSC errors in untracked exportConvergedCsv.test.ts are out of scope (plan 17-01 artifact)
+- [17-01]: Export buildCsvRows and buildFCCsvRows from existing modules for reuse in converged CSV
+- [17-01]: Section separators only appear when fcBom is present -- Ethernet-only converged has no separators
+- [17-01]: ConvergedNetStackDocument composes existing page components rather than creating new ones
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T20:33:47.151Z
-Stopped at: Completed 17-02-PLAN.md
+Last session: 2026-03-18T20:35:44Z
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
