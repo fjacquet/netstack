@@ -127,26 +127,34 @@ describe('FC-05: Dual-fabric topology', () => {
 // ---------------------------------------------------------------------------
 
 describe('FC-06: ISL calculation', () => {
-  it('islPortsPerFabric is at least 2 for any input (minimum ISL redundancy)', () => {
-    // Small input: 1 rack, 4 servers
+  it('islPortsPerFabric is 0 for single-switch fabric (no ISLs needed)', () => {
+    // Small input: 1 rack, 4 servers — fits in single G720 switch, so no ISLs
     const result = calculateFCBOM(makeInput({
       racks: [{ serverCount: 4 }],
       fcSwitchModel: 'G720',
       islPortsPerSwitch: 4,
     }));
-    expect(result.islPortsPerFabric).toBeGreaterThanOrEqual(2);
+    expect(result.fabricASwitches).toBe(1);
+    expect(result.islPortsPerFabric).toBe(0);
   });
 
-  it('islPortsPerFabric grows with server count for large fabrics', () => {
-    // 200 servers should yield more ISL ports than 4 servers
+  it('islPortsPerFabric grows with server count for multi-switch fabrics', () => {
+    // G720 totalPorts=64. Need >64 host ports per fabric to force multi-switch.
+    // Small multi-switch: 140 servers → 70 host ports/fabric > 64 → multi-switch
+    // Large multi-switch: 400 servers → 200 host ports/fabric → more ISL needed
     const smallResult = calculateFCBOM(makeInput({
-      racks: [{ serverCount: 4 }],
+      racks: Array.from({ length: 7 }, () => ({ serverCount: 20 })),
       fcSwitchModel: 'G720',
+      islPortsPerSwitch: 4,
     }));
     const largeResult = calculateFCBOM(makeInput({
-      racks: Array.from({ length: 5 }, () => ({ serverCount: 40 })),
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 40 })),
       fcSwitchModel: 'G720',
+      islPortsPerSwitch: 4,
     }));
+    // Both must be multi-switch for ISL comparison to be meaningful
+    expect(smallResult.fabricASwitches).toBeGreaterThan(1);
+    expect(largeResult.fabricASwitches).toBeGreaterThan(1);
     expect(largeResult.islPortsPerFabric).toBeGreaterThan(smallResult.islPortsPerFabric);
   });
 
@@ -173,12 +181,14 @@ describe('FC-06: ISL calculation', () => {
 
 describe('FC-07: FC optics count', () => {
   it('fcOpticsCount equals 2 × (hostPortsPerFabric + storagePortsPerFabric + islPortsPerFabric) × 2 fabrics', () => {
-    // Each link requires 2 optics (one per end); both fabrics double the count
+    // Each link requires 2 optics (one per end); both fabrics double the count.
+    // Use multi-switch fabric to exercise ISL optics; single-switch ISL is 0.
     const result = calculateFCBOM(makeInput({
-      racks: [{ serverCount: 16 }, { serverCount: 16 }],
+      racks: Array.from({ length: 4 }, () => ({ serverCount: 20 })),
       hbaPortsPerServer: 2,
       storageTargetPorts: 4,
       fcSwitchModel: 'G720',
+      islPortsPerSwitch: 4,
     }));
     const totalLinksPerFabric = result.hostPortsPerFabric + result.storagePortsPerFabric + result.islPortsPerFabric;
     expect(result.fcOpticsCount).toBe(2 * totalLinksPerFabric * 2);
@@ -306,23 +316,24 @@ describe('FC-08: Oversubscription and violations', () => {
   });
 
   it('FC_ISL_UNDERPROVISIONED fires when ISL bandwidth is insufficient', () => {
-    // Force ISL underprovisioning: very large fabric with minimal ISL ports
-    // Large host port demand with islPortsPerSwitch=0 → no ISL capacity at all
+    // Force ISL underprovisioning: very large fabric with 0 ISL ports.
+    // Use G710 (small model: totalPorts=24) with 50 servers to guarantee multi-switch.
+    // Wait — G710 port saturation would fire. Use X7-4 director with enough racks
+    // to guarantee fabricSwitchCount > 1 even without ISL reservation (directors use all ports).
+    // X7-4: totalPorts=256. With 300 servers × 1 HBA/fabric = 300 host ports > 256 → multi-switch.
     const result = calculateFCBOM(makeInput({
-      racks: Array.from({ length: 5 }, () => ({ serverCount: 40 })),
+      racks: Array.from({ length: 10 }, () => ({ serverCount: 30 })),
       hbaPortsPerServer: 2,
-      fcSwitchModel: 'X7-4', // director — avoids port saturation
+      fcSwitchModel: 'X7-4', // director — avoids port saturation, podLicenseUnit=0
       islPortsPerSwitch: 0,  // no ISL ports provisioned
       storageTargetPorts: 4,
     }));
-    // With 0 ISL ports, any multi-switch fabric will be underprovisioned
+    // X7-4 totalPorts=256, demand=300 host + 2 storage = 302 > 256 → multi-switch
+    expect(result.fabricASwitches).toBeGreaterThan(1);
     const violation = result.violations.find(v => v.code === 'FC_ISL_UNDERPROVISIONED');
-    // Only fires if multiple switches needed — check the violation if present
-    if (result.fabricASwitches > 1) {
-      expect(violation).toBeDefined();
-      if (violation && violation.code === 'FC_ISL_UNDERPROVISIONED') {
-        expect(violation.islsAvailable).toBeLessThan(violation.islsRequired);
-      }
+    expect(violation).toBeDefined();
+    if (violation && violation.code === 'FC_ISL_UNDERPROVISIONED') {
+      expect(violation.islsAvailable).toBeLessThan(violation.islsRequired);
     }
   });
 

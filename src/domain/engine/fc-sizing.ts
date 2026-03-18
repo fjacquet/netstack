@@ -121,48 +121,41 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
     (input.storageArrayCount * input.storageTargetPorts) / 2,
   );
 
-  // ─── Step 3: Effective ports and switch count ───────────────────────────────
+  // ─── Step 3: Effective ports and switch count (two-pass) ───────────────────
   //
-  // ISL ports come from the same physical port pool as device ports on fixed switches.
-  // Clamp islPortsPerSwitch to SW.maxIslPorts (UPLN-02 style runtime clamp).
-  const effectiveIslPerSwitch = Math.min(input.islPortsPerSwitch, SW.maxIslPorts);
+  // Pass 1: Check if a single switch can handle total demand WITHOUT ISL reservation.
+  // Single-switch fabrics have no inter-switch links — no ISL ports needed.
+  const totalDemand = hostPortsPerFabric + storagePortsPerFabric;
+  const { effectivePorts: fullEffectivePorts, podLicensesRequired: podLicensesPerSwitch } =
+    computeEffectivePorts(totalDemand, SW.basePorts, SW.totalPorts, SW.podLicenseUnit);
 
-  // Device ports per switch = total effective ports minus ISL reservation.
-  // ISL reservation reduces available host+storage capacity per switch.
-  const portsNeededPerSwitch = hostPortsPerFabric + storagePortsPerFabric;
+  const isSingleSwitch = totalDemand <= fullEffectivePorts;
 
-  // Use effective capacity based on POD license model (base + unlocked increments).
-  // For switch count calculation we consider ISL-adjusted effective device ports.
-  const { effectivePorts: rawEffectivePorts, podLicensesRequired: podLicensesPerSwitch } =
-    computeEffectivePorts(
-      // Ports needed per switch includes ISL reservation to ensure enough ports are unlocked
-      portsNeededPerSwitch,
-      SW.basePorts,
-      SW.totalPorts,
-      SW.podLicenseUnit,
-    );
-
-  // Device ports available per switch = effectivePorts minus ISL reservation
-  const devicePortsPerSwitch = Math.max(1, rawEffectivePorts - effectiveIslPerSwitch);
-
-  // Fabric switch count: minimum 1 switch, scaled by demand
-  const fabricSwitchCount = Math.max(
-    1,
-    Math.ceil((hostPortsPerFabric + storagePortsPerFabric) / devicePortsPerSwitch),
-  );
+  let fabricSwitchCount: number;
+  if (isSingleSwitch) {
+    // Single-switch fabric: no ISL ports needed, all effective ports are device ports
+    fabricSwitchCount = 1;
+  } else {
+    // Pass 2: Multi-switch fabric — apply ISL port reservation and recompute
+    const effectiveIslPerSwitchPass2 = Math.min(input.islPortsPerSwitch, SW.maxIslPorts);
+    const devicePortsPerSwitch = Math.max(1, fullEffectivePorts - effectiveIslPerSwitchPass2);
+    fabricSwitchCount = Math.max(1, Math.ceil(totalDemand / devicePortsPerSwitch));
+  }
 
   // Total POD licenses: per-switch count × switches in both fabrics
   const podLicensesRequired = podLicensesPerSwitch * fabricSwitchCount * 2;
 
   // ─── Step 4: ISL count via bandwidth fan-in formula ────────────────────────
   //
+  // ISLs only exist in multi-switch fabrics. Single-switch fabric = 0 ISLs.
   // ISL count is derived from the bandwidth-based fan-in ratio (Broadcom 7:1 default).
   // This is NOT the Ethernet uplink formula (switchCount × islPortsPerSwitch).
-  const islCount = calculateIslCount(
-    hostPortsPerFabric,
-    storagePortsPerFabric,
-    SW.speedGbps,
-  );
+  const effectiveIslPerSwitch = fabricSwitchCount > 1
+    ? Math.min(input.islPortsPerSwitch, SW.maxIslPorts)
+    : 0;
+  const islCount = fabricSwitchCount > 1
+    ? calculateIslCount(hostPortsPerFabric, storagePortsPerFabric, SW.speedGbps)
+    : 0;
 
   // ISL cables span both fabrics (one cable connects fabric A switch to fabric B switch)
   const islCables = islCount * 2;
@@ -190,21 +183,20 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
     });
   }
 
-  // FC_PORT_SATURATION: demand exceeds a single switch's maximum device port capacity.
-  // Fires when (hostPortsPerFabric + storagePortsPerFabric) > (SW.totalPorts - effectiveIslPerSwitch).
-  // This means the switch model is fundamentally too small — no amount of switch stacking
-  // in a single-tier fabric can solve the problem without upgrading the model.
-  const maxDevicePortsPerSwitch = SW.totalPorts - effectiveIslPerSwitch;
-  if (portsNeededPerSwitch > maxDevicePortsPerSwitch) {
+  // FC_PORT_SATURATION: demand exceeds the switch model's total port capacity.
+  // Uses fullEffectivePorts (no ISL reservation) — ISL ports don't apply to saturation check
+  // because this violation fires when the model is fundamentally too small regardless of ISL config.
+  if (totalDemand > fullEffectivePorts) {
     violations.push({
       code: 'FC_PORT_SATURATION',
-      requiredPorts: portsNeededPerSwitch,
-      availablePorts: maxDevicePortsPerSwitch,
+      requiredPorts: totalDemand,
+      availablePorts: fullEffectivePorts,
     });
   }
 
-  // FC_ISL_UNDERPROVISIONED: user provisioned fewer ISL ports than the fan-in formula requires
-  if (effectiveIslPerSwitch < islCount) {
+  // FC_ISL_UNDERPROVISIONED: user provisioned fewer ISL ports than the fan-in formula requires.
+  // Only fires for multi-switch fabrics — single-switch fabrics have no ISLs by design.
+  if (fabricSwitchCount > 1 && effectiveIslPerSwitch < islCount) {
     violations.push({
       code: 'FC_ISL_UNDERPROVISIONED',
       islsAvailable: effectiveIslPerSwitch,
