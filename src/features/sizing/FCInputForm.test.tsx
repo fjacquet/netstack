@@ -1,6 +1,6 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { render, screen, fireEvent, act } from '@testing-library/react'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { FCInputForm } from './fc/FCInputForm'
 import { useFCInputStore } from '@/store/fcInputStore'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -12,6 +12,9 @@ interface MockFCState {
   setInput: (partial: Partial<FCSizingInput>) => void
   resetInput: () => void
 }
+
+// Radix UI Select calls scrollIntoView on mount — mock it for jsdom compatibility
+Element.prototype.scrollIntoView = vi.fn()
 
 // Mock the fcInputStore to inject controlled FC input data
 vi.mock('@/store/fcInputStore', () => ({
@@ -113,12 +116,25 @@ describe('FCInputForm', () => {
 
   // ── FC-10: FC switch model selector with exactly 9 options ───────────────
 
-  it('renders FC switch model selector with exactly 9 options: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8', () => {
+  it('renders FC switch model selector with exactly 9 options: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8', async () => {
     const setInput = vi.fn()
     const resetInput = vi.fn()
     mockStore(makeInput(), setInput, resetInput)
 
     render(<FCInputForm />, { wrapper: Wrapper })
+
+    // Open the FC switch model select to expose options in the DOM
+    // The fcSwitchModel select trigger shows the current model value
+    const selectTriggers = screen.getAllByRole('combobox')
+    // The fcSwitchModel select is labeled by 'fc.switchModel' — find by associated label
+    const switchModelLabel = screen.getByText('fc.switchModel')
+    const switchModelTrigger = selectTriggers.find((el) => {
+      const labelFor = switchModelLabel.getAttribute('for')
+      return labelFor ? el.id === labelFor : el.closest('[data-slot="form-item"]') === switchModelLabel.closest('[data-slot="form-item"]')
+    }) ?? selectTriggers[0]
+    await act(async () => {
+      fireEvent.click(switchModelTrigger)
+    })
 
     // All 9 model IDs must appear as selectable options
     const expectedModels = ['G710', 'G720', 'G730', 'X7-4', 'X7-8', '7850', 'G820', 'X8-4', 'X8-8']
@@ -155,7 +171,8 @@ describe('FCInputForm', () => {
 
   // ── FC-10: Changing hbaPortsPerServer calls setInput ─────────────────────
 
-  it('changing hbaPortsPerServer to 4 calls setInput with { hbaPortsPerServer: 4 }', () => {
+  it('changing hbaPortsPerServer to 4 calls setInput with { hbaPortsPerServer: 4 }', async () => {
+    vi.useFakeTimers()
     const setInput = vi.fn()
     const resetInput = vi.fn()
     mockStore(makeInput({ hbaPortsPerServer: 2 }), setInput, resetInput)
@@ -163,10 +180,14 @@ describe('FCInputForm', () => {
     render(<FCInputForm />, { wrapper: Wrapper })
 
     const hbaInput = screen.getByTestId('hba-ports-per-server')
-    fireEvent.change(hbaInput, { target: { value: '4' } })
+    await act(async () => {
+      fireEvent.change(hbaInput, { target: { value: '4' } })
+      vi.runAllTimers()
+    })
 
     // setInput must be called with the correct partial — not the full object
     expect(setInput).toHaveBeenCalledWith(expect.objectContaining({ hbaPortsPerServer: 4 }))
+    vi.useRealTimers()
   })
 
   // ── FC-10: Clicking reset button calls resetInput ─────────────────────────
