@@ -91,11 +91,14 @@ Plans:
 **Goal**: Users can export converged sizing results and use the app in all four languages
 **Depends on**: Phase 16
 **Requirements**: CONV-10, CONV-11, CONV-12
+**Plans:** 2 plans
+Plans:
+- [ ] 17-01-PLAN.md — Converged CSV + PDF export functions and TopBar wiring (CONV-10, CONV-11)
+- [ ] 17-02-PLAN.md — Converged export i18n keys in all 4 locales (CONV-12)
 **Success Criteria** (what must be TRUE):
   1. CSV export produces a single file with Ethernet section and FC section under one header
   2. PDF export generates one document combining Ethernet and FC pages
   3. All converged-mode labels (mode name, section headers, BOM fields) appear correctly in EN, FR, DE, and IT
-**Plans**: TBD
 
 ## Progress
 
@@ -117,4 +120,4 @@ Plans:
 | 14. FC Export | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 15. Converged Domain & Store | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 16. Converged UI | 3/3 | Complete    | 2026-03-18 | - |
-| 17. Converged Export & i18n | v3.0 | 0/? | Not started | - |
+| 17. Converged Export & i18n | v3.0 | 0/2 | Not started | - |
