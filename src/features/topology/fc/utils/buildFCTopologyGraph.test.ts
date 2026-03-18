@@ -15,6 +15,7 @@ const mockFCBOM: FCNetworkBOM = {
   hostPortsPerFabric: 20,
   storagePortsPerFabric: 2,
   islPortsPerFabric: 2,
+  switchPortsPerFabric: 24,
   podLicensesRequired: 0,
   fcOpticsCount: 48,
   islCables: 4,

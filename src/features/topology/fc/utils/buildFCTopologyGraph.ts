@@ -19,15 +19,17 @@ function buildFabricSubgraph(
   islPortsPerFabric: number,
   model: string,
   hostPortsPerFabric: number,
+  storagePortsPerFabric: number,
+  switchCapacityPorts: number,
   islPortsPerSwitch: number,
 ): FCTopologySubgraph {
   const prefix = fabric === 'A' ? 'fc-a' : 'fc-b'
   const islEdgePrefix = fabric === 'A' ? 'isl-a' : 'isl-b'
   const islColor = fabric === 'A' ? 'hsl(213, 94%, 55%)' : 'hsl(32, 95%, 55%)'
 
-  // Per-switch port usage
+  // Per-switch port usage — host + storage combined, distributed across switches
   const usedPortsPerSwitch = switchCount > 0
-    ? Math.ceil(hostPortsPerFabric / switchCount)
+    ? Math.ceil((hostPortsPerFabric + storagePortsPerFabric) / switchCount)
     : 0
 
   // Build switch nodes in horizontal row
@@ -39,7 +41,7 @@ function buildFabricSubgraph(
       model,
       fabric,
       usedPorts: usedPortsPerSwitch,
-      totalPorts: usedPortsPerSwitch,
+      totalPorts: switchCapacityPorts,
       islPorts: islPortsPerSwitch,
     },
   }))
@@ -91,6 +93,8 @@ export function buildFCTopologyGraph(bom: FCNetworkBOM): FCTopologyGraphResult {
     bom.islPortsPerFabric,
     model,
     bom.hostPortsPerFabric,
+    bom.storagePortsPerFabric,
+    bom.switchPortsPerFabric,
     islPortsPerSwitch,
   )
 
@@ -100,6 +104,8 @@ export function buildFCTopologyGraph(bom: FCNetworkBOM): FCTopologyGraphResult {
     bom.islPortsPerFabric,
     model,
     bom.hostPortsPerFabric,
+    bom.storagePortsPerFabric,
+    bom.switchPortsPerFabric,
     islPortsPerSwitch,
   )
 
