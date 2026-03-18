@@ -97,9 +97,9 @@ Plans:
   5. Rack elevation shows server racks with access switches (ToR) and separate aggregation/core network racks
 **Plans:** 3/3 plans complete
 Plans:
-- [ ] 19-01-PLAN.md — Standalone mode: stores, i18n, input form, BOM panel, mode selector
-- [ ] 19-02-PLAN.md — Visualization: topology graph builder, topology tab, rack elevation
-- [ ] 19-03-PLAN.md — Converged integration: topology selector, replace placeholder guards
+- [x] 19-01-PLAN.md — Standalone mode: stores, i18n, input form, BOM panel, mode selector
+- [x] 19-02-PLAN.md — Visualization: topology graph builder, topology tab, rack elevation
+- [x] 19-03-PLAN.md — Converged integration: topology selector, replace placeholder guards
 
 ### Phase 20: Three-Tier Export & i18n
 **Goal**: Users can export 3-tier designs to CSV and PDF with properly labeled sections, and all 3-tier labels are translated in EN/FR/DE/IT
@@ -109,7 +109,10 @@ Plans:
   1. CSV export produces rows grouped into access, aggregation, and core sections (mirroring the BOM panel structure)
   2. PDF export includes 3-tier BOM tables and a topology page showing the hierarchical diagram
   3. All 3-tier mode labels (mode name, tier names, BOM headings, export headers) appear correctly in EN, FR, DE, and IT
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 20-01-PLAN.md — Three-tier CSV/PDF export (standalone + converged) and TopBar wiring
+- [ ] 20-02-PLAN.md — Three-tier export i18n keys for all 4 locales
 
 ## Progress
 
@@ -133,5 +136,5 @@ Plans:
 | 16. Converged UI | v3.0 | 3/3 | Complete | 2026-03-18 |
 | 17. Converged Export & i18n | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 18. Three-Tier Domain & Engine | v4.0 | 3/3 | Complete | 2026-03-18 |
-| 19. Three-Tier UI & Converged Integration | 3/3 | Complete    | 2026-03-18 | - |
-| 20. Three-Tier Export & i18n | v4.0 | 0/TBD | Not started | - |
+| 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
+| 20. Three-Tier Export & i18n | v4.0 | 0/2 | Not started | - |
