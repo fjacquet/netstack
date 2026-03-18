@@ -174,7 +174,7 @@ Plans:
 | 8. FC Catalog and Schema Foundation | v2.0 | 2/2 | Complete | 2026-03-18 |
 | 9. Mode Store Isolation | 2/2 | Complete   | 2026-03-18 | - |
 | 10. FC Sizing Engine | 2/2 | Complete    | 2026-03-18 | - |
-| 11. Switch Positioning (Ethernet) | v2.0 | 0/3 | Not started | - |
+| 11. Switch Positioning (Ethernet) | 1/3 | In Progress|  | - |
 | 12. FC Input and BOM UI | v2.0 | 0/? | Not started | - |
 | 13. FC Topology Diagram | v2.0 | 0/? | Not started | - |
 | 14. FC Export | v2.0 | 0/? | Not started | - |

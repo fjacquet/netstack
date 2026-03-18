@@ -35,10 +35,10 @@
 
 ### Switch Positioning (Ethernet)
 
-- [ ] **POS-01**: Switch position selector (ToR / MoR / BoR) with ToR as default
+- [x] **POS-01**: Switch position selector (ToR / MoR / BoR) with ToR as default
 - [ ] **POS-02**: Rack elevation renders switches at correct U-position based on positioning
-- [ ] **POS-03**: Cable length calculations adjusted per switch position (MoR halves max run)
-- [ ] **POS-04**: DAC distance advisory updated to account for switch positioning
+- [x] **POS-03**: Cable length calculations adjusted per switch position (MoR halves max run)
+- [x] **POS-04**: DAC distance advisory updated to account for switch positioning
 
 ## Out of Scope
 
@@ -70,10 +70,10 @@
 | FC-12 | Phase 13 | Pending |
 | FC-13 | Phase 14 | Pending |
 | FC-14 | Phase 14 | Pending |
-| POS-01 | Phase 11 | Pending |
+| POS-01 | Phase 11 | Complete |
 | POS-02 | Phase 11 | Pending |
-| POS-03 | Phase 11 | Pending |
-| POS-04 | Phase 11 | Pending |
+| POS-03 | Phase 11 | Complete |
+| POS-04 | Phase 11 | Complete |
 
 **Coverage:**
 

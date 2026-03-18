@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: FC SAN & Switch Positioning
 status: planning
-stopped_at: Completed 10-02-PLAN.md (calculateFCBOM TDD GREEN phase)
-last_updated: "2026-03-18T10:48:00.146Z"
+stopped_at: Completed 11-01-PLAN.md (switchPositioning domain layer)
+last_updated: "2026-03-18T11:17:39.041Z"
 last_activity: 2026-03-18 — v2.0 roadmap created, 18/18 requirements mapped across phases 8-14
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 0
 ---
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0% (v2.0)
 | Phase 09-mode-store-isolation P02 | 4 | 2 tasks | 4 files |
 | Phase 10-fc-sizing-engine P01 | 1 | 1 tasks | 1 files |
 | Phase 10-fc-sizing-engine P02 | 4 | 1 tasks | 1 files |
+| Phase 11-switch-positioning-ethernet P01 | 395 | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Key v2.0 architectural decisions from research:
 - [Phase 10-02]: ISL formula uses hostBandwidth/targetFanIn — not min(host,storage) — so ISL count scales with server count
 - [Phase 10-02]: FC_PORT_SATURATION fires against single-switch max device port capacity (totalPorts - effectiveIslPerSwitch), not total fabric capacity
 - [Phase 10-02]: computeEffectivePorts() uses demand without ISL for POD license count; ISL reservation applied separately to devicePortsPerSwitch
+- [Phase 11-01]: switchOverheadU as inner function inside calculateBOM — avoids module-level pollution while remaining testable via engine outputs
+- [Phase 11-01]: DAC_POSITIONING_INCOMPATIBLE fires independently from DAC_DISTANCE_ADVISORY — different concerns (cable physics vs deployment span)
 
 ### Research Flags
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:33:37.727Z
-Stopped at: Completed 10-02-PLAN.md (calculateFCBOM TDD GREEN phase)
+Last session: 2026-03-18T11:17:39.038Z
+Stopped at: Completed 11-01-PLAN.md (switchPositioning domain layer)
 Resume file: None
