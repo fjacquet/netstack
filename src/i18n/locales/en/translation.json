@@ -145,11 +145,13 @@
     "threeTierPdfButton": "Export Three-Tier PDF"
   },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Converged",
-    "threeTier": "Three-Tier",
-    "selectLabel": "Mode"
+    "selectLabel": "Mode",
+    "topologyLabel": "Topology",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Three-Tier (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "FC Sizing Parameters",
@@ -209,8 +211,11 @@
   "threeTier": {
     "heading": "Three-Tier Sizing Parameters",
     "accessModel": "Access Switch Model",
+    "selectAccessModel": "Select access switch model",
     "aggregationModel": "Aggregation Switch Model",
+    "selectAggregationModel": "Select aggregation switch model",
     "coreModel": "Core Switch Model",
+    "selectCoreModel": "Select core switch model",
     "activeUplinksPerAccess": "Uplinks per Access Switch",
     "activeUplinksPerAggregation": "Uplinks per Aggregation Switch",
     "accessSwitches": "Access Switches",

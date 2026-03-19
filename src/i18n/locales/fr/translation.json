@@ -145,11 +145,13 @@
     "threeTierPdfButton": "Exporter PDF Trois niveaux"
   },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Convergé",
-    "threeTier": "Trois niveaux",
-    "selectLabel": "Mode"
+    "selectLabel": "Mode",
+    "topologyLabel": "Topologie",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Trois niveaux (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "Parametres FC",
@@ -209,8 +211,11 @@
   "threeTier": {
     "heading": "Parametres de dimensionnement trois niveaux",
     "accessModel": "Modele commutateur d'acces",
+    "selectAccessModel": "Choisir le modele de commutateur d'acces",
     "aggregationModel": "Modele commutateur d'agregation",
+    "selectAggregationModel": "Choisir le modele de commutateur d'agregation",
     "coreModel": "Modele commutateur coeur",
+    "selectCoreModel": "Choisir le modele de commutateur coeur",
     "activeUplinksPerAccess": "Uplinks par commutateur d'acces",
     "activeUplinksPerAggregation": "Uplinks par commutateur d'agregation",
     "accessSwitches": "Commutateurs d'acces",

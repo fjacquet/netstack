@@ -145,11 +145,13 @@
     "threeTierPdfButton": "Drei-Schicht PDF exportieren"
   },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Konvergiert",
-    "threeTier": "Dreistufig",
-    "selectLabel": "Modus"
+    "selectLabel": "Modus",
+    "topologyLabel": "Topologie",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Drei-Schichten (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "FC-Dimensionierungsparameter",
@@ -209,8 +211,11 @@
   "threeTier": {
     "heading": "Dreistufige Dimensionierungsparameter",
     "accessModel": "Access-Switch-Modell",
+    "selectAccessModel": "Access-Switch-Modell waehlen",
     "aggregationModel": "Aggregation-Switch-Modell",
+    "selectAggregationModel": "Aggregation-Switch-Modell waehlen",
     "coreModel": "Core-Switch-Modell",
+    "selectCoreModel": "Core-Switch-Modell waehlen",
     "activeUplinksPerAccess": "Uplinks pro Access-Switch",
     "activeUplinksPerAggregation": "Uplinks pro Aggregation-Switch",
     "accessSwitches": "Access-Switches",

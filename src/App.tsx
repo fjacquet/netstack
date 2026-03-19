@@ -7,9 +7,8 @@ import { TopBar } from '@/components/TopBar'
 import { SizingPage } from '@/features/sizing/SizingPage'
 import { FCSizingPage } from '@/features/sizing/fc/FCSizingPage'
 import { ConvergedSizingPage } from '@/features/sizing/converged/ConvergedSizingPage'
-import { ThreeTierSizingPage } from '@/features/sizing/three-tier/ThreeTierSizingPage'
-import { RackElevationTab, ConvergedRackElevationTab, ThreeTierRackElevationTab } from '@/features/rack-elevation'
-import { TopologyTab, FCTopologyTab, ConvergedTopologyTab, ThreeTierTopologyTab } from '@/features/topology'
+import { RackElevationTab, ConvergedRackElevationTab } from '@/features/rack-elevation'
+import { TopologyTab, FCTopologyTab, ConvergedTopologyTab } from '@/features/topology'
 import {
   Tabs,
   TabsContent,
@@ -19,7 +18,7 @@ import {
 
 function AppContent() {
   const { t } = useTranslation()
-  const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged' | 'three-tier'>('ethernet')
+  const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged'>('ethernet')
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -45,14 +44,14 @@ function AppContent() {
         </div>
         <main className="flex-1 overflow-auto">
           <TabsContent value="sizing" className="mt-0">
-            {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : mode === 'three-tier' ? <ThreeTierSizingPage /> : <SizingPage />}
+            {mode === 'fc' ? <FCSizingPage /> : mode === 'converged' ? <ConvergedSizingPage /> : <SizingPage />}
           </TabsContent>
           <TabsContent value="topology" className="mt-0">
-            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : mode === 'three-tier' ? <ThreeTierTopologyTab /> : <TopologyTab />}
+            {mode === 'fc' ? <FCTopologyTab /> : mode === 'converged' ? <ConvergedTopologyTab /> : <TopologyTab />}
           </TabsContent>
           {mode !== 'fc' && (
             <TabsContent value="rackElevation" className="mt-0">
-              {mode === 'converged' ? <ConvergedRackElevationTab /> : mode === 'three-tier' ? <ThreeTierRackElevationTab /> : <RackElevationTab />}
+              {mode === 'converged' ? <ConvergedRackElevationTab /> : <RackElevationTab />}
             </TabsContent>
           )}
         </main>
