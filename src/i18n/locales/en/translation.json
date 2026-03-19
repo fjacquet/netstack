@@ -233,6 +233,13 @@
     "accessToAggrOversubLabel": "Access-Aggregation Oversubscription",
     "aggrToCoreOversubLabel": "Aggregation-Core Oversubscription"
   },
+  "infra": {
+    "existingSpinesToggle": "Spines already deployed",
+    "existingSpinesHelp": "Exclude spine switches from BOM (cables still included)",
+    "existingCoreToggle": "Core switches already deployed",
+    "existingCoreHelp": "Exclude core switches from BOM (cables still included)",
+    "existingLabel": "(existing)"
+  },
   "bom": {
     "heading": "Bill of Materials",
     "switchesHeading": "Switches",

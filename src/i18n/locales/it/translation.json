@@ -233,6 +233,13 @@
     "accessToAggrOversubLabel": "Sovrascrizione accesso-aggregazione",
     "aggrToCoreOversubLabel": "Sovrascrizione aggregazione-core"
   },
+  "infra": {
+    "existingSpinesToggle": "Spine gia installati",
+    "existingSpinesHelp": "Escludere gli switch spine dal BOM (cavi ancora inclusi)",
+    "existingCoreToggle": "Switch core gia installati",
+    "existingCoreHelp": "Escludere gli switch core dal BOM (cavi ancora inclusi)",
+    "existingLabel": "(esistente)"
+  },
   "bom": {
     "heading": "Distinta materiali",
     "switchesHeading": "Switch",

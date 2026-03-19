@@ -233,6 +233,13 @@
     "accessToAggrOversubLabel": "Access-Aggregation-Uberzeichnung",
     "aggrToCoreOversubLabel": "Aggregation-Core-Uberzeichnung"
   },
+  "infra": {
+    "existingSpinesToggle": "Spines bereits installiert",
+    "existingSpinesHelp": "Spine-Switches aus BOM ausschliessen (Kabel weiterhin enthalten)",
+    "existingCoreToggle": "Core-Switches bereits installiert",
+    "existingCoreHelp": "Core-Switches aus BOM ausschliessen (Kabel weiterhin enthalten)",
+    "existingLabel": "(vorhanden)"
+  },
   "bom": {
     "heading": "Stueckliste",
     "switchesHeading": "Switches",

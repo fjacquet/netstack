@@ -233,6 +233,13 @@
     "accessToAggrOversubLabel": "Sursouscription acces-agregation",
     "aggrToCoreOversubLabel": "Sursouscription agregation-coeur"
   },
+  "infra": {
+    "existingSpinesToggle": "Spines deja deployes",
+    "existingSpinesHelp": "Exclure les switches spine du BOM (cables toujours inclus)",
+    "existingCoreToggle": "Switches core deja deployes",
+    "existingCoreHelp": "Exclure les switches core du BOM (cables toujours inclus)",
+    "existingLabel": "(existant)"
+  },
   "bom": {
     "heading": "Nomenclature",
     "switchesHeading": "Commutateurs",
