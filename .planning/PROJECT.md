@@ -56,9 +56,17 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Three-tier CSV/PDF export (standalone + converged integration) — v4.0
 - ✓ Converged mode topology selector: Leaf-Spine (Clos) or Three-Tier for Ethernet portion — v4.0
 
+## Current Milestone: v5.0 Unified Ethernet & Configurations
+
+**Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector (ADR-0018), add existing infrastructure toggle for brownfield deployments (ADR-0019), and save/load named configurations (ADR-0020).
+
+**Target features:**
+- 3 modes: Ethernet (Clos or 3-tier), FC, Converged
+- Existing infrastructure toggle (core/spines already deployed)
+- Save/load named configurations to localStorage
+
 ### Future (v5.0+)
 
-- Save/load named configurations
 - JSON export
 - Multi-pod support for large deployments
 - Power budget calculation per rack
