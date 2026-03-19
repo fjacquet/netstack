@@ -53,6 +53,8 @@ Replaced the monolithic Tabs-based SizingPage with a dedicated /input route and 
 | 1 | Create accordion input pages and ResultsPage | 9e94807 | InputPage, EthInputAccordion, FCInputAccordion, ConvergedInputAccordion, ResultsPage |
 | 2 | Migrate App.tsx, TopBar, print CSS; delete old files | 26e93e5, b2c9d66 | App.tsx, TopBar.tsx, index.css; deleted 6 old files |
 | 2-fix | Fix accordion defaultValue and test selectors | 2b1fdd2 | All 3 accordions, FCInputForm.test.tsx |
+| 3 | Human verification checkpoint — approved by user | — | (no code change required) |
+| 3-fix | Move Configure Inputs to nav strip | a356cd0 | App.tsx |
 
 ## What Was Built
 
@@ -112,5 +114,16 @@ All 552 tests pass after fixes:
 - 26e93e5: feat(24-02): migrate App to Routes, add Configure button, update print CSS
 - b2c9d66: chore(24-02): delete old InputForm and SizingPage files
 - 2b1fdd2: fix(24-02): open all accordion sections by default; fix test selectors
+
+**3. [Rule 2 - Missing] Added Configure Inputs NavLink to nav strip**
+- **Found during:** Task 3 human verification (user approved)
+- **Issue:** Configure button in TopBar was the only way to reach /input — no link in the nav strip meant no keyboard/link affordance
+- **Fix:** Added Configure Inputs NavLink to the nav strip alongside Results/Topology/Rack with same active styling
+- **Files modified:** src/App.tsx
+- **Commit:** a356cd0
+
+## Final Test Results
+
+All 552 tests pass after all fixes (confirmed post human-verify approval).
 
 ## Self-Check: PASSED
