@@ -138,7 +138,7 @@ Plans:
   5. Configure button in TopBar navigates to /input with active state
   6. NavLink tab strip replaces Tabs with correct active states
   7. All existing domain tests continue to pass (regression)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 24-01-PLAN.md — Router + infrastructure (dependencies, HashRouter, accordion component, i18n, test stubs)
 - [ ] 24-02-PLAN.md — Accordion pages + nav migration (InputPage, accordions, ResultsPage, App.tsx routes, TopBar)
@@ -170,4 +170,4 @@ Plans:
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 24. Dedicated Input Page | v5.0 | 0/2 | Planned | - |
+| 24. Dedicated Input Page | 1/2 | In Progress|  | - |
