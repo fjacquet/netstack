@@ -170,4 +170,4 @@ Plans:
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 24. Dedicated Input Page | 2/2 | Complete   | 2026-03-19 | - |
+| 24. Dedicated Input Page | 2/2 | Complete    | 2026-03-19 | - |
