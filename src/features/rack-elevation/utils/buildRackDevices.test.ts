@@ -20,6 +20,7 @@ const mockBOM: NetworkBOM = {
   switchPositioning: 'ToR',
   recommendedCableLengthM: 2,
   violations: [],
+  advisories: [],
   input: {
     topology: 'leaf-spine',
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
@@ -42,6 +43,9 @@ const mockBOM: NetworkBOM = {
     switchPositioning: 'ToR',
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
   },
 }
 
@@ -102,7 +106,11 @@ function makeBom(positioning: 'ToR' | 'MoR' | 'BoR', racks = 2): NetworkBOM {
       switchPositioning: positioning,
       existingSpinesDeployed: false,
       existingCoreDeployed: false,
+      rackPitchMm: 600,
+      racksAdjacent: true,
+      patchPanelDistanceM: 1,
     },
+    advisories: [],
   }
 }
 

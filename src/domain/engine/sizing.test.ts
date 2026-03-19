@@ -35,6 +35,9 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     switchPositioning: 'ToR' as const,
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
     ...overrides,
   };
 }
@@ -859,6 +862,9 @@ describe('RACK_CAPACITY_EXCEEDED: U-height capacity violation', () => {
       switchPositioning: 'ToR' as const,
       existingSpinesDeployed: false,
       existingCoreDeployed: false,
+      rackPitchMm: 600,
+      racksAdjacent: true,
+      patchPanelDistanceM: 1,
     };
     const bom = calculateBOM(inputWithoutHeight);
     expect(bom).toBeDefined();

@@ -32,6 +32,9 @@ function makeInput(overrides: Partial<ThreeTierSizingInput> = {}): ThreeTierSizi
     serverUHeight: '1U',
     switchPositioning: 'ToR' as const,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
     ...overrides,
   };
 }

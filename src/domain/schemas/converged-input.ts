@@ -63,6 +63,14 @@ export const ConvergedSizingInputSchema = z.object({
   /** Brownfield: core switches already deployed, exclude from BOM (Three-Tier topology) */
   existingCoreDeployed: z.boolean().default(false),
 
+  // --- Geometry fields (v6.0 Physical Planning) ---
+  /** Rack pitch in mm -- centre-to-centre distance between adjacent racks (default 600mm) */
+  rackPitchMm: z.number().int().min(100).max(2000).default(600),
+  /** Whether all racks are physically adjacent (true) or separated with patch panels (false) */
+  racksAdjacent: z.boolean().default(true),
+  /** Distance from rack to patch panel in metres (only meaningful when racksAdjacent=false) */
+  patchPanelDistanceM: z.number().min(0).max(100).default(1),
+
   // --- FC fields (from FCSizingInputSchema, but hbaPortsPerServer min=0) ---
   /** Number of HBA ports per server (0=FC disabled, 1-8=FC enabled). min=0 per CONV-04. */
   hbaPortsPerServer: z.number().int().min(0).max(8).default(0),

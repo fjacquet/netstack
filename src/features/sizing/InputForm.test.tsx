@@ -42,6 +42,9 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     switchPositioning: 'ToR' as const,
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
     ...overrides,
   }
 }

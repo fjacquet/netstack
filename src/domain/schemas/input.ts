@@ -72,6 +72,14 @@ export const SizingInputSchema = z.object({
   existingSpinesDeployed: z.boolean().default(false),
   /** Brownfield: core switches already deployed, exclude from BOM (Three-Tier topology) */
   existingCoreDeployed: z.boolean().default(false),
+
+  // -- Geometry fields (v6.0 Physical Planning) --
+  /** Rack pitch in mm -- centre-to-centre distance between adjacent racks (default 600mm) */
+  rackPitchMm: z.number().int().min(100).max(2000).default(600),
+  /** Whether all racks are physically adjacent (true) or separated with patch panels (false) */
+  racksAdjacent: z.boolean().default(true),
+  /** Distance from rack to patch panel in metres (only meaningful when racksAdjacent=false) */
+  patchPanelDistanceM: z.number().min(0).max(100).default(1),
 });
 
 /** Inferred TypeScript type — do not declare separately */

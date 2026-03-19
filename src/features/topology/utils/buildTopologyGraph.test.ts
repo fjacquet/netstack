@@ -53,7 +53,11 @@ const mockBOM: NetworkBOM = {
     switchPositioning: 'ToR',
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
   },
+  advisories: [],
 }
 
 describe('buildTopologyGraph', () => {

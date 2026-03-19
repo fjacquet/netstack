@@ -55,6 +55,10 @@ function toEthernetInput(input: ConvergedSizingInput): SizingInput {
     // Brownfield toggles
     existingSpinesDeployed: input.existingSpinesDeployed ?? false,
     existingCoreDeployed: input.existingCoreDeployed ?? false,
+    // Geometry fields (v6.0 Physical Planning)
+    rackPitchMm: input.rackPitchMm,
+    racksAdjacent: input.racksAdjacent,
+    patchPanelDistanceM: input.patchPanelDistanceM,
   };
 }
 
@@ -81,6 +85,10 @@ function toThreeTierInput(input: ConvergedSizingInput): ThreeTierSizingInput {
     serverUHeight: input.serverUHeight,
     switchPositioning: input.switchPositioning,
     existingCoreDeployed: input.existingCoreDeployed ?? false,
+    // Geometry fields (v6.0 Physical Planning)
+    rackPitchMm: input.rackPitchMm,
+    racksAdjacent: input.racksAdjacent,
+    patchPanelDistanceM: input.patchPanelDistanceM,
   };
 }
 

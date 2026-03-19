@@ -280,9 +280,9 @@ describe('SWITCH_CATALOG — Z9432F-ON (3-tier aggregation/core)', () => {
 });
 
 describe('CABLE_CATALOG', () => {
-  it('contains DAC with maxDistanceM 5', () => {
+  it('contains DAC with maxDistanceM 3 (conservative 25G limit for backwards compat)', () => {
     expect(CABLE_CATALOG['DAC']).toBeDefined();
-    expect(CABLE_CATALOG['DAC'].maxDistanceM).toBe(5);
+    expect(CABLE_CATALOG['DAC'].maxDistanceM).toBe(3);
   });
 
   it('contains AOC with maxDistanceM 30', () => {
@@ -298,5 +298,13 @@ describe('CABLE_CATALOG', () => {
   it('DAC supports 25G and 100G speeds', () => {
     expect(CABLE_CATALOG['DAC'].speedGbE).toContain(25);
     expect(CABLE_CATALOG['DAC'].speedGbE).toContain(100);
+  });
+
+  it('DAC has per-speed limit: 25G = 3m (IEEE 802.3by)', () => {
+    expect((CABLE_CATALOG['DAC'] as { maxDistanceBySpeed?: Record<number, number> }).maxDistanceBySpeed?.[25]).toBe(3);
+  });
+
+  it('DAC has per-speed limit: 100G = 5m (IEEE 802.3bj)', () => {
+    expect((CABLE_CATALOG['DAC'] as { maxDistanceBySpeed?: Record<number, number> }).maxDistanceBySpeed?.[100]).toBe(5);
   });
 });

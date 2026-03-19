@@ -37,6 +37,8 @@ export interface CableSpec {
   type: 'DAC' | 'AOC' | 'fiber';
   /** Supported link speeds in GbE */
   speedGbE: number[];
-  /** Maximum supported distance in meters */
+  /** Maximum supported distance in meters (conservative / backwards-compat value) */
   maxDistanceM: number;
+  /** Per-speed maximum distance in metres. Key = speed in GbE. Only present on DAC. */
+  maxDistanceBySpeed?: Record<number, number>;
 }

@@ -32,6 +32,8 @@ export const ConstraintViolationSchema = z.discriminatedUnion('code', [
     rackCount: z.number().int(),
     /** Cable type that triggered the advisory (always DAC) */
     cableType: z.literal('DAC'),
+    /** Computed cable run distance in metres (optional, set by Phase 26 cable length engine) */
+    computedDistanceM: z.number().optional(),
   }),
   z.object({
     code: z.literal('RACK_CAPACITY_EXCEEDED'),
@@ -46,6 +48,23 @@ export const ConstraintViolationSchema = z.discriminatedUnion('code', [
 
 /** Inferred TypeScript type — do not declare separately */
 export type ConstraintViolation = z.infer<typeof ConstraintViolationSchema>;
+
+/**
+ * Advisory schema — informational warnings (amber) separate from constraint violations (red).
+ * Advisories do not block design, they recommend improvements.
+ */
+export const AdvisorySchema = z.discriminatedUnion('code', [
+  z.object({
+    code: z.literal('PATCH_PANEL_RECOMMENDED'),
+    /** Computed cable run distance in metres */
+    computedDistanceM: z.number(),
+    /** DAC distance limit exceeded (speed-specific) */
+    dacLimitM: z.number(),
+  }),
+]);
+
+/** Inferred TypeScript type — do not declare separately */
+export type Advisory = z.infer<typeof AdvisorySchema>;
 
 /**
  * Bill of Materials output schema.
@@ -84,6 +103,8 @@ export const NetworkBOMSchema = z.object({
   recommendedCableLengthM: z.number().int().min(0),
   /** Typed constraint violations produced by the sizing engine */
   violations: z.array(ConstraintViolationSchema),
+  /** Informational advisories (amber) — non-blocking recommendations */
+  advisories: z.array(AdvisorySchema).default([]),
   /** Original input that produced this BOM */
   input: SizingInputSchema,
 });

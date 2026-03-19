@@ -189,6 +189,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     switchPositioning: input.switchPositioning,
     recommendedCableLengthM,
     violations,
+    advisories: [],
     input,
   };
 }

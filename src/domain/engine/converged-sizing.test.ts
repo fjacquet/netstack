@@ -23,6 +23,10 @@ function makeConvergedInput(overrides: Partial<ConvergedSizingInput> = {}): Conv
     // Brownfield toggles
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    // Geometry fields (v6.0 Physical Planning)
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
     // 3-tier fields (defaults, ignored when topology='leaf-spine')
     accessModel: 'S5248F-ON',
     aggregationModel: 'Z9264F-ON',

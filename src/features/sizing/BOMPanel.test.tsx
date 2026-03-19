@@ -45,6 +45,7 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     switchPositioning: 'ToR',
     recommendedCableLengthM: 2,
     violations: [],
+    advisories: [],
     input: {
       topology: 'leaf-spine',
       racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
@@ -67,6 +68,9 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
       switchPositioning: 'ToR',
       existingSpinesDeployed: false,
       existingCoreDeployed: false,
+      rackPitchMm: 600,
+      racksAdjacent: true,
+      patchPanelDistanceM: 1,
     },
     ...overrides,
   }
@@ -95,6 +99,9 @@ const DEFAULT_INPUT: SizingInput = {
   switchPositioning: 'ToR',
   existingSpinesDeployed: false,
   existingCoreDeployed: false,
+  rackPitchMm: 600,
+  racksAdjacent: true,
+  patchPanelDistanceM: 1,
 }
 
 // Helper: mock useResultStore with a given state
@@ -222,6 +229,9 @@ describe('BOMPanel', () => {
           switchPositioning: 'ToR',
           existingSpinesDeployed: false,
           existingCoreDeployed: false,
+          rackPitchMm: 600,
+          racksAdjacent: true,
+          patchPanelDistanceM: 1,
         },
       })
       mockStore({ bom, threeTierBom: null, violations: [] })
@@ -276,6 +286,9 @@ describe('BOMPanel', () => {
           switchPositioning: 'ToR',
           existingSpinesDeployed: false,
           existingCoreDeployed: false,
+          rackPitchMm: 600,
+          racksAdjacent: true,
+          patchPanelDistanceM: 1,
         },
       })
       mockStore({ bom, threeTierBom: null, violations: [] })

@@ -216,6 +216,7 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
     switchPositioning: input.switchPositioning,
     recommendedCableLengthM,
     violations,
+    advisories: [],
     input,
   };
 }

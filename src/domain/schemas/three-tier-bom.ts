@@ -11,6 +11,7 @@
 
 import { z } from 'zod';
 import { ThreeTierSizingInputSchema } from './three-tier-input';
+import { AdvisorySchema } from './bom';
 
 /**
  * Typed discriminated union for three-tier domain constraint violations.
@@ -45,6 +46,8 @@ export const ThreeTierConstraintViolationSchema = z.discriminatedUnion('code', [
     rackCount: z.number().int(),
     /** Cable type that triggered the advisory (always DAC) */
     cableType: z.literal('DAC'),
+    /** Computed cable run distance in metres (optional, set by Phase 26 cable length engine) */
+    computedDistanceM: z.number().optional(),
   }),
   z.object({
     code: z.literal('RACK_CAPACITY_EXCEEDED'),
@@ -125,6 +128,9 @@ export const ThreeTierBOMSchema = z.object({
 
   /** Typed constraint violations produced by the three-tier sizing engine */
   violations: z.array(ThreeTierConstraintViolationSchema),
+
+  /** Informational advisories (amber) -- non-blocking recommendations */
+  advisories: z.array(AdvisorySchema).default([]),
 
   /** Original input that produced this BOM */
   input: ThreeTierSizingInputSchema,

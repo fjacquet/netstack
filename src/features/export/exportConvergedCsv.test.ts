@@ -21,6 +21,7 @@ const mockEthernetBom: NetworkBOM = {
   switchPositioning: 'ToR',
   recommendedCableLengthM: 2,
   violations: [],
+  advisories: [],
   input: {
     topology: 'leaf-spine',
     racks: [{ serverCount: 20 }, { serverCount: 20 }],
@@ -43,6 +44,9 @@ const mockEthernetBom: NetworkBOM = {
     switchPositioning: 'ToR',
     existingSpinesDeployed: false,
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
   },
 }
 
@@ -89,6 +93,9 @@ const mockConvergedInput = {
   switchPositioning: 'ToR' as const,
   existingSpinesDeployed: false,
   existingCoreDeployed: false,
+  rackPitchMm: 600,
+  racksAdjacent: true,
+  patchPanelDistanceM: 1,
   accessModel: 'S5248F-ON' as const,
   aggregationModel: 'Z9264F-ON' as const,
   activeUplinksPerAggregation: 4,

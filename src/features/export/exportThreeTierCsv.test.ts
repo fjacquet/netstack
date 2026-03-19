@@ -23,6 +23,7 @@ const mockThreeTierBom: ThreeTierBOM = {
   switchPositioning: 'ToR',
   recommendedCableLengthM: 2,
   violations: [],
+  advisories: [],
   input: {
     racks: [{ serverCount: 20 }, { serverCount: 20 }],
     portsPerServerFrontend: 1,
@@ -40,6 +41,9 @@ const mockThreeTierBom: ThreeTierBOM = {
     serverUHeight: '1U',
     switchPositioning: 'ToR',
     existingCoreDeployed: false,
+    rackPitchMm: 600,
+    racksAdjacent: true,
+    patchPanelDistanceM: 1,
   },
 }
 
