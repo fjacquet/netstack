@@ -134,6 +134,12 @@ export const ThreeTierBOMSchema = z.object({
 
   /** Original input that produced this BOM */
   input: ThreeTierSizingInputSchema,
+  /** Cable length schedule per link type (Phase 26) */
+  cableSchedule: z.object({
+    serverAccessSkuM: z.number().int(),
+    accessAggregationSkuM: z.number().int(),
+    aggregationCoreSkuM: z.number().int(),
+  }).optional(),
 });
 
 /** Inferred TypeScript type -- do not declare separately */

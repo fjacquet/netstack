@@ -107,6 +107,12 @@ export const NetworkBOMSchema = z.object({
   advisories: z.array(AdvisorySchema).default([]),
   /** Original input that produced this BOM */
   input: SizingInputSchema,
+  /** Cable length schedule per link type (Phase 26) */
+  cableSchedule: z.object({
+    serverLeafSkuM: z.number().int(),
+    leafSpineSkuM: z.number().int(),
+    vltSkuM: z.number().int(),
+  }).optional(),
 });
 
 /** Inferred TypeScript type — do not declare separately */

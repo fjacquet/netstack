@@ -107,6 +107,8 @@ export const FCNetworkBOMSchema = z.object({
 
   /** Original FC input that produced this BOM */
   input: FCSizingInputSchema,
+  /** Estimated ISL cable length SKU in metres (Phase 26, fixed conservative 5m) */
+  islCableLengthSkuM: z.number().int().optional(),
 });
 
 /** Inferred TypeScript type — do not declare separately */
