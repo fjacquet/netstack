@@ -17,10 +17,10 @@
 
 ### Existing Infrastructure
 
-- [ ] **INFRA-01**: 3-tier mode has "Core switches already deployed" toggle — BOM excludes core switches when enabled
-- [ ] **INFRA-02**: Clos mode has "Spines already deployed" toggle — BOM excludes spine switches when enabled
-- [ ] **INFRA-03**: Cable BOM still includes inter-tier cables to existing switches (user needs cables)
-- [ ] **INFRA-04**: Oversubscription ratios calculated against full fabric (existing + new)
+- [x] **INFRA-01**: 3-tier mode has "Core switches already deployed" toggle — BOM excludes core switches when enabled
+- [x] **INFRA-02**: Clos mode has "Spines already deployed" toggle — BOM excludes spine switches when enabled
+- [x] **INFRA-03**: Cable BOM still includes inter-tier cables to existing switches (user needs cables)
+- [x] **INFRA-04**: Oversubscription ratios calculated against full fabric (existing + new)
 
 ### Save/Load Configurations
 
@@ -55,10 +55,10 @@
 | ETH-03 | Phase 21 | Complete |
 | ETH-04 | Phase 21 | Complete |
 | ETH-05 | Phase 21 | Complete |
-| INFRA-01 | Phase 22 | Pending |
-| INFRA-02 | Phase 22 | Pending |
-| INFRA-03 | Phase 22 | Pending |
-| INFRA-04 | Phase 22 | Pending |
+| INFRA-01 | Phase 22 | Complete |
+| INFRA-02 | Phase 22 | Complete |
+| INFRA-03 | Phase 22 | Complete |
+| INFRA-04 | Phase 22 | Complete |
 | CFG-01 | Phase 23 | Pending |
 | CFG-02 | Phase 23 | Pending |
 | CFG-03 | Phase 23 | Pending |

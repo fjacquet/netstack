@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Unified Ethernet & Configurations
 status: completed
-stopped_at: Completed 21-02-PLAN.md (Phase 21 complete)
-last_updated: "2026-03-19T04:15:33.527Z"
-last_activity: 2026-03-19 — Plan 02 complete (topology-aware UI + dead code removal)
+stopped_at: Completed 22-01-PLAN.md
+last_updated: "2026-03-19T04:28:30.000Z"
+last_activity: 2026-03-19 -- Plan 01 complete (brownfield schema + post-processing + i18n)
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 2
-  completed_plans: 2
-  percent: 33
+  completed_plans: 3
+  percent: 50
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** v5.0 Unified Ethernet & Configurations — Phase 21 in progress
+**Current focus:** v5.0 Unified Ethernet & Configurations -- Phase 22 in progress
 
 ## Current Position
 
-Phase: 21 of 23 (Unified Ethernet Mode) -- COMPLETE
-Plan: 2 of 2 in current phase -- COMPLETE
-Status: Phase 21 complete, ready for Phase 22
-Last activity: 2026-03-19 — Plan 02 complete (topology-aware UI + dead code removal)
+Phase: 22 of 23 (Existing Infrastructure Toggle)
+Plan: 1 of 2 in current phase
+Status: Plan 01 complete, Plan 02 pending
+Last activity: 2026-03-19 -- Plan 01 complete (brownfield schema + post-processing + i18n)
 
-Progress: [###░░░░░░░] 33% (v5.0 milestone)
+Progress: [#####░░░░░] 50% (v5.0 milestone)
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [###░░░░░░░] 33% (v5.0 milestone)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 21-unified-ethernet-mode | 2/2 | 16min | 8min |
+| 22-existing-infrastructure-toggle | 1/2 | 6min | 6min |
 
 **Recent Trend:** Stable
 
@@ -77,6 +78,8 @@ Key architectural decisions relevant to v5.0:
 - [v5.0-P21]: inputStore version 7 with automatic v6->v7 migration
 - [v5.0-P21]: Topology-aware UI dispatch pattern -- InputForm, BOMPanel, TopologyTab, RackElevationTab, TopBar all check input.topology
 - [v5.0-P21]: 6 standalone three-tier files deleted (stores, forms, page, rack tab) -- functionality merged into unified components
+- [v5.0-P22]: Post-processing in resultStore (not engine) -- keeps calculateBOM/calculateThreeTierBOM pure
+- [v5.0-P22]: inputStore version 8 with existingSpinesDeployed/existingCoreDeployed brownfield toggles
 
 ### Pending Todos
 
@@ -89,5 +92,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 21-02-PLAN.md (Phase 21 complete)
+Stopped at: Completed 22-01-PLAN.md
 Resume file: None

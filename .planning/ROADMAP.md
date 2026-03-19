@@ -105,7 +105,7 @@ Plans:
   2. In Clos topology, user can toggle "Spines already deployed" and the BOM excludes spine switches from the count
   3. Cable BOM still includes cables connecting to existing switches (user still needs to order cables)
   4. Oversubscription ratios are calculated against the full fabric including existing switches (not just new equipment)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 22-01-PLAN.md — Schema fields, BOM post-processing, store v8 migration, i18n, tests
 - [ ] 22-02-PLAN.md — UI toggles in InputForm, "(existing)" labels in BOM panel
@@ -147,5 +147,5 @@ Plans:
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 22. Existing Infrastructure Toggle | v5.0 | 0/2 | Not started | - |
+| 22. Existing Infrastructure Toggle | 1/2 | In Progress|  | - |
 | 23. Save/Load Configurations | v5.0 | 0/? | Not started | - |
