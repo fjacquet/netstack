@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
 status: unknown
-stopped_at: Completed 26-01-PLAN.md — cable length library + BOM schema additions, start 26-02
-last_updated: "2026-03-19T09:37:02.179Z"
+stopped_at: Completed 26-02-PLAN.md — engine integration with cable schedule, upgraded DAC advisory, patch panel advisory
+last_updated: "2026-03-19T09:43:27.969Z"
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Phase 26 — Cable Length Engine
+**Current focus:** Phase 27 — UI Wiring, Advisory Cards, i18n
 
 ## Current Position
 
-Phase: 26 (Cable Length Engine) — EXECUTING
+Phase: 26 (Cable Length Engine) — COMPLETE
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -45,6 +45,7 @@ Plan: 2 of 2
 
 **Recent Trend:** Stable
 | Phase 25 P02 | 8 | 1 tasks | 2 files |
+| Phase 26 P02 | 6 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,13 @@ Plan: 2 of 2
 - BOM cableSchedule and islCableLengthSkuM fields are optional — backward compatible until Plan 02 populates them
 - aggregationCoreSkuM equals accessAggregationSkuM in Three-Tier (both tiers use same inter-rack formula)
 
+### Key Decisions (v6.0 — Plan 26-02 executed)
+
+- recommendedCableLengthM now uses serverLeafSkuM/serverAccessSkuM from cable-length.ts, not hardcoded ToR=2/MoR=1/BoR=2 map
+- DAC_DISTANCE_ADVISORY upgraded from racks>8 heuristic to interRackCableLengthM vs speed-specific CABLE_CATALOG.DAC.maxDistanceBySpeed limit
+- PATCH_PANEL_RECOMMENDED is in advisories[] (amber, non-blocking), not violations[] (red, blocking)
+- All three engines (Clos, Three-Tier, FC) now return cable schedule data; converged engine propagates automatically
+
 ### v6.0 Phase Summary
 
 | Phase | Requirements | Goal |
@@ -113,6 +121,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-19T09:37:02.176Z
-Stopped at: Completed 26-01-PLAN.md — cable length library + BOM schema additions, start 26-02
+Last session: 2026-03-19T09:43:27.966Z
+Stopped at: Completed 26-02-PLAN.md — engine integration with cable schedule, upgraded DAC advisory, patch panel advisory
 Resume file: None

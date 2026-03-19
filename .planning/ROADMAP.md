@@ -89,7 +89,7 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
 **Milestone Goal:** Extend NetStack from "how many boxes" to "how do I physically install them" — cable length schedule per link type, rack geometry inputs, upgraded DAC distance advisory with computed lengths, and export of the cable schedule.
 
 - [x] **Phase 25: Schema, Geometry Inputs & Advisory Foundation** — New advisories[] output type, store migration, geometry input fields (rack pitch, adjacency), DAC catalog fix (completed 2026-03-19)
-- [ ] **Phase 26: Cable Length Engine** — Pure domain functions computing cable lengths per link type across all modes; upgraded DAC advisory with real distance; non-adjacent patch panel advisory
+- [x] **Phase 26: Cable Length Engine** — Pure domain functions computing cable lengths per link type across all modes; upgraded DAC advisory with real distance; non-adjacent patch panel advisory (completed 2026-03-19)
 - [ ] **Phase 27: UI & i18n** — Wire geometry inputs into accordion form, render advisory cards (amber), i18n for all new labels in EN/FR/DE/IT
 - [ ] **Phase 28: Export** — CSV cable schedule rows and PDF cable schedule section
 
@@ -182,6 +182,6 @@ Plans:
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 24. Dedicated Input Page | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 25. Schema, Geometry Inputs & Advisory Foundation | v6.0 | 2/2 | Complete | 2026-03-19 |
-| 26. Cable Length Engine | 1/2 | In Progress|  | - |
+| 26. Cable Length Engine | 2/2 | Complete   | 2026-03-19 | - |
 | 27. UI & i18n | v6.0 | 0/1 | Not started | - |
 | 28. Export | v6.0 | 0/1 | Not started | - |
