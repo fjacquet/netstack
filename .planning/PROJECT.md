@@ -69,10 +69,11 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 **Goal:** Extend NetStack from "how many boxes" to "how do I physically install them" — cable length estimation based on rack layout, power budget per rack, and upgraded DAC distance advisory with actual computed distances.
 
 **Target features:**
-- Cable length schedule: per-link-type lengths derived from rack pitch, height, switch position
-- Adjacent vs. non-adjacent rack modes (patch panel advisory when non-adjacent)
-- DAC distance advisory upgraded with actual computed length value
-- Power budget per rack (sum of switch + server estimates)
+- ✓ Cable length schedule: per-link-type lengths derived from rack pitch, height, switch position — Phase 26 complete
+- ✓ Adjacent vs. non-adjacent rack modes (patch panel advisory when non-adjacent) — Phase 26 complete
+- ✓ DAC distance advisory upgraded with actual computed length value — Phase 26 complete
+- UI wiring, amber advisory cards, i18n — Phase 27 pending
+- CSV/PDF cable schedule export — Phase 28 pending
 
 ### Future (v7.0+)
 
@@ -138,4 +139,4 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui (Accordion), Zustand v5, Zo
 | shadcn/ui Accordion with `defaultValue="rack-config"` | Rack Config open on load; single open section focus | ✓ Good |
 
 ---
-*Last updated: 2026-03-19 after v5.0 milestone*
+*Last updated: 2026-03-19 after Phase 26 (Cable Length Engine) complete*
