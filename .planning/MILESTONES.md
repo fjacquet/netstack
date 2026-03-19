@@ -1,5 +1,16 @@
 # Milestones
 
+## v5.0 Unified Ethernet & Configurations (In Progress)
+
+**Phases planned:** 3 phases (21-23), 15 requirements
+
+**Target features:**
+- Merge Spine-Leaf and Three-Tier into single Ethernet mode with topology selector
+- Existing infrastructure toggle (core/spines already deployed) for brownfield
+- Save/load named configurations to localStorage with full CRUD
+
+---
+
 ## v4.0 Three-Tier Topology (Shipped: 2026-03-19)
 
 **Phases completed:** 3 phases, 8 plans, 0 tasks

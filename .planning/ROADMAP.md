@@ -7,6 +7,7 @@
 - ✅ **v2.0 FC SAN & Switch Positioning** — Phases 8-14 (shipped 2026-03-18)
 - ✅ **v3.0 Converged Mode** — Phases 15-17 (shipped 2026-03-18)
 - ✅ **v4.0 Three-Tier Topology** — Phases 18-20 (shipped 2026-03-19)
+- 📋 **v5.0 Unified Ethernet & Configurations** — Phases 21-23 (planned)
 
 ## Phases
 
@@ -60,7 +61,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 </details>
 
 <details>
-<summary>✅ v4.0 Three-Tier Topology (Phases 18-20) — SHIPPED 2026-03-19</summary>
+<summary>v4.0 Three-Tier Topology (Phases 18-20) — SHIPPED 2026-03-19</summary>
 
 - [x] Phase 18: Three-Tier Domain & Engine — Z-series catalog, tier field, topology selector, TDD engine (3/3 plans, completed 2026-03-18)
 - [x] Phase 19: Three-Tier UI & Converged Integration — 4th mode, converged topology selector, input/BOM/topology/rack (3/3 plans, completed 2026-03-18)
@@ -69,6 +70,51 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
+
+### v5.0 Unified Ethernet & Configurations (In Progress)
+
+**Milestone Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector, add existing infrastructure toggle for brownfield deployments, and save/load named configurations.
+
+- [ ] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector
+- [ ] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM
+- [ ] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD
+
+## Phase Details
+
+### Phase 21: Unified Ethernet Mode
+**Goal**: Users see 3 modes (Ethernet, FC, Converged) and select Clos or Three-Tier topology within the Ethernet mode
+**Depends on**: Phase 20 (v4.0 complete)
+**Requirements**: ETH-01, ETH-02, ETH-03, ETH-04, ETH-05
+**Success Criteria** (what must be TRUE):
+  1. User sees exactly 3 mode buttons (Ethernet, FC, Converged) instead of 4
+  2. User can switch between Clos and Three-Tier topology within Ethernet mode via a dropdown selector
+  3. Ethernet input form shows leaf/spine fields when Clos is selected and access/aggr/core fields when Three-Tier is selected
+  4. BOM panel, topology diagram, rack elevation, and export all render correctly for both Ethernet topologies
+  5. No dead code remains from the standalone Three-Tier mode (stores, components, routes removed)
+**Plans**: TBD
+
+### Phase 22: Existing Infrastructure Toggle
+**Goal**: Users can indicate that core switches (3-tier) or spine switches (Clos) are already deployed, and the BOM adjusts accordingly
+**Depends on**: Phase 21
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04
+**Success Criteria** (what must be TRUE):
+  1. In Three-Tier topology, user can toggle "Core switches already deployed" and the BOM excludes core switches from the count
+  2. In Clos topology, user can toggle "Spines already deployed" and the BOM excludes spine switches from the count
+  3. Cable BOM still includes cables connecting to existing switches (user still needs to order cables)
+  4. Oversubscription ratios are calculated against the full fabric including existing switches (not just new equipment)
+**Plans**: TBD
+
+### Phase 23: Save/Load Configurations
+**Goal**: Users can save, load, list, and delete named input profiles that persist across browser sessions
+**Depends on**: Phase 21
+**Requirements**: CFG-01, CFG-02, CFG-03, CFG-04, CFG-05, CFG-06
+**Success Criteria** (what must be TRUE):
+  1. User can save the current input state as a named profile and later load it to restore all inputs exactly
+  2. User can see a list of saved profiles showing mode, topology, server count, and save date
+  3. User can delete a saved profile from the list
+  4. Saved profiles survive browser close/reopen (localStorage persistence)
+  5. All configuration UI labels (save, load, delete, profile list) are translated in EN, FR, DE, and IT
+**Plans**: TBD
 
 ## Progress
 
@@ -93,4 +139,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 | 17. Converged Export & i18n | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 18. Three-Tier Domain & Engine | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
-| 20. Three-Tier Export & i18n | 2/2 | Complete    | 2026-03-18 | - |
+| 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
+| 21. Unified Ethernet Mode | v5.0 | 0/? | Not started | - |
+| 22. Existing Infrastructure Toggle | v5.0 | 0/? | Not started | - |
+| 23. Save/Load Configurations | v5.0 | 0/? | Not started | - |
