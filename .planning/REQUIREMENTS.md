@@ -1,91 +1,75 @@
-# Requirements: NetStack v4.0
+# Requirements: NetStack v5.0
 
-**Defined:** 2026-03-18
+**Defined:** 2026-03-19
 **Core Value:** Answer "How many boxes and cables do I need?" instantly and accurately
 
-> v3.0 requirements archived to `.planning/milestones/v3.0-REQUIREMENTS.md` (12/12 satisfied).
+> v4.0 requirements archived to `.planning/milestones/v4.0-REQUIREMENTS.md` (18/18 satisfied).
 
-## v4.0 Requirements
+## v5.0 Requirements
 
-### Three-Tier Catalog
+### Unified Ethernet Mode
 
-- [x] **TIER-01**: Z-series switches added to hardware catalog (Z9264F-ON, Z9332F-ON, Z9432F-ON) with verified specs
-- [x] **TIER-02**: Switch catalog has a `tier` field mapping each model to valid roles (access, aggregation, core)
+- [ ] **ETH-01**: Spine-Leaf and Three-Tier merged into a single "Ethernet" mode with topology selector dropdown
+- [ ] **ETH-02**: ModeSelector shows 3 buttons (Ethernet, FC, Converged) instead of 4
+- [ ] **ETH-03**: Ethernet input form conditionally renders Clos fields (leaf/spine) or 3-tier fields (access/aggr/core) based on topology
+- [ ] **ETH-04**: Ethernet BOM panel, topology diagram, rack elevation, and export switch based on topology
+- [ ] **ETH-05**: Standalone Three-Tier mode and its dedicated stores removed (dead code cleanup)
 
-### Three-Tier Engine
+### Existing Infrastructure
 
-- [x] **TENG-01**: Topology selector in input schema: "leaf-spine" (Clos) vs "three-tier" (Core/Aggregation/Access)
-- [x] **TENG-02**: Access switches = 2 per rack (redundant pair, same formula as leaf switches)
-- [x] **TENG-03**: Aggregation switches = ceil(accessSwitches × uplinksPerAccess / aggrDownlinks), min 2 for redundancy
-- [x] **TENG-04**: Core switches = ceil(aggrSwitches × uplinksPerAggr / coreDownlinks), min 2 for redundancy
-- [x] **TENG-05**: Oversubscription calculated at each tier boundary (access→aggr, aggr→core)
-- [x] **TENG-06**: Cable BOM: server-access + access-aggr + aggr-core cables with correct inter-tier counts
-- [x] **TENG-07**: User can select access/aggregation/core switch models independently
+- [ ] **INFRA-01**: 3-tier mode has "Core switches already deployed" toggle — BOM excludes core switches when enabled
+- [ ] **INFRA-02**: Clos mode has "Spines already deployed" toggle — BOM excludes spine switches when enabled
+- [ ] **INFRA-03**: Cable BOM still includes inter-tier cables to existing switches (user needs cables)
+- [ ] **INFRA-04**: Oversubscription ratios calculated against full fabric (existing + new)
 
-### Three-Tier UI
+### Save/Load Configurations
 
-- [x] **TUI-01**: Three-Tier standalone mode as 4th button in mode selector
-- [x] **TUI-02**: Topology selector in Converged mode to pick Clos or 3-tier for Ethernet portion
-- [x] **TUI-03**: Three-tier input form with access/aggregation/core model selectors + uplink counts per tier
-- [x] **TUI-04**: BOM panel adapted for 3-tier breakdown (access/aggr/core instead of leaf/spine)
-- [x] **TUI-05**: Hierarchical topology diagram (tree layout: core → aggr → access → racks)
-- [x] **TUI-06**: Rack elevation for 3-tier: server racks (access switches) + aggregation/core network racks
-
-### Three-Tier Export
-
-- [x] **TEXP-01**: CSV export with 3-tier sections (access/aggregation/core)
-- [x] **TEXP-02**: PDF export with 3-tier BOM and topology pages
-- [x] **TEXP-03**: i18n labels for 3-tier mode in all 4 locales (EN/FR/DE/IT)
+- [ ] **CFG-01**: User can save current input state as a named profile
+- [ ] **CFG-02**: User can load a saved profile, restoring all inputs
+- [ ] **CFG-03**: User can list saved profiles with summary (mode, topology, server count, date)
+- [ ] **CFG-04**: User can delete a saved profile
+- [ ] **CFG-05**: Profiles persist in localStorage across browser sessions
+- [ ] **CFG-06**: i18n labels for all configuration features in EN/FR/DE/IT
 
 ## Future Requirements
 
-### Persistence & Export
-
-- **PERS-01**: Save/load named configurations
 - **PERS-02**: JSON export
-
-### Scale
-
 - **SCALE-01**: Multi-pod support for large deployments
+- Power budget calculation per rack
+- Weight/cooling estimates
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Mixed Clos + 3-tier in same design | Topologies are mutually exclusive for Ethernet portion |
-| STP domain limit enforcement (100 switches) | Advisory only — engine doesn't enforce protocol limits |
-| Non-Dell switch vendors | Dell-only catalog per ADR-0001; JSON override for custom models |
-| VPC/MLAG configuration | Physical sizing only, not logical configuration |
-| Bandwidth engineering per flow | Aggregate oversubscription only, not per-flow analysis |
+| Cloud sync / user accounts | Pure client-side, no backend (ADR-0002) |
+| Profile import from file | v5.0+ — save/load is localStorage first |
+| Brownfield server inventory | Existing infra toggle is switches only, not servers |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIER-01 | Phase 18 | Complete |
-| TIER-02 | Phase 18 | Complete |
-| TENG-01 | Phase 18 | Complete |
-| TENG-02 | Phase 18 | Complete |
-| TENG-03 | Phase 18 | Complete |
-| TENG-04 | Phase 18 | Complete |
-| TENG-05 | Phase 18 | Complete |
-| TENG-06 | Phase 18 | Complete |
-| TENG-07 | Phase 18 | Complete |
-| TUI-01 | Phase 19 | Complete |
-| TUI-02 | Phase 19 | Complete |
-| TUI-03 | Phase 19 | Complete |
-| TUI-04 | Phase 19 | Complete |
-| TUI-05 | Phase 19 | Complete |
-| TUI-06 | Phase 19 | Complete |
-| TEXP-01 | Phase 20 | Complete |
-| TEXP-02 | Phase 20 | Complete |
-| TEXP-03 | Phase 20 | Complete |
+| ETH-01 | Phase 21 | Pending |
+| ETH-02 | Phase 21 | Pending |
+| ETH-03 | Phase 21 | Pending |
+| ETH-04 | Phase 21 | Pending |
+| ETH-05 | Phase 21 | Pending |
+| INFRA-01 | Phase 22 | Pending |
+| INFRA-02 | Phase 22 | Pending |
+| INFRA-03 | Phase 22 | Pending |
+| INFRA-04 | Phase 22 | Pending |
+| CFG-01 | Phase 23 | Pending |
+| CFG-02 | Phase 23 | Pending |
+| CFG-03 | Phase 23 | Pending |
+| CFG-04 | Phase 23 | Pending |
+| CFG-05 | Phase 23 | Pending |
+| CFG-06 | Phase 23 | Pending |
 
 **Coverage:**
-- v4.0 requirements: 18 total
-- Mapped to phases: 18
+- v5.0 requirements: 15 total
+- Mapped to phases: 15
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after initial definition*
+*Requirements defined: 2026-03-19*
