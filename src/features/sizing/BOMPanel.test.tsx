@@ -39,14 +39,20 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
     recommendedCableLengthM: 2,
     violations: [],
     input: {
+      topology: 'leaf-spine',
       racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
       portsPerServerFrontend: 1,
       portsPerServerBackend: 1,
-      activeUplinksPerLeaf: 4,
       connectivityType: '25G',
       cableType: 'DAC',
+      activeUplinksPerLeaf: 4,
       leafModel: 'S5248F-ON',
       spineModel: 'S5232F-ON',
+      accessModel: 'S5248F-ON',
+      activeUplinksPerAccess: 4,
+      aggregationModel: 'Z9264F-ON',
+      activeUplinksPerAggregation: 4,
+      coreModel: 'Z9332F-ON',
       borderLeafModel: 'none',
       borderLeafCount: 0,
       rackSize: '42U',
@@ -58,9 +64,9 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
 }
 
 // Helper: mock useResultStore with a given state
-function mockStore(state: { bom: NetworkBOM | null; violations: NetworkBOM['violations'] }) {
+function mockStore(state: { bom: NetworkBOM | null; threeTierBom: null; violations: NetworkBOM['violations'] }) {
   vi.mocked(useResultStore).mockImplementation(
-    (selector: (s: { bom: NetworkBOM | null; violations: NetworkBOM['violations'] }) => unknown) =>
+    (selector: (s: { bom: NetworkBOM | null; threeTierBom: null; violations: NetworkBOM['violations'] }) => unknown) =>
       selector(state)
   )
 }
@@ -80,7 +86,7 @@ describe('BOMPanel', () => {
   describe('BOM-01: switch quantities', () => {
     it('renders switch table rows with model names and correct quantities', () => {
       const bom = makeBom({ leafSwitches: 6, spineSwitches: 4, oobSwitches: 3 })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -97,7 +103,7 @@ describe('BOMPanel', () => {
     })
 
     it('renders empty state when bom is null', () => {
-      mockStore({ bom: null, violations: [] })
+      mockStore({ bom: null, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -110,7 +116,7 @@ describe('BOMPanel', () => {
   describe('BOM-02: oversubscription ratio', () => {
     it('renders 2.4:1 with optimal severity for ratio <= 3', () => {
       const bom = makeBom({ oversubscriptionRatio: 2.4 })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -122,7 +128,7 @@ describe('BOMPanel', () => {
 
     it('renders 4.5:1 with acceptable severity for ratio 3 < x <= 6', () => {
       const bom = makeBom({ oversubscriptionRatio: 4.5 })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -133,7 +139,7 @@ describe('BOMPanel', () => {
 
     it('renders 8.0:1 with critical severity for ratio > 6', () => {
       const bom = makeBom({ oversubscriptionRatio: 8.0 })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -149,14 +155,20 @@ describe('BOMPanel', () => {
     it('displays DAC in cables heading when input.cableType is DAC', () => {
       const bom = makeBom({
         input: {
+          topology: 'leaf-spine',
           racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
           portsPerServerFrontend: 1,
           portsPerServerBackend: 1,
-          activeUplinksPerLeaf: 4,
           connectivityType: '25G',
           cableType: 'DAC',
+          activeUplinksPerLeaf: 4,
           leafModel: 'S5248F-ON',
           spineModel: 'S5232F-ON',
+          accessModel: 'S5248F-ON',
+          activeUplinksPerAccess: 4,
+          aggregationModel: 'Z9264F-ON',
+          activeUplinksPerAggregation: 4,
+          coreModel: 'Z9332F-ON',
           borderLeafModel: 'none',
           borderLeafCount: 0,
           rackSize: '42U',
@@ -164,7 +176,7 @@ describe('BOMPanel', () => {
           switchPositioning: 'ToR',
         },
       })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -178,7 +190,7 @@ describe('BOMPanel', () => {
 
     it('shows leafSpineCables, serverLeafCables, serverOobCables quantities', () => {
       const bom = makeBom({ leafSpineCables: 24, serverLeafCables: 48, serverOobCables: 54 })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -195,14 +207,20 @@ describe('BOMPanel', () => {
       // racks: 3 × 16 servers → maxServersPerRack=16, leaf downlinkPorts=48 → 16/48 = 33.33% → Math.round = 33
       const bom = makeBom({
         input: {
+          topology: 'leaf-spine',
           racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
           portsPerServerFrontend: 1,
           portsPerServerBackend: 1,
-          activeUplinksPerLeaf: 4,
           connectivityType: '25G',
           cableType: 'DAC',
+          activeUplinksPerLeaf: 4,
           leafModel: 'S5248F-ON',
           spineModel: 'S5232F-ON',
+          accessModel: 'S5248F-ON',
+          activeUplinksPerAccess: 4,
+          aggregationModel: 'Z9264F-ON',
+          activeUplinksPerAggregation: 4,
+          coreModel: 'Z9332F-ON',
           borderLeafModel: 'none',
           borderLeafCount: 0,
           rackSize: '42U',
@@ -210,7 +228,7 @@ describe('BOMPanel', () => {
           switchPositioning: 'ToR',
         },
       })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -223,7 +241,7 @@ describe('BOMPanel', () => {
       const bom = makeBom({
         violations: [{ code: 'OOB_PORT_SATURATION', required: 50, available: 48 }],
       })
-      mockStore({ bom, violations: bom.violations })
+      mockStore({ bom, threeTierBom: null, violations: bom.violations })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 
@@ -234,7 +252,7 @@ describe('BOMPanel', () => {
 
     it('renders no Alert elements when violations is empty', () => {
       const bom = makeBom({ violations: [] })
-      mockStore({ bom, violations: [] })
+      mockStore({ bom, threeTierBom: null, violations: [] })
 
       render(<BOMPanel />, { wrapper: Wrapper })
 

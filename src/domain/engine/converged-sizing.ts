@@ -30,14 +30,23 @@ import type { ThreeTierBOM } from '../schemas/three-tier-bom';
  */
 function toEthernetInput(input: ConvergedSizingInput): SizingInput {
   return {
+    topology: input.topology ?? 'leaf-spine',
     racks: input.racks,
     portsPerServerFrontend: input.portsPerServerFrontend,
     portsPerServerBackend: input.portsPerServerBackend,
-    activeUplinksPerLeaf: input.activeUplinksPerLeaf,
     connectivityType: input.connectivityType,
     cableType: input.cableType,
+    // Clos-specific
+    activeUplinksPerLeaf: input.activeUplinksPerLeaf,
     leafModel: input.leafModel,
     spineModel: input.spineModel,
+    // Three-tier fields (carried through for type completeness)
+    accessModel: input.accessModel,
+    activeUplinksPerAccess: input.activeUplinksPerLeaf, // reuse leaf uplinks for access
+    aggregationModel: input.aggregationModel,
+    activeUplinksPerAggregation: input.activeUplinksPerAggregation,
+    coreModel: input.coreModel,
+    // Shared
     borderLeafModel: input.borderLeafModel,
     borderLeafCount: input.borderLeafCount,
     rackSize: input.rackSize,

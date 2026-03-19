@@ -16,6 +16,9 @@ export const RackConfigSchema = z.object({
 });
 
 export const SizingInputSchema = z.object({
+  /** Topology selector: 'leaf-spine' (Clos) or 'three-tier' (Core/Aggr/Access) */
+  topology: z.enum(['leaf-spine', 'three-tier']).default('leaf-spine'),
+
   /**
    * Per-rack server configuration. Each element represents one rack.
    * The engine derives:
@@ -28,17 +31,33 @@ export const SizingInputSchema = z.object({
   portsPerServerFrontend: z.number().int().min(0).max(8).default(1),
   /** Number of backend (OOB-facing) ports per server (0-8, default 1) */
   portsPerServerBackend: z.number().int().min(0).max(8).default(1),
-  /** Number of active uplinks per leaf switch to spine (1-8, default 4).
-   * The engine clamps this to the model's physical uplinkPorts at runtime. */
-  activeUplinksPerLeaf: z.number().int().min(1).max(8).default(4),
   /** Server-facing connectivity type */
   connectivityType: z.enum(['25G', '100G']),
   /** Cable type used for all inter-device connections */
   cableType: z.enum(['DAC', 'AOC', 'fiber']),
+
+  // ── Clos-specific fields (used when topology='leaf-spine') ──────────────────
+  /** Number of active uplinks per leaf switch to spine (1-8, default 4).
+   * The engine clamps this to the model's physical uplinkPorts at runtime. */
+  activeUplinksPerLeaf: z.number().int().min(1).max(8).default(4),
   /** Leaf switch model — only leaf-role models are valid (excludes spine and OOB) */
   leafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON']),
   /** Spine switch model — currently only S5232F-ON, extensible for future models */
   spineModel: z.enum(['S5232F-ON']),
+
+  // ── Three-tier fields (used when topology='three-tier') ─────────────────────
+  /** Access tier switch model — leaf-role models valid for server-facing connectivity */
+  accessModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON', 'Z9264F-ON']).default('S5248F-ON'),
+  /** Number of active uplinks per access switch to aggregation tier (1-64, default 4) */
+  activeUplinksPerAccess: z.number().int().min(1).max(64).default(4),
+  /** Aggregation tier switch model — mid-tier models for inter-tier switching */
+  aggregationModel: z.enum(['Z9264F-ON', 'Z9332F-ON', 'Z9432F-ON', 'S5232F-ON']).default('Z9264F-ON'),
+  /** Number of active uplinks per aggregation switch to core tier (1-32, default 4) */
+  activeUplinksPerAggregation: z.number().int().min(1).max(32).default(4),
+  /** Core tier switch model — high-capacity models for backbone connectivity */
+  coreModel: z.enum(['Z9332F-ON', 'Z9432F-ON']).default('Z9332F-ON'),
+
+  // ── Shared fields ───────────────────────────────────────────────────────────
   /** Border leaf switch model — same leaf models, used for WAN/uplink connectivity */
   borderLeafModel: z.enum(['S5248F-ON', 'S5224F-ON', 'S5212F-ON', 'S5296F-ON', 'none']),
   /** Number of border leaf switches (0 = no border leafs, typically 2 for redundancy) */

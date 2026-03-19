@@ -418,7 +418,7 @@ export function BOMPanel() {
                 {t('bom.alertsHeading')}
               </p>
               <div className="space-y-2">
-                {violations.map((v) => (
+                {(violations as ConstraintViolation[]).map((v) => (
                   <ViolationAlert key={'rackNumber' in v ? `${v.code}-${v.rackNumber}` : v.code} v={v} />
                 ))}
               </div>

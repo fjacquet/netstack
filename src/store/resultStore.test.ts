@@ -7,14 +7,20 @@ describe('resultStore (derived from inputStore)', () => {
     // Reset stores to default state (3 racks × 16 = 48 servers)
     useInputStore.setState({
       input: {
+        topology: 'leaf-spine',
         racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
         portsPerServerFrontend: 1,
         portsPerServerBackend: 1,
-        activeUplinksPerLeaf: 4,
         connectivityType: '25G',
         cableType: 'DAC',
+        activeUplinksPerLeaf: 4,
         leafModel: 'S5248F-ON',
         spineModel: 'S5232F-ON',
+        accessModel: 'S5248F-ON',
+        activeUplinksPerAccess: 4,
+        aggregationModel: 'Z9264F-ON',
+        activeUplinksPerAggregation: 4,
+        coreModel: 'Z9332F-ON',
         borderLeafModel: 'none',
         borderLeafCount: 0,
         rackSize: '42U',

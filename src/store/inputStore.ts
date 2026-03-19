@@ -14,6 +14,7 @@ interface InputState {
  * Equivalent to the old scalar default of { totalServers: 48, serversPerRack: 16 }.
  */
 const DEFAULT_INPUT: SizingInput = {
+  topology: 'leaf-spine',
   racks: [
     { serverCount: 16 },
     { serverCount: 16 },
@@ -21,11 +22,19 @@ const DEFAULT_INPUT: SizingInput = {
   ],
   portsPerServerFrontend: 1,
   portsPerServerBackend: 1,
-  activeUplinksPerLeaf: 4,
   connectivityType: '25G',
   cableType: 'DAC',
+  // Clos-specific defaults
+  activeUplinksPerLeaf: 4,
   leafModel: 'S5248F-ON',
   spineModel: 'S5232F-ON',
+  // Three-tier defaults
+  accessModel: 'S5248F-ON',
+  activeUplinksPerAccess: 4,
+  aggregationModel: 'Z9264F-ON',
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON',
+  // Shared defaults
   borderLeafModel: 'none',
   borderLeafCount: 0,
   rackSize: '42U',
@@ -77,14 +86,16 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 6,
+      version: 7,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
        * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array),
        * v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf),
-       * v4 to v5 (adds serverUHeight), and v5 to v6 (adds switchPositioning).
-       * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields.
+       * v4 to v5 (adds serverUHeight), v5 to v6 (adds switchPositioning),
+       * and v6 to v7 (adds topology, three-tier model fields).
+       * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields,
+       * including topology (defaults to 'leaf-spine') and all three-tier fields.
        */
       merge: (persisted, current) => {
         const persistedState = persisted as Partial<InputState>;
@@ -94,7 +105,7 @@ export const useInputStore = create<InputState>()(
         let migratedInput: SizingInput = { ...DEFAULT_INPUT };
         if (oldInput) {
           if ('racks' in oldInput && Array.isArray(oldInput.racks)) {
-            // Already v3 format — merge normally
+            // Already v3+ format — merge normally (topology defaults via spread if missing)
             migratedInput = { ...DEFAULT_INPUT, ...oldInput } as SizingInput;
           } else if ('totalServers' in oldInput && 'serversPerRack' in oldInput) {
             // v2 format — convert to racks array
@@ -109,6 +120,13 @@ export const useInputStore = create<InputState>()(
             const { totalServers: _ts, serversPerRack: _spr, ...rest } = oldInput;
             migratedInput = { ...DEFAULT_INPUT, ...rest, racks } as SizingInput;
           }
+        }
+
+        // Clean up orphaned standalone three-tier localStorage key (v6 -> v7 migration)
+        try {
+          window.localStorage.removeItem('netstack-three-tier-input');
+        } catch {
+          // Ignore errors (SSR, private browsing)
         }
 
         return {

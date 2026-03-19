@@ -7,6 +7,7 @@ import type { FCSizingInput } from '@/domain/schemas/fc-input'
 
 // Ethereum (Ethernet) store default — matches inputStore.ts DEFAULT_INPUT
 const DEFAULT_ETH_INPUT: SizingInput = {
+  topology: 'leaf-spine',
   racks: [
     { serverCount: 16 },
     { serverCount: 16 },
@@ -14,11 +15,16 @@ const DEFAULT_ETH_INPUT: SizingInput = {
   ],
   portsPerServerFrontend: 1,
   portsPerServerBackend: 1,
-  activeUplinksPerLeaf: 4,
   connectivityType: '25G',
   cableType: 'DAC',
+  activeUplinksPerLeaf: 4,
   leafModel: 'S5248F-ON',
   spineModel: 'S5232F-ON',
+  accessModel: 'S5248F-ON',
+  activeUplinksPerAccess: 4,
+  aggregationModel: 'Z9264F-ON',
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON',
   borderLeafModel: 'none',
   borderLeafCount: 0,
   rackSize: '42U',

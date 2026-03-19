@@ -21,14 +21,20 @@ vi.mock('react-i18next', () => ({
 /** Returns a default SizingInput with optional overrides */
 function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
   return {
+    topology: 'leaf-spine',
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     portsPerServerFrontend: 1,
     portsPerServerBackend: 1,
-    activeUplinksPerLeaf: 4,
     connectivityType: '25G',
     cableType: 'DAC',
+    activeUplinksPerLeaf: 4,
     leafModel: 'S5248F-ON',
     spineModel: 'S5232F-ON',
+    accessModel: 'S5248F-ON',
+    activeUplinksPerAccess: 4,
+    aggregationModel: 'Z9264F-ON',
+    activeUplinksPerAggregation: 4,
+    coreModel: 'Z9332F-ON',
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
