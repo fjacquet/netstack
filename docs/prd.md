@@ -194,9 +194,10 @@ Domain (pure TS, no React) → Store (Zustand) → Features (React components)
 
 - **Domain layer** (`src/domain/`): Pure TypeScript, zero React dependencies. Catalog, schemas, and engine. Includes parallel Ethernet, FC, and converged domains with separate catalog/schemas/engine per protocol.
 - **Store layer** (`src/store/`): Zustand stores. `inputStore` persisted to localStorage; `resultStore` derived via subscription. FC and converged stores follow the same pattern.
-- **Features layer** (`src/features/`): React components organized by feature (input-form, bom-panel, topology, rack-elevation, export). Mode selector switches between Ethernet, FC, and converged views.
+- **Features layer** (`src/features/`): React components organized by feature (input/, sizing/, topology/, rack-elevation/, export/). Mode selector switches between Ethernet, FC, and converged views.
+- **Routing layer**: React Router (HashRouter) provides URL-based navigation across all views (`/#/input`, `/#/`, `/#/topology`, `/#/rack`). Browser back/forward works across all views.
 
-See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0020).
+See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0022).
 
 ## 11 v5.0 Requirements (Completed 2026-03-19)
 
@@ -229,3 +230,16 @@ See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0020).
 | CFG-04 | User can delete a saved profile | Phase 23 | Complete |
 | CFG-05 | Profiles persist in localStorage across browser sessions | Phase 23 | Complete |
 | CFG-06 | i18n labels for all configuration features in EN/FR/DE/IT | Phase 23 | Complete |
+
+### Dedicated Input Page & URL Navigation
+
+| ID | Requirement | Phase | Status |
+|----|-------------|-------|--------|
+| UI-01 | Dedicated full-page accordion input form at `/#/input` for all 3 modes | Phase 24 | Complete |
+| UI-02 | Ethernet accordion: Rack Config / Switch Selection / Advanced sections (Clos + Three-Tier) | Phase 24 | Complete |
+| UI-03 | FC accordion: Rack Config / Fabric Config / Advanced sections | Phase 24 | Complete |
+| UI-04 | Converged accordion: Rack Config / Ethernet Switches / FC Fabric / Advanced sections | Phase 24 | Complete |
+| UI-05 | URL-based navigation via React Router HashRouter — all views deep-linkable | Phase 24 | Complete |
+| UI-06 | Nav strip with Configure Inputs / Results / Topology / Rack Elevation NavLinks | Phase 24 | Complete |
+| UI-07 | Browser back/forward navigation works across all views | Phase 24 | Complete |
+| UI-08 | i18n labels for all navigation and accordion section titles in EN/FR/DE/IT | Phase 24 | Complete |

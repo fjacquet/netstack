@@ -15,11 +15,26 @@ NetStack is also a **Progressive Web App (PWA)**. You can install it on your des
 ## Getting Started
 
 1. Open the application URL in any modern browser (Chrome, Firefox, Edge, Safari).
-2. **Select a mode** using the mode selector buttons in the top bar: **Spine-Leaf**, **Fibre Channel**, or **Converged**. The input form and BOM output adapt to the selected mode.
-3. Select your preferred language using the language switcher in the top-right corner (EN, FR, DE, IT).
-4. Choose light or dark theme using the sun/moon icon (automatically detected from system preferences on first visit).
-5. Your input settings are automatically saved in your browser and restored on the next visit.
-6. Optionally, **install as a PWA** for offline use (see [PWA / Offline](#pwa--offline) below).
+2. **Select a mode** using the mode selector buttons in the top bar: **Ethernet**, **Fibre Channel**, or **Converged**. The input form and BOM output adapt to the selected mode.
+3. Click **Configure Inputs** in the navigation strip to open the accordion input form and enter your parameters.
+4. Click **Results** in the navigation strip to view your Bill of Materials — it updates automatically as you change inputs.
+5. Select your preferred language using the language switcher in the top-right corner (EN, FR, DE, IT).
+6. Choose light or dark theme using the sun/moon icon (automatically detected from system preferences on first visit).
+7. Your input settings are automatically saved in your browser and restored on the next visit.
+8. Optionally, **install as a PWA** for offline use (see [PWA / Offline](#pwa--offline) below).
+
+## Navigation
+
+The navigation strip below the top bar provides access to all views:
+
+| Link | Route | Description |
+|------|-------|-------------|
+| **Configure Inputs** | `/#/input` | Accordion input form — enter all sizing parameters here |
+| **Results** | `/#/` | Bill of Materials output for the current mode |
+| **Topology** | `/#/topology` | Auto-generated topology diagram |
+| **Rack Elevation** | `/#/rack` | Physical rack layout view (Ethernet and Converged modes) |
+
+The active view is highlighted with an underline. Browser back/forward buttons navigate between views.
 
 ## Mode Selector
 
