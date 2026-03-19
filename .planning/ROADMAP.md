@@ -107,8 +107,8 @@ Plans:
   4. Oversubscription ratios are calculated against the full fabric including existing switches (not just new equipment)
 **Plans:** 2/2 plans complete
 Plans:
-- [ ] 22-01-PLAN.md — Schema fields, BOM post-processing, store v8 migration, i18n, tests
-- [ ] 22-02-PLAN.md — UI toggles in InputForm, "(existing)" labels in BOM panel
+- [x] 22-01-PLAN.md — Schema fields, BOM post-processing, store v8 migration, i18n, tests
+- [x] 22-02-PLAN.md — UI toggles in InputForm, "(existing)" labels in BOM panel
 
 ### Phase 23: Save/Load Configurations
 **Goal**: Users can save, load, list, and delete named input profiles that persist across browser sessions
@@ -120,7 +120,10 @@ Plans:
   3. User can delete a saved profile from the list
   4. Saved profiles survive browser close/reopen (localStorage persistence)
   5. All configuration UI labels (save, load, delete, profile list) are translated in EN, FR, DE, and IT
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 23-01-PLAN.md — Profile schema, CRUD service, tests, i18n labels (4 locales)
+- [ ] 23-02-PLAN.md — ProfileManager UI component, TopBar integration, human verification
 
 ## Progress
 
@@ -147,5 +150,5 @@ Plans:
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 22. Existing Infrastructure Toggle | 2/2 | Complete    | 2026-03-19 | - |
-| 23. Save/Load Configurations | v5.0 | 0/? | Not started | - |
+| 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
+| 23. Save/Load Configurations | v5.0 | 0/2 | Not started | - |
