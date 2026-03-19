@@ -152,3 +152,13 @@ Plans:
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 0/2 | Not started | - |
+
+### Phase 24: Dedicated input page with accordion sections
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 23
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 24 to break down)

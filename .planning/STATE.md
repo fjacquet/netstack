@@ -60,6 +60,10 @@ Progress: [######░░░░] 67% (v5.0 milestone)
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 24 added: Dedicated input page with accordion sections
+
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
