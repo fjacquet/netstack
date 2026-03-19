@@ -122,7 +122,7 @@ Plans:
   4. All reported cable lengths map to the nearest standard SKU (1m / 3m / 5m / 10m) with a 15% slack buffer applied before rounding up
   5. DAC advisory card shows the computed cable path length alongside the applicable speed-specific DAC spec limit (3m @ 25G, 5m @ 100G)
   6. Non-adjacent rack mode shows an amber advisory recommending patch panels (not a red violation)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 26-01: Cable length formula library (TDD RED→GREEN) — geometry helpers, SKU ladder, per-mode link length functions
