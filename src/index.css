@@ -87,7 +87,7 @@
 
 @media print {
   /* Hide navigation chrome */
-  header, [role="tablist"], .toolbar-card { display: none !important; }
+  header, nav[aria-label="page navigation"], .toolbar-card { display: none !important; }
   [data-state="inactive"] { display: none !important; }
 
   /* Force light mode for print, auto-fit to page */
