@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
-status: unknown
-stopped_at: Completed 27-01-PLAN.md
-last_updated: "2026-03-19T10:35:31.906Z"
+status: complete
+stopped_at: Completed 28-01-PLAN.md
+last_updated: "2026-03-19T10:53:37.987Z"
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Phase 27 — UI & i18n
+**Current focus:** v6.0 Physical Planning milestone — COMPLETE
 
 ## Current Position
 
-Phase: 27 (UI & i18n) — EXECUTING
-Plan: 1 of 1
+Phase: 28 (Export) — COMPLETE
+Plan: 1 of 1 — COMPLETE
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 1 of 1
 | Phase 25 P02 | 8 | 1 tasks | 2 files |
 | Phase 26 P02 | 6 | 2 tasks | 6 files |
 | Phase 27 P01 | 268 | 2 tasks | 8 files |
+| Phase 28-export P01 | 3 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,13 @@ Plan: 1 of 1
 - PATCH_PANEL_RECOMMENDED is in advisories[] (amber, non-blocking), not violations[] (red, blocking)
 - All three engines (Clos, Three-Tier, FC) now return cable schedule data; converged engine propagates automatically
 
+### Key Decisions (v6.0 — Plan 28-01 executed)
+
+- FC CSV/PDF guards on bom.islCableLengthSkuM != null (not bom.cableSchedule) per ADR-0009 parallel domain rule
+- All CSV cable schedule rows have exactly 7 columns to preserve Converged CSV compatibility
+- PDF Cable Schedule reuses existing colModel/colRole/colQty/headerText styles — no new StyleSheet entries
+- Converged export inherits cable schedule changes automatically via delegation to BOMPage/ThreeTierBOMPage/FCBOMPage
+
 ### v6.0 Phase Summary
 
 | Phase | Requirements | Goal |
@@ -122,6 +130,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-19T10:32:41.048Z
-Stopped at: Completed 27-01-PLAN.md
+Last session: 2026-03-19T10:53:37.984Z
+Stopped at: Completed 28-01-PLAN.md
 Resume file: None

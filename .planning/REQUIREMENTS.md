@@ -36,8 +36,8 @@
 
 ### Export
 
-- [ ] **EXP-05**: CSV export includes cable length schedule rows (link type, quantity, length, SKU)
-- [ ] **EXP-06**: PDF export includes a cable schedule section
+- [x] **EXP-05**: CSV export includes cable length schedule rows (link type, quantity, length, SKU)
+- [x] **EXP-06**: PDF export includes a cable schedule section
 
 ## v7.0 Requirements (Deferred)
 
@@ -85,8 +85,8 @@
 | PHYS-02 | Phase 25 | Complete |
 | PHYS-03 | Phase 25 | Complete |
 | PHYS-04 | Phase 27 | Complete |
-| EXP-05 | Phase 28 | Pending |
-| EXP-06 | Phase 28 | Pending |
+| EXP-05 | Phase 28 | Complete |
+| EXP-06 | Phase 28 | Complete |
 
 **Coverage:**
 - v6.0 requirements: 19 total
