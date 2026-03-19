@@ -19,10 +19,17 @@ import {
 function AppContent() {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'ethernet' | 'fc' | 'converged'>('ethernet')
+  const [profilesOpen, setProfilesOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <TopBar mode={mode} onModeChange={setMode} />
+      {/* TopBar renders ProfileManager internally via fixed positioning */}
+      <TopBar
+        mode={mode}
+        onModeChange={setMode}
+        profilesOpen={profilesOpen}
+        onToggleProfiles={() => setProfilesOpen((v) => !v)}
+      />
       <Tabs defaultValue="sizing" className="flex flex-1 flex-col">
         <div className="border-b bg-secondary/30 px-4">
           <TabsList className="h-11 bg-transparent">

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/shallow'
-import { FileSpreadsheet, FileText, Printer, Loader2 } from 'lucide-react'
+import { FileSpreadsheet, FileText, Printer, Loader2, FolderOpen } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ModeSelector } from '@/components/ModeSelector'
+import { ProfileManager } from '@/components/ProfileManager'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -28,9 +29,11 @@ import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 interface TopBarProps {
   mode: 'ethernet' | 'fc' | 'converged'
   onModeChange: (m: 'ethernet' | 'fc' | 'converged') => void
+  profilesOpen: boolean
+  onToggleProfiles: () => void
 }
 
-export function TopBar({ mode, onModeChange }: TopBarProps) {
+export function TopBar({ mode, onModeChange, profilesOpen, onToggleProfiles }: TopBarProps) {
   const { t } = useTranslation()
   const { bom, threeTierBom } = useResultStore(
     useShallow((s) => ({ bom: s.bom, threeTierBom: s.threeTierBom }))
@@ -138,6 +141,7 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
   const handlePrint = () => window.print()
 
   return (
+    <>
     <header className="flex h-11 items-center border-b bg-secondary/50 px-4">
       <img src={`${import.meta.env.BASE_URL}favicon-32x32.png`} alt="NetStack" className="mr-2 h-7 w-7" />
       <span className="text-[28px] font-semibold leading-none tracking-tight">
@@ -147,6 +151,23 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
       <ModeSelector mode={mode} onModeChange={onModeChange} />
 
       <div className="ml-auto flex items-center gap-1">
+        {/* Profile manager toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={profilesOpen ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={onToggleProfiles}
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('profiles.heading')}</TooltipContent>
+        </Tooltip>
+
+        <div className="mx-1 h-5 w-px bg-border" />
+
         {/* Export buttons */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -202,5 +223,12 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         <LanguageSwitcher />
       </div>
     </header>
+    <ProfileManager
+      mode={mode}
+      open={profilesOpen}
+      onClose={onToggleProfiles}
+      onModeChange={onModeChange}
+    />
+    </>
   )
 }

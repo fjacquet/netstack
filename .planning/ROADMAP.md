@@ -77,7 +77,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 - [x] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector (completed 2026-03-19)
 - [x] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM (completed 2026-03-19)
-- [ ] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD
+- [x] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD (completed 2026-03-19)
 
 ## Phase Details
 
@@ -120,10 +120,10 @@ Plans:
   3. User can delete a saved profile from the list
   4. Saved profiles survive browser close/reopen (localStorage persistence)
   5. All configuration UI labels (save, load, delete, profile list) are translated in EN, FR, DE, and IT
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 23-01-PLAN.md — Profile schema, CRUD service, tests, i18n labels (4 locales)
-- [ ] 23-02-PLAN.md — ProfileManager UI component, TopBar integration, human verification
+- [x] 23-01-PLAN.md — Profile schema, CRUD service, tests, i18n labels (4 locales)
+- [x] 23-02-PLAN.md — ProfileManager UI component, TopBar integration, human verification
 
 ## Progress
 
@@ -151,7 +151,7 @@ Plans:
 | 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 23. Save/Load Configurations | 1/2 | In Progress|  | - |
+| 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
 
 ### Phase 24: Dedicated input page with accordion sections
 
