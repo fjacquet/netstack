@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
-status: in-progress
-stopped_at: "Completed 25-01-PLAN.md"
-last_updated: "2026-03-19T09:50:00.000Z"
+status: unknown
+stopped_at: Completed 25-02-PLAN.md
+last_updated: "2026-03-19T08:50:21.394Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 25 (Schema, Geometry Inputs & Advisory Foundation) — EXECUTING
-Plan: 2 of 2 (Plan 01 complete)
+Phase: 25 (Schema, Geometry Inputs & Advisory Foundation) — COMPLETE
+Plan: 2 of 2 (all plans complete)
 
 ## Performance Metrics
 
@@ -44,6 +44,7 @@ Plan: 2 of 2 (Plan 01 complete)
 | 24-dedicated-input-page | 2/2 | ~12min | 6min |
 
 **Recent Trend:** Stable
+| Phase 25 P02 | 8 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,12 @@ Plan: 2 of 2 (Plan 01 complete)
 - defaults.ts in domain layer is the single source of truth — stores import from it, not the reverse
 - inputStore v9 migration uses { ...DEFAULT_INPUT, ...oldInput } spread to backfill new geometry fields automatically
 
+### Key Decisions (v6.0 — Plan 25-02 executed)
+
+- Profile normalisation uses spread pattern { ...DEFAULT, ...saved } — immutable, no Zod overhead at load time
+- normalizeFCInputState is pass-through copy — FC has no geometry fields, function exists for API consistency
+- profileService.ts imports only from domain/schemas/defaults.ts — zero store imports (domain purity maintained)
+
 ### v6.0 Phase Summary
 
 | Phase | Requirements | Goal |
@@ -99,6 +106,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-19
-Stopped at: v6.0 roadmap created
-Resume file: .planning/ROADMAP.md — Phase 25 is next
+Last session: 2026-03-19T08:50:21.392Z
+Stopped at: Completed 25-02-PLAN.md
+Resume file: None
