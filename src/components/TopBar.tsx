@@ -12,14 +12,17 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useResultStore } from '@/store/resultStore'
+import { useInputStore } from '@/store/inputStore'
 import { useFCResultStore } from '@/store/fcResultStore'
 import { useConvergedResultStore } from '@/store/convergedResultStore'
 import { downloadBomCsv } from '@/features/export/exportCsv'
 import { downloadFCBomCsv } from '@/features/export/exportFCCsv'
 import { downloadConvergedBomCsv } from '@/features/export/exportConvergedCsv'
+import { downloadThreeTierBomCsv } from '@/features/export/exportThreeTierCsv'
 import { generatePdfBlob } from '@/features/export/exportPdf'
 import { generateFCPdfBlob } from '@/features/export/exportFCPdf'
 import { generateConvergedPdfBlob } from '@/features/export/exportConvergedPdf'
+import { generateThreeTierPdfBlob } from '@/features/export/exportThreeTierPdf'
 import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface TopBarProps {
@@ -29,16 +32,33 @@ interface TopBarProps {
 
 export function TopBar({ mode, onModeChange }: TopBarProps) {
   const { t } = useTranslation()
-  const bom = useResultStore(useShallow((s) => s.bom))
+  const { bom, threeTierBom } = useResultStore(
+    useShallow((s) => ({ bom: s.bom, threeTierBom: s.threeTierBom }))
+  )
+  const topology = useInputStore(useShallow((s) => s.input.topology))
   const fcBom = useFCResultStore(useShallow((s) => s.bom))
   const convergedBom = useConvergedResultStore(useShallow((s) => s.bom))
-  const activeBom = mode === 'fc' ? fcBom : mode === 'converged' ? convergedBom : bom
+
+  const activeBom = mode === 'fc'
+    ? fcBom
+    : mode === 'converged'
+      ? convergedBom
+      : topology === 'three-tier'
+        ? threeTierBom
+        : bom
+
   const [pdfGenerating, setPdfGenerating] = useState(false)
 
   const handleCsv = () => {
-    if (mode === 'converged' && convergedBom) downloadConvergedBomCsv(convergedBom)
-    else if (mode === 'fc' && fcBom) downloadFCBomCsv(fcBom)
-    else if (bom) downloadBomCsv(bom)
+    if (mode === 'ethernet' && topology === 'three-tier' && threeTierBom) {
+      downloadThreeTierBomCsv(threeTierBom)
+    } else if (mode === 'converged' && convergedBom) {
+      downloadConvergedBomCsv(convergedBom)
+    } else if (mode === 'fc' && fcBom) {
+      downloadFCBomCsv(fcBom)
+    } else if (bom) {
+      downloadBomCsv(bom)
+    }
   }
 
   const handlePdf = async () => {
@@ -72,6 +92,22 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         const a = document.createElement('a')
         a.href = url
         a.download = 'netstack-fc-report.pdf'
+        a.click()
+        URL.revokeObjectURL(url)
+      } catch {
+        // Silently fail -- user can retry
+      } finally {
+        setPdfGenerating(false)
+      }
+    } else if (mode === 'ethernet' && topology === 'three-tier') {
+      if (!threeTierBom) return
+      setPdfGenerating(true)
+      try {
+        const blob = await generateThreeTierPdfBlob(threeTierBom)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'netstack-three-tier-report.pdf'
         a.click()
         URL.revokeObjectURL(url)
       } catch {
