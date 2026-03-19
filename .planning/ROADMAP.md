@@ -183,5 +183,5 @@ Plans:
 | 24. Dedicated Input Page | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 25. Schema, Geometry Inputs & Advisory Foundation | v6.0 | 2/2 | Complete | 2026-03-19 |
 | 26. Cable Length Engine | 2/2 | Complete    | 2026-03-19 | - |
-| 27. UI & i18n | 1/1 | Complete   | 2026-03-19 | - |
+| 27. UI & i18n | 1/1 | Complete    | 2026-03-19 | - |
 | 28. Export | v6.0 | 0/1 | Not started | - |
