@@ -68,31 +68,31 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CABLE-01 | — | Pending |
-| CABLE-02 | — | Pending |
-| CABLE-03 | — | Pending |
-| CABLE-04 | — | Pending |
-| CABLE-05 | — | Pending |
-| CABLE-06 | — | Pending |
-| RACK-01 | — | Pending |
-| RACK-02 | — | Pending |
-| RACK-03 | — | Pending |
-| RACK-04 | — | Pending |
-| DAC-01 | — | Pending |
-| DAC-02 | — | Pending |
-| DAC-03 | — | Pending |
-| PHYS-01 | — | Pending |
-| PHYS-02 | — | Pending |
-| PHYS-03 | — | Pending |
-| PHYS-04 | — | Pending |
-| EXP-05 | — | Pending |
-| EXP-06 | — | Pending |
+| CABLE-01 | Phase 26 | Pending |
+| CABLE-02 | Phase 26 | Pending |
+| CABLE-03 | Phase 26 | Pending |
+| CABLE-04 | Phase 26 | Pending |
+| CABLE-05 | Phase 26 | Pending |
+| CABLE-06 | Phase 26 | Pending |
+| RACK-01 | Phase 25 | Pending |
+| RACK-02 | Phase 25 | Pending |
+| RACK-03 | Phase 25 | Pending |
+| RACK-04 | Phase 26 | Pending |
+| DAC-01 | Phase 26 | Pending |
+| DAC-02 | Phase 26 | Pending |
+| DAC-03 | Phase 25 | Pending |
+| PHYS-01 | Phase 25 | Pending |
+| PHYS-02 | Phase 25 | Pending |
+| PHYS-03 | Phase 25 | Pending |
+| PHYS-04 | Phase 27 | Pending |
+| EXP-05 | Phase 28 | Pending |
+| EXP-06 | Phase 28 | Pending |
 
 **Coverage:**
 - v6.0 requirements: 19 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 — traceability populated after v6.0 roadmap creation*

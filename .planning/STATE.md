@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
-status: planning
-stopped_at: Milestone v6.0 started — defining requirements
+status: roadmap_ready
+stopped_at: Roadmap defined — ready to plan Phase 25
 last_updated: "2026-03-19T00:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,14 +19,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Milestone v6.0 — Physical Planning (requirements definition)
+**Current focus:** Milestone v6.0 — Physical Planning (roadmap ready, starting Phase 25)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 25 — Schema, Geometry Inputs & Advisory Foundation (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-19 — Milestone v6.0 started
+Status: Roadmap approved, ready to plan Phase 25
+Last activity: 2026-03-19 — v6.0 roadmap created (4 phases, 19 requirements mapped)
+
+Progress bar: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
 
 ## Performance Metrics
 
@@ -55,8 +57,9 @@ Last activity: 2026-03-19 — Milestone v6.0 started
 - Pure domain engines: `calculateBOM()`, `calculateThreeTierBOM()`, `calculateFCBOM()`, `calculateConvergedBOM()`
 - Hardware catalog: `maxPowerW` already present on every switch model
 - Switch positioning (ToR/MoR/BoR) drives rack elevation layout — cable length formula can consume this
-- Existing `DAC_DISTANCE_ADVISORY` violation in sizing engine — extend with computed distance
+- Existing `DAC_DISTANCE_ADVISORY` violation in sizing engine — upgrade to use computed distance in Phase 26
 - React Router HashRouter, accordion input at `/#/input`, ProfileManager in TopBar
+- inputStore currently at version 8 — Phase 25 bumps to version 9
 
 ### Key Decisions (v5.0)
 
@@ -64,6 +67,24 @@ Last activity: 2026-03-19 — Milestone v6.0 started
 - Brownfield toggles as native checkbox inside FormField
 - HashRouter without basename
 - NavLink `end` prop on root route
+
+### Key Decisions (v6.0 — planned)
+
+- advisories[] is a separate output array from violations[] — amber cards, not red violation blocks
+- Cable length formula consumes rack pitch (mm), rack height (derived from rack size U count), and ToR/MoR/BoR position
+- SKU ladder: 1m / 3m / 5m / 10m with 15% slack buffer applied before rounding up to next SKU
+- DAC limits are speed-specific: 25G SFP28 = 3m, 100G QSFP28 = 5m (DAC-03 fixes incorrect flat 5m in catalog)
+- Non-adjacent rack mode produces an advisory (amber), not a violation (red)
+- Profile normalisation on load (Phase 25) prevents stale fields from saved profiles silently breaking new inputs
+
+### v6.0 Phase Summary
+
+| Phase | Requirements | Goal |
+|-------|-------------|------|
+| 25 | PHYS-01, PHYS-02, PHYS-03, DAC-03, RACK-01, RACK-02, RACK-03 | Schema, geometry inputs, advisory type, DAC catalog fix |
+| 26 | CABLE-01–06, DAC-01, DAC-02, RACK-04 | Cable length engine (TDD), upgraded DAC advisory, patch panel advisory |
+| 27 | PHYS-04 | UI wiring, amber advisory cards, i18n EN/FR/DE/IT |
+| 28 | EXP-05, EXP-06 | CSV + PDF cable schedule |
 
 ### Pending Todos
 
@@ -76,5 +97,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Milestone v6.0 started
-Resume file: None
+Stopped at: v6.0 roadmap created
+Resume file: .planning/ROADMAP.md — Phase 25 is next
