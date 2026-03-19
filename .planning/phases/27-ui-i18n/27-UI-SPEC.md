@@ -32,6 +32,12 @@ No new packages are required for this phase. All components (`Alert`, `Input`, `
 
 ---
 
+## Primary Visual Anchor
+
+Primary visual anchor: BOM panel output — unchanged from existing phase.
+
+---
+
 ## Spacing Scale
 
 Standard 8-point scale — already in use across all existing components. No exceptions for this phase.
@@ -59,7 +65,7 @@ Inherits the existing project type scale. No new sizes introduced. Source: `inde
 | Body | 14px (`text-sm`) | 400 (normal) | 1.5 | FormDescription help text, AdvisoryAlert body (`AlertDescription`) |
 | Label | 14px (`text-sm`) | 400 (normal) | 1.0 | FormLabel for geometry fields — matches existing `text-sm text-muted-foreground` pattern |
 | Heading | 14px (`text-xs font-semibold uppercase tracking-wide`) | 600 (semibold) | 1.0 | Advisory section heading (`bom.advisoriesHeading`) — matches existing `alertsHeading` treatment |
-| Display | 15px (`text-sm font-medium`) | 500 (medium) | 1.25 | AlertTitle inside AdvisoryAlert |
+| Display | 15px (`text-sm font-semibold`) | 600 (semibold) | 1.25 | AlertTitle inside AdvisoryAlert |
 
 All text goes through `t()` from `useTranslation()`. No inline string literals.
 
@@ -156,8 +162,8 @@ BOMPanel (Clos or Three-Tier branch)
   ─── new advisory section, below violations ───
   advisoriesHeading   [text-xs font-semibold uppercase tracking-wide text-muted-foreground]
   AdvisoryAlert(s)    [Alert variant="warning", amber border, AlertTriangle icon]
-    AlertTitle        [text-sm font-medium]  — t('bom.advisoryPatchPanelTitle')
-    AlertDescription  [text-sm]             — t('bom.advisoryPatchPanelBody', {computedDistanceM, dacLimitM})
+    AlertTitle        [text-sm font-semibold]  — t('bom.advisoryPatchPanelTitle')
+    AlertDescription  [text-sm]               — t('bom.advisoryPatchPanelBody', {computedDistanceM, dacLimitM})
 ```
 
 Advisory section only renders when `advisories.length > 0`. Empty state: section is absent — no placeholder needed.
