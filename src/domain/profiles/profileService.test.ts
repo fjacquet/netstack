@@ -10,6 +10,9 @@ import {
   loadProfile,
   listProfiles,
   deleteProfile,
+  normalizeEthInputState,
+  normalizeFCInputState,
+  normalizeConvergedInputState,
 } from './profileService';
 import type { Profile } from '../schemas/profile';
 
@@ -226,5 +229,64 @@ describe('profileService', () => {
     expect(convProfile.mode).toBe('converged');
     expect(convProfile.inputState).toHaveProperty('leafModel');
     expect(convProfile.inputState).toHaveProperty('fcSwitchModel');
+  });
+});
+
+describe('normalizeEthInputState — fills missing fields with defaults', () => {
+  it('adds geometry fields when missing from old profile', () => {
+    const oldProfile = {
+      topology: 'leaf-spine',
+      racks: [{ serverCount: 10 }],
+      connectivityType: '25G',
+      cableType: 'DAC',
+    };
+    const result = normalizeEthInputState(oldProfile);
+    expect(result.rackPitchMm).toBe(600);
+    expect(result.racksAdjacent).toBe(true);
+    expect(result.patchPanelDistanceM).toBe(1);
+  });
+
+  it('preserves existing geometry fields from v9 profile', () => {
+    const v9Profile = {
+      topology: 'leaf-spine',
+      racks: [{ serverCount: 10 }],
+      rackPitchMm: 800,
+      racksAdjacent: false,
+      patchPanelDistanceM: 5,
+    };
+    const result = normalizeEthInputState(v9Profile);
+    expect(result.rackPitchMm).toBe(800);
+    expect(result.racksAdjacent).toBe(false);
+    expect(result.patchPanelDistanceM).toBe(5);
+  });
+
+  it('fills all defaults for empty object', () => {
+    const result = normalizeEthInputState({});
+    expect(result.topology).toBe('leaf-spine');
+    expect(result.rackPitchMm).toBe(600);
+  });
+
+  it('does not mutate the input object', () => {
+    const input = { topology: 'leaf-spine' };
+    const frozen = { ...input };
+    normalizeEthInputState(input);
+    expect(input).toEqual(frozen);
+  });
+});
+
+describe('normalizeConvergedInputState — fills missing fields', () => {
+  it('adds geometry fields when missing', () => {
+    const old = { racks: [{ serverCount: 10 }] };
+    const result = normalizeConvergedInputState(old);
+    expect(result.rackPitchMm).toBe(600);
+    expect(result.racksAdjacent).toBe(true);
+  });
+});
+
+describe('normalizeFCInputState — pass-through', () => {
+  it('returns object with FC defaults filled', () => {
+    const old = { hbaPortsPerServer: 2 };
+    const result = normalizeFCInputState(old);
+    expect(result.hbaPortsPerServer).toBe(2);
   });
 });
