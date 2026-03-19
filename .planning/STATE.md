@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
-status: in_progress
-stopped_at: Phase 25 complete — ready for Phase 26
-last_updated: "2026-03-19T09:00:00.000Z"
+status: unknown
+stopped_at: Completed 26-01-PLAN.md — cable length library + BOM schema additions, start 26-02
+last_updated: "2026-03-19T09:37:02.179Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Phase 25 — Schema, Geometry Inputs & Advisory Foundation
+**Current focus:** Phase 26 — Cable Length Engine
 
 ## Current Position
 
-Phase: 25 (Schema, Geometry Inputs & Advisory Foundation) — VERIFIED ✅
-Next: Phase 26 (Cable Length Engine)
+Phase: 26 (Cable Length Engine) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -87,6 +87,13 @@ Next: Phase 26 (Cable Length Engine)
 - normalizeFCInputState is pass-through copy — FC has no geometry fields, function exists for API consistency
 - profileService.ts imports only from domain/schemas/defaults.ts — zero store imports (domain purity maintained)
 
+### Key Decisions (v6.0 — Plan 26-01 executed)
+
+- computeLeafSpineLengthM returns 0 for single-rack deployments (no inter-rack leaf→spine cables)
+- computeFCIslLengthM returns fixed 5m SKU — FC domain has no geometry fields (ADR-0009 parallel domain rule)
+- BOM cableSchedule and islCableLengthSkuM fields are optional — backward compatible until Plan 02 populates them
+- aggregationCoreSkuM equals accessAggregationSkuM in Three-Tier (both tiers use same inter-rack formula)
+
 ### v6.0 Phase Summary
 
 | Phase | Requirements | Goal |
@@ -106,6 +113,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-19T09:00:00.000Z
-Stopped at: Phase 25 verified (9/9 must-haves) — start Phase 26 with /gsd:plan-phase 26
+Last session: 2026-03-19T09:37:02.176Z
+Stopped at: Completed 26-01-PLAN.md — cable length library + BOM schema additions, start 26-02
 Resume file: None

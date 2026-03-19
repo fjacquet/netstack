@@ -7,12 +7,12 @@
 
 ### Cable Length Schedule
 
-- [ ] **CABLE-01**: User sees recommended cable length (metres + SKU) for server→leaf links in all modes
-- [ ] **CABLE-02**: User sees recommended cable length for leaf→spine and VLT links in Clos mode
-- [ ] **CABLE-03**: User sees three cable length estimates for Three-Tier: server→access, access→aggregation, aggregation→core
-- [ ] **CABLE-04**: User sees estimated ISL cable length for FC SAN mode
-- [ ] **CABLE-05**: Cable lengths map to nearest standard SKU (1m/3m/5m/10m ladder) with 15% slack buffer
-- [ ] **CABLE-06**: Cable lengths computed from rack pitch, rack height (derived from rack size), and switch position (ToR/MoR/BoR)
+- [x] **CABLE-01**: User sees recommended cable length (metres + SKU) for server→leaf links in all modes
+- [x] **CABLE-02**: User sees recommended cable length for leaf→spine and VLT links in Clos mode
+- [x] **CABLE-03**: User sees three cable length estimates for Three-Tier: server→access, access→aggregation, aggregation→core
+- [x] **CABLE-04**: User sees estimated ISL cable length for FC SAN mode
+- [x] **CABLE-05**: Cable lengths map to nearest standard SKU (1m/3m/5m/10m ladder) with 15% slack buffer
+- [x] **CABLE-06**: Cable lengths computed from rack pitch, rack height (derived from rack size), and switch position (ToR/MoR/BoR)
 
 ### Rack Geometry Inputs
 
@@ -68,12 +68,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CABLE-01 | Phase 26 | Pending |
-| CABLE-02 | Phase 26 | Pending |
-| CABLE-03 | Phase 26 | Pending |
-| CABLE-04 | Phase 26 | Pending |
-| CABLE-05 | Phase 26 | Pending |
-| CABLE-06 | Phase 26 | Pending |
+| CABLE-01 | Phase 26 | Complete |
+| CABLE-02 | Phase 26 | Complete |
+| CABLE-03 | Phase 26 | Complete |
+| CABLE-04 | Phase 26 | Complete |
+| CABLE-05 | Phase 26 | Complete |
+| CABLE-06 | Phase 26 | Complete |
 | RACK-01 | Phase 25 | Complete |
 | RACK-02 | Phase 25 | Complete |
 | RACK-03 | Phase 25 | Complete |
