@@ -1,244 +1,280 @@
-# Stack Research
+# Technology Stack
 
-**Domain:** Network sizing / BOM calculator web app (Dell SONiC Leaf-Spine + Brocade FC SAN)
-**Researched:** 2026-03-18 (v2.0 milestone — FC SAN + switch positioning additions)
-**Confidence:** HIGH (hardware specs from Broadcom official techdocs; no new npm deps required)
-
----
-
-## Milestone Context
-
-v2.0 adds two features to the existing validated stack:
-1. **Fibre Channel SAN sizing** — Brocade Gen7 (64G) and Gen8 (128G) switch catalog, dual-fabric topology, ISL calculations, FC optics
-2. **Switch positioning** — ToR / MoR / BoR selector, cable length impact on BOM, rack elevation placement
-
-**Verdict: No new runtime npm dependencies are required.** All new functionality fits within the existing stack. The additions are pure catalog data + engine logic extensions.
+**Project:** NetStack v6.0 — Physical Planning Features
+**Researched:** 2026-03-19
+**Scope:** Cable length estimation, power budget per rack, upgraded DAC distance advisory
+**Replaces:** v2.0 stack research (FC SAN + switch positioning) — all prior decisions still valid; this document adds v6.0 physical planning layer on top
 
 ---
 
-## Recommended Stack
+## Decision Summary
 
-### Core Technologies (Unchanged from v1.1)
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Vite | 8.0.0 | Build tool / dev server | Unchanged — no FC-specific build needs |
-| React | 19.2.4 | UI framework | Unchanged — FC input form + topology uses same component model |
-| TypeScript | 5.9.3 | Type safety | Strict mode especially important for FC domain — ports/speeds/fabric IDs are meaningfully typed |
-| Zustand | 5.0.12 | Global state management | Unchanged — FC mode flag + FC BOM live alongside Ethernet BOM in same store pattern |
-| Zod | 4.3.6 | Schema validation | FC input schema follows exact same Zod pattern: `FCSizingInputSchema` with `z.infer<>` types |
-
-### FC SAN Domain Layer (New — no library, pure TypeScript)
-
-| Component | Type | Purpose | Implementation Strategy |
-|-----------|------|---------|------------------------|
-| `FC_SWITCH_CATALOG` | TS constant | Brocade G720/G730/G820 hardware specs | Follows `SWITCH_CATALOG` pattern in `src/domain/catalog/hardware.ts` — new constant, same shape |
-| `FC_OPTICS_CATALOG` | TS constant | SFP+ LC / SFP-DD FC optics per speed | New constant in `src/domain/catalog/cables.ts` — covers 64G SWL/LWL, 128G SWL |
-| `FCSizingInputSchema` | Zod schema | FC input: server count, HBA ports, FC switch model, ISL ratio | New Zod schema in `src/domain/schemas/fc-input.ts` — separate from `SizingInputSchema` |
-| `FCNetworkBOMSchema` | Zod schema | FC BOM output: switches per fabric, ISL count, optics | New Zod schema in `src/domain/schemas/fc-bom.ts` |
-| `calculateFCBOM()` | Pure function | FC sizing engine | New pure function in `src/domain/engine/fc-sizing.ts` — same contract as `calculateBOM()` |
-
-**Why no library for FC calculations:** No npm package exists for Fibre Channel SAN sizing calculations. FC sizing formulas are straightforward arithmetic (port counts, ISL ratios, dual-fabric multiplication) — identical in nature to the existing Ethernet sizing engine. Adding a library would introduce dependency risk with no benefit over typed TypeScript functions.
-
-### Visualization (Unchanged — @xyflow/react)
-
-| Library | Version | Purpose | FC-Specific Notes |
-|---------|---------|---------|------------------|
-| @xyflow/react | 12.10.1 | Topology diagram | FC dual-fabric diagram uses same custom node approach. Two parallel fabric flows rendered side-by-side or stacked. No API changes needed. |
-
-**FC topology pattern:** Render Fabric A and Fabric B as two independent `<ReactFlow>` instances sharing a common layout container, OR as a single flow with two subgraphs separated by a gap. Custom node types: `FCSwitch` (with fabric color coding). Edges carry ISL vs. F_Port metadata. This is a pure data + component change — no new library.
-
-### Rack Elevation (Unchanged — Custom SVG)
-
-Switch positioning (ToR/MoR/BoR) only affects which U-slot the switch renders in. The existing custom SVG rack component already accepts U-position as a prop. The change is:
-- Add a `switchPosition: 'ToR' | 'MoR' | 'BoR'` field to `SizingInput`
-- Derive U-slot from position + rack height in the engine
-- Pass derived U-slot to the existing SVG component
-
-No library change. The SVG component is already parameterized by U-position.
-
-### Export (Unchanged)
-
-| Library | Version | FC-Specific Notes |
-|---------|---------|------------------|
-| @react-pdf/renderer | 4.3.2 | FC BOM adds a new section/table — same `<View>` + `<Text>` JSX pattern |
-| react-papaparse | 4.4.0 | FC BOM CSV: additional rows for FC switches, ISL cables, FC optics |
-
-### UI & Forms (Unchanged)
-
-| Library | Version | FC-Specific Notes |
-|---------|---------|------------------|
-| react-hook-form | 7.71.2 | FC input form: new `useForm` instance with `zodResolver(FCSizingInputSchema)` |
-| shadcn/ui | latest | Reuse `Select`, `Card`, `Badge`, `Table` components — no new components needed |
-| Tailwind v4 | 4.2.1 | FC fabric colors (A = blue, B = orange) are standard Tailwind utilities |
+**No new npm packages are needed for v6.0.** Every v6.0 feature — cable length schedule, rack power budget, upgraded DAC advisory with actual computed distance — is pure arithmetic over constants. The formulas are simple enough that adding a library would introduce dependency surface area with zero benefit. All new logic belongs in the existing domain layer as pure TypeScript functions, following the established `calculateBOM()` / `calculateFCBOM()` pattern.
 
 ---
 
-## Hardware Catalog: Brocade FC Switches
+## Existing Stack (unchanged for v6.0)
 
-All specs sourced from Broadcom official techdocs (HIGH confidence). These go directly into `FC_SWITCH_CATALOG` constants — not npm dependencies.
+The stack validated through v5.0 is not modified. These are the active versions for context:
 
-### Gen7 64G Switches
-
-| Model | Role | FC Ports (max) | Base Ports (PoD) | Form Factor | Max Power | ISL Trunking | Notes |
-|-------|------|---------------|------------------|-------------|-----------|--------------|-------|
-| G720 | Edge switch | 64 (48 SFP+ + 8 DD×2) | 24 | 1U | 349W typical, 700W supply | Up to 8 ports per ISL trunk | Primary Gen7 choice for ToR FC |
-| G730 | Core/director-class | 128 (96 SFP+ + 16 DD) | 48 | 2U | 969W, dual 1100W supply | 512 Gb/s per ISL trunk | For large fabrics; ISL aggregation |
-
-**G720 detail:** 48 × 64G SFP+ ports + 8 × dual-density SFP-DD ports (each SFP-DD = 2 ports). Ports 0–55 addressable. PoD scales 24 → 64 with licenses. Universal ports self-configure as F_Port (host) or E_Port (ISL). 1U, 4.39 cm H × 44 cm W × 35.56 cm D.
-
-**G730 detail:** 96 × 64G SFP+ + 16 × SFP-DD ports = 128 ports total. 2U. Dual redundant PSUs. Used for aggregation/core role in larger fabrics; less common as pure edge switch.
-
-### Gen8 128G Switches
-
-| Model | Role | FC Ports (max) | Base Ports (PoD) | Form Factor | Typical Power | ISL Trunking | Notes |
-|-------|------|---------------|------------------|-------------|---------------|--------------|-------|
-| G820 | Edge switch | 56 | 24 | 1U | 262W (28 ports, 50% load) / 336W (56 ports, 50% load) | AES-GCM-256 encrypted ISL | Gen8 launched Nov 2025; 128G autosensing |
-
-**G820 detail:** 56 × 128G SFP+ (autosensing 16G/32G/64G/128G). Dynamic PoD: 24 → 56 ports. Dual hot-swap 650W PSUs. Universal ports: F_Port, E_Port, EX_Port, D_Port. C3338R processor, dual-core 1.5 GHz. Quantum-safe (AES-GCM-256 on ISLs).
-
-### FC Optics Reference (for `FC_OPTICS_CATALOG`)
-
-| Technology | Speed | Connector | Max Distance | Use Case |
-|------------|-------|-----------|-------------|----------|
-| 64G SWL SFP+ | 64G FC | LC duplex | 100m OM4 | Intra-rack / short-haul |
-| 64G LWL SFP+ | 64G FC | LC duplex | 10km SMF | Long-haul / inter-row |
-| 64G SFP-DD | 2×64G FC | SFP-DD | 100m OM4 | G720/G730 DD ports only |
-| 128G SWL SFP+ | 128G FC | LC duplex | 100m OM4 | G820 intra-row |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19 | UI rendering |
+| Vite | 6 | Build and dev server |
+| TypeScript | strict | Type safety, no `any` |
+| Zustand | v5 | Store layer (inputStore, resultStore, etc.) |
+| Zod | v4 | Schema definitions; all types via `z.infer<>` |
+| Tailwind | v4 | Styling via `@tailwindcss/vite` plugin |
+| shadcn/ui | current | Accordion, UI primitives |
+| @xyflow/react | current | Topology diagrams |
+| @react-pdf/renderer | current | PDF export (lazy-loaded) |
+| React Router | v7 HashRouter | Deep-linkable views |
 
 ---
 
-## Switch Positioning: ToR / MoR / BoR
+## New npm Packages Required: None
 
-### What Changes per Position
+A search for npm packages covering data center cable length math, rack layout calculation, or DCIM physical planning found nothing relevant. The search space includes:
 
-| Position | Switch Location | Cable Length Multiplier (server → switch) | Rack U-Slot |
-|----------|----------------|------------------------------------------|-------------|
-| ToR | Top of rack (U1–U2) | ~3m (short, DAC/AOC safe) | rackSize – switchUHeight |
-| MoR | Middle of row (separate shared rack) | ~5–15m (center-of-row, fiber recommended) | Fixed in dedicated network rack |
-| BoR | Bottom of rack (U44–U45 in 42U) | ~3m (bottom, equivalent to ToR distance-wise) | switchUHeight (bottom) |
+- No `cable-length` / `datacenter-layout` npm packages exist for this domain
+- All DCIM tools (Nlyte, Sunbird, Vertiv) are server-side enterprise SaaS — no client-side JS SDK
+- `mathjs` is overkill: all operations are `+`, `×`, `Math.ceil()`, `Math.abs()` — no matrix ops or unit conversion needed
+- `d3` is already absent; the topology view uses `@xyflow/react` and the BOM is tabular — a cable length schedule is a table
 
-**Note on MoR:** Switches are not in each server rack — they are in a dedicated network rack at the middle of the row. Multiple server racks share one MoR switch. This changes the sizing formula: fewer switches total but more cables per switch, longer runs.
+The only valid implementation approach for this project's constraints (client-side PWA, pure domain layer, no backend) is typed TypeScript constants + pure functions.
 
-### Implementation: No New Libraries
+---
 
-The `switchPosition` field is a new enum in `SizingInputSchema`:
+## Physical Constants — Source of Truth for the Engine
+
+### DAC Cable Length Limits (HIGH confidence)
+
+These are the authoritative limits, verified against IEEE 802.3 standards and multiple vendor datasheets. The current `CABLE_CATALOG.DAC.maxDistanceM = 5` is a catch-all. v6.0 should differentiate by speed and cable type:
+
+| Speed | Form Factor | Cable Type | Conservative Max | Standard Reference |
+|-------|-------------|------------|------------------|--------------------|
+| 25G | SFP28 | Passive DAC (twinax) | **3 m** | IEEE 802.3by / 25GBASE-CR1 |
+| 25G | SFP28 | Active DAC | 5 m | SFF-8432 MSA |
+| 100G | QSFP28 | Passive DAC (twinax) | **3 m** | IEEE 802.3bj / 100GBASE-CR4 (conservative) |
+| 100G | QSFP28 | Active DAC | 5–7 m | QSFP28 MSA |
+| 100G | QSFP28 | Breakout passive DAC (4×25G) | 3 m | 25GBASE-CR1 per lane |
+
+**Key insight for the engine:** The binding constraint for a leaf-spine deployment is always the 100G QSFP28 spine uplink (passive DAC). Use **3 m** as the passive DAC threshold. The upgraded `DAC_DISTANCE_ADVISORY` should fire when `computedLeafSpineM > 3.0` rather than the current `racks > 8` proxy.
+
+These constants belong in a new `DAC_LIMITS` export in `src/domain/catalog/cables.ts`:
+
 ```typescript
-switchPosition: z.enum(['ToR', 'MoR', 'BoR']).default('ToR')
+export const DAC_LIMITS = {
+  '25G_passive': 3,    // m — 25GBASE-CR1 passive twinax
+  '25G_active': 5,     // m — Active DAC SFP28
+  '100G_passive': 3,   // m — 100GBASE-CR4 passive (conservative vendor-consistent limit)
+  '100G_active': 7,    // m — Active DAC QSFP28
+} as const;
 ```
 
-Engine derives:
-- `cableLengthAdvisory`: emit `DAC_DISTANCE_ADVISORY` if MoR + DAC (MoR cable runs typically exceed DAC's 3–5m limit)
-- `switchUSlot`: calculated field for rack elevation SVG positioning
-- BOM quantities: MoR changes leaf count formula (one switch pair per row of N racks instead of per rack)
+### Rack Physical Constants (HIGH confidence — EIA-310-D)
 
-The existing `ConstraintViolation` discriminated union gains a new `MOR_DAC_INCOMPATIBLE` code (MoR runs exceed DAC max distance). This is pure domain logic — no library.
+| Parameter | Value | Source |
+|-----------|-------|--------|
+| 1U height | 44.45 mm (1.75 in) | EIA-310-D standard |
+| 24U rack total height | ~1.07 m usable + ~0.1 m frame = ~1.17 m | EIA-310-D |
+| 42U rack total height | ~1.87 m usable + ~0.1 m frame = ~1.97 m | EIA-310-D |
+| 50U rack total height | ~2.24 m usable + ~0.1 m frame = ~2.34 m | EIA-310-D |
+| Default rack pitch (center to center) | **1.0 m** | Standard 600 mm floor tile + aisle allocation |
+| Overhead cable tray height above rack top | 0.3–0.5 m | Add for inter-rack horizontal runs |
+| Service loop per cable end | 0.3 m | Industry standard dressing allowance |
 
----
+**Rack pitch engineering note (MEDIUM confidence):** Data center floor tiles are 600×600 mm. A standard hot-aisle/cold-aisle layout allocates one tile per rack row plus shared aisle space. 1.0 m is a safe and widely-used default for rack center-to-center distance. Engineers with precise floor plans need to override this — hence adding `rackPitchM` as a configurable input field.
 
-## Installation
+### Cable Length Formulas
 
-No new packages required for v2.0.
+**Within-rack links (server → leaf, VLT, OOB) — all positioning modes:**
 
-The existing lockfile is sufficient. All FC and switch positioning features are:
-- New TypeScript constants (hardware catalog entries)
-- New Zod schemas (FC input + FC BOM)
-- New pure functions (FC sizing engine)
-- New React components using existing `@xyflow/react` and shadcn/ui primitives
+The existing `cableLengthMap` in `sizing.ts` is correct for within-rack paths:
+- `ToR`: switch at top, server at bottom → max ≈ `(rackU - 3) × 0.04445 + 0.3` ≈ 2 m for 42U
+- `MoR`: switch at mid-rack, server at extremes → max ≈ `(rackU / 2) × 0.04445 + 0.3` ≈ 1 m for 42U
+- `BoR`: switch at bottom, server at top → same as ToR ≈ 2 m for 42U
 
-```bash
-# Verify existing deps are current (no additions needed)
-npm list @xyflow/react zustand zod react-hook-form
+These are consistent with `recommendedCableLengthM` values already in the BOM.
+
+**Inter-rack links (leaf → spine, leaf → border leaf):**
+
+```
+leafToSpineM = (rackPitchM × rackSeparation) + overheadDropM + serviceLoopM
 ```
 
----
+Where:
+- `rackSeparation` = count of rack positions between leaf rack and network rack
+- For adjacent racks (most ToR deployments): `rackSeparation = 1`, so `leafToSpineM ≈ 1.0 + 0.4 + 0.6 ≈ 2.0 m`
+- `overheadDropM` = overhead tray height + switch-to-top-of-rack drop ≈ 0.4 m each end
+- `serviceLoopM` = 0.3 m × 2 ends = 0.6 m total
 
-## Alternatives Considered
-
-| Decision | Considered Alternative | Why Rejected |
-|----------|----------------------|--------------|
-| Separate FC_SWITCH_CATALOG constant | Merge FC models into SWITCH_CATALOG | FC switches have a different role taxonomy (edge/core vs. leaf/spine) and different port semantics (F_Port/E_Port vs. downlink/uplink). Merging would require adding FC-specific optional fields to the `SwitchSpec` interface and complicate type narrowing. Separate catalog keeps domain models clean. |
-| Dedicated `calculateFCBOM()` function | Extend `calculateBOM()` with mode flag | FC sizing is a different domain — dual fabric, ISL ratios, HBA port math. Extending `calculateBOM()` would require a mode discriminant and complex branching. Separate pure function keeps each engine testable and understandable in isolation. |
-| Two `<ReactFlow>` instances for dual fabric | Single flow with two subgraphs | Two instances give independent pan/zoom per fabric, cleaner isolation, simpler node ID namespacing. Tradeoff: slightly more React state. Preferred for fabric A / fabric B clarity. |
-| MoR uses separate switch-rack model | MoR uses same per-rack switch model | MoR fundamentally changes the topology (shared switches across racks). Separate model flag in BOM is cleaner than trying to encode MoR in per-rack switch counts. |
-| Add a 3rd-party FC capacity library | Pure TypeScript engine | No meaningful npm package exists for FC SAN sizing. The calculations are simple arithmetic. A dependency would add risk with zero benefit. |
-
----
-
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| Brocade CLI emulation libraries | No such npm package; also out of scope (pure sizing, not config) | TypeScript constants for hardware specs |
-| Any DCIM / IPAM library (NetBox client, etc.) | Heavyweight; requires backend; out of scope for pure client-side tool | Custom domain types + Zod schemas |
-| G720 PoD "base" port count (24) in sizing | Base config is unlicensed minimum, not a deployable quantity. Use max (64) as catalog value and note PoD licensing requirement. | Use `portCount: 64` in FC_SWITCH_CATALOG, add `podLicenseRequired: true` flag |
-| Treating ISL ports as identical to F_Ports | ISL ports consume the same physical SFP+ slots as host ports. ISL count must be subtracted from available host ports in the engine. | Subtract ISL allocation: `hostPorts = totalPorts - islPorts` |
-| Single-fabric FC topology | FC best practice is always dual-fabric (Fabric A + Fabric B) for redundancy. Single-fabric is not recommended for production sizing. | Model dual fabric as default; allow single-fabric only as an explicit override with a violation warning. |
-
----
-
-## Stack Patterns by Variant
-
-**For FC SAN topology diagram:**
-- Two `<ReactFlow>` instances, Fabric A and Fabric B, side-by-side in a flex container
-- Custom node type `FCEdgeSwitchNode` renders switch name, port count, fabric label
-- Edges between host-side nodes and switch: `F_Port` style (dotted, thin)
-- Edges between switches (ISL): `E_Port` style (solid, thick)
-- Fabric A: blue color scheme; Fabric B: orange color scheme (Tailwind `blue-600` / `orange-600`)
-
-**For switch positioning in rack elevation:**
-- `ToR`: switch renders at top of rack SVG (highest U numbers)
-- `BoR`: switch renders at bottom of rack SVG (lowest U numbers)
-- `MoR`: switch does NOT render in server rack SVG; renders in a separate network rack SVG
-- U-slot calculation: `getUSlot(switchPosition, rackSizeU, switchUHeight) => number` — pure function
-
-**For FC input form:**
-- Mode selector renders at the top of the form: `Ethernet | Fibre Channel` toggle
-- FC mode shows: FC switch model selector (G720/G730/G820), HBA ports per server (1/2/4), ISL port count per switch, fabric count (always 2, display only)
-- Ethernet mode shows: existing form unchanged
-
-**For FC BOM output:**
-- FC BOM panel shows per-fabric counts: FC switches per fabric, ISL cables, FC optics (SFP+ count by type)
-- Oversubscription concept in FC is different from Ethernet — model as "ISL bandwidth ratio" (ISL Gbps vs. total host Gbps)
-- Re-use existing `Badge` and `Card` primitives; add new `FCBOMPanel` feature component
-
-**For sizing engine — FC formula:**
+For non-adjacent deployments (server rack is not next to network rack):
 ```
-switchesPerFabric = ceil(totalServers × hbaPortsPerServer / hostPortsPerSwitch)
-islPortsPerSwitch = input.islPortCount  // from user, typically 4-8
-hostPortsPerSwitch = catalogPorts - islPortsPerSwitch
-totalFCSwitches = switchesPerFabric × 2  // dual fabric
-islCables = switchesPerFabric × islPortsPerSwitch / 2  // ISL cables connect pairs
-fcOpticsSFP = totalServers × hbaPortsPerServer × 2  // 2 SFP+ per link (HBA + switch)
+leafToSpineM = rackPitchM × abs(serverRackIndex - networkRackIndex) + 0.4 + 0.6
 ```
 
+The DAC advisory triggers when this computed value exceeds `DAC_LIMITS['100G_passive']` = 3.0 m.
+
+### Server Power Estimates by U-Height (MEDIUM confidence)
+
+The `serverUHeight` field already on `SizingInputSchema` maps cleanly to power estimates. No external data source is needed:
+
+| `serverUHeight` | Typical Operating Range | Conservative Budget Value |
+|----------------|------------------------|--------------------------|
+| `1U` | 200–400 W | **400 W** |
+| `2U` | 350–600 W | **600 W** |
+| `4U` | 800–2000 W (GPU/storage dense) | **2000 W** |
+| `8U` | 2000–6000 W (chassis/blade) | **6000 W** |
+
+These are per-server estimates for planning purposes only. The power budget feature answers "what PDU amperage do I need?" — it is a planning advisory, not a measured value. Using conservative (worst-case) estimates is appropriate and expected for this use case.
+
 ---
 
-## Version Compatibility
+## New Domain Code Required (pure TypeScript, zero new packages)
 
-| Package | Version | FC/Positioning Compatibility Notes |
-|---------|---------|-------------------------------------|
-| @xyflow/react | 12.10.1 | Multiple `<ReactFlow>` instances in same React tree confirmed working; each needs its own `ReactFlowProvider` |
-| zod | 4.3.6 | `z.discriminatedUnion` for `FCSizingInput` mode selector; same pattern as existing BOM violations |
-| zustand | 5.0.12 | FC mode state + FC BOM state fits same store structure; add `fcMode: boolean` + `fcResult: FCNetworkBOM | null` |
-| react-hook-form | 7.71.2 | Separate `useForm` for FC input — do not share form instance with Ethernet input |
-| @react-pdf/renderer | 4.3.2 | FC BOM section added as new `<Page>` or `<View>` section in existing PDF template |
+### 1. New input field: `rackPitchM`
+
+Add to `SizingInputSchema` in `src/domain/schemas/input.ts`:
+
+```typescript
+rackPitchM: z.number().min(0.5).max(2.0).default(1.0)
+```
+
+This single field drives inter-rack cable length estimation. Default 1.0 m is correct for standard 600 mm tile data centers. The field is optional with a sane default — existing stored inputs migrate without breakage.
+
+### 2. Extend `DAC_DISTANCE_ADVISORY` violation shape
+
+In `src/domain/schemas/bom.ts`, add two fields to the existing discriminated union member:
+
+```typescript
+z.object({
+  code: z.literal('DAC_DISTANCE_ADVISORY'),
+  rackCount: z.number().int(),
+  cableType: z.literal('DAC'),
+  computedLeafSpineM: z.number(),   // actual computed inter-rack cable length
+  dacLimitM: z.number(),            // threshold used (3.0 for passive, 7.0 for active)
+})
+```
+
+The trigger condition changes from `racks > 8` (proxy) to `computedLeafSpineM > dacLimitM` (actual).
+
+### 3. New schema file: `src/domain/schemas/physical-planning.ts`
+
+New Zod schemas for the physical planning output:
+
+```typescript
+// Cable length schedule: one set of distances per deployment
+const CableLengthScheduleSchema = z.object({
+  serverToLeafM: z.number(),         // within-rack: governed by switch positioning
+  leafToSpineM: z.number(),          // inter-rack: derived from rackPitchM + overhead
+  vltInterconnectM: z.number(),      // within-rack leaf pair: always < 0.5 m
+  oobToLeafM: z.number(),            // within-rack: 0.3 m fixed dressing
+  dacCompatible: z.boolean(),        // true iff leafToSpineM ≤ DAC_LIMITS['100G_passive']
+  patchPanelAdvisory: z.boolean(),   // true if non-adjacent rack layout
+});
+
+// Per-rack power budget
+const RackPowerBudgetSchema = z.object({
+  rackIndex: z.number().int(),         // 0-based
+  switchMaxW: z.number(),              // sum of SWITCH_CATALOG[model].maxPowerW in this rack
+  serverEstimateW: z.number(),         // serverCount × perServerEstimateW[serverUHeight]
+  totalMaxW: z.number(),               // switchMaxW + serverEstimateW
+  pduRecommendedA: z.number(),         // ceil(totalMaxW / 208 / 0.8) — 208V, 80% derated
+});
+```
+
+### 4. Extend `NetworkBOMSchema` in `src/domain/schemas/bom.ts`
+
+Add two fields to the existing BOM output schema:
+
+```typescript
+cableLengthSchedule: CableLengthScheduleSchema,
+rackPowerBudgets: z.array(RackPowerBudgetSchema),
+```
+
+### 5. New pure function: `calculatePhysicalPlan()`
+
+In `src/domain/engine/physical-planning.ts`:
+
+```typescript
+export function calculatePhysicalPlan(
+  input: SizingInput,
+  bom: NetworkBOM,
+): { cableLengthSchedule: CableLengthSchedule; rackPowerBudgets: RackPowerBudget[] }
+```
+
+Pure function: reads `SWITCH_CATALOG[model].maxPowerW`, `DAC_LIMITS`, rack height constants. No side effects. Fully testable in Vitest node environment.
+
+The engine can either be called separately and composed into the BOM, or integrated directly into `calculateBOM()`. The former (composition) keeps `calculateBOM()` focused on port counts and is consistent with the existing `calculateConvergedBOM()` composition pattern.
+
+---
+
+## Alternatives Considered and Rejected
+
+| Candidate | Verdict | Reason |
+|-----------|---------|--------|
+| `mathjs` | Rejected | All operations are `+`, `×`, `ceil`, `abs`. No symbolic math, no matrix ops, no unit conversion needed. Adds 170 KB bundle weight for zero benefit. |
+| DCIM SDK / API (NetBox, Nlyte, Sunbird) | Rejected | All are server-side enterprise platforms. No client-side JS SDK exists. Out of scope for pure browser PWA. |
+| `d3` for cable routing diagrams | Rejected | @xyflow/react already handles topology. A cable length schedule is tabular output, not a visual routing diagram. |
+| `@turf/turf` or geometry library | Rejected | Data center rack layout is 1-dimensional along a row axis. Manhattan distance over a rack index array, not geospatial coordinates. |
+| Dedicated server power consumption database | Rejected | U-height-keyed estimates are accurate enough for PDU planning. Per-model accuracy requires a backend lookup service, incompatible with client-side constraint. |
+| 3D floor plan renderer | Rejected | v6.0 scope is length estimates and budget numbers. Visual floor plan is future v7.0+ territory. |
+| Extending `calculateBOM()` directly | Reconsidered | Physical planning concerns (cable lengths, power) are separable from port count concerns. A dedicated `calculatePhysicalPlan()` composed into the BOM result keeps each engine focused and individually testable. |
+
+---
+
+## Integration Points with Existing Architecture
+
+| v6.0 Concern | Integrates With | Pattern |
+|---|---|---|
+| Cable length schedule | `NetworkBOMSchema` in `bom.ts` | Add Zod fields; infer type as always |
+| Per-rack power budgets | New `RackPowerBudget[]` added to `NetworkBOM` | Parallel to existing `violations` array |
+| DAC advisory with real distance | `ConstraintViolationSchema` discriminated union | Extend existing `DAC_DISTANCE_ADVISORY` shape with two new fields |
+| Rack pitch input | `SizingInputSchema` in `input.ts` | Add `rackPitchM` optional field, `.default(1.0)` |
+| Physical constants | `src/domain/catalog/cables.ts` | Add `DAC_LIMITS` export alongside `CABLE_CATALOG` |
+| Physical planning engine | `src/domain/engine/physical-planning.ts` | New pure function, same contract as `calculateBOM()` |
+| Store integration | `resultStore` subscription | Physical plan fields on the BOM; no new store needed |
+| UI rendering | New BOM panel section + existing PDF template | Tabular output; no new UI library needed |
+| i18n | Existing EN/FR/DE/IT label files | Add label keys for cable schedule + power budget sections |
+
+---
+
+## Version Compatibility Notes
+
+No version changes are required. Zod v4 `z.discriminatedUnion` supports extending existing union members cleanly. Adding optional fields with `.default()` to `SizingInputSchema` preserves backward compatibility with persisted `localStorage` state via Zustand's existing `merge` migration strategy.
+
+---
+
+## Confidence Assessment
+
+| Area | Level | Reason |
+|------|-------|--------|
+| No new packages needed | HIGH | Exhaustive search; no relevant npm package exists for this domain |
+| DAC passive 3 m limit (25G SFP28) | HIGH | IEEE 802.3by / 25GBASE-CR1 cited in multiple vendor datasheets (Netgate, Cisco, FS.com, FlexOptix) |
+| DAC passive 3 m limit (100G QSFP28) | HIGH | Multiple sources including Walsun, FS.com, NVIDIA (MCP1600 datasheet); breakout cable per-lane spec confirms 3 m |
+| Rack height constants (EIA-310-D) | HIGH | Published standard, well-established, confirmed by Wikipedia and multiple rack vendor sources |
+| Default rack pitch 1.0 m | MEDIUM | Industry norm for 600 mm tile DC; no single normative source; can be user-overridden |
+| Server power by U-height | MEDIUM | Validated against Dell community data and ServeTheHome benchmarks; significant variance by workload and CPU config |
 
 ---
 
 ## Sources
 
-- https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html — G720 technical specifications: 48 SFP+ + 8 DD ports, 1U, 349W typical (HIGH confidence — Broadcom official techdocs)
-- https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g730-switch/1-0/Brocade-G730-Switch-Technical-Specifications.html — G730 technical specifications: 96 SFP+ + 16 DD ports, 2U, dual 1100W PSU (HIGH confidence — Broadcom official techdocs)
-- https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html — G820 device overview: 56 ports, 1U, 650W PSU, 128G autosensing, Gen8 (HIGH confidence — Broadcom official techdocs)
-- https://docs.broadcom.com/doc/Gen7-Switch-FAQ — Gen7 FAQ: G720 and G730 PoD scaling, port counts confirmed (HIGH confidence — Broadcom official)
-- https://www.storagenewsletter.com/2025/11/24/broadcom-introduces-the-worlds-first-quantum-safe-gen-8-128g-san-switch-portfolio/ — G820 launch November 2025, quantum-safe AES-GCM-256 ISL encryption (MEDIUM confidence — industry news, consistent with official docs)
-- https://dc.mynetworkinsights.com/data-center-switching-centralized-eor-mor-top-of-rack-tor/ — ToR/MoR/EoR architecture patterns, cable length implications (MEDIUM confidence — technical blog, consistent with Cisco community docs)
-- https://community.cisco.com/t5/data-center-switches/what-is-tor-eor-bor-mor/td-p/4990184 — ToR/EoR/BoR/MoR terminology definitions (MEDIUM confidence — Cisco community, authoritative on terminology)
-- npm registry search for FC SAN calculation libraries — no relevant package found (confirms pure TypeScript implementation is correct approach) (HIGH confidence — negative finding verified)
+- [25GBASE-CR SFP28 DAC 3m — Netgate](https://shop.netgate.com/products/25g-base-cr-dac-direct-attached-copper-twinax-passive-cable-3-meters) — confirms 3 m passive limit, IEEE 802.3by
+- [Cisco 25GBASE SFP28 Modules Datasheet](https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736950.html) — 25GBASE-CR standard references
+- [Walsun — Maximum length of QSFP28 DAC](https://www.walsun.com/knowledge/What-is-the-maximum-length-of-QSFP28-DAC_1056.html) — 100G QSFP28 passive and active limits
+- [25G SFP28 DAC passive 0.5–5m — FlexOptix](https://www.flexoptix.net/en/p-czz25g-z.html) — active vs passive range for SFP28
+- [SFP28 Eaton Tripp Lite 5m DAC listing](https://tripplite.eaton.com/sfp28-25gbase-cr1-passive-twinax-copper-cable-dac-black-5m~N28005M28BK) — confirms passive DAC available to 5m but 3m is the conservative standard
+- [FS.com 100G QSFP28 to 4×25G breakout DAC 5m](https://www.fs.com/products/285057.html) — confirms 5m available for breakout passive
+- [EIA-310-D Rack standard — RackSolutions](https://www.racksolutions.com/news/data-center-optimization/eia-310-definition/) — 1U = 44.45 mm
+- [19-inch rack — Wikipedia](https://en.wikipedia.org/wiki/19-inch_rack) — 42U = 1.87 m, EIA-310-D standard rack dimensions
+- [ToR/MoR/BoR cable architecture — ANFKOM](https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/) — positioning cable run patterns
+- [Dell PowerEdge power consumption — ServeTheHome](https://www.servethehome.com/testing-conventional-wisdom-1u-v-2u-power-consumption/) — 1U vs 2U server watt ranges
+- [Dell community — total power requirement calculation](https://www.dell.com/community/en/conversations/poweredge-hardware-general/total-power-requirement-calculation/647f7400f4ccf8a8de1c7a11) — PDU sizing methodology
 
 ---
 
-*Stack research for: NetStack v2.0 — FC SAN sizing + switch positioning additions*
-*Researched: 2026-03-18*
-*Previous STACK.md (v1.1, Ethernet-only): superseded by this document — all prior recommendations still valid, this adds FC/positioning layer on top*
+*Stack research for: NetStack v6.0 — Physical Planning (cable length, power budget, DAC advisory upgrade)*
+*Researched: 2026-03-19*
+*Prior STACK.md (v2.0 FC SAN + switch positioning): all decisions in that document remain valid; this document focuses only on v6.0 additions*

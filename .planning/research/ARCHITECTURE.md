@@ -1,603 +1,403 @@
-# Architecture Research
+# Architecture Patterns
 
-**Domain:** NetStack v2.0 — FC SAN sizing + switch positioning extension to existing Ethernet leaf-spine calculator
-**Researched:** 2026-03-18
-**Confidence:** HIGH
-
----
-
-## Context: What This Document Covers
-
-This is a **milestone-scoped** architecture document for v2.0. It describes only what changes or is new. The baseline architecture (Domain → Store → Features one-way layering, Zod schemas, Zustand stores, pure engine pattern) is established and documented in the v1.x research. The central question here is:
-
-> How do FC SAN sizing and switch positioning integrate into the existing architecture, what is new vs modified, and in what order should they be built?
+**Domain:** Network sizing calculator — v6.0 Physical Planning milestone
+**Researched:** 2026-03-19
+**Scope:** Cable length estimation, power budget per rack, DAC distance advisory upgrade, new physical-layout inputs
 
 ---
 
-## Standard Architecture (unchanged baseline)
+## Current Architecture Baseline
+
+The codebase enforces a strict one-way dependency chain:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Features Layer (React)                   │
-│  InputForm  │  BOMPanel  │  TopologyTab  │  RackElevationTab     │
-└──────┬──────┴──────┬─────┴──────┬────────┴──────┬───────────────┘
-       │             │            │               │
-       ▼             ▼            ▼               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Store Layer (Zustand)                          │
-│  inputStore (persisted)   │   resultStore (derived, not persisted)│
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ subscribe → calculateBOM(input)
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Domain Layer (pure TypeScript)                  │
-│  catalog/   │  schemas/   │  engine/                             │
-└─────────────────────────────────────────────────────────────────┘
+Domain (pure TS, zero React)
+  └── catalog/hardware.ts          — SWITCH_CATALOG constants (maxPowerW present)
+  └── schemas/input.ts             — SizingInputSchema (Zod v4), SizingInput type
+  └── schemas/bom.ts               — NetworkBOMSchema, ConstraintViolationSchema
+  └── engine/sizing.ts             — calculateBOM(): pure function
+
+Store (Zustand, no React lifecycle)
+  └── inputStore.ts                — persisted (version 8), merge-based migration
+  └── resultStore.ts               — derived, subscribes to inputStore changes
+
+Features (React 19 + shadcn/ui)
+  └── input/EthInputAccordion.tsx  — form, writes to inputStore
+  └── sizing/BOMPanel.tsx          — reads resultStore
+  └── topology/, rack-elevation/, export/
 ```
 
-The one-way import rule is unchanged: Features → Store → Domain. Domain has zero React/Zustand imports.
+Key invariants already established:
+- `calculateBOM()` is a pure function — no side effects, no imports from React or Zustand.
+- Brownfield post-processing (zeroing spine/core counts) lives in `resultStore`, not in the engine. This decision is documented in PROJECT.md: "Brownfield post-processing in resultStore (not engine) — Keeps calculateBOM/calculateThreeTierBOM pure."
+- `NetworkBOM` embeds the original `SizingInput` as `input:` for consumer use without needing a separate store subscription.
+- `inputStore` is at version 8. The `merge` function handles all migrations back to v2. Every new field added to `SizingInputSchema` requires incrementing the version and documenting the migration.
+- The `DAC_DISTANCE_ADVISORY` violation currently only carries `rackCount` and `cableType: 'DAC'`. No computed distance value is present anywhere.
+- `recommendedCableLengthM` exists on `NetworkBOM` (scalar integer, not a schedule). The engine already computes it from a position map `{ToR:2, MoR:1, BoR:2}`.
 
 ---
 
-## New Components for v2.0
+## v6.0 Feature Placement Decisions
 
-### FC SAN Sizing (GH #1)
+### Feature 1: Cable Length Schedule
 
-Four fully new additions at the domain layer. Nothing in the FC domain touches Ethernet domain internals.
+**Question:** New fields on `NetworkBOM`, separate type, or a post-processing step?
 
-**1. `src/domain/catalog/brocade.ts` — NEW**
+**Decision: New fields on `NetworkBOM` — computed inside `calculateBOM()`.**
 
-FC switch catalog, parallel to `hardware.ts` (Dell Ethernet). Typed with a new `FCSwitchSpec` interface that captures FC-specific fields (`fcPorts`, `fcSpeedGbE`, `islPorts`, `islSpeedGbE`, `formFactor`, `maxPowerW`).
+Rationale:
 
-Catalog entries to include (confidence: MEDIUM — specs verified from official Broadcom product pages):
+1. The engine already computes `recommendedCableLengthM` as a scalar. Extending it to a schedule (per cable type) is a direct continuation of existing logic, not a new concern.
+2. Cable lengths are deterministic functions of `switchPositioning`, `rackPitch`, and `adjacentRacks`. All three values are available to the engine as input parameters. There is no reason to defer this to a post-processing step.
+3. A separate pure function (e.g. `estimateCableLengths(input) => CableLengthSchedule`) is architecturally valid but adds a call site that every consumer (BOMPanel, PDF export, CSV export) must know about. Embedding the schedule in `NetworkBOM` makes the output self-contained, consistent with how `oversubscriptionRatio` and `violations` are handled.
+4. The "brownfield post-processing in resultStore" precedent applies to **BOM counts** (removing already-purchased switches). Cable lengths are not BOM counts — they are calculated outputs that belong in the domain.
 
-| Model | Gen | Ports | FC Speed | ISL | Form | Power |
-|-------|-----|-------|----------|-----|------|-------|
-| G620  | 6   | 48    | 32G SFP+ | Up to 16 ISL | 1U | ~200W |
-| G630  | 6   | 128   | 32G SFP+ | Up to 32 ISL | 2U | ~350W |
-| G720  | 7   | 64    | 64G SFP+ | Up to 16 ISL | 1U | 350W  |
-| G730  | 7   | 128   | 64G SFP+ | Up to 32 ISL | 2U | ~600W |
-| G820  | 8   | 56    | 128G SFP+| Up to 16 ISL | 1U | 650W  |
+**Boundary:** `calculateBOM()` calls a private helper `buildCableLengthSchedule(input)` and attaches the result to `NetworkBOM`. The helper is not exported — it is an implementation detail of the engine.
 
-Note: G610 (24-port, Gen 6) can be added later. G830 (128-port Gen 8) was not yet publicly released as of research date — exclude from v2.0 catalog.
+The new `CableLengthScheduleSchema` is a standalone schema in `schemas/bom.ts`, embedded in `NetworkBOMSchema`. This allows it to be typed independently (for PDF/CSV rendering) without coupling to the full BOM type.
 
-**2. `src/domain/schemas/fc-input.ts` — NEW**
+```
+src/domain/schemas/bom.ts
+  + CableLengthScheduleSchema       — new object schema
+  + NetworkBOMSchema adds field:
+      cableLengthSchedule: CableLengthScheduleSchema
 
-Separate Zod schema for FC-specific inputs. Must NOT be merged into `SizingInputSchema` — FC and Ethernet are mutually exclusive modes with different field sets. A merged union would create a complex discriminated union at every consumer.
+src/domain/engine/sizing.ts
+  + private buildCableLengthSchedule(input: SizingInput): CableLengthSchedule
+  calculateBOM() calls it, attaches to return value
+```
+
+The same treatment applies to `ThreeTierBOMSchema` — it already has `recommendedCableLengthM` and should receive `cableLengthSchedule` as well, for parallel architecture consistency (ADR-0009).
+
+---
+
+### Feature 2: Power Budget Per Rack
+
+**Question:** New output section on `NetworkBOM`, or a separate derived store?
+
+**Decision: New section on `NetworkBOM` — computed inside `calculateBOM()`.**
+
+Rationale:
+
+1. `SWITCH_CATALOG` already has `maxPowerW` and `typicalPowerW` on every model. All switch counts (`leafSwitches`, `spineSwitches`, `oobSwitches`) are computed by `calculateBOM()`. The power calculation is a straightforward multiplication of count x watts per model — a pure function with zero new dependencies.
+2. Power budget is a BOM output, not a UI preference. It belongs where all other BOM outputs live.
+3. A separate `usePowerBudgetStore` or a `computePowerBudget(bom, catalog)` function in resultStore would create an implicit coupling: resultStore would need to know both the BOM output and the hardware catalog. This crosses the architecture boundary (the store is not supposed to perform domain calculations directly).
+
+**Schema shape:** `PowerBudgetSchema` is a new object with per-rack and totals. Per-rack breakdown requires an array (one entry per server rack, reflecting the racks array in input). The network rack is a single entry (spines, border leafs). The schema should carry both `maxW` and `typicalW` to allow the UI to show a range.
+
+```
+src/domain/schemas/bom.ts
+  + RackPowerBudgetSchema           — { rackNumber, switchMaxW, switchTypicalW, estimatedServerW, totalMaxW, totalTypicalW }
+  + PowerBudgetSchema               — { perRack: RackPowerBudgetSchema[], networkRack: {...}, grandTotalMaxW, grandTotalTypicalW }
+  + NetworkBOMSchema adds field:
+      powerBudget: PowerBudgetSchema
+
+src/domain/engine/sizing.ts
+  + private buildPowerBudget(input, counts): PowerBudget
+  calculateBOM() calls it, attaches to return value
+```
+
+Server power is not in `SWITCH_CATALOG` — it is a user input (or a catalog lookup for server models). For v6.0, the recommended approach is a new input field `estimatedServerPowerW` (default 400W, typical 1U/2U server) that allows the power budget to be computed without server catalog data. This is a sizing approximation appropriate to a physical planning tool.
+
+---
+
+### Feature 3: DAC Distance Advisory with Computed Distance
+
+**Question:** Extend `ConstraintViolationSchema` or add a new violation code?
+
+**Decision: Extend the existing `DAC_DISTANCE_ADVISORY` variant — add `computedDistanceM` field.**
+
+Rationale:
+
+1. The violation code is already `'DAC_DISTANCE_ADVISORY'` in both `ConstraintViolationSchema` (Clos) and `ThreeTierConstraintViolationSchema` (three-tier). Adding `computedDistanceM: z.number()` to the existing variant is additive and non-breaking from a Zod perspective. Existing consumers that destructure the violation only by `code` continue to work.
+2. The check `input.cableType === 'DAC' && racks > 8` is already in `calculateBOM()`. The distance value can be derived from the same inputs used for `cableLengthSchedule`. There is no new information required.
+3. A new violation code (e.g. `'DAC_DISTANCE_EXCEEDED'`) would require updating all exhaustive switch/match statements in `BOMPanel.tsx`, `ThreeTierBOMPanel`, violation alert components, PDF export pages, and i18n files — a large blast radius for what is just adding a numeric field to an existing shape.
+
+**Computed distance formula:** The relevant distance for DAC advisory is the inter-rack run (server rack to network rack), not the intra-rack run. For non-adjacent deployments: `distance = (rackPitchMm / 1000) * racksFromEdge + patchPanelDistanceM`. The engine needs `rackPitchMm` and `adjacentNetworkRack` from the new inputs (see Feature 4 below) to produce this value.
+
+```
+src/domain/schemas/bom.ts
+  ConstraintViolationSchema — DAC_DISTANCE_ADVISORY variant adds:
+    + computedDistanceM: z.number().optional()   — computed inter-rack distance
+    + dacRatedDistanceM: z.number()              — DAC rated max (typically 3m passive, 7m active)
+```
+
+`optional()` is used here deliberately: if the new physical layout inputs are absent (backwards-compat scenario, though v6.0 makes them required), the advisory still fires without the computed value.
+
+---
+
+### Feature 4: New Inputs (Rack Pitch, Adjacent Toggle, Patch Panel Distance)
+
+**Question:** Extend `SizingInputSchema` directly or use a separate physical layout schema?
+
+**Decision: Extend `SizingInputSchema` directly — increment inputStore to version 9.**
+
+Rationale:
+
+1. The existing migration pattern in `inputStore.ts` handles exactly this case. Every previous version added new fields via `{ ...DEFAULT_INPUT, ...oldInput }` spread, which fills in the defaults for any missing key. This pattern scales cleanly to v6.0 additions.
+2. A separate `PhysicalLayoutInput` schema would require either (a) a new persisted store (`physicalLayoutStore`) with its own localStorage key and migration logic, or (b) a nested object inside `SizingInput`. Option (a) fragments the input state unnecessarily. Option (b) complicates the `setInput(partial)` API and requires deep merge logic.
+3. All new fields are used by `calculateBOM()` — they directly affect cable length calculations. They belong in `SizingInput` alongside `switchPositioning`, `rackSize`, and `serverUHeight` which serve the same "physical layout" purpose.
+
+**New fields to add to `SizingInputSchema`:**
 
 ```typescript
-export const FCSizingInputSchema = z.object({
-  /** Per-rack server/host count, reuses RackConfigSchema */
-  racks: z.array(RackConfigSchema).min(1).max(200),
-  /** Number of FC HBA ports per server (typically 2 for dual-fabric) */
-  hbaPortsPerServer: z.number().int().min(1).max(8).default(2),
-  /** Number of storage target ports per storage array */
-  storageTargetPorts: z.number().int().min(2).max(128).default(4),
-  /** Number of storage arrays in deployment */
-  storageArrayCount: z.number().int().min(1).max(32).default(1),
-  /** FC switch model for Fabric A (and mirrored Fabric B) */
-  fcSwitchModel: z.enum(['G620', 'G630', 'G720', 'G730', 'G820']),
-  /** Number of ISL trunks between switches (0 = single-hop fabric) */
-  islTrunkCount: z.number().int().min(0).max(8).default(2),
-  /** Rack unit height for servers */
-  serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
-  /** Rack size */
-  rackSize: z.enum(['24U', '42U', '50U']),
-});
+/** Rack pitch in millimetres — center-to-center distance between adjacent racks */
+rackPitchMm: z.number().int().min(400).max(1200).default(600),
 
-export type FCSizingInput = z.infer<typeof FCSizingInputSchema>;
+/** Adjacent racks: spines/network rack is directly beside server racks */
+adjacentNetworkRack: z.boolean().default(true),
+
+/** Patch panel overhead distance in metres — added when non-adjacent (default 1m per hop) */
+patchPanelDistanceM: z.number().min(0).max(10).default(1),
+
+/** Estimated server power in Watts — used for per-rack power budget */
+estimatedServerPowerW: z.number().int().min(0).max(4000).default(400),
 ```
 
-**3. `src/domain/schemas/fc-bom.ts` — NEW**
+**Migration:** inputStore version 8 to 9. The `merge` function's `{ ...DEFAULT_INPUT, ...oldInput }` spread automatically fills in all four new fields for any stored v8 input. No explicit migration branch is required — the existing pattern handles it. Document in the comment block next to the existing version comments:
 
-Separate BOM schema for FC output. FC BOM fields are entirely different from Ethernet BOM fields. Reuse `ConstraintViolationSchema` for violations (add FC-specific codes: `FC_PORT_OVERSUBSCRIPTION`, `ISL_CAPACITY_EXCEEDED`).
+```
+* v8 to v9 (adds rackPitchMm, adjacentNetworkRack, patchPanelDistanceM, estimatedServerPowerW
+*           for v6.0 Physical Planning cable length and power budget features).
+```
+
+**ThreeTierSizingInput:** The three-tier schema must receive the same four fields (parallel architecture, ADR-0009). `ThreeTierSizingInputSchema` imports `RackConfigSchema` from `input.ts` — the new fields should be added to `ThreeTierSizingInputSchema` directly. The `toThreeTierInput()` adapter in `resultStore.ts` must be updated to pass the four new fields through.
+
+---
+
+## Revised Component Boundaries
+
+### Domain Layer — Modified Files
+
+| File | Change | Reason |
+|------|--------|--------|
+| `schemas/input.ts` | Add 4 fields to `SizingInputSchema` | Physical layout inputs |
+| `schemas/three-tier-input.ts` | Add same 4 fields to `ThreeTierSizingInputSchema` | Parallel arch (ADR-0009) |
+| `schemas/bom.ts` | Add `CableLengthScheduleSchema`, `PowerBudgetSchema`, `RackPowerBudgetSchema`; extend `DAC_DISTANCE_ADVISORY` variant; add new fields to `NetworkBOMSchema` | Output shape for v6.0 features |
+| `schemas/three-tier-bom.ts` | Extend `DAC_DISTANCE_ADVISORY` variant; add `cableLengthSchedule`, `powerBudget` fields to `ThreeTierBOMSchema` | Parallel arch |
+| `engine/sizing.ts` | Add `buildCableLengthSchedule()`, `buildPowerBudget()` private helpers; call them in `calculateBOM()`; upgrade DAC advisory to include computed distance | Core implementation |
+| `engine/three-tier-sizing.ts` | Same helpers (or shared utility); upgrade DAC advisory | Parallel arch |
+
+### Domain Layer — New Files
+
+None required. All new logic fits cleanly into existing files. Creating a new file (e.g. `engine/physical-planning.ts`) would require an explicit import in `sizing.ts` and would suggest the physical planning logic is a separate concern. It is not — it is core BOM output like `oversubscriptionRatio`.
+
+**Exception:** If `buildCableLengthSchedule()` and `buildPowerBudget()` are needed in both `sizing.ts` and `three-tier-sizing.ts`, extract them to `engine/physical-planning-helpers.ts` (not exported from the domain public API). This avoids duplication across the two parallel engines without creating a cross-domain dependency.
+
+### Store Layer — Modified Files
+
+| File | Change | Reason |
+|------|--------|--------|
+| `store/inputStore.ts` | Increment version to 9; add 4 new fields to `DEFAULT_INPUT`; update migration comment | Schema migration |
+| `store/resultStore.ts` | Update `toThreeTierInput()` to pass the 4 new fields through | Adapter completeness |
+
+### Store Layer — New Files
+
+None. Power budget and cable length schedule are embedded in `NetworkBOM` / `ThreeTierBOM`. No new derived stores needed.
+
+### Features Layer — Modified Files
+
+| File | Change | Reason |
+|------|--------|--------|
+| `features/input/EthInputAccordion.tsx` | Add 4 new fields to form (new "Physical Layout" accordion section, or extend existing "Rack Config" section) | Input for new features |
+| `features/sizing/BOMPanel.tsx` | Add cable length schedule section, power budget section, upgrade DAC advisory to show distance | New BOM output rendering |
+| `features/export/pdf/BOMPage.tsx` | Add cable length and power budget sections | PDF export completeness |
+| `features/export/pdf/InputsPage.tsx` | Show new physical layout inputs | PDF export completeness |
+| `features/input/ConvergedInputAccordion.tsx` | Add same 4 fields | Converged mode parity |
+| `features/export/pdf/ThreeTierBOMPage.tsx` | Add cable length and power budget sections | Three-tier parity |
+| CSV export (wherever it lives) | Add cable length, power budget rows | CSV export completeness |
+
+### i18n — New Keys Required
+
+New translation keys for all 4 languages (EN/FR/DE/IT):
+- Section headers: `bom.cableLengthSchedule`, `bom.powerBudget`, `bom.perRackPower`
+- Field labels: `sizing.rackPitchMm`, `sizing.adjacentNetworkRack`, `sizing.patchPanelDistanceM`, `sizing.estimatedServerPowerW`
+- Violation text: upgrade `bom.violationDacDistanceBody` to interpolate computed distance
+- Units: metre abbreviations, watt abbreviations per language
+
+---
+
+## Data Flow for v6.0
+
+```
+User adjusts rackPitchMm or adjacentNetworkRack
+  -> inputStore.setInput(partial)           [Store layer]
+  -> inputStore.subscribe fires             [Store layer]
+  -> computeAndUpdateBOM(input)             [Store layer]
+    -> calculateBOM(input)                  [Domain layer]
+      -> buildCableLengthSchedule(input)    [Domain helper]
+      -> buildPowerBudget(input, counts)    [Domain helper]
+      -> DAC advisory: compute distance     [Domain engine inline]
+    <- returns NetworkBOM with:            [Domain layer]
+        cableLengthSchedule: {...}
+        powerBudget: {...}
+        violations: [...DAC with computedDistanceM]
+  -> useResultStore.setState(bom)           [Store layer]
+  <- BOMPanel re-renders                   [Features layer]
+    -> renders cableLengthSchedule section
+    -> renders powerBudget section
+    -> renders DAC advisory with distance
+```
+
+---
+
+## Cable Length Calculation Logic
+
+The intra-rack cable length (server to leaf switch) is already computed as `recommendedCableLengthM` using the existing `cableLengthMap`. The new `CableLengthSchedule` extends this to a per-link-type breakdown:
+
+1. **Server-to-leaf length** (per link): derived from `switchPositioning` — same as current `recommendedCableLengthM` logic. ToR = 2m, MoR = 1m, BoR = 2m.
+2. **Leaf-to-spine (inter-rack) length**: depends on `rackPitchMm` and `adjacentNetworkRack`.
+   - Adjacent: `(rackPitchMm / 1000) + 0.5` (half metre cable overhead each end, rounded up to next 0.5m).
+   - Non-adjacent (patch panel path): `(rackPitchMm / 1000) * racksToNetworkRack + patchPanelDistanceM`.
+3. **VLT interconnect length**: always intra-rack (leaf pair in same rack). Use same logic as server-to-leaf — typically 1m for MoR, 2m for ToR/BoR.
+4. **OOB length**: same as server-to-leaf (OOB co-located with leaves per ADR-0014).
+
+The `racksToNetworkRack` value defaults to `ceil(racks / 2)` (network rack in the middle of the row) unless `adjacentNetworkRack` is true (distance = 1 rack pitch).
+
+**DAC rated distance boundary:** Passive DAC: 3m. Active DAC: 7m. The advisory threshold is currently `racks > 8`. With computed distances, the advisory should also fire when `computedInterRackDistanceM > 3` regardless of rack count, providing a more accurate trigger when a small deployment has widely spaced racks.
+
+The `CableLengthSchedule` schema shape:
 
 ```typescript
-export const FCNetworkBOMSchema = z.object({
-  /** Fabric A switch count */
-  fabricASwitches: z.number().int().min(0),
-  /** Fabric B switch count (mirrors Fabric A) */
-  fabricBSwitches: z.number().int().min(0),
-  /** Total host ports consumed (hbaPortsPerServer × totalServers / 2 per fabric) */
-  hostPortsPerFabric: z.number().int().min(0),
-  /** Total storage target ports per fabric */
-  storagePortsPerFabric: z.number().int().min(0),
-  /** ISL ports consumed between switches per fabric */
-  islPortsPerFabric: z.number().int().min(0),
-  /** SFP+ transceivers required (2 per link, all fiber) */
-  sfpPlusCount: z.number().int().min(0),
-  /** ISL trunking cables per fabric */
-  islCables: z.number().int().min(0),
-  /** Fan-in ratio: host initiator ports / storage target ports */
-  fanInRatio: z.number().min(0),
-  violations: z.array(FCConstraintViolationSchema),
-  input: FCSizingInputSchema,
-});
+{
+  serverToLeafM: number,        // intra-rack run, based on switchPositioning
+  leafToSpineM: number,         // inter-rack run, based on pitch + adjacency
+  vltInterconnectM: number,     // intra-rack VLT
+  oobM: number,                 // intra-rack OOB management
+  patchPanelRequired: boolean,  // true when !adjacentNetworkRack
+}
 ```
 
-**4. `src/domain/engine/fc-sizing.ts` — NEW**
+---
 
-Pure function parallel to `sizing.ts`. Zero imports from the Ethernet engine.
+## Power Budget Calculation Logic
+
+**Per server rack:**
+- `switchMaxW` = 2 x leafModel.maxPowerW + oobSwitchesPerRack x OOB.maxPowerW
+  (ToR placement; all positioning modes co-locate switches per ADR-0014)
+- `switchTypicalW` = 2 x (leafModel.typicalPowerW ?? leafModel.maxPowerW) + oobSwitchesPerRack x OOB.maxPowerW
+  (use maxPowerW as fallback if typicalPowerW is absent from catalog entry)
+- `estimatedServerW` = rack.serverCount x input.estimatedServerPowerW
+- `totalMaxW` = switchMaxW + estimatedServerW
+- `totalTypicalW` = switchTypicalW + estimatedServerW
+
+**Network rack:**
+- `switchMaxW` = spineSwitches x spineModel.maxPowerW + borderLeafSwitches x borderLeafModel.maxPowerW
+- No servers in network rack
+
+**Grand totals:**
+- `grandTotalMaxW` = sum(perRack[].totalMaxW) + networkRack.switchMaxW
+- `grandTotalTypicalW` = sum(perRack[].totalTypicalW) + networkRack.switchTypicalW
+
+**Three-tier:** Access switches are in server racks (same formula as leaf). Aggregation + core are in the network rack alongside border leafs.
+
+**OOB saturation note:** `oobSwitchesPerRack` can be > 1 if the dense rack overflows 48 ports (`oobPortsRequired > OOB.downlinkPorts`). The power budget must multiply by `oobSwitchesPerRack` per rack — not assume a single OOB switch. The engine already computes this value.
+
+---
+
+## Schema Migration Pattern (inputStore v8 to v9)
+
+The existing `merge` function in `inputStore.ts` uses:
 
 ```typescript
-export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM
+migratedInput = { ...DEFAULT_INPUT, ...oldInput } as SizingInput;
 ```
 
-Key FC sizing formulas:
-- `totalServers = sum(racks[].serverCount)`
-- `hostPortsPerFabric = totalServers × (hbaPortsPerServer / 2)` — split evenly across dual fabric
-- `storagePortsPerFabric = storageArrayCount × (storageTargetPorts / 2)` — dual fabric split
-- `switchPortsRequired = hostPortsPerFabric + storagePortsPerFabric + islPortsPerFabric`
-- `fabricSwitches = ceil(switchPortsRequired / FC_SWITCH.fcPorts)` — per fabric
-- `fanInRatio = hostPortsPerFabric / storagePortsPerFabric`
-- Violation: `FC_PORT_OVERSUBSCRIPTION` when `fanInRatio > 7` (Broadcom best practice: max 7:1)
-- Violation: `ISL_CAPACITY_EXCEEDED` when ISL port demand exceeds switch ISL port capacity
+This spread applies to any stored state that already has `racks` (v3 through v8). All four new fields have `.default()` values in the Zod schema, so they are present in `DEFAULT_INPUT`. The spread fills them in for any stored input that lacks them. No new migration branch is needed.
+
+What IS required:
+1. Add the 4 new fields to `DEFAULT_INPUT` in `inputStore.ts`.
+2. Increment `version: 8` to `version: 9`.
+3. Update the migration comment block to document v8 to v9.
+
+The Zod schema `.default()` values and the `DEFAULT_INPUT` constant must be kept in sync — this is the established convention used for all fields since v3.
 
 ---
 
-### Switch Positioning (GH #6)
+## Anti-Patterns to Avoid
 
-Switch positioning is an **Ethernet-only** extension. It adds one new schema field and modifies two existing computation functions.
+### Anti-Pattern 1: Physical Planning as a Separate Store
 
-**1. `SizingInputSchema` — MODIFIED**
+**What:** Create `useCableLengthStore` and `usePowerBudgetStore` as derived stores subscribing to `resultStore`.
+**Why bad:** Creates a multi-hop subscription chain (`inputStore` -> `resultStore` -> `cableLengthStore`). Increases risk of stale state between computation steps. Violates the existing pattern where all BOM outputs are atomic (computed together in one pass).
+**Instead:** Embed `cableLengthSchedule` and `powerBudget` directly in `NetworkBOM`, computed in `calculateBOM()`.
 
-Add `switchPositioning` field:
+### Anti-Pattern 2: Cable Length as UI-Only State
 
-```typescript
-switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
-```
+**What:** Compute cable lengths inside `BOMPanel.tsx` using `bom.racks` and input values read from `useInputStore`.
+**Why bad:** Splits domain logic into the features layer. Makes the calculation invisible to tests (which test the domain layer in isolation), invisible to PDF/CSV export (which reads `NetworkBOM` directly), and breaks the "pure engine, derived UI" invariant.
+**Instead:** Compute in domain, surface in `NetworkBOM`.
 
-- `ToR` (Top of Rack): switches in each server rack, cable run ≤ 3m
-- `MoR` (Middle of Row): switches in dedicated rack at row center, cable run up to 15m average
-- `BoR` (Bottom of Row / End of Row): switches in dedicated rack at row end, cable run up to 30m average
+### Anti-Pattern 3: Adding Power Budget to a New Top-Level Store
 
-**2. `src/domain/engine/sizing.ts` — MODIFIED**
+**What:** `usePowerBudgetStore = create(...)` subscribing to both `resultStore` and reading `SWITCH_CATALOG` directly.
+**Why bad:** `SWITCH_CATALOG` is a domain constant. Stores should not perform domain calculations. This would move domain logic into the store layer, blurring the boundary.
+**Instead:** `calculateBOM()` already reads `SWITCH_CATALOG` (LEAF, SPINE, OOB). Power budget belongs in the same function.
 
-Cable length advisory logic added to the engine. The existing engine does not calculate cable lengths — it only counts cable quantities. For switch positioning, add a `recommendedCableLengthM` output field and a new violation:
+### Anti-Pattern 4: Separate Schema for Physical Inputs
 
-- `ToR` → `recommendedCableLengthM: 3` (patch cables, DAC always viable)
-- `MoR` → `recommendedCableLengthM: 15` (AOC or fiber required; DAC advisory if selected)
-- `BoR` → `recommendedCableLengthM: 30` (AOC or fiber required; DAC advisory always fires)
+**What:** Create `PhysicalLayoutInputSchema` and a separate `physicalLayoutStore` with its own localStorage key.
+**Why bad:** Fragments the input state. `calculateBOM()` needs all inputs in one `SizingInput` object. Two stores means two subscriptions in `resultStore` and a combiner that must stay synchronized. Prior art shows this is unnecessary — topology, three-tier fields, and brownfield toggles were all added to `SizingInputSchema` directly.
+**Instead:** Add fields to `SizingInputSchema`, increment `inputStore` version, add to `DEFAULT_INPUT`.
 
-Add new violation code to `ConstraintViolationSchema`:
+### Anti-Pattern 5: Changing the DAC Advisory Violation Code
 
-```typescript
-z.object({
-  code: z.literal('DAC_POSITIONING_ADVISORY'),
-  positioning: z.enum(['MoR', 'BoR']),
-  recommendedCableLengthM: z.number(),
-})
-```
-
-**3. `NetworkBOMSchema` — MODIFIED**
-
-Add two fields:
-
-```typescript
-switchPositioning: z.enum(['ToR', 'MoR', 'BoR']),
-recommendedCableLengthM: z.number().int().min(0),
-```
-
-**4. `src/features/rack-elevation/utils/buildRackDevices.ts` — MODIFIED**
-
-Switches move to a different U-position in the rack based on positioning:
-
-- `ToR`: switches at U1–U3 (bottom of rack) — current behavior, unchanged
-- `MoR`/`BoR`: switches are in a dedicated separate rack (not co-located), so server racks render with NO switch devices. A new `buildPositioningRackDevices()` function handles the positioning rack's layout.
-
-This impacts `RackElevationTab.tsx` — it must show a "positioning rack" in addition to server racks when MoR/BoR is selected.
+**What:** Add a new code `'DAC_DISTANCE_COMPUTED'` alongside `'DAC_DISTANCE_ADVISORY'`.
+**Why bad:** All consumers (`BOMPanel`, `ThreeTierBOMPanel`, `ViolationsPage`, PDF export) have exhaustive handling for each violation code. Adding a new code triggers updates in at least 8 files. The violation is semantically the same event — cable type is DAC and the distance may exceed rated spec. Adding a numeric field to the existing shape is additive and non-breaking.
+**Instead:** Add `computedDistanceM?: number` to the existing `DAC_DISTANCE_ADVISORY` variant.
 
 ---
 
-## Mode Selector (new UI component)
+## Build Order Recommendation
 
-**`src/features/sizing/ModeSelector.tsx` — NEW**
+Phase ordering based on dependency graph (each step requires the prior to be complete):
 
-A top-level mode switch that selects between `'ethernet'` and `'fc'`. This is a UI concern only — the domain layer has no concept of "mode."
+**Step 1 — Domain schemas** (`bom.ts`, `input.ts`, `three-tier-input.ts`, `three-tier-bom.ts`)
+No upstream dependencies. Write failing tests first (TDD RED phase). This is the foundation everything else depends on.
 
-Architecture decision: **mode is not stored in `inputStore`**. Store it in a new ephemeral `uiStore` slice (not persisted). Rationale: mode does not affect BOM computation directly (the input type determines which engine is called); persisting mode would add migration complexity when the schema evolves.
+**Step 2 — Domain engines** (`sizing.ts`, `three-tier-sizing.ts`, optionally `engine/physical-planning-helpers.ts`)
+Implements the new helpers, attaches outputs to BOM, upgrades DAC advisory. Tests go GREEN.
 
-However, `inputStore` already persists Ethernet inputs, and a new `fcInputStore` persists FC inputs. Both are always persisted independently so switching modes and back retains previous inputs.
+**Step 3 — Store migration** (`inputStore.ts` version bump, `DEFAULT_INPUT` update, `resultStore.ts` adapter)
+Depends on schemas. No new tests required beyond existing store tests passing with new fields.
 
-```typescript
-// store/fcInputStore.ts — NEW (mirrors inputStore.ts)
-export const useFCInputStore = create<FCInputState>()(
-  persist(
-    (set) => ({
-      input: DEFAULT_FC_INPUT,
-      setInput: (partial) => set((state) => ({ input: { ...state.input, ...partial } })),
-      resetInput: () => set({ input: DEFAULT_FC_INPUT }),
-    }),
-    { name: 'netstack-fc-input', version: 1, storage: lazyLocalStorage }
-  )
-)
-```
+**Step 4 — Features: Input** (`EthInputAccordion.tsx`, `ConvergedInputAccordion.tsx`)
+4 new fields rendered in a new accordion section. Depends on store migration (fields must exist).
 
-```typescript
-// store/fcResultStore.ts — NEW (mirrors resultStore.ts)
-// Subscribed to fcInputStore; calls calculateFCBOM
-```
+**Step 5 — Features: BOM output** (`BOMPanel.tsx`, equivalent three-tier panel)
+New sections for cable schedule and power budget. Upgraded DAC alert with distance. Depends on engine (fields must be populated in `NetworkBOM`).
+
+**Step 6 — Features: Export** (PDF `BOMPage.tsx`, `InputsPage.tsx`, `ThreeTierBOMPage.tsx`, CSV)
+Depends on BOM output shape being stable.
+
+**Step 7 — i18n** (new keys in all 4 language files)
+Can be parallelized with steps 4-6. Key absence produces fallback text, not compile errors. Must be complete before any feature step is merged to main.
 
 ---
 
-## Modified vs New: Complete Inventory
-
-### New Files
-
-| File | Layer | Purpose |
-|------|-------|---------|
-| `src/domain/catalog/brocade.ts` | Domain | FC switch hardware catalog |
-| `src/domain/catalog/fc-types.ts` | Domain | `FCSwitchSpec` interface |
-| `src/domain/schemas/fc-input.ts` | Domain | `FCSizingInputSchema`, `FCSizingInput` type |
-| `src/domain/schemas/fc-bom.ts` | Domain | `FCNetworkBOMSchema`, `FCNetworkBOM`, `FCConstraintViolation` |
-| `src/domain/engine/fc-sizing.ts` | Domain | `calculateFCBOM()` pure function |
-| `src/domain/engine/fc-sizing.test.ts` | Domain | Unit tests for FC engine |
-| `src/store/fcInputStore.ts` | Store | FC inputs, persisted to localStorage |
-| `src/store/fcResultStore.ts` | Store | FC BOM, derived from fcInputStore |
-| `src/features/sizing/ModeSelector.tsx` | Feature | Ethernet / FC mode toggle |
-| `src/features/sizing/FCInputForm.tsx` | Feature | FC-specific input form |
-| `src/features/sizing/FCBOMPanel.tsx` | Feature | FC BOM display |
-| `src/features/topology/utils/buildFCTopologyGraph.ts` | Feature | Dual-fabric FC topology builder |
-| `src/features/topology/TopologyFCTab.tsx` | Feature | FC topology canvas (dual-fabric layout) |
-| `src/features/rack-elevation/utils/buildPositioningRackDevices.ts` | Feature | MoR/BoR switch rack builder |
-
-### Modified Files
-
-| File | Layer | What Changes |
-|------|-------|--------------|
-| `src/domain/schemas/input.ts` | Domain | Add `switchPositioning` field |
-| `src/domain/schemas/bom.ts` | Domain | Add `switchPositioning`, `recommendedCableLengthM`; add `DAC_POSITIONING_ADVISORY` violation |
-| `src/domain/engine/sizing.ts` | Domain | Positioning-based cable length advisory logic |
-| `src/domain/engine/sizing.test.ts` | Domain | New test cases for positioning violations |
-| `src/store/inputStore.ts` | Store | Persist version bump (v5→v6), add `switchPositioning` default in `DEFAULT_INPUT` |
-| `src/features/sizing/InputForm.tsx` | Feature | Add positioning selector (ToR/MoR/BoR) |
-| `src/features/sizing/BOMPanel.tsx` | Feature | Render `recommendedCableLengthM`, new positioning violation |
-| `src/features/sizing/SizingPage.tsx` | Feature | Render `ModeSelector`; conditionally render Ethernet vs FC input/BOM forms |
-| `src/features/rack-elevation/RackElevationTab.tsx` | Feature | Show positioning rack when MoR/BoR selected |
-| `src/features/rack-elevation/utils/buildRackDevices.ts` | Feature | Exclude switches from server racks when MoR/BoR selected |
-| `src/App.tsx` | App | No structural change; mode state drives what renders inside existing tabs |
-| `src/features/export/exportCsv.ts` | Export | Add FC BOM export support |
-| `src/features/export/exportPdf.ts` | Export | Add FC BOM PDF page |
-
----
-
-## System Overview After v2.0
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                         Features Layer (React)                        │
-│                                                                        │
-│  ModeSelector (ethernet | fc)                                          │
-│     │                  │                                               │
-│  [Ethernet mode]    [FC mode]                                          │
-│  InputForm          FCInputForm                                        │
-│  BOMPanel           FCBOMPanel                                         │
-│  TopologyTab        TopologyFCTab                                      │
-│  RackElevationTab   RackElevationTab (shared, mode-aware)              │
-└──────┬──────────────────────────┬────────────────────────────────────┘
-       │                          │
-       ▼                          ▼
-┌────────────────────┐  ┌──────────────────────────┐
-│   inputStore       │  │   fcInputStore            │
-│   (Ethernet, v6)   │  │   (FC, v1)                │
-│   persisted        │  │   persisted               │
-└────────┬───────────┘  └────────────┬──────────────┘
-         │ subscribe                  │ subscribe
-         ▼                            ▼
-┌────────────────────┐  ┌──────────────────────────┐
-│   resultStore      │  │   fcResultStore           │
-│   (derived, BOM)   │  │   (derived, FC BOM)       │
-└────────┬───────────┘  └────────────┬──────────────┘
-         │                            │
-         ▼                            ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                      Domain Layer (pure TypeScript)                   │
-│                                                                        │
-│  catalog/hardware.ts    catalog/brocade.ts                             │
-│  schemas/input.ts       schemas/fc-input.ts                            │
-│  schemas/bom.ts         schemas/fc-bom.ts                              │
-│  engine/sizing.ts       engine/fc-sizing.ts                            │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
-**Mode isolation is total at the domain layer.** The Ethernet engine never imports from the FC catalog, and vice versa. The stores are separate. The only shared domain code is `RackConfigSchema` (imported by both input schemas) and the `rackSize` enum.
-
----
-
-## Recommended Project Structure (additions only)
-
-```
-src/
-├── domain/
-│   ├── catalog/
-│   │   ├── hardware.ts          # (existing) Dell Ethernet switches
-│   │   ├── brocade.ts           # NEW: Brocade FC switches
-│   │   ├── fc-types.ts          # NEW: FCSwitchSpec interface
-│   │   ├── types.ts             # (modified) keep SwitchSpec for Ethernet only
-│   │   ├── cables.ts            # (existing, unchanged)
-│   │   └── loader.ts            # (existing, unchanged)
-│   ├── schemas/
-│   │   ├── input.ts             # (modified) add switchPositioning field
-│   │   ├── bom.ts               # (modified) add positioning fields + violation
-│   │   ├── fc-input.ts          # NEW: FCSizingInputSchema
-│   │   └── fc-bom.ts            # NEW: FCNetworkBOMSchema
-│   └── engine/
-│       ├── sizing.ts            # (modified) add positioning cable advisory
-│       ├── sizing.test.ts       # (modified) add positioning test cases
-│       ├── fc-sizing.ts         # NEW: calculateFCBOM pure function
-│       └── fc-sizing.test.ts    # NEW: FC engine unit tests
-│
-├── store/
-│   ├── inputStore.ts            # (modified) persist version bump + positioning default
-│   ├── resultStore.ts           # (unchanged)
-│   ├── fcInputStore.ts          # NEW: FC inputs persisted
-│   └── fcResultStore.ts         # NEW: FC BOM derived
-│
-└── features/
-    ├── sizing/
-    │   ├── SizingPage.tsx        # (modified) adds ModeSelector, conditional rendering
-    │   ├── ModeSelector.tsx      # NEW: ethernet/fc toggle
-    │   ├── InputForm.tsx         # (modified) adds positioning selector
-    │   ├── BOMPanel.tsx          # (modified) adds positioning output, FC not rendered here
-    │   ├── FCInputForm.tsx       # NEW: FC-specific input fields
-    │   └── FCBOMPanel.tsx        # NEW: FC BOM display
-    ├── topology/
-    │   ├── TopologyTab.tsx       # (unchanged) Ethernet topology
-    │   ├── TopologyFCTab.tsx     # NEW: dual-fabric FC topology
-    │   └── utils/
-    │       ├── buildTopologyGraph.ts     # (unchanged)
-    │       └── buildFCTopologyGraph.ts   # NEW: dual-fabric layout builder
-    ├── rack-elevation/
-    │   ├── RackElevationTab.tsx  # (modified) renders positioning rack when MoR/BoR
-    │   └── utils/
-    │       ├── buildRackDevices.ts             # (modified) positioning-aware
-    │       └── buildPositioningRackDevices.ts  # NEW: MoR/BoR switch rack
-    └── export/
-        ├── exportCsv.ts          # (modified) FC BOM rows
-        └── exportPdf.ts          # (modified) FC BOM PDF page
-```
-
----
-
-## Architectural Patterns
-
-### Pattern 1: Parallel Domain Modules (mode isolation)
-
-**What:** FC sizing lives in entirely separate files from Ethernet sizing. Schemas, catalog, and engine are parallel, never merged. Neither domain imports from the other.
-
-**When to use:** When two domain modes have fundamentally different input shapes and output shapes. Merging them into a discriminated union at the schema level propagates that complexity to every consumer (stores, forms, export, topology builder, rack builder, tests).
-
-**Trade-offs:** More files, but each file is smaller and independently testable. No risk of Ethernet regressions from FC changes.
-
-**Example:**
-```typescript
-// domain/engine/fc-sizing.ts — never imports from sizing.ts
-import { FC_SWITCH_CATALOG } from '../catalog/brocade';
-import type { FCSizingInput } from '../schemas/fc-input';
-import type { FCNetworkBOM } from '../schemas/fc-bom';
-
-export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM { ... }
-```
-
-### Pattern 2: Separate Persisted Stores per Mode
-
-**What:** `inputStore` persists Ethernet inputs. `fcInputStore` persists FC inputs. Both live independently in localStorage under different keys (`netstack-input` and `netstack-fc-input`).
-
-**When to use:** When two modes have different input types that cannot merge (different required fields, different validation rules). Separate stores also make version migration independent — bumping Ethernet input schema version does not require a FC migration.
-
-**Trade-offs:** Two stores to maintain. However, `fcInputStore` is a near-identical copy of `inputStore` with a different schema and default — low maintenance cost.
-
-### Pattern 3: Mode as Ephemeral UI State
-
-**What:** The `'ethernet' | 'fc'` mode selector value is stored in memory only (component state or an ephemeral Zustand slice without `persist`). It is not persisted to localStorage.
-
-**When to use:** When mode is a view-level concern that should reset on page reload, or when persisting it would add migration complexity.
-
-**Rationale:** The user's inputs in each mode are persisted. The mode itself (which set of inputs to show) is cheap to default back to `'ethernet'` on load — it is the expected starting state for most users.
-
-### Pattern 4: Switch Positioning as Engine Input (not UI-only)
-
-**What:** `switchPositioning` is a field in `SizingInputSchema`, flows through to the engine, appears in the BOM output, and drives violations. It is not computed in the UI layer.
-
-**When to use:** When a UI selection changes what gets ordered (cable length, switch placement). Positioning affects cable type feasibility and DAC advisories, which are domain concerns.
-
-**Trade-offs:** Engine tests cover positioning logic directly. The UI is thinner (no inline advisory logic in components).
-
-### Pattern 5: FC Topology as Dual-Fabric Layout
-
-**What:** `buildFCTopologyGraph(bom: FCNetworkBOM)` returns two parallel fabric rows (Fabric A top, Fabric B bottom) with host ports on the left and storage ports on the right. ISL links connect switches within each fabric horizontally.
-
-**When to use:** FC topology is always dual-fabric. The function should never produce a single-fabric output — that would misrepresent the design.
-
-```
-Fabric A:  [Switch A1]─ISL─[Switch A2]
-              │   │              │   │
-           hosts  storage    hosts  storage
-
-Fabric B:  [Switch B1]─ISL─[Switch B2]
-              │   │              │   │
-           hosts  storage    hosts  storage
-```
-
----
-
-## Data Flow
-
-### FC Sizing Calculation Flow
-
-```
-User edits FCInputForm
-    ↓
-React Hook Form + Zod (FCSizingInputSchema) validation
-    ↓
-fcInputStore.setInput(validatedFCInput)  [Zustand, persisted to 'netstack-fc-input']
-    ↓
-fcInputStore subscription fires
-    ↓
-fcResultStore recalculates
-    ↓
-domain/engine/fc-sizing.calculateFCBOM(input)  [pure function]
-    ↓
-fcResultStore.bom updated  [Zustand, not persisted]
-    ↓
-FCBOMPanel, TopologyFCTab re-render
-```
-
-### Switch Positioning Flow
-
-```
-User selects ToR / MoR / BoR in InputForm
-    ↓
-inputStore.setInput({ switchPositioning: 'MoR' })
-    ↓
-resultStore recomputes via existing subscription
-    ↓
-calculateBOM(input) — engine reads switchPositioning
-    ↓
-bom.switchPositioning = 'MoR'
-bom.recommendedCableLengthM = 15
-bom.violations may include DAC_POSITIONING_ADVISORY
-    ↓
-BOMPanel renders advisory, cable length recommendation
-    ↓
-RackElevationTab reads bom.switchPositioning
-    ↓
-If MoR/BoR: buildPositioningRackDevices(bom) renders switch rack
-            buildRackDevices(bom, rackIndex) renders server-only racks
-If ToR: buildRackDevices(bom, rackIndex) unchanged (switches at U1-U3)
-```
-
-### Mode Switching Flow
-
-```
-User clicks FC mode in ModeSelector
-    ↓
-setMode('fc')  [component state or ephemeral Zustand slice]
-    ↓
-SizingPage conditionally renders:
-  - FCInputForm (reads fcInputStore)
-  - FCBOMPanel (reads fcResultStore)
-App.tsx TopologyTab conditionally renders:
-  - TopologyFCTab when mode === 'fc'
-  - TopologyTab (Ethernet) when mode === 'ethernet'
-RackElevationTab works from whichever mode is active
-  - reads resultStore or fcResultStore based on mode
-```
-
----
-
-## Integration Points
-
-### New Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| `FCInputForm` → `fcInputStore` | Zustand write via custom hook | Same pattern as `InputForm` → `inputStore` |
-| `fcInputStore` → `fcResultStore` | Module-level `subscribe`, mirrors resultStore | Wire at module load time, not in React lifecycle |
-| `ModeSelector` → tabs | Component state prop or React context | Do NOT use Zustand for this — it is transient display state |
-| `RackElevationTab` → mode | Read from same context/state as ModeSelector | Single source of mode truth; tab reads it to decide which store to consult |
-| `buildRackDevices` → `switchPositioning` | `bom.switchPositioning` field read inside function | Pure function; no new store dependency |
-| `buildFCTopologyGraph` → `FCNetworkBOM` | Direct import; parallel to `buildTopologyGraph` | Entirely separate; never called by Ethernet topology builder |
-
-### Schema Shared Between Modes
-
-| Schema | Used By | Notes |
-|--------|---------|-------|
-| `RackConfigSchema` | Both `SizingInputSchema` and `FCSizingInputSchema` | Import from `input.ts` — do not duplicate |
-| `rackSize` enum | Both input schemas | Extract to `src/domain/schemas/shared.ts` or keep inline (acceptable for small enum) |
-| `serverUHeight` enum | Both input schemas | Same — extract or inline |
-| `ConstraintViolationSchema` | Both BOM schemas | `fc-bom.ts` extends with FC-specific violation codes; use a re-exported union |
-
----
-
-## Build Order (phase recommendations)
-
-Dependencies between components drive this order. Each phase assumes the previous is complete and tested.
-
-**Phase 1: FC Domain Foundation**
-Build `brocade.ts` catalog, `fc-types.ts`, `fc-input.ts`, `fc-bom.ts`, `fc-sizing.ts`, `fc-sizing.test.ts`. This is pure TypeScript with no React dependency. Tests verify all FC formulas before any UI exists.
-
-**Phase 2: FC Store Layer**
-Build `fcInputStore.ts` and `fcResultStore.ts`. Wire subscription. Smoke-test via `fcResultStore.test.ts` in jsdom.
-
-**Phase 3: Switch Positioning (Ethernet)**
-Modify `SizingInputSchema` (add `switchPositioning`), `NetworkBOMSchema` (add fields + violation), `sizing.ts` (cable advisory logic), bump inputStore persist version. This is a smaller change contained to the Ethernet domain — complete it before FC UI so it does not conflict.
-
-**Phase 4: Positioning UI**
-Modify `InputForm.tsx` (add selector), `BOMPanel.tsx` (new advisory rendering), `buildRackDevices.ts` (positioning-aware switch placement), `RackElevationTab.tsx` (positioning rack column), add `buildPositioningRackDevices.ts`.
-
-**Phase 5: FC Input & BOM UI**
-Build `ModeSelector.tsx`, `FCInputForm.tsx`, `FCBOMPanel.tsx`. Modify `SizingPage.tsx` to conditionally render based on mode.
-
-**Phase 6: FC Topology**
-Build `buildFCTopologyGraph.ts` and `TopologyFCTab.tsx`. Modify `App.tsx` (or the tab that hosts topology) to conditionally render the FC topology canvas.
-
-**Phase 7: Export**
-Extend CSV and PDF exporters for FC BOM. This is last because it depends on all FC domain + UI being stable.
-
----
-
-## Scaling Considerations
-
-This is a pure client-side SPA. Scaling refers to codebase scale, not user scale.
-
-| Concern | Current State | With v2.0 |
-|---------|---------------|-----------|
-| Domain isolation | Single Ethernet domain | Two parallel domains; no cross-contamination risk |
-| Store complexity | 2 stores (input + result) | 4 stores (2 per mode); each simple and independent |
-| Schema migration | inputStore at v5 | inputStore bumps to v6 (positioning field only); fcInputStore starts at v1 |
-| Test surface | 223 tests for Ethernet | FC engine adds ~40-60 unit tests; positioning adds ~15 tests |
-| Bundle size | No change from architecture (same libraries) | `brocade.ts` catalog is trivial in size |
-
----
-
-## Anti-Patterns for v2.0
-
-### Anti-Pattern 1: Merging FC and Ethernet into One Schema
-
-**What people do:** Add a `mode: z.enum(['ethernet', 'fc'])` field to `SizingInputSchema` and then conditionally handle FC fields in the same schema and engine.
-
-**Why it's wrong:** The Ethernet schema has `leafModel`, `spineModel`, `cableType`, `activeUplinksPerLeaf`. The FC schema has `fcSwitchModel`, `hbaPortsPerServer`, `storageTargetPorts`. These are non-overlapping. A merged schema becomes a partial-object nightmare with many optional fields, and every engine branch must check `input.mode`. The engine loses its pure-function guarantees and tests become complex.
-
-**Do this instead:** Separate schemas, separate engines, separate stores. The mode selector is a UI concern that controls which schema/engine/store is active.
-
-### Anti-Pattern 2: Persisting Mode Selector
-
-**What people do:** Store `mode: 'ethernet' | 'fc'` in `inputStore` (Ethernet) or as a shared persisted value.
-
-**Why it's wrong:** Forces a schema migration whenever mode enum changes. The FC and Ethernet inputs are already persisted separately — the mode is merely a view switch. Persisting it adds no value because either mode's inputs are already restored when the user switches back.
-
-**Do this instead:** Mode is ephemeral component state or a non-persisted Zustand slice. On reload, default to `'ethernet'` (the existing behavior). FC inputs are already in localStorage and will be restored when FC mode is selected.
-
-### Anti-Pattern 3: Shared Rack Elevation for FC Without Abstraction
-
-**What people do:** Pass `fcResultStore.bom` to `buildRackDevices()` (which expects `NetworkBOM`, not `FCNetworkBOM`).
-
-**Why it's wrong:** Type mismatch; FC BOM does not have `leafSwitches`, `spineSwitches`, etc. The rack elevation for FC shows only server racks (FC switches are in a separate "SAN rack") — the layout logic differs.
-
-**Do this instead:** `RackElevationTab` accepts a render prop or a `mode` parameter. When `mode === 'fc'`, it calls `buildFCSANRackDevices(fcBom)` for the SAN rack and builds server racks with only server devices (no leaf/OOB switches — those are in the SAN rack).
-
-### Anti-Pattern 4: Coupling TopologyFCTab to Ethernet buildTopologyGraph
-
-**What people do:** Modify `buildTopologyGraph.ts` to conditionally handle FC topology when a `mode` flag is passed.
-
-**Why it's wrong:** Couples two completely different layout algorithms in one function. FC topology is a dual-fabric parallel layout; Ethernet is a leaf-spine hierarchical layout. Mixing them in one function makes both harder to test and extend.
-
-**Do this instead:** `buildFCTopologyGraph(fcBom: FCNetworkBOM): TopologyGraphResult` is a separate function. `TopologyFCTab` uses it exclusively. `TopologyTab` (Ethernet) uses `buildTopologyGraph` exclusively. The result type `TopologyGraphResult` (nodes + edges) is shared because React Flow accepts the same `Node[]` and `Edge[]` types regardless of topology.
+## Scalability Considerations
+
+| Concern | Current (v5.0) | v6.0 change |
+|---------|---------------|-------------|
+| `calculateBOM()` complexity | O(n) on racks array | Two new O(n) helpers — complexity class unchanged |
+| localStorage payload | ~2KB per profile | 4 new scalar fields add ~50 bytes per profile |
+| `NetworkBOM` object size | ~20 scalar fields | + `cableLengthSchedule` (~5 fields) + `powerBudget` (n+1 objects, n = rack count) |
+| Re-render triggers | Any inputStore change re-runs engine | Same — no new subscriptions |
+| Profile compatibility | v8 profiles load cleanly | v9 merge fills defaults; v8 profiles continue to load |
+
+The power budget array scales with rack count (O(n)). At the schema maximum of 200 racks, this is 201 objects. Negligible in a browser context.
 
 ---
 
 ## Sources
 
-- [Brocade G720 Technical Specifications — Broadcom TechDocs](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html) — HIGH confidence (official Broadcom docs)
-- [Brocade G820 Device Overview — Broadcom TechDocs](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html) — HIGH confidence (official Broadcom docs)
-- [Broadcom Launches Brocade Gen 8 — StorageReview](https://www.storagereview.com/news/broadcom-launches-brocade-gen-8-128g-fibre-channel-for-ai-mission-critical-and-quantum-safe-storage) — MEDIUM confidence (press coverage)
-- [SAN Design and Best Practices — Broadcom](https://docs.broadcom.com/doc/53-1004781) — HIGH confidence (official Broadcom SAN design guide, Nov 2025)
-- [FC SAN Dual Fabric / ISL Best Practices — FlackBox](https://www.flackbox.com/fibre-channel-san-part-3-redundancy-multipathing) — MEDIUM confidence (training content, aligns with vendor docs)
-- [ToR vs EoR/MoR Architecture — ANFKOM](https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/) — MEDIUM confidence (aligns with industry standard definitions)
-- Existing NetStack codebase (`src/domain/engine/sizing.ts`, `src/store/inputStore.ts`, `src/domain/schemas/`) — HIGH confidence (read directly)
-
----
-
-*Architecture research for: NetStack v2.0 — FC SAN sizing and switch positioning*
-*Researched: 2026-03-18*
+- `/Users/fjacquet/Projects/network-sizer/src/domain/schemas/input.ts` — current `SizingInputSchema` (v8 fields, confirmed)
+- `/Users/fjacquet/Projects/network-sizer/src/domain/schemas/bom.ts` — `NetworkBOMSchema`, `ConstraintViolationSchema` (confirmed: `DAC_DISTANCE_ADVISORY` has no distance field)
+- `/Users/fjacquet/Projects/network-sizer/src/domain/engine/sizing.ts` — `calculateBOM()` implementation (confirmed: `recommendedCableLengthM` scalar already present, DAC threshold is `racks > 8`)
+- `/Users/fjacquet/Projects/network-sizer/src/domain/catalog/hardware.ts` — `SWITCH_CATALOG` with `maxPowerW`, `typicalPowerW` on all models (confirmed)
+- `/Users/fjacquet/Projects/network-sizer/src/store/inputStore.ts` — version 8, merge migration pattern (confirmed: `{ ...DEFAULT_INPUT, ...oldInput }` spread handles all migrations)
+- `/Users/fjacquet/Projects/network-sizer/src/store/resultStore.ts` — `computeAndUpdateBOM()`, `toThreeTierInput()` adapter (confirmed: adapter must be updated)
+- `/Users/fjacquet/Projects/network-sizer/.planning/PROJECT.md` — ADR decisions, v6.0 target features, constraint list
+- `/Users/fjacquet/Projects/network-sizer/src/domain/schemas/three-tier-bom.ts` — parallel arch reference (confirmed: same `DAC_DISTANCE_ADVISORY` variant)
+- `/Users/fjacquet/Projects/network-sizer/src/domain/schemas/three-tier-input.ts` — parallel arch reference (confirmed: must receive same 4 new fields)
+- Confidence: HIGH — all decisions derived directly from reading production source files, no external sources required.

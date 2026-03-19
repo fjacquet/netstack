@@ -2,6 +2,7 @@
 
 **Domain:** Network sizing calculator / infrastructure BOM generator (Dell Leaf-Spine + SONiC + Brocade FC SAN)
 **Researched:** 2026-03-18 (milestone v2.0 update — FC SAN + switch positioning)
+**Updated:** 2026-03-19 (milestone v6.0 — Physical Planning: cable length schedule, power budget)
 **Confidence:** MEDIUM-HIGH — Brocade switch specs confirmed via Broadcom official docs and Lenovo Press product guides. ISL/oversubscription ratios from Broadcom SAN Design and Best Practices guide (Nov 2025). Switch positioning cable length rules from multiple datacenter cabling sources.
 
 ---
@@ -182,7 +183,380 @@ Note: DAC constraints for FC SAN become relevant for intra-rack FC patch cables 
 
 ---
 
-## Feature Dependencies
+## New Features: v6.0 Milestone — Physical Planning
+
+### Overview
+
+v6.0 extends NetStack from "how many boxes and cables to order" to "what lengths to order and how much power to plan for." The four target features are:
+
+1. **Cable length schedule** — per-link-type lengths from rack pitch, rack height, tray height, and switch position
+2. **Adjacent vs non-adjacent rack toggle** — patch panel advisory when non-adjacent
+3. **DAC distance advisory upgrade** — actual computed length replaces the static rack-count heuristic
+4. **Power budget per rack** — sum of switch `maxPowerW` + server power estimate
+
+All four features are pure additions to the domain layer. They do not modify any existing sizing formulas. The pattern is: new inputs → new engine sub-functions → new fields on existing BOM output type (or new BOM extension object).
+
+---
+
+### 1. Cable Length Schedule
+
+#### What Engineers Expect
+
+An engineer ordering cables for a 10-rack deployment must specify lengths at procurement time. Without estimated lengths, they either over-order (wasteful) or under-order (delays installation). Industry-standard cable SKU steps are fixed by vendors, so the tool must map computed distances to the next available SKU length.
+
+#### Standard Cable SKU Lengths (HIGH confidence — vendor-confirmed)
+
+| Type | Standard Available Lengths | Notes |
+|------|---------------------------|-------|
+| DAC passive (25G SFP28) | 1m, 1.5m, 2m, 2.5m, 3m | ≤2m: no FEC required; 2.5–3m: BASE-R FEC required; 4–5m: RS-FEC required |
+| DAC passive (100G QSFP28) | 1m, 2m, 3m, 5m | 5m is the standard passive maximum (IEEE 802.3bj / SFF-8665) |
+| DAC active (25G SFP28) | 5m, 7m | Signal conditioning electronics; more expensive |
+| DAC active (100G QSFP28) | 7m | Active copper extending beyond passive 5m |
+| AOC (25G SFP28) | 1m, 3m, 5m, 7m, 10m, 15m, 20m, 30m | OM3/OM4 fiber with integrated transceivers |
+| AOC (100G QSFP28) | 1m, 3m, 5m, 7m, 10m, 15m, 20m, 30m | Same SKU ladder as 25G AOC |
+| Fiber LC/LC (25G) | Custom or 1m, 2m, 3m, 5m, 7m, 10m | Requires SFP28 transceivers (already counted in BOM) |
+| Fiber MPO (100G) | Custom or 1m, 2m, 3m, 5m, 7m, 10m | Requires QSFP28 transceivers (already counted in BOM) |
+
+**Key rule for DAC advisory:** The 25G passive DAC limit is 3m at BASE-R FEC and 5m at RS-FEC. Practical recommendation for non-FEC deployments: keep ≤2m passive. For leaf-spine uplinks (100G), passive maximum is 5m — adequate for any in-rack or adjacent-rack run.
+
+#### Physical Constants for Length Calculation (HIGH confidence — industry standards)
+
+| Constant | Value | Source |
+|----------|-------|--------|
+| 1 rack unit (1U) height | 44.45 mm (1.75 in) | EIA-310 / IEC 60297 standard |
+| Rack pitch (center-to-center spacing in a row) | 600 mm typical, 800 mm deep configurations | BICSI 002 / TIA-942 |
+| Overhead cable tray height above top of rack | 300–600 mm typical | TIA-942, varies by facility |
+| Slack factor (ordering buffer) | 15–20% | Industry convention; prevents short cables |
+| Adjacent rack bonus run | +0.5m for horizontal hop | Practical estimation from community sources |
+
+#### Length Calculation Formulas by Link Type
+
+**Server-to-Leaf (in-rack, 25G SFP28 / 100G QSFP28):**
+```
+switchUPosition = switchPositioning == 'ToR' ? rackSizeU
+                : switchPositioning == 'MoR' ? floor(rackSizeU / 2)
+                : 1  // BoR
+
+serverUPosition = 1  // worst-case: server furthest from switch
+
+distanceU = abs(switchUPosition - serverUPosition)
+rawLengthM = distanceU × 0.04445  // 1U = 44.45mm
+minLengthM = rawLengthM + 0.3     // 0.3m add for connector slack / cable management
+recommendedSKU = nextStandardSKU(minLengthM × 1.15)  // 15% slack buffer
+```
+
+For practical defaults (matching existing `recommendedCableLengthM` values):
+- ToR in 42U rack → max raw = 41 × 0.04445 = 1.82m → round to 2m SKU
+- MoR in 42U rack → max raw = 20 × 0.04445 = 0.89m → round to 1m SKU
+- BoR in 42U rack → max raw = 41 × 0.04445 = 1.82m → round to 2m SKU
+
+**Leaf-to-Spine (inter-rack, 100G QSFP28):**
+
+Leaf switches are in server racks; spines are in a dedicated network rack. The run goes up through the overhead tray and back down:
+```
+verticalRun = (rackSizeU × 0.04445) + trayHeightM  // up from switch + up to tray
+horizontalRun = rackPitchM × racksBetween           // lateral distance in tray
+rawLengthM = verticalRun × 2 + horizontalRun        // up + across + down
+recommendedSKU = nextStandardSKU(rawLengthM × 1.15)
+```
+
+For adjacent racks (racksBetween = 1, trayHeight = 0.4m, pitch = 0.6m):
+- rawLength = (42 × 0.04445 + 0.4) × 2 + 0.6 = (2.27m) × 2 + 0.6m = 5.14m → 7m SKU (DAC or AOC)
+- This is the critical boundary: adjacent leaf-to-spine runs on 100G DAC require the 5m passive maximum or 7m active DAC.
+
+**VLT Interconnect (within a leaf pair, 100G QSFP28-DD):**
+
+VLT cables connect two leaf switches that occupy adjacent U-slots in the same rack:
+```
+rawLengthM = 2 × 0.04445  // 2U separation between co-located leaf pair
+recommendedSKU = 1m  // always; minimum available
+```
+
+**OOB Management (server-to-OOB, 1G RJ45):**
+
+OOB switches are in the same rack as the leaves (per ADR-0014). Cable runs are identical in length to server-to-leaf runs. Use the same formula and the same SKU.
+
+#### Cable Length Schedule Output Format (what engineers need)
+
+Engineers expect a table, not a single number. The output should be a schedule grouped by link type:
+
+```
+Link Type          | Cable Type | Qty | Unit Length | SKU    | Total Length
+-------------------|------------|-----|-------------|--------|-------------
+Server → Leaf      | DAC 25G    | 120 | 2m          | SFP28  | 240m
+Leaf → Spine       | AOC 100G   |  16 | 7m          | QSFP28 | 112m
+VLT Interconnect   | DAC 100G   |  10 | 1m          | QSFP28-DD | 10m
+Server → OOB       | Cat6 1G    | 120 | 2m          | RJ45   | 240m
+```
+
+This format is directly importable into a procurement spreadsheet. No competitor tool produces this output for Dell SONiC deployments.
+
+#### Required New Inputs
+
+| Input | Type | Required / Optional | Default | Notes |
+|-------|------|---------------------|---------|-------|
+| Rack pitch (center-to-center) | number (mm) | Optional | 600 | Affects leaf-to-spine inter-rack run; 600mm is typical |
+| Cable tray height above rack top | number (mm) | Optional | 400 | Affects inter-rack vertical run |
+| Racks adjacent? | boolean toggle | Required | true | See section 2 below |
+
+#### Outputs Added to BOM
+
+- `cableLengthSchedule`: array of `{ linkType, cableType, quantity, unitLengthM, recommendedSKU }` — new field on `NetworkBOM`
+- `maxServerLeafLengthM`: computed number (replaces static `recommendedCableLengthM` with position-aware calculation)
+- `maxLeafSpineLengthM`: computed number (new — inter-rack run length)
+
+---
+
+### 2. Adjacent vs Non-Adjacent Rack Mode
+
+#### What Engineers Expect
+
+When leaf racks and the spine/network rack are adjacent (physically next to each other in the row), direct DAC or short AOC cables are viable. When they are non-adjacent (separated by other racks or in a different row), the cable run is longer and potentially exceeds DAC passive limits — triggering a recommendation to use patch panels and fiber structured cabling instead.
+
+This is a common real-world decision point. Engineers must know:
+- Whether their proposed cable type is still viable given the rack layout
+- Whether to include patch panels in the BOM
+
+#### Feature Definition
+
+**Toggle:** "Racks are adjacent / non-adjacent" (boolean, default: adjacent = true)
+
+**Adjacent mode (default):**
+- No patch panel advisory
+- Leaf-to-spine length calculated from rack pitch (600mm hop)
+- DAC feasibility check: 100G DAC passive max 5m; if computed length > 5m, suggest AOC or active DAC
+
+**Non-adjacent mode:**
+- Patch panel advisory fires as a new `ConstraintViolation` type: `PATCH_PANEL_RECOMMENDED`
+- Estimated leaf-to-spine length increases: `racksBetween × rackPitch + overhead runs`
+- For non-adjacent, the computed distance very often exceeds passive DAC limits → always recommend fiber or AOC
+- Advisory text: "Inter-rack cable runs exceed passive DAC range. Consider a patch panel and structured fiber cabling."
+
+#### Non-Adjacent Length Model
+
+```
+// Non-adjacent: racks separated by N other racks
+racksBetween = input.racksBetween ?? 2  // default assumption: 2 racks between leaf and spine
+horizontalRun = racksBetween × rackPitchM
+rawLengthM = (rackSizeU × 0.04445 + trayHeightM) × 2 + horizontalRun
+```
+
+For racksBetween=2, rackPitch=0.6m, trayHeight=0.4m, 42U rack:
+- rawLength = (1.87m + 0.4m) × 2 + 1.2m = 4.54m + 1.2m = 5.74m → exceeds 5m passive DAC, must use AOC or active DAC
+
+#### Patch Panel Advisory
+
+| Condition | Advisory |
+|-----------|----------|
+| Non-adjacent AND cableType=DAC AND computedLength > 5m | `PATCH_PANEL_RECOMMENDED` violation + "Switch to AOC or structured fiber with patch panels" |
+| Non-adjacent AND cableType=AOC | No violation; AOC supports up to 30m |
+| Non-adjacent AND cableType=fiber | No violation; fiber has no practical distance limit for this use case |
+
+#### Complexity Assessment
+
+**LOW-MEDIUM.** The boolean toggle is a one-line input addition to `SizingInputSchema`. The violation is a new member of the `ConstraintViolationSchema` discriminated union. The length formula is a small pure function. The UI advisory is a new violation renderer.
+
+#### Dependency: existing DAC_DISTANCE_ADVISORY
+
+The existing `DAC_DISTANCE_ADVISORY` fires when `cableType === 'DAC' && racks > 8`. This was a proxy heuristic for "many racks probably means non-adjacent." After v6.0:
+- `DAC_DISTANCE_ADVISORY` gets enhanced with `computedLengthM` field (see section 3 below)
+- `PATCH_PANEL_RECOMMENDED` replaces the proximity logic for the explicit non-adjacent case
+- Both can coexist: `DAC_DISTANCE_ADVISORY` is for inter-rack length; `PATCH_PANEL_RECOMMENDED` is for structural cable-type advice
+
+---
+
+### 3. DAC Distance Advisory with Computed Length
+
+#### Current State
+
+`DAC_DISTANCE_ADVISORY` fires when `cableType === 'DAC' && racks > 8`. The violation payload contains only `rackCount` and `cableType`. No actual distance is computed. The advisory is purely a heuristic ("many racks probably means long cables").
+
+#### What Engineers Need
+
+When the advisory fires, engineers want to know *why* — specifically, what the estimated cable length is, and whether it actually exceeds the DAC passive limit. A violation that says "8 racks → DAC advisory" is less actionable than "estimated leaf-to-spine run = 6.2m, exceeds 5m passive DAC maximum."
+
+#### Enhancement
+
+Extend `DAC_DISTANCE_ADVISORY` in `ConstraintViolationSchema`:
+
+```
+Current: { code: 'DAC_DISTANCE_ADVISORY', rackCount: number, cableType: 'DAC' }
+
+New:     { code: 'DAC_DISTANCE_ADVISORY',
+           rackCount: number,
+           cableType: 'DAC',
+           estimatedLeafSpineLengthM: number,    // computed from rack layout inputs
+           dacPassiveLimitM: number,              // 5m for 100G QSFP28
+           exceedsPassiveLimit: boolean }
+```
+
+The trigger condition changes from `racks > 8` to `estimatedLeafSpineLengthM > dacPassiveLimitM`. This is strictly more accurate: a 20-rack deployment with an adjacent spine rack might not exceed 5m; a 4-rack deployment with a distant spine rack might.
+
+#### Fallback for Missing Physical Inputs
+
+If `rackPitch` and `trayHeight` are not provided (optional inputs), the engine falls back to a geometry estimate:
+```
+estimatedLeafSpineLengthM = (rackSizeU × 0.04445 + 0.4) × 2 + 0.6  // default tray+pitch
+```
+This produces the same ballpark as the current racks > 8 heuristic but with a real distance value.
+
+#### Complexity
+
+**LOW.** Schema field addition + one computed value + trigger condition change. No structural changes to BOM type.
+
+---
+
+### 4. Power Budget Per Rack
+
+#### What Engineers Expect
+
+Data center engineers always compute power per rack before provisioning PDUs and UPS. A sizing tool that does not output power estimates forces a manual spreadsheet step.
+
+Standard industry inputs for power budgeting:
+- Switch `maxPowerW` (already in hardware catalog for all models)
+- Server power estimate (user-provided W/server, or a category choice: low/mid/high)
+- PUE factor (optional; default 1.0 for IT load only, or 1.5 for facility overhead)
+
+Standard outputs:
+- Total IT power per rack (W and kW)
+- Total IT power for the deployment (kW)
+- Circuit sizing hint: "Each rack requires a X-amp circuit at Y volts"
+
+#### Industry Reference Power Ranges (MEDIUM confidence — multiple web sources)
+
+| Server Category | Typical Power per Server |
+|-----------------|-------------------------|
+| 1U entry-level | 150–300W |
+| 1U standard (dual CPU) | 300–500W |
+| 2U high-memory | 500–800W |
+| GPU/AI accelerated | 1000–3000W+ |
+
+For planning purposes, a configurable per-server watt estimate (default 300W for 1U servers) covers the vast majority of use cases. Avoid a preset "high/mid/low" tier selector — a simple number input is more transparent and procurement-ready.
+
+#### Power Formula Per Rack
+
+```
+switchPowerW = leafPower × 2  // two leaf switches per rack (ToR/MoR/BoR)
+             + oobPower × oobSwitchesPerRack
+             // Note: spine and border leaf power is on the network rack, not server racks
+
+serverPowerW = serverCount × wattsPerServer  // per rack, varies by rack config
+
+totalRackPowerW = switchPowerW + serverPowerW
+totalRackPowerKW = totalRackPowerW / 1000
+
+// Circuit sizing (single-phase 208V or 240V):
+ampereRequired = totalRackPowerW / supplyVoltage  // default 208V
+```
+
+#### Required New Inputs
+
+| Input | Type | Required / Optional | Default | Notes |
+|-------|------|---------------------|---------|-------|
+| Watts per server | number | Required | 300 | User-entered; no preset tiers; range 50–5000W |
+| Supply voltage | enum: 110V, 208V, 240V | Optional | 208V | Only used for ampere calculation |
+
+#### Outputs Added to BOM
+
+- `rackPowerBudgets`: array of `{ rackIndex, serverCount, switchPowerW, serverPowerW, totalPowerW, totalPowerKW, ampereRequired208V }` — one entry per server rack
+- `networkRackPowerW`: aggregate spine + border leaf power (separate from server racks)
+- `totalDeploymentPowerKW`: sum of all rack power budgets
+
+#### What to Show in the UI
+
+Engineers care about:
+1. Per-rack power in kW and amps — for PDU provisioning
+2. Total deployment power in kW — for facility planning
+3. A flag when a rack exceeds typical density thresholds (e.g., >10 kW/rack = high density, may need dedicated cooling)
+
+A simple table with one row per rack covers items 1 and 2. A `HIGH_DENSITY_RACK` advisory covers item 3 if it fires.
+
+#### Complexity Assessment
+
+**LOW-MEDIUM.** New input field (`wattsPerServer`) added to `SizingInputSchema`. New computation loop over the rack array. New output fields on `NetworkBOM`. No changes to existing formulas. UI requires a new power panel or extension to the existing BOM panel.
+
+---
+
+### Feature Dependencies (v6.0)
+
+```
+[Physical Planning Inputs]
+  ├── rackPitch (mm)            -- optional, default 600
+  ├── trayHeight (mm)           -- optional, default 400
+  ├── racksAdjacent (boolean)   -- required, default true
+  └── wattsPerServer (W)        -- required, default 300
+
+[Cable Length Engine (pure function)]
+  ├── depends on: switchPositioning (existing)
+  ├── depends on: rackSize (existing)
+  ├── depends on: cableType (existing)
+  ├── depends on: rackPitch (new)
+  ├── depends on: trayHeight (new)
+  └── produces:
+       ├── cableLengthSchedule[]  (new BOM field)
+       ├── maxServerLeafLengthM   (replaces recommendedCableLengthM)
+       └── maxLeafSpineLengthM    (new)
+
+[DAC_DISTANCE_ADVISORY upgrade]
+  ├── depends on: maxLeafSpineLengthM (computed above)
+  └── adds: estimatedLeafSpineLengthM, dacPassiveLimitM, exceedsPassiveLimit
+
+[PATCH_PANEL_RECOMMENDED advisory]
+  ├── depends on: racksAdjacent (new input)
+  ├── depends on: cableType (existing)
+  ├── depends on: maxLeafSpineLengthM (computed above)
+  └── fires when: non-adjacent AND DAC AND length > 5m
+
+[Power Budget Engine (pure function)]
+  ├── depends on: SWITCH_CATALOG[leafModel].maxPowerW (existing)
+  ├── depends on: SWITCH_CATALOG[oobModel].maxPowerW (existing)
+  ├── depends on: racks[] (existing)
+  ├── depends on: wattsPerServer (new)
+  └── produces:
+       ├── rackPowerBudgets[]     (new BOM field)
+       ├── networkRackPowerW      (new BOM field)
+       └── totalDeploymentPowerKW (new BOM field)
+
+[Export (CSV/PDF)]
+  └── extended with: cable length schedule section + power budget section
+```
+
+---
+
+### Table Stakes vs Differentiators for v6.0
+
+#### Table Stakes
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Per-link cable length estimate | Engineers order cables with specific lengths; units without length output are incomplete | MEDIUM | switchPositioning (existing), rackSize (existing), new rackPitch input |
+| DAC advisory with computed distance | Current advisory fires on rack count heuristic; engineers expect distance in the message | LOW | new length formula |
+| Power per rack in Watts | Standard deliverable for PDU planning; every comparable tool includes it | LOW | maxPowerW in existing catalog, new wattsPerServer input |
+| Total deployment power kW | Facility engineers need aggregate; per-rack alone is insufficient | LOW | rackPowerBudgets sum |
+
+#### Differentiators
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Cable length schedule by link type and SKU | No competitor tool outputs a procurement-ready cable schedule for Dell SONiC | MEDIUM | Maps computed lengths to standard vendor SKU steps |
+| Adjacent vs non-adjacent rack mode with patch panel advisory | Surfaces real-world deployment constraint automatically | LOW | New boolean input + new violation type |
+| Ampere per rack at 208V | PDU selection hint; engineers use this directly for circuit planning | LOW | Derived from total rack power / voltage |
+| High-density rack advisory (>10kW) | Flags racks that need additional cooling consideration | LOW | New violation type: HIGH_DENSITY_RACK |
+
+#### Anti-Features for v6.0
+
+| Feature | Why Problematic | Alternative |
+|---------|-----------------|-------------|
+| Exact-to-the-centimeter cable length calculator | Requires room layout (CAD), raised floor maps, aisle width — out of scope for a sizing tool | Provide minimum + 15% buffer; recommend site survey for exact runs |
+| Cable routing visualization (3D or floor plan) | Full DCIM product scope; years of development | Export the length schedule; let the site DCIM tool handle routing |
+| PUE-adjusted power cost calculator | Pricing and PUE are facility-specific; baking in assumptions breaks trust | Provide raw IT power output; note "multiply by PUE for total facility load" |
+| Cooling estimate (BTU/h per rack) | BTU = power × 3.412; trivial formula but opens cooling system design conversation that is out of scope | Note in UI: "1 kW IT load ≈ 3412 BTU/h; consult cooling vendor" |
+| Weight per rack | Requires server weight inputs; no standard default; floor load analysis is structural engineering | Out of scope for v6.0; listed as v7.0+ in PROJECT.md |
+| Multi-row cable tray layout | Requires knowing row topology, not just rack count | Defer to v7.0+ multi-pod support |
+
+---
+
+## Feature Dependencies (Full — all milestones)
 
 ```
 [Mode Selector: Ethernet vs FC]
@@ -215,169 +589,142 @@ Note: DAC constraints for FC SAN become relevant for intra-rack FC patch cables 
 
 [Existing Rack Elevation]
     └──enhanced──> Switch rendered at correct U from position selector
+
+[v6.0 Physical Planning Inputs]
+    ├──rackPitch, trayHeight ──feeds──> [Cable Length Engine]
+    ├──racksAdjacent ──feeds──> [PATCH_PANEL_RECOMMENDED violation]
+    └──wattsPerServer ──feeds──> [Power Budget Engine]
+
+[Cable Length Engine]
+    ├──uses──> switchPositioning, rackSize, cableType (all existing)
+    ├──produces──> cableLengthSchedule (new BOM field)
+    └──produces──> maxLeafSpineLengthM ──feeds──> [DAC_DISTANCE_ADVISORY upgrade]
+
+[Power Budget Engine]
+    ├──uses──> SWITCH_CATALOG[model].maxPowerW (existing catalog field)
+    ├──uses──> racks[] (existing input)
+    └──produces──> rackPowerBudgets, networkRackPowerW, totalDeploymentPowerKW (new BOM fields)
 ```
 
-### Dependency Notes
+### Dependency Notes (v6.0 Additions)
 
-- **Mode selector is a root input:** FC and Ethernet modes have completely different input schemas, sizing engines, and output structures. They share only the hardware catalog pattern, export functions, and i18n.
-- **FC Sizing Engine is additive:** A new pure function `calculateFCSAN(input: FCSizingInput): FCBOM` alongside the existing `calculateBOM`. No changes to Ethernet engine.
-- **FC Switch Catalog is a new catalog constant:** `FC_SWITCH_CATALOG` alongside existing `SWITCH_CATALOG`. Same extensible pattern.
-- **Switch positioning is a modifier in Ethernet mode only:** Does not apply to FC mode. FC SAN uses optical patch cables that are not position-sensitive.
-- **Rack elevation is enhanced, not rewritten:** ToR/MoR/BoR changes the U position at which the switch SVG block is rendered. Existing drag-to-reorder may conflict with fixed-position constraint — investigate.
-- **Export is extended, not duplicated:** CSV and PDF exports add conditional FC sections when FC mode is active. No separate export button needed.
-- **FC ConstraintViolation types extend existing discriminated union:** New members: `FC_PORT_SATURATION`, `FC_OVERSUBSCRIPTION_EXCEEDED`, `FC_FABRIC_TOO_LARGE`, `FC_ISL_UNDERPROVISIONED`.
-
----
-
-## MVP Definition for v2.0
-
-### Launch With (v2.0)
-
-Minimum viable product for the FC SAN + switch positioning milestone.
-
-**FC SAN (GH #1):**
-- [ ] Mode selector (Ethernet / FC) — root of feature set
-- [ ] Brocade FC switch catalog (Gen7: G710, G720, G730, X7-4, X7-8; Gen8: G820, X8-4, X8-8) — sizing foundation
-- [ ] FC input form (HBA ports/server, storage target ports, switch model selector) — entry point
-- [ ] Dual-fabric sizing engine (per-fabric switch count, ISL count, port utilization) — core value
-- [ ] FC BOM panel with oversubscription ratio and Dynamic POD licensing note — primary output
-- [ ] FC dual-fabric topology diagram (two side-by-side fabric views) — visual validation
-- [ ] FC constraint violations (port saturation, oversubscription >7:1) — correctness guard
-- [ ] FC columns in CSV and PDF export — procurement handoff
-
-**Switch Positioning (GH #6):**
-- [ ] ToR / MoR / BoR selector — root input
-- [ ] Rack elevation switch U position update (switch moves to correct U) — visual correctness
-- [ ] Cable length advisory update in BOM notes — key value of the feature
-- [ ] DAC distance advisory update for position — re-validates existing constraint
-
-### Add After Validation (v2.x)
-
-- [ ] 7850 extension switch sizing — niche use case; validate demand first
-- [ ] Gen8 vs Gen7 recommendation engine — complex heuristic; defer until workload input model is defined
-- [ ] Director vs fixed switch cost breakeven hint — requires pricing data inputs
-- [ ] Per-rack cable length breakdown (1m + 2m split) — nice detail; not blocking
-
-### Future Consideration (v3.0+)
-
-- [ ] Combined FC + Ethernet multi-fabric session — requires unified data model redesign
-- [ ] NPIV virtualization sizing guidance — too workload-specific for deterministic sizing
-- [ ] ISL trunking ASIC placement advisory — deep platform knowledge needed; low ROI for sizing tool
-- [ ] FC zone count estimation — would require zone membership inputs; significant scope increase
+- **Cable length engine is additive:** New pure sub-function, no changes to `calculateBOM` formula logic.
+- **`recommendedCableLengthM` is superseded:** The existing static map `{ToR:2, MoR:1, BoR:2}` becomes the fallback; the new computed value replaces it when physical layout inputs are provided.
+- **`DAC_DISTANCE_ADVISORY` schema is extended, not replaced:** New optional fields on the existing discriminated union member. Older consumers that only read `rackCount` and `cableType` continue to work.
+- **`PATCH_PANEL_RECOMMENDED` is a new violation member:** Added to the discriminated union alongside existing violation types.
+- **Power budget engine has no side effects:** Pure computation over the existing rack array and catalog. FC power budgets are not in scope for v6.0 (FC power per rack would require FC switch power data and a separate FC physical layout model).
+- **Export extensions are additive:** New sections appended to existing CSV/PDF templates; no changes to existing section layout.
 
 ---
 
-## Feature Prioritization Matrix
+## MVP Definition for v6.0
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Mode selector (Eth/FC) | HIGH | LOW | P1 |
-| FC switch catalog (9 models) | HIGH | LOW | P1 |
-| FC sizing engine (dual fabric) | HIGH | MEDIUM | P1 |
-| FC input form | HIGH | LOW | P1 |
-| FC BOM panel | HIGH | MEDIUM | P1 |
-| FC topology diagram (dual fabric) | HIGH | HIGH | P1 |
-| FC constraint violations | HIGH | LOW | P1 |
-| FC CSV/PDF export | HIGH | LOW | P1 |
-| Switch positioning selector (ToR/MoR/BoR) | HIGH | LOW | P1 |
-| Rack elevation switch U position | MEDIUM | MEDIUM | P1 |
-| Cable length advisory for position | MEDIUM | LOW | P1 |
-| DAC advisory update for position | LOW | LOW | P1 |
-| 7850 extension switch sizing | MEDIUM | HIGH | P2 |
-| Gen8 vs Gen7 recommendation | MEDIUM | MEDIUM | P2 |
-| Director vs fixed switch guidance | MEDIUM | MEDIUM | P2 |
-| Per-rack cable length breakdown | LOW | MEDIUM | P3 |
-| ISL trunking ASIC advisory | LOW | HIGH | P3 |
+### Launch With
+
+**Cable Length Schedule:**
+- [ ] New inputs: `rackPitch` (optional, default 600mm), `trayHeight` (optional, default 400mm), `racksAdjacent` (required, default true)
+- [ ] Cable length engine: compute `maxServerLeafLengthM` and `maxLeafSpineLengthM` from rack geometry
+- [ ] SKU mapping function: `nextStandardSKU(rawLengthM)` → nearest standard cable length from vendor SKU ladder
+- [ ] `cableLengthSchedule` output array on `NetworkBOM`
+- [ ] BOM panel: new "Cable Length Schedule" section showing table by link type
+
+**DAC Advisory Upgrade:**
+- [ ] `DAC_DISTANCE_ADVISORY` schema extended with `estimatedLeafSpineLengthM`, `dacPassiveLimitM`, `exceedsPassiveLimit`
+- [ ] Advisory trigger changes from `racks > 8` heuristic to `estimatedLeafSpineLengthM > dacPassiveLimitM`
+- [ ] UI violation card shows computed distance and limit
+
+**Adjacent/Non-Adjacent Toggle:**
+- [ ] `racksAdjacent` boolean input in `SizingInputSchema`
+- [ ] `PATCH_PANEL_RECOMMENDED` added to `ConstraintViolationSchema`
+- [ ] Non-adjacent length formula uses `racksBetween` estimate (default 2)
+
+**Power Budget:**
+- [ ] `wattsPerServer` number input in `SizingInputSchema` (default 300)
+- [ ] Power budget engine computing `rackPowerBudgets[]` and `totalDeploymentPowerKW`
+- [ ] BOM panel or dedicated power panel showing per-rack and total power
+- [ ] `HIGH_DENSITY_RACK` advisory fires when any rack > 10kW
+
+### Add After Validation (v6.x)
+
+- [ ] `supplyVoltage` input (110V/208V/240V) for per-rack ampere calculation
+- [ ] Cable length schedule in CSV/PDF export
+- [ ] Power budget in CSV/PDF export
+- [ ] Per-link-type cable quantity breakdown split by SKU length (e.g., "120 × 2m, 40 × 1m" instead of single count)
+
+---
+
+## Prioritization Matrix for v6.0
+
+| Feature | User Value | Implementation Cost | Priority | Notes |
+|---------|------------|---------------------|----------|-------|
+| Per-link cable length estimate (server-leaf) | HIGH | LOW | P1 | Uses existing switchPositioning + rackSize |
+| Per-link cable length estimate (leaf-spine) | HIGH | MEDIUM | P1 | Requires new rackPitch/trayHeight inputs |
+| DAC advisory with computed distance | HIGH | LOW | P1 | Schema extension only |
+| Adjacent/non-adjacent toggle | HIGH | LOW | P1 | Boolean input + new violation type |
+| Power per rack (W and kW) | HIGH | LOW | P1 | maxPowerW already in catalog |
+| Total deployment power (kW) | HIGH | LOW | P1 | Sum of rack power budgets |
+| SKU mapping (next standard length) | MEDIUM | LOW | P1 | Small lookup function |
+| Cable length schedule table in BOM panel | MEDIUM | LOW | P1 | New UI section |
+| HIGH_DENSITY_RACK advisory | MEDIUM | LOW | P1 | Simple threshold check |
+| Ampere per rack (208V) | MEDIUM | LOW | P2 | Derived from power / voltage |
+| Cable length schedule in CSV/PDF | MEDIUM | MEDIUM | P2 | Export template extension |
+| Power budget in CSV/PDF | MEDIUM | MEDIUM | P2 | Export template extension |
+| Per-link cable count split by SKU | LOW | MEDIUM | P3 | Nice detail, not blocking |
+| FC power budget | LOW | HIGH | P3 | FC physical layout not yet modeled |
 
 **Priority key:**
-- P1: Must have for v2.0 launch
-- P2: Should have, add when possible in v2.x
-- P3: Nice to have, future consideration
+- P1: Must have for v6.0 launch
+- P2: Should have, add in v6.x
+- P3: Future consideration
 
 ---
 
-## Brocade FC Switch Catalog (Verified Specifications)
+## DAC Physical Limits by Speed (Verified)
 
-### Gen7 (64G) — Production
+| Speed | Form Factor | Passive Max | Active Max | FEC Required? |
+|-------|------------|-------------|------------|---------------|
+| 10G | SFP+ DAC | 10m | 15m | No FEC for ≤7m passive |
+| 25G | SFP28 DAC | 3m (BASE-R FEC) / 5m (RS-FEC) | 7m | BASE-R for 2.5–3m; RS-FEC for 4–5m |
+| 40G | QSFP+ DAC | 7m | 10m | — |
+| 100G | QSFP28 DAC | 5m | 7m | RS-FEC typically required |
+| 400G | QSFP-DD DAC | 3m | 5m | RS-FEC required |
 
-| Model | Max Ports | Base Ports | POD Increments | Form Factor | Power | Role |
-|-------|-----------|------------|----------------|-------------|-------|------|
-| G710 | 24 | 8 | +8 (× 2 PODs) | 1U | 150W | Entry leaf |
-| G720 | 64 | 24 | +8/+8/+8 SFP+ + 1 SFP-DD | 1U | ~500W est. | Mid-range leaf |
-| G730 | 128 | 48 | +24 SFP+ + SFP-DD PODs | 2U | 1100W (PSU max) | Core/director-class |
-| X7-4 | 256 | — | 4 blade slots (64-port blades) | 9U chassis | ~2000W est. | Mid director |
-| X7-8 | 512 | — | 8 blade slots (64-port blades) | 14U chassis | ~4000W est. | Large director |
-| 7850 | 24 FC + 18 WAN | — | Not applicable | 1U | ~200W est. | Extension/gateway |
+**For NetStack v6.0:**
+- Server-leaf links are 25G SFP28 → passive DAC limit = 3m (with FEC) or 2m (without FEC). For in-rack ToR/MoR/BoR, this is always satisfied.
+- Leaf-spine links are 100G QSFP28 → passive DAC limit = 5m. This is the critical threshold for the adjacent rack scenario.
+- If computed leaf-to-spine run exceeds 5m (passive) → `DAC_DISTANCE_ADVISORY` fires with `exceedsPassiveLimit: true`; recommendation: switch to AOC or active DAC.
 
-### Gen8 (128G) — Current/Latest (announced Nov 2025)
-
-| Model | Max Ports | Base Ports | POD Increments | Form Factor | Power | Role |
-|-------|-----------|------------|----------------|-------------|-------|------|
-| G820 | 56 | 24 | PODs to 56 | 1U | 650W | Leaf/access |
-| X8-4 | 192 | — | 4 blade slots (FC128-48 blades × 4) | ~9U chassis | ~2000W est. | Mid director |
-| X8-8 | 384 | — | 8 blade slots (FC128-48 blades × 8) | ~14U chassis | ~4000W est. | Large director |
-
-**Note:** G820, X8-4, X8-8 are newly announced (Nov 2025, availability confirmed 2026). G820 port blade supports 128G, 64G, 32G, 16G autosensing. X8-4/X8-8 use FC128-48 blades (48 ports/blade). Power figures marked est. need verification from final datasheets.
-
----
-
-## Competitor Feature Analysis (Updated)
-
-| Feature | Cisco Nexus Hyperfabric | Nutanix Sizer | Dell EIPT | Juniper Apstra | NetStack v1.1 | NetStack v2.0 |
-|---------|------------------------|---------------|-----------|----------------|---------------|---------------|
-| Ethernet leaf-spine sizing | Yes | No | Yes | Yes | Yes | Yes |
-| FC SAN sizing | No | No | No | No | No | Yes (new) |
-| Dual-fabric FC topology | No | No | No | No | No | Yes (new) |
-| Brocade switch catalog | No | No | No | No | No | Yes (9 models, new) |
-| Switch positioning (ToR/MoR/BoR) | No | No | No | No | No | Yes (new) |
-| Position-aware cable lengths | No | No | No | No | No | Yes (new) |
-| BOM generation | Yes | Yes | Yes | No | Yes | Yes (extended) |
-| Topology diagram | Yes | Rack only | Canvas | Yes | Yes | Yes (extended) |
-| Rack elevation | Partial | Yes | Limited | Partial | Yes | Yes (enhanced) |
-| Export CSV/PDF | Yes | Yes | Limited | No | Yes | Yes |
-| Dell SONiC specific | No | No | Power/cooling | No | Yes | Yes |
-
-**Key differentiator for v2.0:** NetStack becomes the only tool sizing both Dell SONiC Ethernet leaf-spine and Brocade FC SAN from a single interface. No competitor covers this combination. FC SAN + Ethernet sizing in one browser-native, offline-capable, export-ready tool is a strong differentiator for Dell infrastructure architects.
+**Confidence: HIGH** — confirmed across Cisco datasheets, FS.com specifications, Mellanox/NVIDIA product data, and IEEE 802.3by / 802.3bj standard references.
 
 ---
 
 ## Sources
 
-**Brocade Gen7 switches:**
+**v6.0 Physical Planning:**
+- DAC cable length limits by speed: https://www.walsun.com/knowledge/What-is-the-maximum-length-of-SFP-DAC-cable_680.html
+- 25G SFP28 FEC requirements at 2.5–3m: Cisco 25GBASE SFP28 Modules Data Sheet: https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736950.html
+- 100G QSFP28 passive DAC 5m maximum (IEEE 802.3bj / SFF-8665): https://prolabs.com/msa-qsfp28-100g-dac-5m-nc-100gbase-cu-qsfp28-qsfp28-dac-passive-twinax-5m
+- DAC vs AOC standard lengths: https://community.fs.com/article/guide-to-10g-dac-and-aoc-cables.html
+- Rack unit height (1U = 44.45mm): EIA-310-E standard; https://en.wikipedia.org/wiki/Rack_unit
+- Cable tray overhead clearance (300mm min): TIA-942; referenced in https://guidelines.risa.gov.rw/books/data-center-and-cloud-services-directives/page/overhead-cable-trays
+- Typical cable slack factor (15–20%): industry convention; https://www.tek-tips.com/threads/patch-cable-length-estimator.1603827/
+- Server power ranges (150–800W): https://www.amcoenclosures.com/how-to-calculate-your-average-server-rack-power-consumption/
+- Rack power density (4–15 kW/rack typical): https://northernlink.com/guide-to-calculating-power-consumption-costs-per-rack-in-data-centers/
+- Patch panel best practices for non-adjacent racks: https://community.cisco.com/t5/other-data-center-subjects/inter-rack-patching-advice/td-p/1659038
+- ToR/MoR/BoR cable length differences: https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/
+- Rack pitch / spacing (600mm typical): BICSI 002 / TIA-942; referenced in https://www.cobtel.com/info/server-room-cabling-cable-management-standards-103374428.html
+
+**Brocade Gen7 switches (v2.0 research — retained):**
 - Brocade Gen7 Switch FAQ (Broadcom, Jan 2025): https://docs.broadcom.com/doc/Gen7-Switch-FAQ
-- Brocade G710 Technical Specifications: https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g710-switch/1-0/technical-specifications-g710.html
 - Brocade G720 Product Brief: https://docs.broadcom.com/doc/G720-Switch-PB
 - Brocade G730 Technical Specifications: https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g730-switch/1-0/Brocade-G730-Switch-Technical-Specifications.html
-- Brocade X7-4/X7-8 FAQ (Broadcom, Mar 2024): https://docs.broadcom.com/doc/X7-Director-FAQ
-- Brocade X7-8/X7-4 Lenovo Press Product Guide: https://lenovopress.lenovo.com/lp1587-lenovo-thinksystem-x7-8-and-x7-4-fc-san-directors
-- Brocade 7850 Extension Switch Hardware Features: https://techdocs.broadcom.com/us/en/fibre-channel-networking/extension/7850-extension-switch/1-0/device-overview/brocade-7850-hardware-features.html
-
-**Brocade Gen8 switches:**
-- Brocade G820 Device Overview: https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html
-- Brocade G820 Product Brief: https://docs.broadcom.com/doc/G820-Switch-PB
-- X8-4/X8-8 Lenovo Press Product Guide: https://lenovopress.lenovo.com/lp2271-lenovo-x8-4-and-x8-8-gen-8-fc-directors
-- Broadcom Gen8 Launch Announcement (Nov 2025): https://investors.broadcom.com/news-releases/news-release-details/broadcom-introduces-worlds-first-quantum-safe-gen-8-128g-san
-
-**FC SAN sizing and best practices:**
 - Broadcom SAN Design and Best Practices (Nov 2025): https://docs.broadcom.com/doc/53-1004781
-- Broadcom Fan-In/Fan-Out Ratio (MAPS 9.1.x): https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-maps/9-1-x/
-- TechTarget oversubscription definition: https://www.techtarget.com/searchstorage/definition/oversubscription
-- Broadcom Community oversubscription calculation: https://community.broadcom.com/t5/Fibre-Channel-SAN-Forums/Oversubscription-Calculation/td-p/17392
 
-**Switch positioning:**
-- Virtual Wiki — ToR switch placement in rack: https://www.v-wiki.net/top-of-rack-switch-placement-in-a-rack-not-at-the-top/
-- dc.mynetworkinsights — ToR/MoR/EoR architecture: https://dc.mynetworkinsights.com/data-center-switching-centralized-eor-mor-top-of-rack-tor/
-- Cisco Community — TOR/EOR/BOR/MOR definitions: https://community.cisco.com/t5/data-center-switches/what-is-tor-eor-bor-mor/td-p/4990184
-- DAC cable deployment considerations (FS.com): https://www.fs.com/blog/sfp-dac-twinax-cable-deployment-considerations-2976.html
-- ANFKOM datacenter cabling guide: https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/
-
-**Previously referenced (v1.0 research):**
+**Previously referenced (v1.0 / v2.0 research):**
 - Cisco Nexus Hyperfabric Getting Started Guide: https://www.cisco.com/c/en/us/td/docs/dcn/hyperfabric/software/cisco-nexus-hyperfabric-getting-started.html
-- Nutanix Sizer Product Page: https://www.nutanix.com/products/sizer
-- Dell EIPT Landing Page: https://www.dell.com/calc
 - Oversubscription in Leaf-Spine (FS.com): https://www.fs.com/blog/a-simplified-guide-to-traffic-oversubscription-in-network-systems-1193.html
 
 ---
 
-*Feature research for: NetStack v2.0 — Brocade FC SAN + Switch Positioning*
-*Updated: 2026-03-18*
+*Feature research for: NetStack v6.0 — Physical Planning (cable length schedule, DAC advisory upgrade, power budget)*
+*Updated: 2026-03-19*

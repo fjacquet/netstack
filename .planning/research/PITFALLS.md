@@ -1,314 +1,389 @@
-# Pitfalls Research
+# Domain Pitfalls
 
-**Domain:** FC SAN sizing + switch positioning added to existing Ethernet sizing tool (NetStack v2.0)
-**Researched:** 2026-03-18
-**Confidence:** HIGH (domain-specific FC facts verified against Broadcom official docs; integration pitfalls derived from existing codebase analysis)
+**Domain:** NetStack v6.0 Physical Planning — Cable length estimation and power budget added to existing Ethernet + FC sizing tool
+**Researched:** 2026-03-19
+**Overall confidence:** HIGH (codebase read directly; DAC/cable specs from official vendor sources; power draw from catalog; Zustand migration from official docs + codebase analysis)
+
+---
+
+## Scope of This Document
+
+This document covers pitfalls that arise specifically when **adding cable length estimation and power budget** to a tool that already does switch/cable quantity sizing. It is not a repeat of the v2.0 pitfalls document (FC/Ethernet isolation, POD licensing, dual-fabric rendering). Those pitfalls are already mitigated in the codebase. This document focuses on what is new and what can break in v6.0.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: FC Domain Logic Leaking Into Ethernet Engine
+Mistakes that cause silent incorrect output, rewrite cost, or procurement errors.
+
+---
+
+### Pitfall 1: Schema Migration Corrupts Profile inputState on Existing Users
 
 **What goes wrong:**
-A single `calculateBOM()` function that handles both Ethernet and FC via if-branches. Engineers add `if (mode === 'FC') …` guards throughout the sizing engine, the BOM schema, and the UI. Within two phases the Ethernet path is riddled with FC guard rails that do nothing but cause confusion. When the FC formulas change, breakage is non-obvious.
+`inputStore` is at version 8 (`name: 'netstack-input'`). The `merge()` function in `inputStore.ts` already handles v2–v8 migration via a `{ ...DEFAULT_INPUT, ...oldInput }` spread.
 
-**Why it happens:**
-The existing `sizing.ts` is a clean pure function and it feels natural to extend it. FC inputs (HBA count, fabric count, ISL ratio) look similar to Ethernet inputs at a surface level. The path of least resistance is to add fields to `SizingInputSchema` and branch in the engine.
+When v6.0 adds new fields to `SizingInputSchema` (e.g., `rackPitchM`, `rackRowSpacingM`, `adjacentRacks`), the spread-merge strategy correctly fills missing fields from `DEFAULT_INPUT` for the `inputStore`.
 
-**How to avoid:**
-Treat FC as a parallel domain: a **separate Zod schema** (`FCSizingInputSchema`), a **separate pure function** (`calculateFCBOM()`), and a **separate result type** (`FCNetworkBOM`). The mode selector at the top of the app renders either the Ethernet subtree or the FC subtree — never both. No shared mutable state, no branching inside the existing engine.
+However, the `ProfileSchema.inputState` field is typed as `z.record(z.string(), z.unknown())` — it is a raw JSON snapshot of the store at save time. When the user loads a v5.0-era profile, `inputState` does NOT have the new v6.0 fields. The `profileService.loadProfile()` call copies this raw object back to the store via `setInput(profile.inputState as Partial<SizingInput>)`. The store's `setInput` does a shallow merge: `{ ...state.input, ...partial }`. Any new v6.0 fields not present in the old profile are left as whatever is currently in state (which may be a previous profile's value, not `DEFAULT_INPUT`).
+
+**Root cause:** Profile load bypasses the Zustand `merge()` migration path. The `merge()` function only runs at cold-start hydration, not at `setInput()` call time.
+
+**Consequences:**
+- Old profiles load with `undefined` or stale values for new cable-length fields.
+- Power budget displays 0 W for old profiles because `rackPitchM` is undefined, not 0.6.
+- Bug is silent — no validation error, no console warning, wrong output.
+
+**Prevention:**
+Profile load must normalize the input before calling `setInput`. Add a `normalizeToCurrentSchema(raw: Record<string, unknown>): SizingInput` function to `profileService.ts` that does `{ ...DEFAULT_INPUT, ...raw }` before handing to the store. This mirrors what `merge()` does at cold start.
 
 ```typescript
-// Good — two independent engines
-export function calculateBOM(input: SizingInput): NetworkBOM { … }      // Ethernet
-export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM { … } // FC
-
-// Bad — one engine with mode branching
-export function calculateBOM(input: SizingInput | FCSizingInput): NetworkBOM | FCNetworkBOM {
-  if (input.mode === 'FC') { … } // grows without bound
+// profileService.ts — add this before setInput call
+function normalizeToCurrentSchema(raw: Record<string, unknown>): SizingInput {
+  return SizingInputSchema.parse({ ...DEFAULT_INPUT, ...raw });
 }
 ```
 
-**Warning signs:**
-- `SizingInputSchema` gains fields named `fabricCount`, `islRatio`, `hbaCount`
-- `calculateBOM()` has any branch on a `mode` or `protocol` field
-- FC tests live in `sizing.test.ts` instead of `fcSizing.test.ts`
+**Detection (warning signs):**
+- `profileService.loadProfile()` calls `setInput(profile.inputState as Partial<SizingInput>)` directly with no spread against `DEFAULT_INPUT`.
+- New schema fields in `SizingInputSchema` have no corresponding key in the `ProfileSchema` default.
+- Power budget or cable length shows 0 when loading a pre-v6.0 profile.
 
-**Phase to address:**
-FC Domain Engine phase (first FC phase). Establish the parallel module boundary before any FC logic is written.
+**Phase to address:** Cable Length Schema phase (Phase 1 of v6.0). Must be resolved before any new field is added to `SizingInputSchema`.
 
 ---
 
-### Pitfall 2: Dynamic POD Licensing Not Modelled — BOM Understates Switch Count
+### Pitfall 2: Cable Path Length vs. Point-to-Point Distance Confusion in the Formula
 
 **What goes wrong:**
-The FC catalog lists a Brocade G720 as having 64 ports. The sizing engine counts `ceil(hostPorts / 64)` switches and outputs that as the BOM. The customer orders accordingly, then discovers that base G720 ships with only 24 active ports. Additional Ports-on-Demand (POD) licenses must be purchased separately per switch, and the licenses are switch-serial-number locked — they are not interchangeable between units.
+The existing `cableLengthMap` in `sizing.ts` (lines 153–157) returns 2 m for ToR and BoR, 1 m for MoR. These are in-rack point-to-point distances (server port to switch port in the same rack). They are correct for the current scope where positioning is rack-level.
 
-**Why it happens:**
-Ethernet switches have a fixed port count. Engineers apply the same mental model to FC switches without reading the POD licensing model.
+For v6.0, the feature adds inter-rack cable lengths: server-to-switch runs that cross rack boundaries (non-adjacent rack mode) or aggregation/core cable runs in Three-Tier that span rows. The mistake is using the **point-to-point Euclidean distance** (straight-line between rack centers) instead of the **cable path length** (the actual routed distance including vertical runs to cable tray height, horizontal through trays, and vertical descent into destination rack).
 
-**How to avoid:**
-Model every FC switch with two port counts in `FC_SWITCH_CATALOG`:
+A cable between rack 1 and rack 6 with 600 mm rack pitch is not 3 m (5 × 0.6 m). The actual path is:
+- Ascent from switch port to cable tray height: ~2 m
+- Horizontal run: 5 × rack pitch (typically 0.6 m) = 3 m
+- Descent into destination rack: ~2 m
+- Service loop: ~0.5 m
+- Total: ~7.5 m, not 3 m
 
-```typescript
-export const FC_SWITCH_CATALOG = {
-  'G720': {
-    modelId: 'G720',
-    generation: 'Gen7',
-    speedGbps: 64,
-    totalPorts: 64,          // physical ports in chassis
-    basePorts: 24,           // ports active without additional POD licenses
-    podLicenseUnit: 8,       // POD increments of 8 ports (SFP+) or 16 (SFP-DD pair)
-    sfpDDPorts: 8,           // SFP-DD ports (each counts as 2 when fully licensed)
-    maxIslPorts: 16,         // recommended ISL port budget
-    uHeight: 1,
-    maxPowerW: 250,
-  },
-  'G730': {
-    modelId: 'G730',
-    generation: 'Gen7',
-    speedGbps: 64,
-    totalPorts: 128,         // 96 SFP+ + 16 SFP-DD x 2
-    basePorts: 48,           // ships with 48 active
-    podLicenseUnit: 16,
-    sfpDDPorts: 16,
-    maxIslPorts: 32,
-    uHeight: 2,
-    maxPowerW: 450,
-  },
-} as const;
+Outputting 3 m would cause the customer to order cables that are too short. Cables cannot be spliced; the entire run must be reordered.
+
+**Root cause:** Treating rack spacing as the only variable. Vertical rack height component is ignored.
+
+**Formula to use (MEDIUM confidence — standard data center cabling practice):**
+
+```
+cablePathLengthM = verticalAscent + horizontalRun + verticalDescent + serviceLoop
+verticalAscent   = rackHeightM × 0.5   // ascent from switch mid-point to tray
+horizontalRun    = racksBetween × rackPitchM
+verticalDescent  = rackHeightM × 0.5   // descent from tray to destination switch
+serviceLoop      = 0.5                 // fixed 0.5 m service loop
 ```
 
-The BOM must output a `podLicensesRequired` field per switch model, and the UI must surface POD license count as a separate line item. Use `effectivePorts = basePorts + podLicensesRequired * podLicenseUnit` for sizing, not `totalPorts`.
+Standard rack height: 42U × 0.04445 m/U ≈ 1.87 m; 50U ≈ 2.22 m.
+Standard rack pitch (center-to-center): 0.6 m (600 mm) per EIA-310-D.
 
-**Warning signs:**
-- FC catalog has only a single `ports` field per model
-- BOM CSV export has no POD license line item
-- Engine uses `totalPorts` directly in division
+**Prevention:** Implement cable path length as a pure function taking `rackCount`, `rackPitchM`, `rackHeightM` — never derive it from rack count alone.
 
-**Phase to address:**
-FC Catalog Definition phase. The catalog schema must be correct before the engine is written.
+**Detection (warning signs):**
+- `cablePathLengthM` uses only `racksBetween × rackPitchM` without vertical components.
+- Rack height is not a factor in any cable length formula.
+- Cable lengths for a 10-rack deployment with 42U racks appear to be under 6 m.
+
+**Phase to address:** Cable Length Engine phase (first v6.0 domain phase).
 
 ---
 
-### Pitfall 3: ISL Formula Copied From Ethernet Uplink Formula
+### Pitfall 3: Three-Tier Aggregation-to-Core Cable Length Treated Same as Clos Leaf-to-Spine
 
 **What goes wrong:**
-Ethernet uplinks are calculated as `leafSwitches x activeUplinksPerLeaf`. Engineers apply the same multiplicative formula for ISLs: `fcSwitches x islLinksPerSwitch`. This is wrong. FC ISL sizing depends on the fabric-wide fan-in ratio (host ports : storage ports), the target oversubscription budget, and the speed mismatch between host ports and storage ports — not on a per-switch uplink count.
+In a Clos (leaf-spine) topology with ToR positioning, all leaf-to-spine cables run from server racks to a dedicated network rack. In a Three-Tier topology, aggregation-to-core cables run between the aggregation tier rack(s) and the core tier rack(s). These two cable runs are not equivalent and should not share the same length estimate.
 
-The standard Broadcom recommendation is a 7:1 maximum host-to-storage fan-in ratio per storage port. ISL bandwidth must cover the worst-case burst from the busiest server tier to the storage tier.
+The Three-Tier engine (`three-tier-sizing.ts`) outputs `recommendedCableLengthM` from the same `cableLengthMap` as the Clos engine (value: 2 m for ToR). But aggregation racks and core racks are often on different rows in large deployments — the physical distance between them can be 10–40 m, not 2 m. The access-to-aggregation cable length is also longer than server-to-leaf in Clos because the aggregation rack may not be co-located with every access rack.
 
-**Why it happens:**
-The Ethernet formula is already working and the variables look superficially similar. ISL is "just the uplink" in FC in the same way uplinks are in Ethernet — or so it seems.
+The current code outputs one `recommendedCableLengthM` for all link types. v6.0's cable length schedule needs per-link-type lengths.
 
-**How to avoid:**
-Implement ISL sizing as a separate formula:
+**Root cause:** The existing `recommendedCableLengthM` scalar is a placeholder from v2.0. It was adequate when cable lengths were advisory-only, but it is wrong for a per-link cable schedule.
+
+**Prevention:**
+The cable length output for Three-Tier must produce **three distinct length values**: `serverAccessCableLengthM`, `accessAggrCableLengthM`, `aggrCoreCableLengthM`. Each derived from the actual rack topology (how many rack rows separate the tiers). The single `recommendedCableLengthM` can remain as a summary for backwards compatibility but the detailed schedule is the procurement-relevant output.
+
+**Detection (warning signs):**
+- `ThreeTierBOM.recommendedCableLengthM` is a single scalar reused for all three cable segments.
+- `aggrCoreCableLengthM` equals `serverAccessCableLengthM` in the output.
+- The BOM CSV export has one "Cable Length" column for all Three-Tier link types.
+
+**Phase to address:** Cable Length Engine phase. The Three-Tier engine must produce per-tier cable lengths before the BOM export adds a cable schedule.
+
+---
+
+### Pitfall 4: DAC Distance Advisory Threshold is Wrong (> 8 Racks Is Too Permissive at Higher Speeds)
+
+**What goes wrong:**
+The existing `DAC_DISTANCE_ADVISORY` in both `sizing.ts` (line 139) and `three-tier-sizing.ts` (line 173) fires when `racks > 8` AND `cableType === 'DAC'`. This threshold was derived from a rule of thumb that spine cables in a ToR deployment with standard rack pitch stay under 5 m up to about 8 racks (8 racks × 0.6 m pitch ≈ 4.8 m ≈ within DAC spec).
+
+Two problems with the threshold in v6.0:
+
+1. **Path length vs. pitch**: The actual cable path (including vertical runs) exceeds 5 m at far fewer than 8 racks. With 42U racks and standard pitch, 3-rack separation already produces a ~5.3 m cable path (1.87/2 ascent + 2 × 0.6 + 1.87/2 + 0.5 service loop ≈ 4.2 m at rack separation 2; add one more rack and it exceeds 5 m). The advisory fires too late.
+
+2. **Speed-dependent DAC limits**: The `CABLE_CATALOG` correctly shows `maxDistanceM: 5` for DAC. But this 5 m limit applies to passive DAC at 25G/100G. At 400G (Z9332F-ON, Z9432F-ON in Three-Tier core tier), passive DAC is limited to 3 m and active DAC to approximately 3 m as well. For Three-Tier with Z-series 400G core switches, the DAC advisory must fire sooner.
+
+**Prevention:**
+Replace the `racks > 8` threshold with a comparison against `CABLE_CATALOG.DAC.maxDistanceM` using the computed cable path length:
 
 ```typescript
-function calculateIslCount(
-  hostPorts: number,         // total server HBA ports connected to fabric A
-  storagePorts: number,      // total storage ports on fabric A
-  hostSpeedGbps: number,     // e.g. 32 or 64
-  storageSpeedGbps: number,  // e.g. 32 or 64
-  islSpeedGbps: number,      // e.g. 64 (SFP+) or 128 (SFP-DD)
-  targetFanIn: number,       // default 7 per Broadcom recommendation
-): number {
-  const requiredStoragePorts = Math.ceil(hostPorts / targetFanIn);
-  const hostBandwidth = hostPorts * hostSpeedGbps;
-  const storageBandwidth = Math.min(storagePorts, requiredStoragePorts) * storageSpeedGbps;
-  const bottleneck = Math.min(hostBandwidth, storageBandwidth);
-  return Math.ceil(bottleneck / islSpeedGbps);
+// Compute actual path length, then compare to cable spec
+const worstCasePathM = computeCablePath(racks, rackPitchM, rackHeightM);
+if (input.cableType === 'DAC' && worstCasePathM > CABLE_CATALOG.DAC.maxDistanceM) {
+  violations.push({ code: 'DAC_DISTANCE_ADVISORY', rackCount: racks, cableType: 'DAC' });
 }
 ```
 
-The BOM must include `islOversubscriptionRatio` as a required field, mirroring how `oversubscriptionRatio` is required in the Ethernet BOM.
+The `DAC_DISTANCE_ADVISORY` violation should also carry the computed `estimatedPathLengthM` so the UI can show a specific number ("Estimated cable path: 6.3 m, DAC max: 5 m") rather than a generic warning.
 
-**Warning signs:**
-- ISL count is derived directly from `switchCount x someConstant`
-- No `hostToStorageFanIn` field in `FCSizingInputSchema`
-- `FCNetworkBOM` has no `islOversubscriptionRatio` field
+**Detection (warning signs):**
+- `DAC_DISTANCE_ADVISORY` still uses `racks > 8` literal threshold after v6.0 ships.
+- Advisory does not include computed path length in violation payload.
+- Three-Tier 400G core links use the same DAC threshold as 25G leaf links.
 
-**Phase to address:**
-FC Domain Engine phase.
-
----
-
-### Pitfall 4: Dual-Fabric Topology Rendered as Single Graph
-
-**What goes wrong:**
-FC SAN always deploys in two independent fabrics (Fabric A and Fabric B) for redundancy. Each server connects one HBA to Fabric A and a second HBA to Fabric B. If the topology diagram renders both fabrics on the same @xyflow/react graph with shared nodes, it visually implies they are interconnected — which defeats the entire redundancy model. Engineers either merge the two fabrics into one graph, or share switch nodes between both fabrics.
-
-**Why it happens:**
-The Ethernet topology is a single connected graph (leaf-spine). The rendering code renders "all switches connected to all servers." Naively applying the same renderer to FC produces a fully-connected graph across both fabrics.
-
-**How to avoid:**
-Render two **independent** @xyflow/react sub-graphs side by side (one `<ReactFlow>` for Fabric A, a separate `<ReactFlow>` for Fabric B), or a single graph with a clear visual partition (different node fill color per fabric, a labeled separator lane, no cross-fabric edges). Never share a switch node between both fabrics.
-
-Fabric isolation must be enforced in the data model before rendering:
-
-```typescript
-interface FCTopologyData {
-  fabricA: { switches: FCSwitchNode[]; edges: ISLEdge[] };
-  fabricB: { switches: FCSwitchNode[]; edges: ISLEdge[] };
-  // crossFabricEdges: structurally absent — cannot be added by accident
-}
-```
-
-**Warning signs:**
-- `buildFCTopology()` returns a flat `{ nodes, edges }` without fabric attribution
-- Switch nodes have no `fabricId` property
-- Server nodes have edges to switches in both fabrics without a `fabricId` discriminant on each edge
-
-**Phase to address:**
-FC Topology Diagram phase.
+**Phase to address:** Cable Length Engine phase. The DAC advisory must be upgraded as part of v6.0, not deferred.
 
 ---
 
-### Pitfall 5: Mode Switch Corrupts Persisted Ethernet State
+### Pitfall 5: Power Budget Uses nameplate (maxPowerW) Instead of typicalPowerW
 
 **What goes wrong:**
-The current `inputStore` persists under the key `netstack-input` at version 5. When a user switches to FC mode, the FC input is stored under the same key with version 6 migration. When they switch back to Ethernet, the merge function encounters FC-shaped data and either crashes (Zod validation fails), silently discards the old Ethernet config, or produces nonsensical values (e.g. `fabricCount: 2` mapped to `borderLeafCount`).
+`SWITCH_CATALOG` already has both `maxPowerW` and `typicalPowerW` for most models (e.g., S5248F-ON: max 647 W, typical 310 W; S5232F-ON: max 635 W, typical 360 W). Some models (S3248T-ON, S5224F-ON, S5212F-ON) have only `maxPowerW` — the optional `typicalPowerW` field is absent.
 
-**Why it happens:**
-The single-store pattern works well for one mode. Engineers increment the version number and add a migration branch, as has been done 5 times already. The v2-to-v3 scalar-to-racks-array migration succeeded, so the pattern feels safe. FC adds fundamentally incompatible fields, not just additive ones.
+A power budget that sums `maxPowerW` for all devices per rack produces a worst-case number that is 1.5–2× higher than actual draw. Procurement engineers who receive this number will over-specify the PDU and UPS capacity, driving unnecessary cost. Worse: if the tool is inconsistent (some switches use typical, others fall back to max), the per-rack total is meaningless.
 
-**How to avoid:**
-Use **separate localStorage keys** for separate modes:
+However, the opposite error — using only `typicalPowerW` and ignoring max — produces a number that is too low for UPS sizing. UPS must be sized to max draw (nameplate), not typical draw.
 
-```typescript
-// Ethernet store — existing, untouched
-persist(…, { name: 'netstack-input', version: 5, … })
+**Prevention:** The power budget must emit **two values per rack**:
+- `typicalPowerW`: sum of `typicalPowerW ?? maxPowerW * 0.6` for all devices (use 60% as a conservative fallback when typical is not catalogued)
+- `maxPowerW`: sum of `maxPowerW` for all devices (for PDU/UPS sizing)
 
-// FC store — new, independent key
-persist(…, { name: 'netstack-fc-input', version: 1, … })
+Both values must be clearly labeled in the BOM output. Never output a single "power" number without specifying which.
 
-// Mode selector — lightweight, independent key
-persist(…, { name: 'netstack-mode', version: 1, … })
-```
+Server power is NOT in the catalog (`SWITCH_CATALOG` covers only network switches). v6.0 must either add server power estimates as an input field (W per server, with a sensible default such as 300 W for 1U) or prominently label the rack power budget as "switch power only — add server power separately."
 
-The mode selector (`ethernetMode | fcMode`) is stored in a third lightweight store with its own key. No FC field ever appears in the Ethernet schema and vice versa.
+**Detection (warning signs):**
+- `rackPowerBudget` is derived from a single `maxPowerW` or single `typicalPowerW` field.
+- BOM output has one power field per rack without a "typical vs. max" distinction.
+- Server power is included in the per-rack total without a user-provided wattage input.
+- S3248T-ON (no `typicalPowerW`) causes a TypeScript error or undefined in power computation.
 
-This matches the existing Zustand v5 behavior documented in STATE.md: "In v5 initial state is not automatically written to storage" — meaning the FC store starts clean on first use without any migration plumbing.
-
-**Warning signs:**
-- `FCSizingInputSchema` fields added to `SizingInputSchema`
-- `inputStore.ts` migrate branch handles `fabricCount` or `hbaCount`
-- Mode is stored as a field inside `SizingInput`
-
-**Phase to address:**
-Mode Selector / Store Isolation phase (must precede both FC engine and switch positioning phases).
+**Phase to address:** Power Budget phase. Both typical and max outputs must be present from the first iteration.
 
 ---
 
-### Pitfall 6: FC Optics Catalog Confused With Ethernet Optics
+### Pitfall 6: Non-Adjacent Rack Patch Panel Advisory Becomes a Blocking Violation
 
 **What goes wrong:**
-The existing cable catalog uses `SFP28` for 25G Ethernet and `QSFP28` for 100G Ethernet. Brocade FC switches use `SFP+` at 32G and `SFP28` at 64G — different protocols, same form factor names. A developer adds FC transceivers to `CABLE_CATALOG` and names the 32G FC module `SFP28` (because SFP+ at 32G FC uses the SFP28 physical package). The PDF BOM then lists "SFP28 transceivers" in the same line item for both 25G Ethernet and 32G FC, producing an ambiguous order form.
+v6.0 adds a "non-adjacent rack" mode where server racks are not directly next to the switch rack (or where racks are separated by empty/filler racks). The correct behavior for this condition is to show an advisory: "Non-adjacent rack configuration detected — patch panels recommended for cable management." This advisory is informational. The BOM is still valid; the customer just needs to add patch panels to their bill.
 
-**Why it happens:**
-The form factor name (SFP28) is the same between 25G Ethernet and 32G FC. The difference is the protocol layer. A developer who is not an FC specialist will reuse the existing transceiver type.
+If this advisory is implemented as a `ConstraintViolation` with a `code` like `NON_ADJACENT_RACK_INCOMPATIBLE`, it may be treated as a blocking error by the UI (red badge, prevents export, shows as a critical violation alongside `RACK_CAPACITY_EXCEEDED`). Procurement engineers will read "incompatible" as "this design cannot be built" and either panic or distrust the tool.
 
-**How to avoid:**
-Introduce a `protocol` discriminant in the cable/transceiver catalog:
+**Root cause:** Re-using the existing `ConstraintViolation` discriminated union for advisory content is tempting (it already exists), but the semantic distinction between "this design is invalid" and "this design requires additional planning" is lost.
+
+**Prevention:** Introduce a separate `Advisory` type alongside `ConstraintViolation`:
 
 ```typescript
-type TransceiverProtocol = 'ethernet' | 'fibre-channel';
+// schemas/bom.ts
+export const AdvisorySchema = z.discriminatedUnion('code', [
+  z.object({
+    code: z.literal('PATCH_PANEL_RECOMMENDED'),
+    racksBetween: z.number().int(),
+    estimatedPathLengthM: z.number(),
+  }),
+  z.object({
+    code: z.literal('DAC_EXCEEDS_SPEC'),  // upgrade from advisory to named
+    estimatedPathLengthM: z.number(),
+    maxDistanceM: z.number(),
+  }),
+]);
 
-const FC_OPTICS_CATALOG = {
-  'FC-32G-SW-SFP28': {
-    protocol: 'fibre-channel' as TransceiverProtocol,
-    speedGbps: 32,
-    formFactor: 'SFP28',
-    wavelengthNm: 850,
-    connectorType: 'LC-duplex',
-    maxDistanceM: 100,
-  },
-  'FC-64G-SW-SFP+': {
-    protocol: 'fibre-channel' as TransceiverProtocol,
-    speedGbps: 64,
-    formFactor: 'SFP+',   // Gen7 uses SFP+ physical package at 64G
-    wavelengthNm: 850,
-    connectorType: 'LC-duplex',
-    maxDistanceM: 100,
-  },
-} as const;
+export type Advisory = z.infer<typeof AdvisorySchema>;
 ```
 
-The BOM CSV export must use `protocol` as a column to disambiguate. Never merge FC and Ethernet transceivers into the same `CABLE_CATALOG`.
+`NetworkBOM` gets `advisories: z.array(AdvisorySchema)` alongside `violations: z.array(ConstraintViolationSchema)`. The UI renders violations as red (blocking, procurement must address), advisories as yellow/amber (informational, plan accordingly). Export includes both sections.
 
-**Warning signs:**
-- `CABLE_CATALOG` gains `FC-32G` or `FC-64G` entries
-- BOM CSV has a single `SFP28 Count` column covering both Ethernet and FC
-- `sfp28Count` in `FCNetworkBOM` reuses the Ethernet field name
+**Detection (warning signs):**
+- `PATCH_PANEL_RECOMMENDED` is added to `ConstraintViolationSchema` discriminated union.
+- BOM panel renders non-adjacent rack advisory with the same red badge as `RACK_CAPACITY_EXCEEDED`.
+- CSV export has no distinction between violations and advisories.
 
-**Phase to address:**
-FC Catalog Definition phase.
+**Phase to address:** Cable Length Schema phase (when `AdvisorySchema` is introduced). Must be established before any advisory-class content is added to the engine.
 
 ---
 
-### Pitfall 7: Switch Positioning U-Slot Math Breaks Existing Rack Elevation
+### Pitfall 7: FC SAN ISL Cable Lengths Estimated Using Ethernet Rack Pitch Formula
 
 **What goes wrong:**
-The existing rack elevation renderer calculates device positions as sequential U-slots from U1 (bottom) or U42 (top). When MoR or BoR positioning is added, the leaf switches are no longer inside the server rack — they move to a dedicated network rack or a shared row rack. The renderer still places two leaf switches at the top of the server rack (because `SWITCH_U_PER_SERVER_RACK = 3` is hardcoded as a constant that assumes ToR). The server rack overflows or renders with ghost switch slots.
+FC SAN switches are in a separate SAN rack (not co-located with server racks in MoR/BoR/EoR positioning). ISL cables run between Fabric A switches and Fabric B switches — both typically in the same SAN rack or adjacent SAN racks. The cable run for ISL is therefore very short (1–3 m within the SAN rack) and always uses LC-duplex fiber (never DAC).
 
-**Why it happens:**
-`SWITCH_U_PER_SERVER_RACK = 3` (OOB + 2 leaf switches) is a ToR-specific constant now baked into the rack elevation U calculation. MoR and BoR move the leaf switches out of the server rack, so the server rack has only 1U overhead (OOB switch), not 3U.
+If the cable length formula naively applies the same rack-pitch formula used for server-to-leaf runs (treating "rack separation" as the distance between SAN rack and the nearest server rack), it will produce ISL cable length estimates of 5–15 m, which is wrong. ISL cables are intra-SAN-rack connections, not SAN-to-server-rack connections.
 
-**How to avoid:**
-Make the switch overhead per server rack a function of the positioning mode:
+Additionally, the Broadcom documentation confirms that local ISL (within the same data center room) supports up to 5 km at standard distances (up to 150 m at 32G with short-wave SFP+). The advisory threshold for ISL is not distance-based in the same way as DAC — it is a fabric design concern (too many ISL hops = latency, not cable length). The engine must not emit a `DAC_DISTANCE_ADVISORY` for FC ISL cables because FC ISL cables are always fiber, never DAC.
 
-```typescript
-function switchOverheadU(positioning: SwitchPositioning): number {
-  switch (positioning) {
-    case 'ToR': return 3;  // OOB (1U) + leaf pair (2 x 1U)
-    case 'MoR': return 1;  // OOB only; leafs in shared row rack
-    case 'BoR': return 1;  // OOB only; leafs in bottom-of-row dedicated rack
-    case 'EoR': return 1;  // OOB only; leafs at end of row
-  }
-}
-```
+**Prevention:**
+- FC BOM cable length output for ISL is always a fixed short estimate (1–3 m in-rack run). Do not apply the rack-pitch formula to ISL.
+- The `CABLE_CATALOG.DAC.maxDistanceM` check must never be applied to `FCNetworkBOM.islCables`.
+- If the v6.0 cable schedule feature adds per-link-type lengths to `FCNetworkBOM`, ISL length must be a separate field explicitly documented as "intra-SAN-rack, fiber only."
 
-The `SWITCH_U_PER_SERVER_RACK` constant must be removed or replaced with a function. The rack elevation must render a separate "network rack" tile for MoR/BoR/EoR showing the leaf switches in their actual row position.
+**Detection (warning signs):**
+- `calculateFCBOM()` derives ISL cable length from `racksBetween × rackPitchM`.
+- A `DAC_DISTANCE_ADVISORY` violation appears in `FCNetworkBOM.violations` for ISL links.
+- FC BOM CSV export shows ISL cable lengths greater than 5 m for a single-room deployment.
 
-**Warning signs:**
-- `SWITCH_U_PER_SERVER_RACK` remains a module-level constant after switch positioning is added
-- Rack elevation renders leaf switches inside server rack regardless of positioning mode
-- `RACK_CAPACITY_EXCEEDED` violations fire incorrectly in MoR mode because leaf switch U-height is double-counted
-
-**Phase to address:**
-Switch Positioning phase. Audit `SWITCH_U_PER_SERVER_RACK` before writing any positioning UI.
+**Phase to address:** Cable Length Engine phase. Review FC engine in the same sprint as Ethernet cable length changes to avoid cross-contamination.
 
 ---
 
-### Pitfall 8: Cable Length Formula Ignores Row Geometry
+## Moderate Pitfalls
+
+Mistakes that produce incorrect output or confusing UX, but do not cause silent procurement errors.
+
+---
+
+### Pitfall 8: inputStore Version Not Bumped When New SizingInput Fields Are Added
 
 **What goes wrong:**
-In ToR mode, server-to-leaf cable length is under 3m (same rack). In MoR mode, servers at the ends of a row may be 10-20m from the row-middle switch rack. In BoR/EoR mode, servers may be 20-40m from the switch rack depending on row length. The sizing tool emits a cable quantity without accounting for length — or worse, emits the same `DAC_DISTANCE_ADVISORY` it already emits for Ethernet, creating a false-alarm for a MoR deployment that legitimately needs longer copper runs.
+Adding `rackPitchM`, `adjacentRacks`, or `serverPowerW` to `SizingInputSchema` without bumping `inputStore.ts` version from 8 to 9. The existing `merge()` function already handles forward-compatibility via `{ ...DEFAULT_INPUT, ...oldInput }` spread — this correctly fills in new fields with defaults on first load after upgrade.
 
-**Why it happens:**
-The existing `DAC_DISTANCE_ADVISORY` triggers when `rackCount > 1` and `cableType === 'DAC'`, which was correct for leaf-spine (DAC = patch in same rack). In MoR/BoR, DAC is always wrong for server-to-leaf runs regardless of rack count.
+However, if the version is not bumped, the `merge()` function is not called on existing users. Instead, Zustand's default behavior (no-op merge or raw overwrite depending on implementation) applies, and the new fields may not get their defaults. This is subtle: the spread-merge in `merge()` is the migration path; without a version bump, it doesn't run.
 
-**How to avoid:**
-The `DAC_DISTANCE_ADVISORY` violation must account for positioning mode:
+**Prevention:** Every `SizingInputSchema` addition must be accompanied by a version bump in `inputStore.ts` and a comment in the `merge()` JSDoc explaining the v8→v9 migration. Verify in tests by seeding a v8 localStorage fixture and asserting that after hydration, the new fields have their DEFAULT_INPUT values.
+
+**Detection (warning signs):**
+- `inputStore.ts` remains at `version: 8` after `rackPitchM` is added to `SizingInputSchema`.
+- No test exists that loads a v8 fixture and asserts v9 field defaults.
+
+**Phase to address:** Cable Length Schema phase.
+
+---
+
+### Pitfall 9: Power Budget Double-Counts Switches in Non-ToR Positioning
+
+**What goes wrong:**
+In ToR positioning, each server rack contains 2 leaf switches + 1 OOB switch. The power budget for the server rack should include all three. In MoR/BoR positioning, the leaf switches are NOT in the server rack (they are in the positioning/network rack). If the power budget formula always adds `2 × leafSwitch.maxPowerW + oobSwitch.maxPowerW` per server rack regardless of positioning, it double-counts leaf switch power (those switches appear in both the server rack power total and the network rack total).
+
+The `switchOverheadU()` function in `sizing.ts` (line 112) explicitly returns 3 for all positioning modes because rack-level positioning means switches ARE in the server rack. So in the current codebase, MoR/BoR do NOT move leaf switches out of the server rack — the comment says "All positioning modes keep leaves inside the server rack (rack-level positioning)." The power budget must align with this: switches are always in the server rack, so include their power in server rack totals.
+
+However, if v6.0 changes MoR/BoR to move switches to a dedicated row rack (as described in the original ARCHITECTURE.md from v2.0 research), the power budget must be updated simultaneously. The risk is that the rack elevation and the power budget code are updated independently: one moves the switches, the other does not.
+
+**Prevention:** Power budget per-rack computation must derive switch assignment from the same logic as rack elevation rendering. Both must call the same `assignSwitchesToRack(positioning, rackIndex)` helper rather than each making independent assumptions about where switches live.
+
+**Phase to address:** Power Budget phase. Review against rack elevation positioning logic before writing the power formula.
+
+---
+
+### Pitfall 10: Cable Schedule Exported as Flat Total Instead of Per-Link-Type Breakdown
+
+**What goes wrong:**
+The cable schedule feature should output something like:
+- Server-to-leaf cables: 48 × 2 m DAC (server rack 1–3), 48 × 3 m DAC (server rack 4–6)
+- Leaf-to-spine cables: 12 × 5 m AOC
+- VLT cables: 6 × 1 m DAC
+
+If the CSV export collapses this into a single "Cable Length" column with an average or maximum value, the procurement engineer cannot use it to create a cable order. Cables must be ordered in exact lengths; an average is not actionable.
+
+**Prevention:** The `exportCsv.ts` cable section must produce one row per link type with: `linkType`, `quantity`, `lengthM`, `cableType`. The quantity represents all cables of that exact type/length combination. Test the CSV output with a multi-rack fixture and assert the exact row count and length values.
+
+**Phase to address:** Export phase (last v6.0 phase). The domain engine must produce per-link-type structured cable data before the exporter can use it.
+
+---
+
+### Pitfall 11: "Adjacent Rack" Assumption Applied to All Deployments by Default
+
+**What goes wrong:**
+The default for the new `adjacentRacks` boolean input (or equivalent geometry input) should reflect the most common real-world deployment: adjacent racks in a row with standard 600 mm pitch. If the default is `adjacentRacks: false` (non-adjacent), every new deployment shows a patch panel advisory on first load, creating alarm where none is warranted. Engineers who are just exploring the tool will see warnings without context and conclude the tool is over-cautious.
+
+Conversely, if the default is `adjacentRacks: true` and the advisory only fires when explicitly unchecked, engineers in non-adjacent deployments who never read the docs won't know to enable the advisory.
+
+**Prevention:** Default is `adjacentRacks: true` (standard adjacent rack configuration, no patch panel advisory). The input form explains the field: "Uncheck if server racks are separated by more than one empty bay from the network rack." The advisory is opt-in by changing the default deployment geometry, not opt-out.
+
+**Phase to address:** Input Form phase (UI layer of v6.0).
+
+---
+
+## Minor Pitfalls
+
+---
+
+### Pitfall 12: Service Loop Factor Omitted From Cable Length Output
+
+**What goes wrong:**
+Cable length estimates that omit a service loop factor will result in cables that are exactly at the minimum required length with no slack. Cables ordered at minimum length cause installation problems: if the rack must be moved 5 cm, the cable cannot reach; if a connector is damaged, there is no slack to cut and re-terminate.
+
+Industry standard is a 0.5–1 m service loop per cable run.
+
+**Prevention:** Add a `serviceLoopM = 0.5` constant to the cable path formula. Include it in the formula documentation.
+
+**Phase to address:** Cable Length Engine phase.
+
+---
+
+### Pitfall 13: Rack Height Derived From rackSize String Without Lookup Table
+
+**What goes wrong:**
+Rack height in metres is required for the cable path formula. It would be tempting to compute it as `parseInt(rackSize) * 0.04445`. This formula is correct for 42U (42 × 0.04445 ≈ 1.87 m) and acceptable for 50U (50 × 0.04445 ≈ 2.22 m). However, for 24U racks (24 × 0.04445 ≈ 1.07 m), this underestimates actual rack height because 24U open racks and wall-mount cabinets have significant non-U structural height that makes the overall cabinet taller than the U-count implies.
+
+**Prevention:** Use an explicit `RACK_HEIGHT_M` lookup table keyed by `rackSize`, not a formula. Values from EIA-310-D and standard cabinet specs:
 
 ```typescript
-// Existing: fires when rackCount > 1 AND cableType = DAC
-// New: fires for MoR/BoR/EoR ALWAYS when cableType = DAC
-if (input.switchPositioning !== 'ToR' && input.cableType === 'DAC') {
-  violations.push({ code: 'DAC_POSITIONING_INCOMPATIBLE', positioning: input.switchPositioning });
-}
+const RACK_HEIGHT_M: Record<SizingInput['rackSize'], number> = {
+  '24U': 1.40,  // including frame; typical 24U wall-mount is 550-600 mm but floor-mount is 1.4m
+  '42U': 1.87,  // standard 42U = 42 × 1.75" + frame ≈ 78"
+  '50U': 2.24,  // standard 50U = 50 × 1.75" + frame ≈ 90"
+};
 ```
 
-Add a `cableRunMeters` estimated output to the BOM for each positioning mode so the customer knows what fiber/AOC lengths to order.
+**Phase to address:** Cable Length Engine phase.
 
-**Warning signs:**
-- `DAC_DISTANCE_ADVISORY` logic is unchanged after switch positioning is added
-- No cable length estimate appears in the BOM for MoR/BoR modes
-- BOM passes validation with DAC cables and MoR positioning without a violation
+---
 
-**Phase to address:**
-Switch Positioning phase.
+### Pitfall 14: i18n Keys Missing for New Power and Cable Length Labels
+
+**What goes wrong:**
+v6.0 adds new BOM output fields (rack power budget, cable length schedule, advisory messages). If i18n keys are not added in all four languages (EN, FR, DE, IT) in the same phase as the feature, the UI renders the raw key string (e.g., `"power.maxW"`) in non-English locales.
+
+**Prevention:** Add i18n key stubs for all four languages in the same commit as the new output fields. Use `[key]` notation as placeholders for untranslated languages rather than leaving the key absent. Run the existing i18n coverage test (if it exists) or add one.
+
+**Phase to address:** Each UI phase of v6.0. Follow the pattern established in v5.0 where labels were added to all four locales in the same phase.
+
+---
+
+## Phase-Specific Warnings
+
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Add new fields to `SizingInputSchema` | Profile load silently missing new fields (Pitfall 1) | Add `normalizeToCurrentSchema()` to `profileService.ts` before adding any new field |
+| Cable path length formula | Using pitch-only formula without vertical components (Pitfall 2) | Use `verticalAscent + horizontalRun + verticalDescent + serviceLoop` formula with rack height lookup |
+| Three-Tier cable lengths | Single scalar reused for all tier-to-tier runs (Pitfall 3) | Produce `serverAccessCableLengthM`, `accessAggrCableLengthM`, `aggrCoreCableLengthM` separately |
+| DAC advisory upgrade | Threshold `racks > 8` not updated to use computed path length (Pitfall 4) | Replace with `computedPathLengthM > CABLE_CATALOG.DAC.maxDistanceM` comparison |
+| Power budget formula | Using nameplate max only, or server power not distinguished (Pitfall 5) | Emit both `typicalPowerW` and `maxPowerW` per rack; label server power separately |
+| Non-adjacent rack advisory | Advisory added to `ConstraintViolationSchema` and rendered as blocking error (Pitfall 6) | Add `AdvisorySchema` + `NetworkBOM.advisories[]` before adding the advisory in the engine |
+| FC ISL cable lengths | Rack-pitch formula applied to ISL runs (Pitfall 7) | ISL cable length is a fixed short in-rack estimate; never apply server-rack formula |
+| inputStore version bump | Version not bumped for new fields; merge() not called (Pitfall 8) | Always bump version when modifying `SizingInputSchema`; add migration test fixture |
+| Power budget and positioning | Power double-counted for MoR/BoR if switch placement logic diverges (Pitfall 9) | Single `assignSwitchesToRack()` helper shared by rack elevation and power budget |
+| CSV cable schedule export | Flat average/total instead of per-link-type rows (Pitfall 10) | Domain engine emits structured `CableLengthEntry[]`; exporter maps one row per entry |
+| Adjacent rack default | Non-adjacent default causes alarm on first load (Pitfall 11) | Default `adjacentRacks: true`; advisory is opt-in |
+
+---
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Profile migration**: `profileService.loadProfile()` spreads against `DEFAULT_INPUT` before calling `setInput()` — verify with a test that loads a profile missing `rackPitchM` and asserts it gets the default value.
+- [ ] **Cable path formula**: `estimatedPathLengthM` includes vertical ascent + horizontal run + vertical descent + service loop — verify with a 3-rack, 42U, 0.6 m pitch fixture that output is ~4.2 m, not 1.8 m.
+- [ ] **DAC advisory trigger**: `DAC_DISTANCE_ADVISORY` fires at 3-rack separation with standard pitch (path ~4.2 m, still under 5 m spec) — verify advisory does NOT fire. Fires at 4+ racks (path ~5 m+) — verify it DOES fire.
+- [ ] **Power budget two-value output**: `NetworkBOM` has both `rackTypicalPowerW` and `rackMaxPowerW` fields — verify CSV export has both columns labeled distinctly.
+- [ ] **Advisory vs. violation**: `PATCH_PANEL_RECOMMENDED` appears in `bom.advisories[]`, NOT `bom.violations[]` — verify BOM panel renders it amber, not red.
+- [ ] **FC ISL cable length**: `FCNetworkBOM` ISL cable length is ≤ 3 m for any input — verify no rack-pitch computation affects FC ISL.
+- [ ] **Three-Tier separate lengths**: `ThreeTierBOM` has three cable length fields — verify CSV export shows three distinct rows.
+- [ ] **i18n completeness**: All new labels exist in EN/FR/DE/IT — verify no `undefined` renders in FR and DE locales for power and cable length sections.
+- [ ] **inputStore version**: `version: 9` in `inputStore.ts` when first new field is merged — verify by seeding v8 fixture and confirming new field gets default after hydration.
 
 ---
 
@@ -316,104 +391,34 @@ Switch Positioning phase.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Add FC fields to `SizingInputSchema` | One schema, one store | Breaks Ethernet/FC isolation; Zod parse fails on mode switch | Never |
-| Reuse `calculateBOM()` with mode flag | Less new code to write | Engine becomes untestable; Ethernet regression risk on every FC change | Never |
-| Skip `podLicensesRequired` in BOM v1 | Faster delivery | Customer orders wrong number of switches; trust damage | Never — must be in BOM from day one |
-| Hard-code `SWITCH_U_PER_SERVER_RACK = 3` for now | Unblock rack elevation | Breaks silently when positioning mode is added | Acceptable only if positioning mode is a later phase AND a TODO is filed explicitly |
-| Share Ethernet cable catalog for FC optics | One catalog, less code | Ambiguous BOM line items; wrong procurement orders | Never |
-| Store mode flag inside `SizingInput` | Simpler state shape | Mode persists incorrectly across store version migrations | Never |
-
----
-
-## Integration Gotchas
-
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| @xyflow/react + dual-fabric FC diagram | Single `<ReactFlow>` with all FC nodes, cross-fabric edges invisible but present in data | Two separate `<ReactFlow>` instances or strict `fabricId` enforcement on all edges |
-| Zustand `persist` + mode switching | Same `name` key for both Ethernet and FC stores | Separate `name` keys: `netstack-input` (Ethernet), `netstack-fc-input` (FC), `netstack-mode` (selector) |
-| Zustand `persist` v5 + new store | Assuming initial state auto-writes to storage | Explicitly hydrate or accept that store starts blank until first user interaction |
-| `@react-pdf/renderer` + FC BOM | Adding FC fields to existing `NetStackDocument` PDF component | Separate `FCNetStackDocument` component; lazy-load independently |
-| i18n + FC mode | Reusing Ethernet translation keys for FC terms (e.g. `t('cables')` for ISL cables) | Separate i18n namespace `fc.*` for all FC-specific labels |
-| Zod v4 + discriminated union for mode | Putting both `SizingInput` and `FCSizingInput` in a `z.discriminatedUnion` on `mode` | Keep schemas independent; discriminate in the store layer, not in Zod |
-
----
-
-## Performance Traps
-
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Recomputing FC BOM on every Ethernet store change | FC result store subscribes to Ethernet input store | FC result store subscribes only to FC input store | Immediately — stale FC BOM or unnecessary recompute on every keystroke |
-| Rendering FC dual-fabric graph when Ethernet mode is active | @xyflow layout computed for hidden FC topology | Conditional render — FC topology only mounts when FC mode is active | With any deployment > 20 racks (layout computation noticeable in tab switch) |
-| ISL trunk edge rendering as many individual lines | Visual clutter, overlapping lines per trunk | Aggregate trunk edges into single weighted edge with `trunkMembers` label | At > 4 ISL trunks per switch pair |
-| localStorage migration runs on every cold start | `merge()` runs full v2-v3 migration logic for Ethernet even when user is in FC mode | Mode-specific stores have independent versions and merge functions | Immediately on returning users with stale cached state |
-
----
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Mode switch loses Ethernet config silently | Engineer sizes Ethernet deployment, switches to FC to explore, switches back — Ethernet config is gone | Separate persisted stores; switching modes never touches the other mode's state |
-| FC BOM shows "oversubscription ratio" using Ethernet formula | Ratio number is meaningless in FC context; misleads customer | FC BOM uses "host-to-storage fan-in ratio" with Broadcom 7:1 recommended threshold as the benchmark |
-| POD license count hidden in tooltip or footnote | Customer misses it on export, orders wrong number of switches | POD license count is a top-level BOM line item, not a tooltip, with a prominent warning if `podLicensesRequired > 0` |
-| Switch positioning changes cable type requirement silently | User selects MoR, must use fiber but app does not warn them | Show an explicit violation banner: "DAC incompatible with MoR positioning — fiber or AOC required" |
-| Dual fabric shown as one fabric in exported PDF | Customer's procurement team reads the BOM as single-fabric order, under-orders by 2x | PDF shows Fabric A and Fabric B as separate sections with a totals row showing the combined count |
-
----
-
-## "Looks Done But Isn't" Checklist
-
-- [ ] **FC BOM POD licensing:** Engine outputs `podLicensesRequired` per switch model — verify the CSV export has a dedicated `POD Licenses` row
-- [ ] **Dual-fabric count:** All FC switch counts in the BOM are per-fabric — verify the totals section multiplies by 2 and labels them "Fabric A + Fabric B"
-- [ ] **ISL oversubscription ratio:** `FCNetworkBOM` has `islOversubscriptionRatio` as a required field — verify it appears in BOM panel and PDF
-- [ ] **Mode isolation:** Switching Ethernet to FC to Ethernet leaves Ethernet `inputStore` unchanged — verify with a Vitest test that mounts both stores
-- [ ] **ToR U-slot overhead:** `switchOverheadU('ToR')` returns 3, `switchOverheadU('MoR')` returns 1 — verify rack elevation tests cover both modes
-- [ ] **FC optics disambiguation:** BOM CSV has separate columns or rows for Ethernet vs FC transceivers — verify the CSV test fixture includes both modes
-- [ ] **DAC advisory for non-ToR positioning:** `DAC_POSITIONING_INCOMPATIBLE` violation fires for MoR+DAC combination — verify a dedicated violation test case
-- [ ] **i18n completeness:** FC mode has translation keys in all 4 languages (FR, EN, DE, IT) — verify no `undefined` translation renders in FC mode
-
----
-
-## Recovery Strategies
-
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| FC logic mixed into Ethernet engine | HIGH | Extract FC engine into `fcSizing.ts`; add full test coverage; remove branches from `sizing.ts`; Ethernet regression risk is real |
-| POD licensing missing from BOM at launch | MEDIUM | Add `podLicensesRequired` field to `FCNetworkBOM`; bump FC store version; update CSV/PDF templates; re-test all exports |
-| Dual-fabric rendered as single graph | MEDIUM | Refactor `buildFCTopology()` to return `{ fabricA, fabricB }`; update @xyflow component to render two sub-graphs |
-| Ethernet state corrupted by mode switch | HIGH | Detect corrupt state in `merge()`; fall back to `DEFAULT_INPUT`; add toast notification to user; bump Ethernet store version with migration |
-| `SWITCH_U_PER_SERVER_RACK` constant wrong for MoR | LOW | Replace constant with `switchOverheadU(positioning)` function; update rack elevation tests; no schema change needed |
-| DAC advisory missing for MoR mode | LOW | Add `DAC_POSITIONING_INCOMPATIBLE` violation case to engine; add test fixture; re-run test suite |
-
----
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| FC logic leaking into Ethernet engine | FC Domain Engine (Phase 1 of v2.0) | `sizing.ts` has zero imports from `fcSizing.ts` and vice versa; confirmed by import linting |
-| Dynamic POD licensing not modelled | FC Catalog Definition (Phase 0 of v2.0) | `FC_SWITCH_CATALOG` has `basePorts`, `podLicenseUnit` fields; BOM CSV test has `POD Licenses` row |
-| ISL formula copied from Ethernet | FC Domain Engine (Phase 1 of v2.0) | Separate `calculateIslCount()` function with fan-in input; `islOversubscriptionRatio` in `FCNetworkBOM` |
-| Dual-fabric rendered as single graph | FC Topology Diagram phase | `buildFCTopology()` returns `{ fabricA, fabricB }`; no cross-fabric edges in the data model |
-| Mode switch corrupts Ethernet state | Mode Selector phase (before FC engine) | Vitest test: switch to FC mode, mutate FC store, switch back, assert Ethernet store unchanged |
-| FC optics confused with Ethernet optics | FC Catalog Definition phase | `FC_OPTICS_CATALOG` is a separate module; CSV test verifies `Protocol` column distinguishes `ethernet` vs `fibre-channel` |
-| U-slot math breaks with MoR/BoR positioning | Switch Positioning phase | `switchOverheadU()` function replaces `SWITCH_U_PER_SERVER_RACK` constant; rack elevation tests run with ToR, MoR, BoR inputs |
-| Cable length ignores row geometry | Switch Positioning phase | `DAC_POSITIONING_INCOMPATIBLE` violation fires for MoR+DAC combination; BOM has `estimatedCableRunMeters` field |
+| Profile load without `normalizeToCurrentSchema()` | Less code to write | Old profiles silently produce wrong cable/power output | Never |
+| `recommendedCableLengthM` scalar reused for multi-tier cable schedule | No new fields needed | Three-Tier cable schedule is inaccurate; procurement cannot use it | Never |
+| Sum `maxPowerW` only for power budget | Simple, no optional field handling needed | 1.5–2× over-sizing of PDU/UPS; customer cost impact | Never |
+| Add patch panel advisory to `ConstraintViolationSchema` | One schema, less code | Advisory rendered as blocking error; engineers distrust tool | Never |
+| `racks > 8` threshold for DAC advisory | No formula change needed | Advisory fires too late; customer orders short cables | Acceptable only if cable path length is deferred to v7.0 with an explicit TODO |
+| Single power value per rack (no typical/max distinction) | Simpler BOM schema | Ambiguous for PDU sizing; requires follow-up question from customer | Acceptable in MVP if labeled "maximum draw (nameplate)" explicitly |
 
 ---
 
 ## Sources
 
-- [Broadcom: Ports on Demand Overview — Fabric OS 9.1.x](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-software-licensing/9-1-x/v26544088.html)
-- [Broadcom: SAN Design and Best Practices, November 2025](https://docs.broadcom.com/doc/53-1004781)
-- [Broadcom: Gen 7 Switch FAQ](https://docs.broadcom.com/doc/Gen7-Switch-FAQ)
-- [Broadcom: G720 Switch Product Brief](https://docs.broadcom.com/doc/G720-Switch-PB)
-- [Broadcom: G730 Switch Product Brief](https://docs.broadcom.com/doc/G730-Switch-PB)
-- [Broadcom: Port Oversubscription Monitoring — MAPS 9.1.x](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-maps/9-1-x/Fabric-Performance-Impact-Monitoring-Using-MAPS_91x/Congestion-Detection_91x/Oversubscription-Monitoring.html)
-- [Zustand: Persist Middleware Reference](https://zustand.docs.pmnd.rs/reference/middlewares/persist)
-- [Zustand GitHub: Persist multiple versions discussion #984](https://github.com/pmndrs/zustand/issues/984)
-- Codebase analysis: `src/store/inputStore.ts` (version 5 migration pattern), `src/domain/schemas/bom.ts` (ConstraintViolation discriminated union), `src/domain/catalog/hardware.ts` (SWITCH_CATALOG pattern)
+- Codebase read directly:
+  - `src/domain/engine/sizing.ts` — existing `cableLengthMap`, `DAC_DISTANCE_ADVISORY` threshold, `switchOverheadU()` function
+  - `src/domain/engine/three-tier-sizing.ts` — Three-Tier cable lengths, per-tier link counts
+  - `src/domain/catalog/hardware.ts` — `maxPowerW` and `typicalPowerW` per switch model; `uHeight` field
+  - `src/domain/catalog/cables.ts` — `CABLE_CATALOG.DAC.maxDistanceM: 5`
+  - `src/domain/schemas/input.ts` — `SizingInputSchema` v8, `switchPositioning` field
+  - `src/domain/schemas/bom.ts` — `ConstraintViolationSchema`, `NetworkBOMSchema`, `recommendedCableLengthM`
+  - `src/store/inputStore.ts` — version 8, `merge()` migration function, `DEFAULT_INPUT`
+  - `src/domain/schemas/profile.ts` — `ProfileSchema.inputState` typed as `z.record(z.string(), z.unknown())`
+- [EIA-310-D Rack Unit Standard (1.75 inches per U)](https://en.wikipedia.org/wiki/Rack_unit) — HIGH confidence (standard)
+- [DAC Cable Specifications 2025: passive ≤3 m at 25G, ≤5 m at 100G active](https://network-switch.com/blogs/networking/direct-attach-copper-dac-twinax-cables) — MEDIUM confidence (vendor documentation)
+- [NVIDIA Cabling Data Centers Design Guide, March 2023](https://docs.nvidia.com/cabling-data-centers.pdf) — HIGH confidence (official NVIDIA datacenter design guide)
+- [Zustand Persist Middleware: merge() and version migration](https://zustand.docs.pmnd.rs/reference/integrations/persisting-store-data) — HIGH confidence (official Zustand docs)
+- [Server rack power: typical 1U server 150–400 W, switches at 60–80% of nameplate](https://sysracks.com/blog/server-rack-energy-consumption/) — MEDIUM confidence (matches catalog values)
+- [Broadcom ISL Distance Reference: 32G SFP+ up to 150 m short-wave](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-administration/9-2-x/v26799888/v26762506.html) — HIGH confidence (official Broadcom docs)
 
 ---
-*Pitfalls research for: NetStack v2.0 — FC SAN sizing + switch positioning added to existing Ethernet tool*
-*Researched: 2026-03-18*
+
+*Pitfalls research for: NetStack v6.0 — Cable length estimation and power budget*
+*Researched: 2026-03-19*

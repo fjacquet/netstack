@@ -1,206 +1,242 @@
 # Project Research Summary
 
-**Project:** NetStack v2.0 — FC SAN Sizing + Switch Positioning
-**Domain:** Browser-native network sizing calculator / BOM generator (Dell SONiC Ethernet + Brocade FC SAN)
-**Researched:** 2026-03-18
+**Project:** NetStack v6.0 — Physical Planning Features
+**Domain:** Browser-based network infrastructure sizing / BOM generator (Dell Leaf-Spine + SONiC + Brocade FC SAN)
+**Researched:** 2026-03-19
 **Confidence:** HIGH
 
 ## Executive Summary
 
-NetStack v2.0 extends a validated, production-ready Ethernet leaf-spine sizing tool with two orthogonal capabilities: Fibre Channel SAN sizing (Brocade Gen7/Gen8 switches, dual-fabric topology, ISL calculations) and switch positioning awareness (ToR/MoR/BoR selector, cable length impact, rack elevation placement). The foundational architecture — Domain → Store → Features one-way layering, Zod schemas as the single source of truth, pure sizing engine functions — is proven and must not be compromised. No new npm runtime dependencies are required; all new functionality is implemented as parallel TypeScript modules following established patterns.
+NetStack v6.0 extends a shipped v5.0 product with physical planning outputs: a per-link cable length schedule, a per-rack power budget, an upgraded DAC distance advisory that uses computed geometry instead of a rack-count heuristic, and a boolean adjacent/non-adjacent rack toggle that fires a new patch-panel advisory. Every one of these features is pure arithmetic over existing constants and a handful of new user inputs. No new npm packages are required; the entire feature set belongs in the domain layer as pure TypeScript functions following the established `calculateBOM()` composition pattern. All new outputs are embedded directly in `NetworkBOM` and `ThreeTierBOM` rather than in separate stores or side-car schemas, preserving the existing one-way dependency chain (Domain -> Store -> Features) and keeping all new outputs automatically available to PDF/CSV export without additional wiring.
 
-The recommended approach is strict domain isolation between the Ethernet and FC modes. The FC sizing engine, schemas, hardware catalog, and stores are entirely parallel to their Ethernet counterparts — they never share mutable state, import each other's internals, or merge their BOM schemas. The mode selector is a UI-layer concern only. Switch positioning is an additive modifier to the Ethernet engine, not a separate mode. This separation keeps each domain independently testable and prevents a class of integration bugs that have historically been high-cost to recover from.
+Four new input fields are added to `SizingInputSchema` with Zustand `inputStore` bumped from version 8 to 9: `rackPitchMm` (default 600), `adjacentNetworkRack` (default true), `patchPanelDistanceM` (default 1), and `estimatedServerPowerW` (default 400). The existing `{ ...DEFAULT_INPUT, ...oldInput }` merge strategy handles backwards compatibility for stored profiles. Parallel architecture (ADR-0009) is maintained: `ThreeTierSizingInputSchema` and `ThreeTierBOMSchema` receive the same four new input fields and output extensions, with three-tier cable lengths split per tier (`serverAccessCableLengthM`, `accessAggrCableLengthM`, `aggrCoreCableLengthM`).
 
-The key risk is premature coupling: specifically, merging FC fields into the existing `SizingInputSchema` or extending `calculateBOM()` with mode-branch logic. Both feel like the path of least resistance but create cascading problems across the store, export, and test layers. A second equally critical risk is the Brocade POD (Ports on Demand) licensing model — FC switches ship with a base port count well below the catalog maximum, and the BOM must surface POD license quantities as a first-class line item from day one. Getting either of these wrong produces a BOM that fails procurement validation.
+The dominant risk class for v6.0 is silent data quality errors: cable lengths computed as point-to-point distances instead of routed paths produce cables that are too short to install; power budgets derived from nameplate max alone cause PDU over-specification; profile load without normalization produces undefined values for new fields. A secondary risk is semantic confusion between blocking violations and informational advisories — the patch-panel advisory must live in a new `NetworkBOM.advisories[]` array, not in `violations[]`, or it will render as a red blocking error. All seven critical pitfalls have clear preventions; none require architectural rework if addressed in the correct phase sequence.
 
 ## Key Findings
 
 ### Recommended Stack
 
-NetStack v2.0 requires zero new npm dependencies. The existing stack — Vite 8, React 19, TypeScript 5.9, Zustand 5, Zod 4, @xyflow/react, react-hook-form, shadcn/ui, Tailwind v4, @react-pdf/renderer, react-papaparse — covers all v2.0 requirements. FC SAN catalog data, ISL formulas, and dual-fabric topology are implemented as pure TypeScript additions following patterns already established in the Ethernet domain.
+No new npm dependencies are required for v6.0. All operations are `+`, `×`, `Math.ceil()`, and `Math.abs()` over typed constants derived from IEEE 802.3, EIA-310-D, and vendor datasheets. The candidates evaluated and rejected include `mathjs` (170 KB bundle weight, zero domain benefit), DCIM SDKs (server-side only, incompatible with PWA constraint), `d3` (topology already handled by `@xyflow/react`; cable schedule is tabular), and geospatial libraries (rack layout is one-dimensional along a row axis).
 
-See `.planning/research/STACK.md` for full technology details.
+See `.planning/research/STACK.md` for full details and alternatives analysis.
 
-**Core technologies:**
-- TypeScript 5.9 (strict): type-safe domain models for both Ethernet and FC — critical because FC port/speed/fabric semantics are meaningfully different from Ethernet
-- Zod 4.3.6: separate `FCSizingInputSchema` and `FCNetworkBOMSchema` following exact same `z.infer<>` pattern as existing Ethernet schemas
-- Zustand 5.0.12: separate `fcInputStore` (persisted, key `netstack-fc-input`) and `fcResultStore` (derived) — no cross-mode state contamination
-- @xyflow/react 12.10.1: two independent `<ReactFlow>` instances for FC dual-fabric topology; each needs its own `ReactFlowProvider`
-- @react-pdf/renderer 4.3.2: FC BOM added as a new `<Page>` section in existing PDF; separate `FCNetStackDocument` component
+**Core technologies (unchanged from v5.0):**
+- TypeScript (strict): All new domain logic; types derived from Zod via `z.infer<>`, never declared separately — critical for keeping cable length and power budget schema changes type-safe end-to-end
+- Zod v4: Extend `SizingInputSchema` (4 new fields), `NetworkBOMSchema` (`cableLengthSchedule`, `powerBudget`, `advisories[]`), `ConstraintViolationSchema` (`computedDistanceM` on `DAC_DISTANCE_ADVISORY`), new `AdvisorySchema`
+- Zustand v5: Increment `inputStore` to version 9; `resultStore` adapter updated to pass new fields through; no new stores needed
+- React 19 + shadcn/ui: New accordion section for physical layout inputs; new BOM panel sections for cable schedule and power budget
+- Vite 6 + Tailwind v4: Unchanged; no build config changes required
+
+**New physical constants required (HIGH confidence — IEEE 802.3 / EIA-310-D):**
+- DAC passive limit: 3 m at 25G SFP28; 5 m at 100G QSFP28 — binding constraint for leaf-spine uplinks
+- DAC active limit: 7 m at 100G QSFP28
+- 1U rack height: 44.45 mm (EIA-310-D)
+- Default rack pitch: 600 mm center-to-center (BICSI 002 / TIA-942)
+- Service loop: 0.5 m per cable run — industry standard dressing allowance
 
 ### Expected Features
 
-See `.planning/research/FEATURES.md` for full feature prioritization matrix and competitor analysis.
+Research confirms four feature categories for v6.0. All core outputs are P1; CSV/PDF export extensions are P2 for v6.x.
 
-**Must have for v2.0 launch (P1):**
-- Mode selector (Ethernet / FC) — root of the FC feature tree; renders either subtree, never both simultaneously
-- Brocade FC switch catalog (9 models: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8) — sizing foundation
-- FC input form: HBA ports per server, storage target ports, FC switch model, ISL trunk count
-- Dual-fabric sizing engine: per-fabric switch count, ISL count, POD license requirement, port utilization
-- FC BOM panel: switches per fabric (A+B), ISL cables, SFP optics, fan-in oversubscription ratio, POD license count as a top-level line item
-- FC dual-fabric topology diagram: two independent fabric views (Fabric A blue, Fabric B orange)
-- FC constraint violations: `FC_PORT_SATURATION`, `FC_OVERSUBSCRIPTION_EXCEEDED` (>7:1 fan-in), `FC_ISL_UNDERPROVISIONED`
-- FC export: additional rows/sections in CSV and PDF, with Fabric A / Fabric B as separate BOM sections
-- Switch positioning selector (ToR / MoR / BoR) — modifies Ethernet mode only
-- Rack elevation switch U-position based on positioning
-- Cable length advisory and DAC incompatibility violation for MoR/BoR
+See `.planning/research/FEATURES.md` for the full MVP checklist and prioritization matrix.
 
-**Should have, add in v2.x (P2):**
-- 7850 extension switch sizing (niche, validate demand first)
-- Gen8 vs Gen7 recommendation engine
-- Director vs fixed switch cost breakeven hint
+**Must have (table stakes):**
+- Per-link cable length estimate (server-leaf, leaf-spine, VLT interconnect, OOB management) — engineers must specify lengths at procurement time; cables cannot be spliced
+- Power per rack in watts and kW — standard deliverable before PDU provisioning; every comparable tool includes it
+- Total deployment power in kW — facility engineers need the aggregate figure
+- DAC advisory with computed distance — current advisory fires on `racks > 8` heuristic; engineers expect an actual measured length in the violation message
+- Adjacent/non-adjacent rack toggle — directly affects cable type viability and patch panel requirement
 
-**Defer to v3.0+ (P3):**
-- Combined Ethernet + FC unified session (requires data model redesign)
-- NPIV virtualization sizing guidance
-- FC zone count estimation
+**Should have (differentiators):**
+- Cable length schedule by link type mapped to standard vendor SKU steps — no competing tool produces this for Dell SONiC deployments; direct procurement input
+- `PATCH_PANEL_RECOMMENDED` advisory for non-adjacent racks (amber, not red — informational only)
+- Ampere per rack at 208V — PDU selection hint derived from total rack power
+- `HIGH_DENSITY_RACK` advisory when any rack exceeds 10 kW — cooling planning flag
+- Cable length schedule and power budget in CSV/PDF export (P2, v6.x)
 
-NetStack v2.0 becomes the only sizing tool covering both Dell SONiC Ethernet leaf-spine and Brocade FC SAN from a single browser-native, offline-capable interface — a strong differentiator against Cisco Hyperfabric, Nutanix Sizer, and Dell EIPT, none of which cover this combination.
+**Defer (v7.0+):**
+- Exact-to-centimeter cable length calculator (requires CAD floor layout input)
+- Cable routing visualization or 3D floor plan (full DCIM product scope)
+- PUE-adjusted power cost calculator (facility-specific; breaks trust)
+- Cooling estimate in BTU/h (out-of-scope conversation)
+- Multi-row cable tray layout (requires row topology knowledge)
+- FC power budget (FC physical layout not yet modeled)
 
 ### Architecture Approach
 
-The v2.0 architecture extends the baseline Domain → Store → Features one-way layered pattern with a strict parallel-module approach: FC and Ethernet domains are entirely separate at every layer. Neither domain imports from the other. The mode selector is ephemeral UI state (not persisted) that controls which parallel subtree is rendered. Switch positioning is an additive Ethernet-only engine input that flows through to the BOM and drives new violation types.
+All v6.0 domain logic is embedded in `calculateBOM()` and `calculateThreeTierBOM()` via two new private helpers: `buildCableLengthSchedule(input)` and `buildPowerBudget(input, counts)`. If both engines need the same helpers, they are extracted to `engine/physical-planning-helpers.ts` (internal, not exported from the domain public API). No new top-level files, no new stores, and no separate schemas for physical inputs. The one meaningful exception to "no new schemas" is `AdvisorySchema` — a new discriminated union alongside `ConstraintViolationSchema` that ensures informational advisories are never rendered as blocking errors.
 
-See `.planning/research/ARCHITECTURE.md` for the full file inventory (14 new files, 13 modified files) and data flow diagrams.
+See `.planning/research/ARCHITECTURE.md` for the full file inventory, component boundaries, and build order with rationale for each decision.
 
-**Major components:**
-1. `src/domain/catalog/brocade.ts` — FC switch hardware catalog (parallel to `hardware.ts`); typed with `FCSwitchSpec` including `basePorts`, `podLicenseUnit`, `maxIslPorts`
-2. `src/domain/engine/fc-sizing.ts` — `calculateFCBOM(input: FCSizingInput): FCNetworkBOM` pure function; zero imports from Ethernet engine
-3. `src/store/fcInputStore.ts` + `fcResultStore.ts` — parallel stores with independent localStorage keys; subscription pattern mirrors existing Ethernet store
-4. `src/features/sizing/ModeSelector.tsx` — UI toggle only; mode is ephemeral component state, not persisted to localStorage
-5. `src/features/topology/TopologyFCTab.tsx` — two independent `<ReactFlow>` instances for Fabric A and Fabric B
-6. `src/domain/schemas/input.ts` (modified) — adds `switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR')` to existing Ethernet schema
-7. `src/features/rack-elevation/RackElevationTab.tsx` (modified) — renders dedicated network rack when MoR/BoR selected; replaces hardcoded `SWITCH_U_PER_SERVER_RACK` constant with `switchOverheadU(positioning)` function
+**Major components modified:**
+
+1. `src/domain/schemas/input.ts` — Add 4 new fields: `rackPitchMm`, `adjacentNetworkRack`, `patchPanelDistanceM`, `estimatedServerPowerW`
+2. `src/domain/schemas/bom.ts` — Add `CableLengthScheduleSchema`, `PowerBudgetSchema`, `AdvisorySchema`; extend `DAC_DISTANCE_ADVISORY` with `computedDistanceM`; add `advisories[]` to `NetworkBOMSchema`
+3. `src/domain/engine/sizing.ts` — Implement `buildCableLengthSchedule()` and `buildPowerBudget()` helpers; replace `racks > 8` DAC threshold with computed path comparison
+4. `src/store/inputStore.ts` — Bump to version 9; add 4 new fields to `DEFAULT_INPUT`
+5. `src/store/resultStore.ts` — Update `toThreeTierInput()` adapter to pass 4 new fields through
+6. Features layer — New "Physical Layout" accordion section in `EthInputAccordion.tsx`; cable schedule and power budget sections in `BOMPanel.tsx`; PDF/CSV export extensions (P2)
+7. i18n — New keys in all four locale files (EN/FR/DE/IT) for each new field, section header, and advisory message
 
 ### Critical Pitfalls
 
-See `.planning/research/PITFALLS.md` for all 8 pitfalls with recovery cost estimates and phase-to-pitfall mapping.
+See `.planning/research/PITFALLS.md` for all 14 pitfalls with detection warnings, prevention strategies, and phase assignments.
 
-1. **FC domain logic leaking into Ethernet engine** — never add FC fields to `SizingInputSchema` or branch `calculateBOM()` on a `mode` flag. Separate schema, separate engine, separate store. Recovery cost is HIGH if mixed early.
+1. **Profile load bypasses schema migration** — `profileService.loadProfile()` calls `setInput(profile.inputState as Partial<SizingInput>)` without spreading against `DEFAULT_INPUT`. Old profiles have `undefined` for all v6.0 fields, producing silent wrong output. Fix: add `normalizeToCurrentSchema()` in `profileService.ts` before adding any new field. This is a precondition for Phase 1.
 
-2. **Dynamic POD licensing absent from BOM** — `FC_SWITCH_CATALOG` must model both `basePorts` and `totalPorts` with `podLicenseUnit` increments. BOM must output `podLicensesRequired` as a first-class line item, not a footnote. Missing this on launch damages customer trust.
+2. **Cable length computed as pitch-only distance instead of routed path** — Using only `racksBetween × rackPitchM` omits vertical ascent to cable tray, vertical descent, and service loop. The actual path between racks separated by 2 positions is ~4.2 m in a 42U/600 mm deployment, not 1.2 m. Cables ordered at pitch-only length cannot be installed. Use: `verticalAscent + horizontalRun + verticalDescent + serviceLoop` with a `RACK_HEIGHT_M` lookup table keyed by U-count (not a formula from `parseInt(rackSize) * 0.04445`).
 
-3. **ISL formula copied from Ethernet uplink formula** — FC ISL sizing derives from host-to-storage fan-in ratio and bandwidth budget, not a per-switch uplink multiplier. Implement `calculateIslCount()` as a separate function with `targetFanIn` input (Broadcom 7:1 default). `FCNetworkBOM` requires `islOversubscriptionRatio` as a non-optional field.
+3. **Patch-panel advisory added to `ConstraintViolationSchema` instead of `AdvisorySchema`** — If `PATCH_PANEL_RECOMMENDED` lands in `violations[]`, it renders as a red blocking error alongside `RACK_CAPACITY_EXCEEDED`. Engineers read it as "cannot be built" and distrust the tool. Establish `AdvisorySchema` + `NetworkBOM.advisories[]` in Phase 1 before any advisory content is added to the engine.
 
-4. **Dual-fabric FC topology rendered as a single interconnected graph** — FC redundancy depends on fabrics being independent. `buildFCTopologyGraph()` must return `{ fabricA, fabricB }` — two structurally isolated subgraphs. Cross-fabric edges must be architecturally impossible in the data model.
+4. **Power budget emits nameplate max only, without typical draw** — Summing only `maxPowerW` produces a figure 1.5–2× higher than actual draw, causing PDU over-specification. Some models (S3248T-ON) have no `typicalPowerW` — omitting the fallback causes TypeScript errors or `undefined`. Always emit both values; use `typicalPowerW ?? maxPowerW * 0.6` as a conservative fallback.
 
-5. **Mode switch corrupting persisted Ethernet state** — Ethernet store (`netstack-input`, v5) and FC store (`netstack-fc-input`, v1) use separate localStorage keys with independent schemas and migrations. No FC field ever appears in an Ethernet schema migration branch.
+5. **DAC advisory threshold `racks > 8` not replaced with computed path comparison** — The current threshold fires too late (actual path exceeds the 5 m passive spec at fewer than 8 racks with standard geometry). Replace with `computedPathLengthM > CABLE_CATALOG.DAC.maxDistanceM` and include the computed value in the advisory payload so the UI can show a specific number.
 
-6. **Hardcoded `SWITCH_U_PER_SERVER_RACK = 3` constant breaking MoR/BoR rack elevation** — replace with `switchOverheadU(positioning): number` function before any positioning UI is written. MoR/BoR returns 1 (OOB only in server rack); ToR returns 3 (OOB + leaf pair).
+6. **FC ISL cable lengths computed using the Ethernet rack-pitch formula** — FC ISL cables are intra-SAN-rack connections using fiber, always 1–3 m. Applying the server-to-leaf rack-pitch formula produces estimates of 5–15 m and incorrectly triggers the DAC advisory. ISL cable length is a fixed short in-rack estimate; the Ethernet formula must never be applied to FC ISL links.
+
+7. **Three-Tier cable lengths as a single scalar instead of per-tier values** — The existing `recommendedCableLengthM` scalar is a placeholder; aggregation-to-core cable runs can be 10–40 m in large deployments, not 2 m. The Three-Tier engine must produce `serverAccessCableLengthM`, `accessAggrCableLengthM`, `aggrCoreCableLengthM` as separate fields.
 
 ## Implications for Roadmap
 
-Based on combined research, seven phases are recommended for v2.0. The build order is driven by domain-layer dependencies: catalog and schemas must precede engine, store layer must precede UI, and mode isolation must be established before either FC engine or positioning engine to prevent cross-contamination.
+The research reveals a clean dependency order driven by the existing architecture. Schema changes are foundational; engines depend on schemas; UI depends on engines; export depends on stable output shapes. Within the schema layer, `AdvisorySchema` must exist before any advisory is added to the engine. Within the engine layer, the cable path formula must be correct before the DAC advisory upgrade references it. The profile normalization fix is a precondition for all phases and must be shipped in Phase 1.
 
-### Phase 1: FC Catalog and Schema Foundation
-**Rationale:** All FC computation depends on correct hardware specs and input/output types. This phase has zero React dependency — pure TypeScript that can be verified with unit tests before any UI exists. POD licensing must be modelled here before the engine is written; it cannot be retrofitted without a BOM schema change.
-**Delivers:** `brocade.ts` (FC_SWITCH_CATALOG with `basePorts`/`podLicenseUnit`), `fc-types.ts` (FCSwitchSpec), `fc-input.ts` (FCSizingInputSchema), `fc-bom.ts` (FCNetworkBOMSchema with FCConstraintViolation), `fc-optics.ts` (FC_OPTICS_CATALOG with `protocol` discriminant)
-**Addresses:** FC switch catalog (9 models), FC input schema, POD licensing model
-**Avoids:** Pitfall 2 (POD licensing absent), Pitfall 6 (FC optics confused with Ethernet optics)
+### Phase 1: Schema and Advisory Foundation
 
-### Phase 2: Mode Store Isolation
-**Rationale:** Must precede both FC engine and positioning engine. Establishes separate localStorage keys for Ethernet and FC stores. Validates that switching modes never corrupts the other mode's persisted state. Cheap to build in isolation; expensive to retrofit after cross-mode coupling is established.
-**Delivers:** `fcInputStore.ts` (persisted, key `netstack-fc-input`, v1), `fcResultStore.ts` (derived), mode selector state strategy (ephemeral, key `netstack-mode`), Vitest test: mode switch leaves Ethernet inputStore unchanged
-**Addresses:** Store architecture for dual-mode operation
-**Avoids:** Pitfall 5 (mode switch corrupting Ethernet state), Pitfall 1 (FC/Ethernet domain mixing in store layer)
+**Rationale:** All downstream phases depend on correct Zod schemas and the `AdvisorySchema` / `advisories[]` distinction. Establishing these first prevents Pitfall 6 (advisory rendered as blocking violation) from ever entering any implementation. Adding `normalizeToCurrentSchema()` to `profileService.ts` here prevents Pitfall 1 from corrupting new fields in old profiles.
 
-### Phase 3: FC Sizing Engine
-**Rationale:** Pure function with no React/UI dependency. Can be fully unit-tested before any UI exists. ISL formula must be implemented correctly here — cannot be patched after UI is built around incorrect numbers. This phase gates all FC UI phases.
-**Delivers:** `fc-sizing.ts` (`calculateFCBOM()` pure function, dual-fabric calculation, ISL bandwidth formula with fan-in ratio, POD license requirement calculation), `fc-sizing.test.ts` (40-60 unit tests covering all FC formulas and violations)
-**Addresses:** Dual-fabric sizing engine, ISL calculation, fan-in oversubscription, FC constraint violations
-**Avoids:** Pitfall 3 (ISL formula copied from Ethernet), Pitfall 1 (FC logic leaking into Ethernet engine)
+**Delivers:** 4 new input fields on `SizingInputSchema`; `CableLengthScheduleSchema`; `PowerBudgetSchema`; `AdvisorySchema`; `advisories[]` on `NetworkBOMSchema`; `computedDistanceM` extension on `DAC_DISTANCE_ADVISORY`; `inputStore` bumped to version 9; `profileService` normalization; same schema extensions on `ThreeTierSizingInputSchema` and `ThreeTierBOMSchema`.
 
-### Phase 4: Switch Positioning (Ethernet Domain)
-**Rationale:** Self-contained Ethernet-only change, smaller scope than FC. Complete it before FC UI is added so that rack elevation changes are isolated and don't conflict with FC UI work. `SWITCH_U_PER_SERVER_RACK` must be refactored here before rack elevation touches positioning.
-**Delivers:** `switchPositioning` field in `SizingInputSchema`, `recommendedCableLengthM` and `DAC_POSITIONING_INCOMPATIBLE` violation in `NetworkBOMSchema`, cable advisory logic in `sizing.ts`, inputStore version bump (v5 to v6), new positioning violation test cases
-**Addresses:** Switch positioning selector, DAC distance advisory update, cable length advisory
-**Avoids:** Pitfall 7 (U-slot math breaking rack elevation), Pitfall 8 (cable length formula ignoring row geometry)
+**Addresses:** Cable length schedule and power budget schema prerequisites; advisory-vs-violation semantic split; profile backwards compatibility.
 
-### Phase 5: FC Input and BOM UI
-**Rationale:** Domain layer is now stable (Phases 1-3). FC UI components can be built against verified engine output. Mode selector renders here for the first time.
-**Delivers:** `ModeSelector.tsx` (ethernet/fc toggle), `FCInputForm.tsx` (HBA ports, storage ports, switch model, ISL trunk count), `FCBOMPanel.tsx` (per-fabric counts, ISL cables, SFP optics, fan-in ratio, POD license count as top-level line item), `SizingPage.tsx` modified to conditionally render Ethernet vs FC subtree
-**Addresses:** FC input form, FC BOM panel, POD license display, FC constraint violation banners
-**Avoids:** UX pitfalls — POD license hidden in tooltip, wrong oversubscription formula label for FC context
+**Avoids:** Pitfalls 1 (profile migration), 6 (advisory as blocking violation), 8 (version not bumped).
 
-### Phase 6: FC Topology Diagram + Positioning Rack Elevation
-**Rationale:** Visualization depends on stable BOM output from Phases 3 and 5. FC topology requires two independent ReactFlow instances. Positioning rack elevation requires the `switchOverheadU()` function from Phase 4. Both are grouped here because they share the visual output layer.
-**Delivers:** `buildFCTopologyGraph.ts` (returns `{ fabricA, fabricB }` — isolated subgraphs), `TopologyFCTab.tsx` (dual ReactFlow with fabric color coding — blue for A, orange for B), `buildPositioningRackDevices.ts` (MoR/BoR network rack), `RackElevationTab.tsx` modified (positioning-aware switch placement, separate network rack column for MoR/BoR)
-**Addresses:** FC dual-fabric topology diagram, rack elevation switch U-position, MoR/BoR network rack view
-**Avoids:** Pitfall 4 (dual-fabric rendered as single graph), Pitfall 7 (U-slot math breaking rack elevation)
+**Research flag:** Standard patterns. The Zod extension approach, Zustand migration pattern, and `AdvisorySchema` discriminated union all have direct precedent in the existing codebase. No deeper research needed.
 
-### Phase 7: Export Extension
-**Rationale:** Last because it depends on all FC domain and UI being stable. Export format is the final artifact that reaches procurement — errors here directly cause wrong orders. Deferring reduces iteration cost during domain development.
-**Delivers:** `exportCsv.ts` extended (FC BOM rows with Protocol column, Fabric A / Fabric B sections, POD license row), `exportPdf.ts` extended (FC BOM as separate page/section, dual-fabric totals row), i18n keys for all FC labels in FR/EN/DE/IT
-**Addresses:** FC CSV/PDF export, BOM disambiguation (Ethernet vs FC transceivers), i18n completeness
-**Avoids:** UX pitfall (dual fabric shown as single fabric in exported PDF), Pitfall 6 (optics ambiguity in BOM output)
+### Phase 2: Cable Length Engine
+
+**Rationale:** The cable length schedule is the most feature-rich and technically precise domain addition. It must be built after schemas (Phase 1) and before the UI and export phases. Building the domain engine first enables TDD (failing Vitest tests written first), keeping the logic fully tested before any UI is added.
+
+**Delivers:** `buildCableLengthSchedule()` helper with full cable-path formula (`verticalAscent + horizontalRun + verticalDescent + serviceLoop`); `RACK_HEIGHT_M` lookup table keyed by U-count; `DAC_DISTANCE_ADVISORY` upgraded from `racks > 8` to computed path comparison; `recommendedCableLengthM` superseded by position-aware computed value; Three-Tier per-tier cable lengths (`serverAccessCableLengthM`, `accessAggrCableLengthM`, `aggrCoreCableLengthM`); FC ISL cable length protected from cross-contamination; `PATCH_PANEL_RECOMMENDED` advisory logic (fires only when non-adjacent AND DAC AND length > 5 m).
+
+**Addresses:** Per-link cable length estimate (P1); adjacent/non-adjacent toggle logic (P1); DAC advisory with computed distance (P1).
+
+**Avoids:** Pitfalls 2 (path-only formula), 3 (Three-Tier single scalar), 4 (wrong DAC threshold), 7 (FC ISL cross-contamination), 12 (service loop omitted), 13 (rack height from formula not lookup).
+
+**Research flag:** Standard patterns. All formulas are validated with HIGH or MEDIUM confidence sources in STACK.md and FEATURES.md. The Three-Tier per-tier separation requires careful cross-reference with `three-tier-sizing.ts` but no external research.
+
+### Phase 3: Power Budget Engine
+
+**Rationale:** Power budget is simpler than cable length (no routing geometry, just multiplication over catalog values) and depends only on Phase 1 schemas. Separating it from Phase 2 keeps each domain phase focused and individually reviewable.
+
+**Delivers:** `buildPowerBudget()` helper; per-rack `typicalPowerW` and `maxPowerW` outputs using `typicalPowerW ?? maxPowerW * 0.6` fallback; network rack summary for spines and border leafs; `grandTotalMaxW` and `grandTotalTypicalW`; `HIGH_DENSITY_RACK` advisory (fires when any rack exceeds 10 kW).
+
+**Addresses:** Power per rack in watts and kW (P1); total deployment power (P1); high-density rack advisory (P1).
+
+**Avoids:** Pitfalls 5 (nameplate-only power), 9 (double-counting switches in non-ToR positioning — verify switch placement is derived from the same `assignSwitchesToRack()` logic used by rack elevation).
+
+**Research flag:** Standard patterns. `SWITCH_CATALOG` already carries `maxPowerW` and `typicalPowerW`. The computation is straightforward multiplication and aggregation. No external research needed.
+
+### Phase 4: Store Migration and Input UI
+
+**Rationale:** Schema and engine are complete; the store migration and UI form can now be built with certainty about the data model. Separating this from the domain phases keeps engine tests clean and allows UI to be reviewed independently.
+
+**Delivers:** `inputStore` version 9 confirmed; `DEFAULT_INPUT` updated with all 4 new field defaults; `toThreeTierInput()` adapter updated; new "Physical Layout" accordion section in `EthInputAccordion.tsx` and `ConvergedInputAccordion.tsx` exposing `rackPitchMm`, `adjacentNetworkRack`, `patchPanelDistanceM`, `estimatedServerPowerW`; `adjacentNetworkRack` defaults to `true` (advisory is opt-in by unchecking, not opt-out).
+
+**Addresses:** All four new user inputs required by P1 features; `adjacentRacks` default value (Pitfall 11).
+
+**Avoids:** Pitfall 11 (non-adjacent default causing alarm on every first load).
+
+**Research flag:** Standard patterns. The input form uses existing shadcn/ui accordion and field components. No new UI primitives needed.
+
+### Phase 5: BOM Output UI
+
+**Rationale:** Engine must be complete (Phases 2-3) and inputs wired (Phase 4) before BOM panel additions are meaningful. This phase closes the user-visible loop on all P1 features.
+
+**Delivers:** "Cable Length Schedule" section in `BOMPanel.tsx` showing per-link-type table (link type, cable type, quantity, unit length, recommended SKU); "Power Budget" section showing per-rack kW and amps (both typical and max); upgraded DAC advisory card showing computed distance and rated limit; `PATCH_PANEL_RECOMMENDED` advisory card rendered amber (not red); equivalent additions to `ThreeTierBOMPanel`; i18n keys in all 4 locales for all new sections.
+
+**Addresses:** Cable length schedule table (P1); power budget display (P1); advisory UX distinction (violation = red, advisory = amber); i18n completeness.
+
+**Avoids:** Pitfall 6 (advisory as blocking error — prevented by Phase 1 schema), Pitfall 14 (i18n keys missing in non-English locales).
+
+**Research flag:** Standard patterns. shadcn/ui Table and Badge components handle this. i18n key additions follow the existing EN/FR/DE/IT locale file structure.
+
+### Phase 6: Export Extensions (P2)
+
+**Rationale:** Export is the last mile. It depends on stable BOM output shapes from Phases 2-3. Cable schedule and power budget export are P2 for v6.0 — the core BOM export already works and procurement teams can export from the BOM panel.
+
+**Delivers:** Cable length schedule section in CSV export (one row per link type with linkType, quantity, lengthM, cableType columns — never a flat aggregate); power budget section in CSV export (one row per rack, separate typical and max columns); PDF `BOMPage.tsx` extended with cable schedule and power budget sections; `InputsPage.tsx` extended with new physical layout inputs.
+
+**Addresses:** Cable length schedule in CSV/PDF (P2); power budget in CSV/PDF (P2).
+
+**Avoids:** Pitfall 10 (flat average instead of per-link-type rows in CSV).
+
+**Research flag:** Standard patterns. Export template extensions follow existing section layout. No structural changes to PDF or CSV format needed.
 
 ### Phase Ordering Rationale
 
-- **Catalog before engine:** FC hardware specs drive formula constants. Wrong specs produce wrong BOM quantities that are hard to catch without reference data in place.
-- **Store isolation before UI:** If FC and Ethernet stores are not isolated first, any UI work risks embedding coupling assumptions that are expensive to unwind.
-- **Positioning before FC UI:** Switch positioning is a smaller, self-contained Ethernet change. Completing it cleanly before adding the FC UI layer reduces the regression surface area.
-- **Engine before topology:** The FC topology builder consumes `FCNetworkBOM` — it cannot be implemented or meaningfully tested until the engine produces correct output.
-- **Export last:** CSV/PDF format is a stabilization artifact. Changing it forces regeneration of test fixtures. Deferring it reduces iteration cost during domain development.
+- Schema first: every other phase is type-checked against it; runtime errors surface immediately if schemas are wrong
+- `AdvisorySchema` in Phase 1 before any advisory in the engine: eliminates the single most damaging UX risk (Pitfall 6) at zero cost
+- Profile normalization in Phase 1: every subsequent feature gets correct default values on old profiles at no additional per-phase cost
+- Cable engine (Phase 2) before power engine (Phase 3): cable length is more complex and benefits from being the first domain code reviewed and tested under TDD
+- UI (Phases 4-5) after engines: component tests have real data to assert against
+- Export (Phase 6) last: depends on stable output shapes; deferring reduces iteration cost during engine development
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
+Phases needing deeper research during planning:
+- None. All six phases operate on well-understood patterns. The codebase was read directly during research; all integration points were verified against production source files. No external unknowns remain.
 
-- **Phase 1 (FC Catalog):** G820 Gen8 switch specs were announced November 2025. Power figures for X7-4, X7-8, X8-4, X8-8 chassis directors are estimated in the research — verify against final Broadcom datasheets before encoding in catalog constants.
-- **Phase 3 (FC Engine):** ISL formula uses Broadcom's 7:1 fan-in guideline. For NVMe-oF workloads the recommendation is 3:1. Decide before implementation: expose workload type as an input parameter in v2.0 or hard-code 7:1 with a documentation note? Research recommends hard-code 7:1 for v2.0, expose in v2.x.
-- **Phase 6 (FC Topology):** Multiple `<ReactFlow>` instances in the same React tree are confirmed to work with independent `ReactFlowProvider` wrappers, but performance at >20 racks with dual-fabric has not been benchmarked. If node count is large, investigate virtualization.
-
-Phases with well-documented standard patterns (skip research-phase):
-
-- **Phase 2 (Store Isolation):** Zustand `persist` with separate `name` keys is a standard pattern. Existing inputStore at v5 provides a migration template.
-- **Phase 4 (Switch Positioning):** Positioning is an additive field on an existing schema. The violation pattern (`DAC_DISTANCE_ADVISORY`) and store version bump pattern are both established in the codebase.
-- **Phase 7 (Export):** CSV/PDF extension follows existing `exportCsv.ts` and `exportPdf.ts` patterns. No new library research needed.
+Phases with standard patterns (skip research-phase):
+- **All phases:** Direct codebase analysis during research eliminated all uncertainty about integration points. The Zustand migration pattern, Zod discriminated union extension approach, and shadcn/ui component usage all have live examples in the codebase.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | No new dependencies required; all existing library versions confirmed compatible with v2.0 requirements; verified against official package docs |
-| Features | MEDIUM-HIGH | Brocade switch specs from Broadcom official techdocs (HIGH). ISL/oversubscription ratios from Broadcom SAN Design guide Nov 2025 (HIGH). Gen8 X8-4/X8-8 director power figures estimated (MEDIUM — datasheets pending) |
-| Architecture | HIGH | Parallel-module pattern derived directly from existing codebase analysis. Zustand and Zod integration patterns verified against the running codebase (v5 store, Zod v4). @xyflow dual-instance pattern confirmed working |
-| Pitfalls | HIGH | Domain isolation pitfalls derived from codebase analysis of existing patterns. POD licensing pitfall confirmed via Broadcom official Fabric OS licensing docs. Rack elevation U-slot pitfall identified from direct code review of `buildRackDevices.ts` |
+| Stack | HIGH | Exhaustive package search; no relevant npm package exists; existing stack versions confirmed from production `package.json`; all integration patterns verified against live code |
+| Features | HIGH | DAC limits verified against IEEE 802.3by/bj and multiple vendor datasheets; rack constants from EIA-310-D; power ranges from ServeTheHome benchmarks and Dell community data; cable SKU ladders from FS.com and Cisco datasheets |
+| Architecture | HIGH | All decisions derived directly from reading production source files (`sizing.ts`, `inputStore.ts`, `bom.ts`, `hardware.ts`); no guesswork or inference; anti-pattern section documents what was explicitly rejected and why |
+| Pitfalls | HIGH | Critical pitfalls sourced from direct codebase analysis (existing DAC threshold line confirmed in `sizing.ts`, profile load code confirmed in `profileService.ts`, `typicalPowerW` optional field confirmed in `SWITCH_CATALOG`, `recommendedCableLengthM` scalar confirmed as single value); secondary sources from official Zustand and Broadcom FC documentation |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Gen8 X8-4 and X8-8 director power figures:** Estimated in research (~2000W and ~4000W). Verify against Lenovo Press product guides before encoding in `FC_SWITCH_CATALOG`. Low risk — power display is informational only in the BOM.
-- **NVMe-oF workload fan-in threshold:** Research confirms Broadcom 7:1 default and 3:1 for high-IOPS workloads. Decision needed before Phase 3: hard-code 7:1 for v2.0 or expose workload type as an input. Recommendation: hard-code 7:1, expose in v2.x.
-- **MoR cable length model vs actual row geometry:** Research provides typical cable run estimates (MoR ~15m average) but actual length depends on row depth and rack spacing. The BOM emits `estimatedCableRunMeters` as an advisory — the UI must clearly label this as an estimate requiring site survey.
-- **G820 availability date:** Gen8 G820 announced November 2025, production availability not confirmed in research. If G820 is unavailable when v2.0 ships, the catalog entry should carry an availability advisory flag.
+- **Rack pitch 600 mm default (MEDIUM confidence):** Industry norm for 600 mm floor tile data centers; no single normative standard document. Default is sensible and user-overridable via `rackPitchMm` input; no action required unless a customer deployment uses non-standard pitch.
+
+- **Server power by U-height (MEDIUM confidence):** Conservative per-U estimates (400 W for 1U, 600 W for 2U) have significant variance by workload and CPU configuration. The feature is explicitly a planning advisory; conservative estimates are appropriate. All power output must be labeled "estimated maximum" to manage expectations.
+
+- **`typicalPowerW` catalog coverage:** S3248T-ON, S5224F-ON, and S5212F-ON may lack `typicalPowerW` in `SWITCH_CATALOG`. Phase 3 must audit which models are missing this field and apply the `maxPowerW * 0.6` fallback consistently.
+
+- **Three-Tier engine scope:** `three-tier-sizing.ts` was confirmed to have the same `DAC_DISTANCE_ADVISORY` shape as the Clos engine but was not fully audited for all cable-length consumers. Phase 2 must verify that the Three-Tier per-tier cable length fields do not conflict with any existing `recommendedCableLengthM` consumers before modifying the schema.
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-- [Broadcom TechDocs — G720 Switch Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g720-switch/1-0/v25859098.html) — port counts, form factor, power, ISL trunking
-- [Broadcom TechDocs — G730 Switch Specifications](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g730-switch/1-0/Brocade-G730-Switch-Technical-Specifications.html) — 128-port Gen7 core switch specs
-- [Broadcom TechDocs — G820 Device Overview](https://techdocs.broadcom.com/us/en/fibre-channel-networking/switches/g820-switch/1-0/device-overview-g820.html) — Gen8 128G specs
-- [Broadcom — Gen7 Switch FAQ](https://docs.broadcom.com/doc/Gen7-Switch-FAQ) — G720/G730 POD scaling and port counts
-- [Broadcom — SAN Design and Best Practices, Nov 2025](https://docs.broadcom.com/doc/53-1004781) — ISL sizing, fan-in ratios, oversubscription thresholds
-- [Broadcom TechDocs — Ports on Demand (Fabric OS 9.1.x)](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-software-licensing/9-1-x/v26544088.html) — POD licensing model
-- [Broadcom TechDocs — MAPS Oversubscription Monitoring](https://techdocs.broadcom.com/us/en/fibre-channel-networking/fabric-os/fabric-os-maps/9-1-x/) — fan-in monitoring thresholds
-- NetStack codebase — `src/store/inputStore.ts` (v5 migration pattern), `src/domain/schemas/bom.ts` (ConstraintViolation discriminated union), `src/domain/catalog/hardware.ts` (SWITCH_CATALOG pattern)
+- `/Users/fjacquet/Projects/network-sizer/src/domain/engine/sizing.ts` — DAC threshold (`racks > 8`), `cableLengthMap`, `calculateBOM()` structure confirmed from direct read
+- `/Users/fjacquet/Projects/network-sizer/src/domain/schemas/bom.ts` — `ConstraintViolationSchema`, `NetworkBOMSchema`, `DAC_DISTANCE_ADVISORY` payload shape (no distance field) confirmed
+- `/Users/fjacquet/Projects/network-sizer/src/domain/catalog/hardware.ts` — `SWITCH_CATALOG` with `maxPowerW`, `typicalPowerW` confirmed
+- `/Users/fjacquet/Projects/network-sizer/src/store/inputStore.ts` — version 8, `{ ...DEFAULT_INPUT, ...oldInput }` merge migration pattern confirmed
+- IEEE 802.3by (25GBASE-CR) / 802.3bj (100GBASE-CR4) — DAC passive limits (3 m at 25G, 5 m at 100G)
+- EIA-310-D rack standard — 1U = 44.45 mm; 42U rack total height approximately 1.87 m
+- [Zustand Persist Middleware docs](https://zustand.docs.pmnd.rs/reference/integrations/persisting-store-data) — `merge()` and version migration
+- [Broadcom SAN Design and Best Practices (Nov 2025)](https://docs.broadcom.com/doc/53-1004781) — FC ISL design rules, Gen7/Gen8 specs
 
 ### Secondary (MEDIUM confidence)
 
-- [StorageReview — Gen8 Launch Nov 2025](https://www.storagereview.com/news/broadcom-launches-brocade-gen-8-128g-fibre-channel-for-ai-mission-critical-and-quantum-safe-storage) — G820 128G autosensing, quantum-safe ISL encryption
-- [Lenovo Press — X7-4/X7-8 Product Guide](https://lenovopress.lenovo.com/lp1587-lenovo-thinksystem-x7-8-and-x7-4-fc-san-directors) — director chassis specs
-- [Lenovo Press — X8-4/X8-8 Product Guide](https://lenovopress.lenovo.com/lp2271-lenovo-x8-4-and-x8-8-gen-8-fc-directors) — Gen8 director chassis
-- [dc.mynetworkinsights — ToR/MoR/EoR architecture](https://dc.mynetworkinsights.com/data-center-switching-centralized-eor-mor-top-of-rack-tor/) — switch positioning cable length implications
-- [Cisco Community — TOR/EOR/BOR/MOR terminology](https://community.cisco.com/t5/data-center-switches/what-is-tor-eor-bor-mor/td-p/4990184) — authoritative on positioning terminology
-- [FlackBox — FC SAN Dual Fabric / ISL Best Practices](https://www.flackbox.com/fibre-channel-san-part-3-redundancy-multipathing) — ISL redundancy patterns, aligns with vendor docs
+- [FS.com community — DAC vs AOC cable lengths](https://community.fs.com/article/guide-to-10g-dac-and-aoc-cables.html) — standard SKU ladder (1 m, 2 m, 3 m, 5 m, 7 m) confirmed
+- [ServeTheHome — 1U vs 2U server power testing](https://www.servethehome.com/testing-conventional-wisdom-1u-v-2u-power-consumption/) — server watt ranges by U-height
+- [BICSI 002 / TIA-942] — rack pitch 600 mm norm; overhead cable tray clearance 300–600 mm
+- [Cisco 25GBASE SFP28 datasheet](https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736950.html) — FEC requirements at 2.5–3 m passive DAC
+- [ANFKOM — ToR/MoR/BoR cabling patterns](https://www.anfkomftth.com/data-center-cabling-eor-mor-or-tor/) — cable run distance validation by positioning mode
+- [NVIDIA Cabling Data Centers Design Guide (March 2023)](https://docs.nvidia.com/cabling-data-centers.pdf) — DAC cable path length formula with vertical components
 
-### Tertiary (LOW confidence)
+### Tertiary (LOW confidence — validation needed during implementation)
 
-- npm registry search for FC SAN calculation libraries — negative result confirmed; pure TypeScript implementation is the correct approach
-- Power figures for X7-4 (~2000W), X7-8 (~4000W), X8-4 (~2000W), X8-8 (~4000W) — estimated from chassis class analogy; must be verified against final datasheets
+- Server power by U-height (conservative estimates from multiple community sources; actual draw varies significantly). Label all power output as "estimated maximum" in UI and BOM export.
 
 ---
-*Research completed: 2026-03-18*
+*Research completed: 2026-03-19*
 *Ready for roadmap: yes*
