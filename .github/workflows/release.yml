@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # required for SBOM attestation
 
 jobs:
   release:
@@ -38,6 +39,12 @@ jobs:
           cd ..
           tar -czf "netstack-${VERSION}-offline.tar.gz" -C dist .
 
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -45,3 +52,4 @@ jobs:
           files: |
             netstack-*-offline.zip
             netstack-*-offline.tar.gz
+            sbom.cyclonedx.json
