@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v5.0
-milestone_name: Unified Ethernet & Configurations
-status: unknown
-stopped_at: Completed 24-02-PLAN.md — Phase 24 complete
-last_updated: "2026-03-19T07:00:42.404Z"
+milestone: v6.0
+milestone_name: Physical Planning
+status: planning
+stopped_at: Milestone v6.0 started — defining requirements
+last_updated: "2026-03-19T00:00:00.000Z"
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -19,28 +19,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Phase 24 — Dedicated Input Page with Accordion Sections
+**Current focus:** Milestone v6.0 — Physical Planning (requirements definition)
 
 ## Current Position
 
-Phase: 24 (Dedicated Input Page with Accordion Sections) — EXECUTING
-Plan: 1 of 2
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-19 — Milestone v6.0 started
 
 ## Performance Metrics
 
-**Velocity (from v4.0):**
+**Velocity (from v5.0):**
 
-- Total plans completed: 8 (v4.0)
-- Average duration: 5.9 min
-- Total execution time: 0.78 hours
-
-**By Phase (v4.0):**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 18-three-tier-domain-engine | 3/3 | 19min | 6.3min |
-| 19-three-tier-ui-converged | 3/3 | 20min | 6.7min |
-| 20-three-tier-export-i18n | 2/2 | 8min | 4min |
+- Total plans completed: 8 (v5.0)
+- Average duration: ~8 min/plan
+- Total execution time: ~1 hour
 
 **By Phase (v5.0):**
 
@@ -48,63 +42,39 @@ Plan: 1 of 2
 |-------|-------|-------|----------|
 | 21-unified-ethernet-mode | 2/2 | 16min | 8min |
 | 22-existing-infrastructure-toggle | 2/2 | 10min | 5min |
-| 23-save-load-configurations | 1/2 | 4min | 4min |
+| 23-save-load-configurations | 2/2 | ~8min | 4min |
+| 24-dedicated-input-page | 2/2 | ~12min | 6min |
 
 **Recent Trend:** Stable
 
-*Updated after each plan completion*
-| Phase 23 P01 | 4min | 2 tasks | 7 files |
-| Phase 24-dedicated-input-page-with-accordion-sections P01 | 7min | 3 tasks | 13 files |
-| Phase 24 P02 | 75 | 2 tasks | 11 files |
-| Phase 24-dedicated-input-page-with-accordion-sections P02 | 80 | 3 tasks | 11 files |
-
 ## Accumulated Context
 
-### Roadmap Evolution
+### Architecture (as of v5.0)
 
-- Phase 24 added: Dedicated input page with accordion sections
+- 3 modes: Ethernet (Clos + Three-Tier via topology selector), FC SAN, Converged
+- Pure domain engines: `calculateBOM()`, `calculateThreeTierBOM()`, `calculateFCBOM()`, `calculateConvergedBOM()`
+- Hardware catalog: `maxPowerW` already present on every switch model
+- Switch positioning (ToR/MoR/BoR) drives rack elevation layout — cable length formula can consume this
+- Existing `DAC_DISTANCE_ADVISORY` violation in sizing engine — extend with computed distance
+- React Router HashRouter, accordion input at `/#/input`, ProfileManager in TopBar
 
-### Decisions
+### Key Decisions (v5.0)
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Key architectural decisions relevant to v5.0:
-
-- [v4.0]: Three-Tier is a topology variant within Ethernet (not a new parallel domain like FC)
-- [v4.0]: tier field is additive (optional) -- does not replace existing role field
-- [v4.0]: Separate ThreeTierConstraintViolationSchema -- not mixed with Ethernet violations
-- [v3.0]: Converged engine composes existing engines -- zero logic duplication
-- [v5.0]: Unified Ethernet merges Spine-Leaf + Three-Tier under one mode with topology selector (ADR-0018)
-- [v5.0]: Existing infrastructure toggle for brownfield deployments (ADR-0019)
-- [v5.0]: Save/load named configurations to localStorage (ADR-0020)
-- [v5.0-P21]: Unified SizingInputSchema with topology discriminator instead of separate schemas
-- [v5.0-P21]: Mode type reduced from 4 to 3 values (three-tier absorbed into ethernet)
-- [v5.0-P21]: resultStore topology-aware dispatch to calculateBOM or calculateThreeTierBOM
-- [v5.0-P21]: inputStore version 7 with automatic v6->v7 migration
-- [v5.0-P21]: Topology-aware UI dispatch pattern -- InputForm, BOMPanel, TopologyTab, RackElevationTab, TopBar all check input.topology
-- [v5.0-P21]: 6 standalone three-tier files deleted (stores, forms, page, rack tab) -- functionality merged into unified components
-- [v5.0-P22]: Post-processing in resultStore (not engine) -- keeps calculateBOM/calculateThreeTierBOM pure
-- [v5.0-P22]: inputStore version 8 with existingSpinesDeployed/existingCoreDeployed brownfield toggles
-- [v5.0-P22]: Brownfield toggles as native checkbox inside FormField for consistent form handling
-- [v5.0-P22]: BOM panel reads brownfield state from inputStore (not resultStore) for direct UI control
-- [v5.0-P23]: z.record(z.string(), z.unknown()) for profile inputState -- avoids circular coupling with mode-specific schemas
-- [v5.0-P23]: Duplicate profile name overwrites existing (upsert pattern, keeps same id)
-- [Phase 23]: z.record(z.string(), z.unknown()) for profile inputState -- avoids circular coupling with mode-specific schemas
-- [Phase 24-dedicated-input-page-with-accordion-sections]: HashRouter without basename — hash routing does not use basename, per plan spec
-- [Phase 24-dedicated-input-page-with-accordion-sections]: it.todo() over it.skip() for Wave 0 test stubs — pending tests visible without requiring implementation
-- [Phase 24]: Accordion type=multiple with all sections open by default: better UX and fixes test visibility in jsdom
-- [Phase 24]: TopBar Configure button uses secondary variant on /input route, ghost otherwise
-- [Phase 24]: Configure Inputs NavLink added to nav strip for keyboard/link affordance to /input route
+- Post-processing in resultStore (not engine) — keeps engines pure
+- Brownfield toggles as native checkbox inside FormField
+- HashRouter without basename
+- NavLink `end` prop on root route
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
-Last session: 2026-03-19T06:49:03.445Z
-Stopped at: Completed 24-02-PLAN.md — Phase 24 complete
+Last session: 2026-03-19
+Stopped at: Milestone v6.0 started
 Resume file: None

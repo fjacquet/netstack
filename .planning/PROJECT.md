@@ -64,11 +64,20 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Nav strip with Configure / Results / Topology / Rack Elevation NavLinks replacing Tabs — v5.0
 - ✓ i18n labels for all v5.0 features in EN/FR/DE/IT — v5.0
 
-### Future (v6.0+)
+## Current Milestone: v6.0 Physical Planning
 
-- JSON export
+**Goal:** Extend NetStack from "how many boxes" to "how do I physically install them" — cable length estimation based on rack layout, power budget per rack, and upgraded DAC distance advisory with actual computed distances.
+
+**Target features:**
+- Cable length schedule: per-link-type lengths derived from rack pitch, height, switch position
+- Adjacent vs. non-adjacent rack modes (patch panel advisory when non-adjacent)
+- DAC distance advisory upgraded with actual computed length value
+- Power budget per rack (sum of switch + server estimates)
+
+### Future (v7.0+)
+
+- JSON export / import for sharing configurations
 - Multi-pod support for large deployments
-- Power budget calculation per rack
 - Weight/cooling estimates
 
 ### Out of Scope
