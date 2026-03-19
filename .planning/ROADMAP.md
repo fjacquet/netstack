@@ -108,8 +108,8 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
 **Plans**: 2 plans
 
 Plans:
-- [ ] 25-01: Zod schema additions (advisories[], geometry inputs), store migration v9, DAC catalog fix
-- [ ] 25-02: Profile normalisation against current schema on load
+- [x] 25-01: Zod schema additions (advisories[], geometry inputs), store migration v9, DAC catalog fix
+- [x] 25-02: Profile normalisation against current schema on load
 
 ### Phase 26: Cable Length Engine
 **Goal**: Pure domain functions compute cable lengths for every link type in all modes and produce correct advisory output
@@ -181,7 +181,7 @@ Plans:
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 24. Dedicated Input Page | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 25. Schema, Geometry Inputs & Advisory Foundation | 2/2 | Complete   | 2026-03-19 | - |
+| 25. Schema, Geometry Inputs & Advisory Foundation | v6.0 | 2/2 | Complete | 2026-03-19 |
 | 26. Cable Length Engine | v6.0 | 0/2 | Not started | - |
 | 27. UI & i18n | v6.0 | 0/1 | Not started | - |
 | 28. Export | v6.0 | 0/1 | Not started | - |
