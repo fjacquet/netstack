@@ -290,5 +290,27 @@
     "newContent": "Neuer Inhalt verfuegbar. Klicken Sie auf Neu laden, um zu aktualisieren.",
     "reload": "Neu laden",
     "close": "Schliessen"
+  },
+  "profiles": {
+    "heading": "Konfigurationen",
+    "saveButton": "Speichern",
+    "loadButton": "Laden",
+    "deleteButton": "Loeschen",
+    "nameLabel": "Profilname",
+    "namePlaceholder": "z.B. RZ-Nord 200 Server",
+    "saveSuccess": "Profil gespeichert",
+    "deleteConfirm": "Profil \"{{name}}\" loeschen?",
+    "deleteSuccess": "Profil geloescht",
+    "loadSuccess": "Profil \"{{name}}\" geladen",
+    "emptyList": "Keine gespeicherten Profile",
+    "emptyListHint": "Speichern Sie Ihre aktuelle Konfiguration, um sie spaeter wiederzuverwenden.",
+    "colName": "Name",
+    "colMode": "Modus",
+    "colTopology": "Topologie",
+    "colServers": "Server",
+    "colDate": "Gespeichert",
+    "colActions": "Aktionen",
+    "managerTitle": "Gespeicherte Konfigurationen",
+    "closePanelAriaLabel": "Konfigurationspanel schliessen"
   }
 }

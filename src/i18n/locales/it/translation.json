@@ -290,5 +290,27 @@
     "newContent": "Nuovo contenuto disponibile. Clicca su ricarica per aggiornare.",
     "reload": "Ricarica",
     "close": "Chiudi"
+  },
+  "profiles": {
+    "heading": "Configurazioni",
+    "saveButton": "Salva",
+    "loadButton": "Carica",
+    "deleteButton": "Elimina",
+    "nameLabel": "Nome profilo",
+    "namePlaceholder": "es: DC-Nord 200 server",
+    "saveSuccess": "Profilo salvato",
+    "deleteConfirm": "Eliminare il profilo \"{{name}}\"?",
+    "deleteSuccess": "Profilo eliminato",
+    "loadSuccess": "Profilo \"{{name}}\" caricato",
+    "emptyList": "Nessun profilo salvato",
+    "emptyListHint": "Salva la configurazione attuale per riutilizzarla in seguito.",
+    "colName": "Nome",
+    "colMode": "Modalita",
+    "colTopology": "Topologia",
+    "colServers": "Server",
+    "colDate": "Salvato",
+    "colActions": "Azioni",
+    "managerTitle": "Configurazioni salvate",
+    "closePanelAriaLabel": "Chiudi pannello configurazioni"
   }
 }

@@ -290,5 +290,27 @@
     "newContent": "Nouveau contenu disponible. Cliquez sur recharger pour mettre a jour.",
     "reload": "Recharger",
     "close": "Fermer"
+  },
+  "profiles": {
+    "heading": "Configurations",
+    "saveButton": "Enregistrer",
+    "loadButton": "Charger",
+    "deleteButton": "Supprimer",
+    "nameLabel": "Nom du profil",
+    "namePlaceholder": "ex: DC-Nord 200 serveurs",
+    "saveSuccess": "Profil enregistre",
+    "deleteConfirm": "Supprimer le profil \"{{name}}\" ?",
+    "deleteSuccess": "Profil supprime",
+    "loadSuccess": "Profil \"{{name}}\" charge",
+    "emptyList": "Aucun profil enregistre",
+    "emptyListHint": "Enregistrez votre configuration actuelle pour la reutiliser plus tard.",
+    "colName": "Nom",
+    "colMode": "Mode",
+    "colTopology": "Topologie",
+    "colServers": "Serveurs",
+    "colDate": "Date",
+    "colActions": "Actions",
+    "managerTitle": "Configurations enregistrees",
+    "closePanelAriaLabel": "Fermer le panneau de configurations"
   }
 }

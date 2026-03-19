@@ -290,5 +290,27 @@
     "newContent": "New content available. Click reload to update.",
     "reload": "Reload",
     "close": "Close"
+  },
+  "profiles": {
+    "heading": "Configurations",
+    "saveButton": "Save",
+    "loadButton": "Load",
+    "deleteButton": "Delete",
+    "nameLabel": "Profile Name",
+    "namePlaceholder": "e.g., DC-North 200 servers",
+    "saveSuccess": "Profile saved",
+    "deleteConfirm": "Delete profile \"{{name}}\"?",
+    "deleteSuccess": "Profile deleted",
+    "loadSuccess": "Profile \"{{name}}\" loaded",
+    "emptyList": "No saved profiles",
+    "emptyListHint": "Save your current configuration to reuse it later.",
+    "colName": "Name",
+    "colMode": "Mode",
+    "colTopology": "Topology",
+    "colServers": "Servers",
+    "colDate": "Saved",
+    "colActions": "Actions",
+    "managerTitle": "Saved Configurations",
+    "closePanelAriaLabel": "Close configurations panel"
   }
 }
