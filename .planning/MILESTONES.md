@@ -1,5 +1,15 @@
 # Milestones
 
+## v6.0 Physical Planning (Shipped: 2026-03-19)
+
+**Phases completed:** 4 phases, 6 plans, 3 tasks
+
+**Key accomplishments:**
+
+- (none recorded)
+
+---
+
 ## v5.0 Unified Ethernet & Configurations (Shipped: 2026-03-19)
 
 **Phases completed:** 4 phases (21-24), 8 plans | 15/15 requirements satisfied | 552 tests
