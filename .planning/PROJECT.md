@@ -73,7 +73,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Adjacent vs. non-adjacent rack modes (patch panel advisory when non-adjacent) — Phase 26 complete
 - ✓ DAC distance advisory upgraded with actual computed length value — Phase 26 complete
 - ✓ UI wiring, amber advisory cards, i18n EN/FR/DE/IT — Phase 27 complete
-- CSV/PDF cable schedule export — Phase 28 pending
+- ✓ CSV/PDF cable schedule export — Phase 28 complete
 
 ### Future (v7.0+)
 
@@ -139,4 +139,4 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui (Accordion), Zustand v5, Zo
 | shadcn/ui Accordion with `defaultValue="rack-config"` | Rack Config open on load; single open section focus | ✓ Good |
 
 ---
-*Last updated: 2026-03-19 after Phase 27 (UI & i18n) complete*
+*Last updated: 2026-03-19 after Phase 28 (Export) complete — v6.0 Physical Planning DONE*
