@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useMatch } from 'react-router-dom'
 import { useShallow } from 'zustand/shallow'
-import { FileSpreadsheet, FileText, Printer, Loader2, FolderOpen, SlidersHorizontal } from 'lucide-react'
+import { FileSpreadsheet, FileText, Printer, Loader2, FolderOpen } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ModeSelector } from '@/components/ModeSelector'
@@ -50,9 +49,6 @@ export function TopBar({ mode, onModeChange, profilesOpen, onToggleProfiles }: T
       : topology === 'three-tier'
         ? threeTierBom
         : bom
-
-  const navigate = useNavigate()
-  const isOnInputRoute = !!useMatch('/input')
 
   const [pdfGenerating, setPdfGenerating] = useState(false)
 
@@ -155,22 +151,6 @@ export function TopBar({ mode, onModeChange, profilesOpen, onToggleProfiles }: T
       <ModeSelector mode={mode} onModeChange={onModeChange} />
 
       <div className="ml-auto flex items-center gap-1">
-        {/* Configure inputs button */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={isOnInputRoute ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => navigate('/input')}
-              aria-label={t('nav.configure')}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('nav.configure')}</TooltipContent>
-        </Tooltip>
-
         {/* Profile manager toggle */}
         <Tooltip>
           <TooltipTrigger asChild>

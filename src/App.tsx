@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, NavLink } from 'react-router-dom'
+import { SlidersHorizontal } from 'lucide-react'
 import { ThemeProvider } from '@/components/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ReloadPrompt } from '@/components/ReloadPrompt'
@@ -35,6 +36,13 @@ function AppContent() {
         onToggleProfiles={() => setProfilesOpen((v) => !v)}
       />
       <nav aria-label="page navigation" className="border-b bg-secondary/30 px-4 h-11 flex items-center gap-1">
+        <NavLink
+          to="/input"
+          className={navLinkClass}
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          {t('nav.configure')}
+        </NavLink>
         <NavLink
           to="/"
           end
