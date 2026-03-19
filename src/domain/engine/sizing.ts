@@ -14,8 +14,10 @@
  */
 
 import { SWITCH_CATALOG } from '../catalog/hardware';
+import { CABLE_CATALOG } from '../catalog/cables';
+import { deriveRackHeightM, computeServerLeafLengthM, computeLeafSpineLengthM, computeVltLengthM, interRackCableLengthM } from './cable-length';
 import type { SizingInput } from '../schemas/input';
-import type { ConstraintViolation, NetworkBOM } from '../schemas/bom';
+import type { Advisory, ConstraintViolation, NetworkBOM } from '../schemas/bom';
 
 // OOB model is fixed (not selectable)
 const OOB = SWITCH_CATALOG['S3248T-ON'];
@@ -35,6 +37,9 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
 
   // ─── Rack Count (RACK-03) — derived from racks array length ───────────────
   const racks = input.racks.length;
+
+  // --- Cable Length Geometry (Phase 26) ---
+  const rackHeightM = deriveRackHeightM(input.rackSize);
 
   // ─── Server Totals (RACK-03) — derived from racks array ──────────────────
   const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0);
@@ -135,27 +140,33 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     });
   }
 
-  // DAC_DISTANCE_ADVISORY: DAC cables are reliable only at short distances
-  if (input.cableType === 'DAC' && racks > 8) {
-    violations.push({
-      code: 'DAC_DISTANCE_ADVISORY',
-      rackCount: racks,
-      cableType: 'DAC',
-    });
+  // DAC_DISTANCE_ADVISORY: computed geometry distance vs speed-specific limit (DAC-01, DAC-02)
+  if (input.cableType === 'DAC') {
+    const speedKey = input.connectivityType === '25G' ? 25 : 100;
+    const dacLimit = CABLE_CATALOG.DAC.maxDistanceBySpeed[speedKey as keyof typeof CABLE_CATALOG.DAC.maxDistanceBySpeed];
+    // Worst-case link = leaf-spine (inter-rack, longest run)
+    const worstCaseRawM = interRackCableLengthM(input.rackPitchMm, rackHeightM, input.racksAdjacent, input.patchPanelDistanceM);
+    if (worstCaseRawM > dacLimit) {
+      violations.push({
+        code: 'DAC_DISTANCE_ADVISORY',
+        rackCount: racks,
+        cableType: 'DAC',
+        computedDistanceM: worstCaseRawM,
+      });
+    }
   }
 
-  // ─── Cable Length Map (POS-01) ────────────────────────────────────────────
-  // All modes are rack-level positioning — cables run within a single rack.
-  // ToR: server at bottom to switch at top ≈ 2m max.
-  // MoR: server at rack extreme to switch at mid-rack ≈ 1m max.
-  // BoR: server at top to switch at bottom ≈ 2m max.
-  // All values are DAC-compatible (DAC rated to 5–7m).
-  const cableLengthMap: Record<SizingInput['switchPositioning'], number> = {
-    ToR: 2,
-    MoR: 1,
-    BoR: 2,
-  };
-  const recommendedCableLengthM = cableLengthMap[input.switchPositioning];
+  // --- Cable Schedule (Phase 26, CABLE-01/02/05/06) ---
+  const serverLeafSkuM = computeServerLeafLengthM({ rackHeightM, switchPositioning: input.switchPositioning });
+  const leafSpineSkuM = computeLeafSpineLengthM({
+    rackPitchMm: input.rackPitchMm,
+    rackCount: racks,
+    rackHeightM,
+    racksAdjacent: input.racksAdjacent,
+    patchPanelDistanceM: input.patchPanelDistanceM,
+  });
+  const vltSkuM = computeVltLengthM(rackHeightM);
+  const recommendedCableLengthM = serverLeafSkuM; // backward compat: use server-leaf as primary recommendation
 
   // RACK_CAPACITY_EXCEEDED: total device U-height exceeds rack physical size
   const overheadU = switchOverheadU(input.switchPositioning);
@@ -170,6 +181,18 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
         totalU: rackSizeU,
       });
     }
+  }
+
+  // --- Advisories (Phase 26, RACK-04) ---
+  const advisories: Advisory[] = [];
+  if (!input.racksAdjacent) {
+    const speedKey = input.connectivityType === '25G' ? 25 : 100;
+    const longestLinkM = interRackCableLengthM(input.rackPitchMm, rackHeightM, false, input.patchPanelDistanceM);
+    advisories.push({
+      code: 'PATCH_PANEL_RECOMMENDED',
+      computedDistanceM: longestLinkM,
+      dacLimitM: CABLE_CATALOG.DAC.maxDistanceBySpeed[speedKey as keyof typeof CABLE_CATALOG.DAC.maxDistanceBySpeed],
+    });
   }
 
   return {
@@ -189,7 +212,8 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
     switchPositioning: input.switchPositioning,
     recommendedCableLengthM,
     violations,
-    advisories: [],
+    advisories,
     input,
+    cableSchedule: { serverLeafSkuM, leafSpineSkuM, vltSkuM },
   };
 }

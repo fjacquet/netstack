@@ -360,40 +360,85 @@ describe('Oversubscription Ratio', () => {
 });
 
 // ---------------------------------------------------------------------------
-// DAC Distance Advisory
+// DAC Distance Advisory (Phase 26 — geometry-based, DAC-01/DAC-02)
 // ---------------------------------------------------------------------------
 describe('DAC Distance Advisory', () => {
-  it('DAC cable type with racks > 8 → DAC_DISTANCE_ADVISORY violation', () => {
+  it('DAC + non-adjacent racks with large patch panel distance → DAC_DISTANCE_ADVISORY with computedDistanceM', () => {
+    // racksAdjacent=false, patchPanelDistanceM=10, 42U rack (1.867m)
+    // interRackCableLengthM = 10*2 + 1.867*2 = 20 + 3.734 = 23.734m >> 3m (25G limit)
     const result = calculateBOM(makeInput({
-      racks: Array.from({ length: 9 }, () => ({ serverCount: 10 })),
+      racks: Array.from({ length: 3 }, () => ({ serverCount: 10 })),
       cableType: 'DAC',
+      racksAdjacent: false,
+      patchPanelDistanceM: 10,
+      connectivityType: '25G',
     }));
-    // 9 racks > 8 → violation
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(violation).toBeDefined();
     if (violation && violation.code === 'DAC_DISTANCE_ADVISORY') {
-      expect(violation.rackCount).toBe(9);
       expect(violation.cableType).toBe('DAC');
+      expect(violation.computedDistanceM).toBeDefined();
+      expect(violation.computedDistanceM!).toBeGreaterThan(3);
     }
   });
 
-  it('DAC cable type with racks <= 8 → no DAC_DISTANCE_ADVISORY', () => {
+  it('DAC + adjacent racks with small pitch → no DAC_DISTANCE_ADVISORY when computed distance < limit', () => {
+    // racksAdjacent=true, rackPitchMm=600, 42U rack (1.867m)
+    // interRackCableLengthM = 0.6 + 1.867*2 = 0.6 + 3.734 = 4.334m > 3m (25G limit) → fires
+    // Use 100G limit (5m): 4.334 < 5 → no violation
     const result = calculateBOM(makeInput({
-      racks: Array.from({ length: 8 }, () => ({ serverCount: 10 })),
+      racks: [{ serverCount: 10 }, { serverCount: 10 }],
       cableType: 'DAC',
+      racksAdjacent: true,
+      rackPitchMm: 600,
+      connectivityType: '100G',
+      rackSize: '42U',
     }));
-    // 8 racks ≤ 8 → no violation
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(violation).toBeUndefined();
   });
 
-  it('AOC cable type with racks > 8 → no DAC_DISTANCE_ADVISORY (only DAC triggers it)', () => {
+  it('AOC cable type → no DAC_DISTANCE_ADVISORY (only DAC triggers it)', () => {
     const result = calculateBOM(makeInput({
       racks: Array.from({ length: 9 }, () => ({ serverCount: 10 })),
       cableType: 'AOC',
+      racksAdjacent: false,
+      patchPanelDistanceM: 10,
     }));
     const violation = result.violations.find(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(violation).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RACK-04: PATCH_PANEL_RECOMMENDED advisory
+// ---------------------------------------------------------------------------
+describe('RACK-04: PATCH_PANEL_RECOMMENDED advisory', () => {
+  it('emits PATCH_PANEL_RECOMMENDED in advisories when racksAdjacent=false', () => {
+    const result = calculateBOM(makeInput({ racksAdjacent: false, patchPanelDistanceM: 5 }));
+    expect(result.advisories).toHaveLength(1);
+    expect(result.advisories[0].code).toBe('PATCH_PANEL_RECOMMENDED');
+    expect(result.advisories[0].computedDistanceM).toBeGreaterThan(0);
+  });
+
+  it('does NOT emit PATCH_PANEL_RECOMMENDED when racksAdjacent=true', () => {
+    const result = calculateBOM(makeInput({ racksAdjacent: true }));
+    expect(result.advisories).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CABLE-01/02: cableSchedule output
+// ---------------------------------------------------------------------------
+describe('CABLE-01/02: cableSchedule output', () => {
+  it('includes cableSchedule with serverLeafSkuM, leafSpineSkuM, vltSkuM', () => {
+    const result = calculateBOM(makeInput());
+    expect(result.cableSchedule).toBeDefined();
+    expect(result.cableSchedule!.serverLeafSkuM).toBeGreaterThan(0);
+    expect(result.cableSchedule!.leafSpineSkuM).toBeGreaterThanOrEqual(0);
+    expect(result.cableSchedule!.vltSkuM).toBeGreaterThan(0);
+    expect([1, 3, 5, 10]).toContain(result.cableSchedule!.serverLeafSkuM);
+    expect([1, 3, 5, 10]).toContain(result.cableSchedule!.vltSkuM);
   });
 });
 
@@ -723,35 +768,38 @@ describe('RACK-03: Variable density rack configurations', () => {
 // POS-03 + POS-04: Switch Positioning
 // ---------------------------------------------------------------------------
 describe('POS-03 + POS-04: Switch Positioning', () => {
-  // All positioning modes are rack-level: cables stay within a single rack.
-  // ToR: ~2m (server at bottom to switch at top), MoR: ~1m (to mid-rack), BoR: ~2m (to bottom).
-  it('ToR positioning returns recommendedCableLengthM=2', () => {
+  // Phase 26: recommendedCableLengthM is now the serverLeafSkuM (from cable-length.ts).
+  // 42U rack: rackHeightM=1.867m.
+  // ToR: raw=1.867+0.3=2.167m → *1.15=2.492 → SKU 3m
+  // MoR: raw=0.5*1.867+0.3=1.234m → *1.15=1.418 → SKU 3m
+  // BoR: same as ToR → SKU 3m
+  it('ToR positioning returns valid recommendedCableLengthM from cable schedule', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'ToR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(2);
+    expect([1, 3, 5, 10]).toContain(bom.recommendedCableLengthM);
     expect(bom.switchPositioning).toBe('ToR');
   });
 
-  it('MoR positioning returns recommendedCableLengthM=1', () => {
+  it('MoR positioning returns valid recommendedCableLengthM from cable schedule', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'MoR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(1);
+    expect([1, 3, 5, 10]).toContain(bom.recommendedCableLengthM);
     expect(bom.switchPositioning).toBe('MoR');
   });
 
-  it('BoR positioning returns recommendedCableLengthM=2', () => {
+  it('BoR positioning returns valid recommendedCableLengthM from cable schedule', () => {
     const bom = calculateBOM(makeInput({
       racks: [{ serverCount: 10 }],
       cableType: 'DAC',
       switchPositioning: 'BoR',
     }));
-    expect(bom.recommendedCableLengthM).toBe(2);
+    expect([1, 3, 5, 10]).toContain(bom.recommendedCableLengthM);
     expect(bom.switchPositioning).toBe('BoR');
   });
 
