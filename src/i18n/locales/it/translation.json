@@ -62,7 +62,7 @@
   "results": {
     "heading": "Risultati",
     "emptyHeading": "Inserire i parametri",
-    "emptyBody": "Compilare il modulo per calcolare la BOM istantaneamente.",
+    "emptyBody": "Configura la tua rete nella pagina Ingressi, poi torna qui per vedere la tua distinta materiali.",
     "placeholder": "I risultati appariranno qui dopo l'inserimento dei parametri."
   },
   "placeholders": {
@@ -144,12 +144,20 @@
     "threeTierCsvButton": "Esporta CSV Tre livelli",
     "threeTierPdfButton": "Esporta PDF Tre livelli"
   },
+  "nav": {
+    "configure": "Configura",
+    "results": "Risultati",
+    "topology": "Topologia",
+    "rack": "Elevazione rack"
+  },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Convergente",
-    "threeTier": "Tre livelli",
-    "selectLabel": "Modalita"
+    "selectLabel": "Modalita",
+    "topologyLabel": "Topologia",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Tre livelli (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "Parametri di dimensionamento FC",
@@ -209,8 +217,11 @@
   "threeTier": {
     "heading": "Parametri dimensionamento tre livelli",
     "accessModel": "Modello switch di accesso",
+    "selectAccessModel": "Selezionare modello switch di accesso",
     "aggregationModel": "Modello switch di aggregazione",
+    "selectAggregationModel": "Selezionare modello switch di aggregazione",
     "coreModel": "Modello switch core",
+    "selectCoreModel": "Selezionare modello switch core",
     "activeUplinksPerAccess": "Uplink per switch di accesso",
     "activeUplinksPerAggregation": "Uplink per switch di aggregazione",
     "accessSwitches": "Switch di accesso",
@@ -227,6 +238,25 @@
     "borderLeafSwitches": "Switch Border Leaf",
     "accessToAggrOversubLabel": "Sovrascrizione accesso-aggregazione",
     "aggrToCoreOversubLabel": "Sovrascrizione aggregazione-core"
+  },
+  "input": {
+    "pageTitle": "Configurazione di rete",
+    "pageDescription": "Configura i parametri di rete. I risultati si aggiornano automaticamente.",
+    "section": {
+      "rackConfig": "Configurazione rack",
+      "switchSelection": "Selezione switch",
+      "advanced": "Avanzate",
+      "fabricConfig": "Configurazione fabric",
+      "ethernetSwitches": "Switch Ethernet",
+      "fcFabric": "Fabric FC"
+    }
+  },
+  "infra": {
+    "existingSpinesToggle": "Spine gia installati",
+    "existingSpinesHelp": "Escludere gli switch spine dal BOM (cavi ancora inclusi)",
+    "existingCoreToggle": "Switch core gia installati",
+    "existingCoreHelp": "Escludere gli switch core dal BOM (cavi ancora inclusi)",
+    "existingLabel": "(esistente)"
   },
   "bom": {
     "heading": "Distinta materiali",
@@ -278,5 +308,27 @@
     "newContent": "Nuovo contenuto disponibile. Clicca su ricarica per aggiornare.",
     "reload": "Ricarica",
     "close": "Chiudi"
+  },
+  "profiles": {
+    "heading": "Configurazioni",
+    "saveButton": "Salva",
+    "loadButton": "Carica",
+    "deleteButton": "Elimina",
+    "nameLabel": "Nome profilo",
+    "namePlaceholder": "es: DC-Nord 200 server",
+    "saveSuccess": "Profilo salvato",
+    "deleteConfirm": "Eliminare il profilo \"{{name}}\"?",
+    "deleteSuccess": "Profilo eliminato",
+    "loadSuccess": "Profilo \"{{name}}\" caricato",
+    "emptyList": "Nessun profilo salvato",
+    "emptyListHint": "Salva la configurazione attuale per riutilizzarla in seguito.",
+    "colName": "Nome",
+    "colMode": "Modalita",
+    "colTopology": "Topologia",
+    "colServers": "Server",
+    "colDate": "Salvato",
+    "colActions": "Azioni",
+    "managerTitle": "Configurazioni salvate",
+    "closePanelAriaLabel": "Chiudi pannello configurazioni"
   }
 }

@@ -14,19 +14,27 @@ import type { SizingInput } from '../schemas/input';
 
 function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
   return {
+    topology: 'leaf-spine',
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     portsPerServerFrontend: 1,
     portsPerServerBackend: 1,
-    activeUplinksPerLeaf: 4,
     connectivityType: '25G',
     cableType: 'DAC',
+    activeUplinksPerLeaf: 4,
     leafModel: 'S5248F-ON',
     spineModel: 'S5232F-ON',
+    accessModel: 'S5248F-ON',
+    activeUplinksPerAccess: 4,
+    aggregationModel: 'Z9264F-ON',
+    activeUplinksPerAggregation: 4,
+    coreModel: 'Z9332F-ON',
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR' as const,
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
     ...overrides,
   };
 }
@@ -830,19 +838,27 @@ describe('RACK_CAPACITY_EXCEEDED: U-height capacity violation', () => {
   it('SizingInputSchema defaults serverUHeight to "1U" when omitted', () => {
     // makeInput without serverUHeight override should still work (default from schema)
     const inputWithoutHeight = {
+      topology: 'leaf-spine' as const,
       racks: [{ serverCount: 16 }],
       portsPerServerFrontend: 1,
       portsPerServerBackend: 1,
-      activeUplinksPerLeaf: 4,
       connectivityType: '25G' as const,
       cableType: 'DAC' as const,
+      activeUplinksPerLeaf: 4,
       leafModel: 'S5248F-ON' as const,
       spineModel: 'S5232F-ON' as const,
+      accessModel: 'S5248F-ON' as const,
+      activeUplinksPerAccess: 4,
+      aggregationModel: 'Z9264F-ON' as const,
+      activeUplinksPerAggregation: 4,
+      coreModel: 'Z9332F-ON' as const,
       borderLeafModel: 'none' as const,
       borderLeafCount: 0,
       rackSize: '42U' as const,
       serverUHeight: '1U' as const,
       switchPositioning: 'ToR' as const,
+      existingSpinesDeployed: false,
+      existingCoreDeployed: false,
     };
     const bom = calculateBOM(inputWithoutHeight);
     expect(bom).toBeDefined();

@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-03-19
+
+### Added
+- **Dedicated Input Page** — Full-page accordion form at `/#/input`, replacing the 320px sidebar. Sections collapse/expand with Rack Config open by default. All 3 modes get the accordion treatment: Ethernet (Rack Config / Switch Selection / Advanced), FC (Rack Config / Fabric Config / Advanced), Converged (Rack Config / Ethernet Switches / FC Fabric / Advanced).
+- **URL-based navigation** — React Router (HashRouter) replaces tab-based navigation. All views are deep-linkable: `/#/` Results, `/#/input` Configure, `/#/topology` Topology, `/#/rack` Rack Elevation. Browser back/forward works across all views.
+- **Nav strip** — Configure Inputs, Results, Topology, and Rack Elevation as NavLinks with active-route highlighting, replacing the old Tabs component.
+- **Saved Configurations** — Save and load named input profiles persisted to localStorage. Profiles capture mode, topology, server count, and all input fields. CRUD via a slide-down ProfileManager panel accessible from the top bar folder icon (CFG-01 through CFG-06).
+- **Existing Infrastructure toggles** — "Spines already deployed" (Clos) and "Core switches already deployed" (Three-Tier) brownfield toggles. BOM excludes already-deployed switches while preserving all cable quantities and oversubscription calculations (INFRA-01 through INFRA-04).
+- **Unified Ethernet mode** — Spine-Leaf (Clos) and Three-Tier topologies merged into a single Ethernet mode with a topology selector dropdown. ModeSelector now shows 3 buttons: Ethernet, Fibre Channel, Converged (ETH-01 through ETH-05).
+- **Three-Tier Ethernet topology** — Access / Aggregation / Core sizing with Dell Z-series switches (Z9264F-ON, Z9332F-ON, Z9432F-ON). Dedicated engine `calculateThreeTierBOM()` with 43 unit tests.
+- Hardware catalog: 3 Dell Z-series switches (Z9264F-ON Aggregation, Z9332F-ON Core, Z9432F-ON Core) for Three-Tier topology.
+- Architecture Decision Records: ADR-0018 through ADR-0022 (Unified Ethernet, Brownfield Toggle, Named Configurations, React Router, Accordion Input Page).
+- i18n labels for all v5.0 features in EN, FR, DE, IT.
+
+### Changed
+- Mode selector reduced from 4 to 3 buttons — Three-Tier absorbed into Ethernet mode (topology selector within Ethernet).
+- `inputStore` bumped to version 8 with topology field, brownfield toggle fields, and automatic migration from v6/v7.
+- Brownfield post-processing in `resultStore` (not engine) — keeps `calculateBOM` / `calculateThreeTierBOM` pure.
+- Standalone Three-Tier mode (stores, dedicated page, components) removed — dead code cleanup.
+- `InputForm.tsx` and `SizingPage.tsx` replaced by `InputPage.tsx` + accordion components and `ResultsPage.tsx`.
+
+## [4.0.0] - 2026-03-19
+
+### Added
+- **Three-Tier Ethernet topology** — Access / Aggregation / Core switch sizing as a fourth mode (later merged into Ethernet in v5.0).
+- `calculateThreeTierBOM()` pure engine function with 43 unit tests (TDD red → green).
+- Three-Tier BOM panel, topology diagram, rack elevation, and CSV / PDF export.
+- Three-Tier i18n labels in EN, FR, DE, IT.
+- Hardware catalog: Dell Z9264F-ON (aggregation), Z9332F-ON (core), Z9432F-ON (core).
+- Architecture Decision Records through ADR-0017.
+
+## [3.0.0] - 2026-03-18
+
+### Added
+- **Converged mode** — Unified sizing of Ethernet + Fibre Channel from a single input form. FC is optional (set HBA ports to 0 for Ethernet-only output).
+- `calculateConvergedBOM()` engine composes `calculateBOM()` + `calculateFCBOM()` — zero logic duplication.
+- Converged BOM panel, dual topology diagrams (Ethernet + FC), rack elevation, and CSV / PDF export.
+- Converged i18n labels in EN, FR, DE, IT.
+
+## [2.1.0] - 2026-03-18
+
 ### Added
 - Progressive Web App (PWA) with offline support via vite-plugin-pwa + Workbox
 - Service worker precaches all app assets for full offline functionality

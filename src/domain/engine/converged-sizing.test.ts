@@ -20,6 +20,9 @@ function makeConvergedInput(overrides: Partial<ConvergedSizingInput> = {}): Conv
     borderLeafModel: 'none',
     borderLeafCount: 0,
     switchPositioning: 'ToR',
+    // Brownfield toggles
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
     // 3-tier fields (defaults, ignored when topology='leaf-spine')
     accessModel: 'S5248F-ON',
     aggregationModel: 'Z9264F-ON',

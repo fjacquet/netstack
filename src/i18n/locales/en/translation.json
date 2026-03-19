@@ -62,7 +62,7 @@
   "results": {
     "heading": "Results",
     "emptyHeading": "Enter Sizing Parameters",
-    "emptyBody": "Fill in the form on the left to calculate your BOM instantly.",
+    "emptyBody": "Configure your network in the Inputs page, then return here to see your BOM.",
     "placeholder": "Results will appear here once you enter sizing parameters."
   },
   "placeholders": {
@@ -144,12 +144,20 @@
     "threeTierCsvButton": "Export Three-Tier CSV",
     "threeTierPdfButton": "Export Three-Tier PDF"
   },
+  "nav": {
+    "configure": "Configure Inputs",
+    "results": "Results",
+    "topology": "Topology",
+    "rack": "Rack Elevation"
+  },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Converged",
-    "threeTier": "Three-Tier",
-    "selectLabel": "Mode"
+    "selectLabel": "Mode",
+    "topologyLabel": "Topology",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Three-Tier (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "FC Sizing Parameters",
@@ -209,8 +217,11 @@
   "threeTier": {
     "heading": "Three-Tier Sizing Parameters",
     "accessModel": "Access Switch Model",
+    "selectAccessModel": "Select access switch model",
     "aggregationModel": "Aggregation Switch Model",
+    "selectAggregationModel": "Select aggregation switch model",
     "coreModel": "Core Switch Model",
+    "selectCoreModel": "Select core switch model",
     "activeUplinksPerAccess": "Uplinks per Access Switch",
     "activeUplinksPerAggregation": "Uplinks per Aggregation Switch",
     "accessSwitches": "Access Switches",
@@ -227,6 +238,25 @@
     "borderLeafSwitches": "Border Leaf Switches",
     "accessToAggrOversubLabel": "Access-Aggregation Oversubscription",
     "aggrToCoreOversubLabel": "Aggregation-Core Oversubscription"
+  },
+  "input": {
+    "pageTitle": "Network Configuration",
+    "pageDescription": "Configure your network parameters. Results update automatically.",
+    "section": {
+      "rackConfig": "Rack Configuration",
+      "switchSelection": "Switch Selection",
+      "advanced": "Advanced",
+      "fabricConfig": "Fabric Configuration",
+      "ethernetSwitches": "Ethernet Switches",
+      "fcFabric": "FC Fabric"
+    }
+  },
+  "infra": {
+    "existingSpinesToggle": "Spines already deployed",
+    "existingSpinesHelp": "Exclude spine switches from BOM (cables still included)",
+    "existingCoreToggle": "Core switches already deployed",
+    "existingCoreHelp": "Exclude core switches from BOM (cables still included)",
+    "existingLabel": "(existing)"
   },
   "bom": {
     "heading": "Bill of Materials",
@@ -278,5 +308,27 @@
     "newContent": "New content available. Click reload to update.",
     "reload": "Reload",
     "close": "Close"
+  },
+  "profiles": {
+    "heading": "Configurations",
+    "saveButton": "Save",
+    "loadButton": "Load",
+    "deleteButton": "Delete",
+    "nameLabel": "Profile Name",
+    "namePlaceholder": "e.g., DC-North 200 servers",
+    "saveSuccess": "Profile saved",
+    "deleteConfirm": "Delete profile \"{{name}}\"?",
+    "deleteSuccess": "Profile deleted",
+    "loadSuccess": "Profile \"{{name}}\" loaded",
+    "emptyList": "No saved profiles",
+    "emptyListHint": "Save your current configuration to reuse it later.",
+    "colName": "Name",
+    "colMode": "Mode",
+    "colTopology": "Topology",
+    "colServers": "Servers",
+    "colDate": "Saved",
+    "colActions": "Actions",
+    "managerTitle": "Saved Configurations",
+    "closePanelAriaLabel": "Close configurations panel"
   }
 }

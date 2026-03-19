@@ -62,7 +62,7 @@
   "results": {
     "heading": "Resultats",
     "emptyHeading": "Saisir les parametres",
-    "emptyBody": "Remplissez le formulaire pour calculer votre BOM instantanement.",
+    "emptyBody": "Configurez votre réseau dans la page Entrées, puis revenez ici pour voir votre nomenclature.",
     "placeholder": "Les resultats apparaitront ici apres la saisie des parametres."
   },
   "placeholders": {
@@ -144,12 +144,20 @@
     "threeTierCsvButton": "Exporter CSV Trois niveaux",
     "threeTierPdfButton": "Exporter PDF Trois niveaux"
   },
+  "nav": {
+    "configure": "Configurer",
+    "results": "Résultats",
+    "topology": "Topologie",
+    "rack": "Élévation de baie"
+  },
   "mode": {
-    "ethernet": "Spine-Leaf",
+    "ethernet": "Ethernet",
     "fc": "Fibre Channel",
     "converged": "Convergé",
-    "threeTier": "Trois niveaux",
-    "selectLabel": "Mode"
+    "selectLabel": "Mode",
+    "topologyLabel": "Topologie",
+    "topologyClos": "Clos (Spine-Leaf)",
+    "topologyThreeTier": "Trois niveaux (Core/Aggr/Access)"
   },
   "fc": {
     "heading": "Parametres FC",
@@ -209,8 +217,11 @@
   "threeTier": {
     "heading": "Parametres de dimensionnement trois niveaux",
     "accessModel": "Modele commutateur d'acces",
+    "selectAccessModel": "Choisir le modele de commutateur d'acces",
     "aggregationModel": "Modele commutateur d'agregation",
+    "selectAggregationModel": "Choisir le modele de commutateur d'agregation",
     "coreModel": "Modele commutateur coeur",
+    "selectCoreModel": "Choisir le modele de commutateur coeur",
     "activeUplinksPerAccess": "Uplinks par commutateur d'acces",
     "activeUplinksPerAggregation": "Uplinks par commutateur d'agregation",
     "accessSwitches": "Commutateurs d'acces",
@@ -227,6 +238,25 @@
     "borderLeafSwitches": "Commutateurs Border Leaf",
     "accessToAggrOversubLabel": "Sursouscription acces-agregation",
     "aggrToCoreOversubLabel": "Sursouscription agregation-coeur"
+  },
+  "input": {
+    "pageTitle": "Configuration réseau",
+    "pageDescription": "Configurez vos paramètres réseau. Les résultats se mettent à jour automatiquement.",
+    "section": {
+      "rackConfig": "Configuration des baies",
+      "switchSelection": "Sélection des commutateurs",
+      "advanced": "Avancé",
+      "fabricConfig": "Configuration du fabric",
+      "ethernetSwitches": "Commutateurs Ethernet",
+      "fcFabric": "Fabric FC"
+    }
+  },
+  "infra": {
+    "existingSpinesToggle": "Spines deja deployes",
+    "existingSpinesHelp": "Exclure les switches spine du BOM (cables toujours inclus)",
+    "existingCoreToggle": "Switches core deja deployes",
+    "existingCoreHelp": "Exclure les switches core du BOM (cables toujours inclus)",
+    "existingLabel": "(existant)"
   },
   "bom": {
     "heading": "Nomenclature",
@@ -278,5 +308,27 @@
     "newContent": "Nouveau contenu disponible. Cliquez sur recharger pour mettre a jour.",
     "reload": "Recharger",
     "close": "Fermer"
+  },
+  "profiles": {
+    "heading": "Configurations",
+    "saveButton": "Enregistrer",
+    "loadButton": "Charger",
+    "deleteButton": "Supprimer",
+    "nameLabel": "Nom du profil",
+    "namePlaceholder": "ex: DC-Nord 200 serveurs",
+    "saveSuccess": "Profil enregistre",
+    "deleteConfirm": "Supprimer le profil \"{{name}}\" ?",
+    "deleteSuccess": "Profil supprime",
+    "loadSuccess": "Profil \"{{name}}\" charge",
+    "emptyList": "Aucun profil enregistre",
+    "emptyListHint": "Enregistrez votre configuration actuelle pour la reutiliser plus tard.",
+    "colName": "Nom",
+    "colMode": "Mode",
+    "colTopology": "Topologie",
+    "colServers": "Serveurs",
+    "colDate": "Date",
+    "colActions": "Actions",
+    "managerTitle": "Configurations enregistrees",
+    "closePanelAriaLabel": "Fermer le panneau de configurations"
   }
 }

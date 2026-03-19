@@ -4,7 +4,7 @@
 
 NetStack is a browser-based network sizing calculator that supports three infrastructure modes:
 
-- **Ethernet (Spine-Leaf)** -- Dell PowerSwitch Leaf-Spine + OOB infrastructure under SONiC
+- **Ethernet** -- Dell PowerSwitch infrastructure under SONiC. Choose **Clos (Spine-Leaf)** topology for standard leaf-spine fabrics, or **Three-Tier (Core/Aggr/Access)** for hierarchical campus-style deployments.
 - **Fibre Channel** -- Brocade / Broadcom dual-fabric SAN sizing with POD licensing
 - **Converged** -- unified Ethernet + FC sizing from a single input form
 
@@ -15,11 +15,26 @@ NetStack is also a **Progressive Web App (PWA)**. You can install it on your des
 ## Getting Started
 
 1. Open the application URL in any modern browser (Chrome, Firefox, Edge, Safari).
-2. **Select a mode** using the mode selector buttons in the top bar: **Spine-Leaf**, **Fibre Channel**, or **Converged**. The input form and BOM output adapt to the selected mode.
-3. Select your preferred language using the language switcher in the top-right corner (EN, FR, DE, IT).
-4. Choose light or dark theme using the sun/moon icon (automatically detected from system preferences on first visit).
-5. Your input settings are automatically saved in your browser and restored on the next visit.
-6. Optionally, **install as a PWA** for offline use (see [PWA / Offline](#pwa--offline) below).
+2. **Select a mode** using the mode selector buttons in the top bar: **Ethernet**, **Fibre Channel**, or **Converged**. The input form and BOM output adapt to the selected mode.
+3. Click **Configure Inputs** in the navigation strip to open the accordion input form and enter your parameters.
+4. Click **Results** in the navigation strip to view your Bill of Materials — it updates automatically as you change inputs.
+5. Select your preferred language using the language switcher in the top-right corner (EN, FR, DE, IT).
+6. Choose light or dark theme using the sun/moon icon (automatically detected from system preferences on first visit).
+7. Your input settings are automatically saved in your browser and restored on the next visit.
+8. Optionally, **install as a PWA** for offline use (see [PWA / Offline](#pwa--offline) below).
+
+## Navigation
+
+The navigation strip below the top bar provides access to all views:
+
+| Link | Route | Description |
+|------|-------|-------------|
+| **Configure Inputs** | `/#/input` | Accordion input form — enter all sizing parameters here |
+| **Results** | `/#/` | Bill of Materials output for the current mode |
+| **Topology** | `/#/topology` | Auto-generated topology diagram |
+| **Rack Elevation** | `/#/rack` | Physical rack layout view (Ethernet and Converged modes) |
+
+The active view is highlighted with an underline. Browser back/forward buttons navigate between views.
 
 ## Mode Selector
 
@@ -27,33 +42,58 @@ The mode selector appears in the top bar next to the NetStack logo. It contains 
 
 | Button | Mode | Description |
 |--------|------|-------------|
-| **Spine-Leaf** | Ethernet | Dell Leaf-Spine + OOB under SONiC. Calculates leafs, spines, border leafs, OOB switches, cables, and transceivers. |
+| **Ethernet** | Ethernet | Dell PowerSwitch + OOB under SONiC. Select **Clos (Spine-Leaf)** or **Three-Tier** topology within this mode. |
 | **Fibre Channel** | FC | Brocade dual-fabric SAN. Calculates per-fabric switches, ISL cables, FC optics, and POD licenses. |
 | **Converged** | Converged | Combined Ethernet + FC from a single form. Produces a merged BOM. FC is optional -- set HBA ports to 0 to size Ethernet only. |
 
 The active mode is highlighted. Switching modes preserves your inputs in each mode -- they are stored independently.
 
-## Ethernet (Spine-Leaf) Mode
+## Ethernet Mode
 
 The **Sizing** tab contains the input form on the left and the Bill of Materials on the right. Results update automatically as you type -- there is no Submit button.
 
-### Input Parameters
+### Topology Selector
+
+At the top of the Ethernet input form, choose your network topology:
+
+| Topology | Description |
+|----------|-------------|
+| **Clos (Spine-Leaf)** | Standard leaf-spine fabric. Two leaf switches per rack (redundant pair), connected to all spine switches. |
+| **Three-Tier (Core/Aggr/Access)** | Hierarchical three-tier topology. Access switches per rack connected to aggregation switches connected to core switches. Uses Dell Z-series switches for aggregation and core. |
+
+The input form, BOM, topology diagram, rack elevation, and export all adapt to the selected topology.
+
+### Clos (Spine-Leaf) Input Parameters
 
 | Field | Description | Range / Options |
 |-------|-------------|-----------------|
 | **Racks** | Per-rack server count configuration. Each row represents one rack with its own server count. Add or remove racks as needed. | 1--200 racks; 0--500 servers per rack |
 | **Frontend Ports per Server** | Number of data/leaf-facing uplink ports on each server | 0--8 (default 1) |
 | **Backend Ports per Server** | Number of OOB management ports on each server | 0--8 (default 1) |
-| **Active Uplinks per Leaf** | Number of uplink ports each leaf switch uses towards spines. The engine clamps this to the model's physical uplink count. | 1--8 (default 4) |
+| **Active Uplinks per Leaf** | Number of uplink ports each leaf switch uses towards spines. | 1--8 (default 4) |
 | **Connectivity Type** | Per-server uplink speed | 25G (SFP28) or 100G (QSFP28) |
 | **Cable Type** | Physical cable medium for all links | DAC, AOC, or Fiber |
-| **Leaf Switch Model** | The leaf (Top-of-Rack) switch model | S5248F-ON, S5224F-ON, S5212F-ON, S5296F-ON |
+| **Leaf Switch Model** | The leaf (Top-of-Rack) switch model | S5248F-ON, S5224F-ON, S5212F-ON |
 | **Spine Switch Model** | The spine switch model | S5232F-ON |
-| **Border Leaf Model** | Optional border leaf switch for WAN/uplink connectivity | S5248F-ON, S5224F-ON, S5212F-ON, S5296F-ON, or None |
-| **Border Leaf Count** | Number of border leaf switches (set to 0 for no border leafs) | 0--4 |
-| **Switch Positioning** | Where switches are placed in the rack. Affects rack overhead, cable length advisory, and DAC compatibility. | ToR (Top of Rack), MoR (Middle of Rack), BoR (Bottom of Rack) |
-| **Server U-Height** | Physical height of each server in rack units | 1U, 2U, 4U, or 8U |
+| **Border Leaf Model** | Optional border leaf switch for WAN/uplink connectivity | S5248F-ON, S5224F-ON, S5212F-ON, or None |
+| **Border Leaf Count** | Number of border leaf switches (0 = no border leafs) | 0--4 |
+| **Switch Positioning** | Vertical placement of switches in the rack. Affects cable length advisory. | ToR (Top of Rack), MoR (Middle of Rack), BoR (Bottom of Rack) |
+| **Server U-Height** | Physical height of each server | 1U, 2U, 4U, or 8U |
 | **Rack Size** | Total rack unit capacity | 24U, 42U, or 50U |
+| **Spines already deployed** | Brownfield toggle — exclude spine switches from the BOM (cables still included) | Checkbox |
+
+### Three-Tier Input Parameters
+
+| Field | Description | Range / Options |
+|-------|-------------|-----------------|
+| **Racks** | Per-rack server count | 1--200 racks; 0--500 servers per rack |
+| **Access Switch Model** | The access (Top-of-Rack) switch | S5248F-ON, S5224F-ON, S5212F-ON |
+| **Active Uplinks per Access** | Uplinks from each access switch towards aggregation | 1--8 |
+| **Aggregation Switch Model** | The aggregation layer switch | Z9264F-ON |
+| **Active Uplinks per Aggregation** | Uplinks from each aggregation switch towards core | 1--8 |
+| **Core Switch Model** | The core layer switch | Z9332F-ON, Z9432F-ON |
+| **Core switches already deployed** | Brownfield toggle — exclude core switches from the BOM (cables still included) | Checkbox |
+| **Switch Positioning**, **Server U-Height**, **Rack Size** | Same as Clos topology | — |
 
 **OOB alert:** If per-rack server count exceeds 46, the OOB port saturation alert fires because the S3248T-ON has only 48 ports and 2 are reserved for the leaf switches.
 
@@ -224,6 +264,47 @@ The **Rack Elevation** tab shows the physical device placement inside individual
 
 **Note:** Rearranged positions are not saved -- the rack resets to default layout when you navigate away or recalculate.
 
+## Saved Configurations
+
+NetStack lets you save and reload named configuration profiles. Each profile captures the complete input state for a given mode (Ethernet, FC, or Converged), so you can quickly switch between different deployment scenarios without re-entering values.
+
+### Opening the Profile Manager
+
+Click the **folder icon** (🗁) in the top bar. A panel slides down below the top bar showing the profile manager.
+
+### Saving a Profile
+
+1. In the profile manager panel, type a name for your configuration (e.g., "DC-North 200 servers").
+2. Click **Save**. The current inputs for the active mode are saved immediately.
+3. If a profile with the same name already exists, it is **overwritten** (upsert pattern).
+
+The profile stores: mode, topology (for Ethernet/Converged), total server count, and all input fields.
+
+### Profile List
+
+The table shows all saved profiles sorted newest first, with columns:
+
+| Column | Description |
+|--------|-------------|
+| **Name** | The profile name you chose |
+| **Mode** | Ethernet, Fibre Channel, or Converged |
+| **Topology** | Clos or Three-Tier (Ethernet/Converged only) |
+| **Servers** | Total server count across all racks |
+| **Saved** | Date the profile was last saved |
+| **Actions** | Load or Delete buttons |
+
+### Loading a Profile
+
+Click **Load** next to a profile. The panel closes and all inputs are restored to the saved values. If the profile was saved in a different mode (e.g., you are in Ethernet but the profile is FC), the mode switches automatically.
+
+### Deleting a Profile
+
+Click **Delete** next to a profile. A confirmation dialog appears — confirm to remove the profile permanently.
+
+### Persistence
+
+Profiles are saved in your browser's **localStorage** under the key `netstack-profiles`. They persist across page reloads and browser restarts. Profiles are local to your browser — they are not shared across devices.
+
 ## Exporting Results
 
 Export buttons are located in the **top bar** (header), next to the mode selector and settings controls. They are disabled until a BOM has been calculated.
@@ -386,5 +467,7 @@ NetStack calculates FC BOMs for the following Brocade / Broadcom Fibre Channel s
 ## Data Persistence
 
 Your inputs are automatically saved in your browser's localStorage. Each mode (Ethernet, FC, Converged) stores its inputs independently. They persist across page reloads and browser restarts but are local to your browser -- no data is ever sent to any server. Inputs saved in one browser are not available in another browser or on another device.
+
+**Named profiles** are also stored in localStorage (key: `netstack-profiles`). They are independent of the live input state -- saving a profile takes a snapshot; subsequent input changes do not update the saved profile automatically.
 
 In addition to localStorage, the **service worker cache** stores all application assets (HTML, CSS, JavaScript, images) for offline use. This cache is managed automatically and updated when a new version of NetStack is deployed.

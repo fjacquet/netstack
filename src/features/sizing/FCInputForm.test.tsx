@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { FCInputForm } from './fc/FCInputForm'
+import { FCInputAccordion } from '../input/FCInputAccordion'
 import { useFCInputStore } from '@/store/fcInputStore'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { FCSizingInput } from '@/domain/schemas/fc-input'
@@ -49,7 +49,7 @@ function makeInput(overrides: Partial<FCSizingInput> = {}): FCSizingInput {
 function mockStore(
   input: FCSizingInput,
   setInput: (partial: Partial<FCSizingInput>) => void,
-  resetInput: () => void
+  resetInput: () => void = vi.fn()
 ) {
   vi.mocked(useFCInputStore).mockImplementation(
     (selector: (s: MockFCState) => unknown) =>
@@ -62,7 +62,7 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   return <TooltipProvider>{children}</TooltipProvider>
 }
 
-describe('FCInputForm', () => {
+describe('FCInputAccordion (migrated from FCInputForm)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -71,10 +71,9 @@ describe('FCInputForm', () => {
 
   it('renders a field labelled fc.hbaPortsPerServer', () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     expect(screen.getByText('fc.hbaPortsPerServer')).toBeInTheDocument()
   })
@@ -83,10 +82,9 @@ describe('FCInputForm', () => {
 
   it('renders a field labelled fc.storageTargetPorts', () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     expect(screen.getByText('fc.storageTargetPorts')).toBeInTheDocument()
   })
@@ -95,10 +93,9 @@ describe('FCInputForm', () => {
 
   it('renders a field labelled fc.storageArrayCount', () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     expect(screen.getByText('fc.storageArrayCount')).toBeInTheDocument()
   })
@@ -107,10 +104,9 @@ describe('FCInputForm', () => {
 
   it('renders a field labelled fc.islPortsPerSwitch', () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     expect(screen.getByText('fc.islPortsPerSwitch')).toBeInTheDocument()
   })
@@ -119,10 +115,9 @@ describe('FCInputForm', () => {
 
   it('renders FC switch model selector with exactly 9 options: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8', async () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     // Open the FC switch model select to expose options in the DOM
     // The fcSwitchModel select trigger shows the current model value
@@ -148,26 +143,13 @@ describe('FCInputForm', () => {
 
   // ── FC-10: Rack configuration section ────────────────────────────────────
 
-  it('renders a rack count section labelled sizing.rackConfigHeading', () => {
+  it('renders a rack config section labelled input.section.rackConfig', () => {
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
+    mockStore(makeInput(), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
-    expect(screen.getByText('sizing.rackConfigHeading')).toBeInTheDocument()
-  })
-
-  // ── FC-10: Reset button ───────────────────────────────────────────────────
-
-  it('renders a reset button labelled fc.resetButton', () => {
-    const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
-
-    render(<FCInputForm />, { wrapper: Wrapper })
-
-    expect(screen.getByText('fc.resetButton')).toBeInTheDocument()
+    expect(screen.getByText('input.section.rackConfig')).toBeInTheDocument()
   })
 
   // ── FC-10: Changing hbaPortsPerServer calls setInput ─────────────────────
@@ -175,10 +157,9 @@ describe('FCInputForm', () => {
   it('changing hbaPortsPerServer to 4 calls setInput with { hbaPortsPerServer: 4 }', async () => {
     vi.useFakeTimers()
     const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput({ hbaPortsPerServer: 2 }), setInput, resetInput)
+    mockStore(makeInput({ hbaPortsPerServer: 2 }), setInput)
 
-    render(<FCInputForm />, { wrapper: Wrapper })
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     const hbaInput = screen.getByTestId('hba-ports-per-server')
     await act(async () => {
@@ -191,32 +172,17 @@ describe('FCInputForm', () => {
     vi.useRealTimers()
   })
 
-  // ── FC-10: Clicking reset button calls resetInput ─────────────────────────
-
-  it('clicking reset button calls resetInput', () => {
-    const setInput = vi.fn()
-    const resetInput = vi.fn()
-    mockStore(makeInput(), setInput, resetInput)
-
-    render(<FCInputForm />, { wrapper: Wrapper })
-
-    const resetBtn = screen.getByText('fc.resetButton')
-    fireEvent.click(resetBtn)
-
-    expect(resetInput).toHaveBeenCalledTimes(1)
-  })
-
   // ── FC-10: preferredGeneration selector ──────────────────────────────────
 
   it('renders a field labelled fc.preferredGeneration', () => {
-    mockStore(makeInput(), vi.fn(), vi.fn())
-    render(<FCInputForm />, { wrapper: Wrapper })
+    mockStore(makeInput(), vi.fn())
+    render(<FCInputAccordion />, { wrapper: Wrapper })
     expect(screen.getByText('fc.preferredGeneration')).toBeInTheDocument()
   })
 
   it('when preferredGeneration is gen7, model dropdown shows 6 Gen 7 options', async () => {
-    mockStore(makeInput({ preferredGeneration: 'gen7' }), vi.fn(), vi.fn())
-    render(<FCInputForm />, { wrapper: Wrapper })
+    mockStore(makeInput({ preferredGeneration: 'gen7' }), vi.fn())
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
     // Open the switch model select — use label's htmlFor to find the correct trigger
     const selectTriggers = screen.getAllByRole('combobox')
@@ -238,15 +204,12 @@ describe('FCInputForm', () => {
   it('changing preferredGeneration calls setInput with { preferredGeneration: value }', async () => {
     vi.useFakeTimers()
     const setInput = vi.fn()
-    mockStore(makeInput({ preferredGeneration: 'any' }), setInput, vi.fn())
-    render(<FCInputForm />, { wrapper: Wrapper })
+    mockStore(makeInput({ preferredGeneration: 'any' }), setInput)
+    render(<FCInputAccordion />, { wrapper: Wrapper })
 
-    // Open and select from the generation selector (the combobox in the preferredGeneration form-item)
-    const genLabel = screen.getByText('fc.preferredGeneration')
-    const genTrigger = screen.getAllByRole('combobox').find((el) =>
-      el.closest('[data-slot="form-item"]') === genLabel.closest('[data-slot="form-item"]')
-    )
-    await act(async () => { fireEvent.click(genTrigger!) })
+    // Open the generation selector using its testid
+    const genTrigger = screen.getByTestId('preferred-generation-select')
+    await act(async () => { fireEvent.click(genTrigger) })
     const gen7Option = screen.getByRole('option', { name: 'fc.gen7' })
     await act(async () => { fireEvent.click(gen7Option) })
 

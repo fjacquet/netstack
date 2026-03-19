@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/shallow'
-import { FileSpreadsheet, FileText, Printer, Loader2 } from 'lucide-react'
+import { FileSpreadsheet, FileText, Printer, Loader2, FolderOpen } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ModeSelector } from '@/components/ModeSelector'
+import { ProfileManager } from '@/components/ProfileManager'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -12,9 +13,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useResultStore } from '@/store/resultStore'
+import { useInputStore } from '@/store/inputStore'
 import { useFCResultStore } from '@/store/fcResultStore'
 import { useConvergedResultStore } from '@/store/convergedResultStore'
-import { useThreeTierResultStore } from '@/store/threeTierResultStore'
 import { downloadBomCsv } from '@/features/export/exportCsv'
 import { downloadFCBomCsv } from '@/features/export/exportFCCsv'
 import { downloadConvergedBomCsv } from '@/features/export/exportConvergedCsv'
@@ -26,45 +27,45 @@ import { generateThreeTierPdfBlob } from '@/features/export/exportThreeTierPdf'
 import { getLastTopologyPng, getLastFCTopologyPng } from '@/features/topology'
 
 interface TopBarProps {
-  mode: 'ethernet' | 'fc' | 'converged' | 'three-tier'
-  onModeChange: (m: 'ethernet' | 'fc' | 'converged' | 'three-tier') => void
+  mode: 'ethernet' | 'fc' | 'converged'
+  onModeChange: (m: 'ethernet' | 'fc' | 'converged') => void
+  profilesOpen: boolean
+  onToggleProfiles: () => void
 }
 
-export function TopBar({ mode, onModeChange }: TopBarProps) {
+export function TopBar({ mode, onModeChange, profilesOpen, onToggleProfiles }: TopBarProps) {
   const { t } = useTranslation()
-  const bom = useResultStore(useShallow((s) => s.bom))
+  const { bom, threeTierBom } = useResultStore(
+    useShallow((s) => ({ bom: s.bom, threeTierBom: s.threeTierBom }))
+  )
+  const topology = useInputStore(useShallow((s) => s.input.topology))
   const fcBom = useFCResultStore(useShallow((s) => s.bom))
   const convergedBom = useConvergedResultStore(useShallow((s) => s.bom))
-  const threeTierBom = useThreeTierResultStore(useShallow((s) => s.bom))
-  const activeBom = mode === 'three-tier' ? threeTierBom : mode === 'fc' ? fcBom : mode === 'converged' ? convergedBom : bom
+
+  const activeBom = mode === 'fc'
+    ? fcBom
+    : mode === 'converged'
+      ? convergedBom
+      : topology === 'three-tier'
+        ? threeTierBom
+        : bom
+
   const [pdfGenerating, setPdfGenerating] = useState(false)
 
   const handleCsv = () => {
-    if (mode === 'three-tier' && threeTierBom) downloadThreeTierBomCsv(threeTierBom)
-    else if (mode === 'converged' && convergedBom) downloadConvergedBomCsv(convergedBom)
-    else if (mode === 'fc' && fcBom) downloadFCBomCsv(fcBom)
-    else if (bom) downloadBomCsv(bom)
+    if (mode === 'ethernet' && topology === 'three-tier' && threeTierBom) {
+      downloadThreeTierBomCsv(threeTierBom)
+    } else if (mode === 'converged' && convergedBom) {
+      downloadConvergedBomCsv(convergedBom)
+    } else if (mode === 'fc' && fcBom) {
+      downloadFCBomCsv(fcBom)
+    } else if (bom) {
+      downloadBomCsv(bom)
+    }
   }
 
   const handlePdf = async () => {
-    if (mode === 'three-tier') {
-      if (!threeTierBom) return
-      setPdfGenerating(true)
-      try {
-        // No three-tier topology PNG capture exists yet -- pass undefined
-        const blob = await generateThreeTierPdfBlob(threeTierBom, undefined)
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'netstack-three-tier-report.pdf'
-        a.click()
-        URL.revokeObjectURL(url)
-      } catch {
-        // Silently fail -- user can retry
-      } finally {
-        setPdfGenerating(false)
-      }
-    } else if (mode === 'converged') {
+    if (mode === 'converged') {
       if (!convergedBom) return
       setPdfGenerating(true)
       try {
@@ -79,7 +80,7 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         a.click()
         URL.revokeObjectURL(url)
       } catch {
-        // Silently fail — user can retry
+        // Silently fail -- user can retry
       } finally {
         setPdfGenerating(false)
       }
@@ -97,7 +98,23 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         a.click()
         URL.revokeObjectURL(url)
       } catch {
-        // Silently fail — user can retry
+        // Silently fail -- user can retry
+      } finally {
+        setPdfGenerating(false)
+      }
+    } else if (mode === 'ethernet' && topology === 'three-tier') {
+      if (!threeTierBom) return
+      setPdfGenerating(true)
+      try {
+        const blob = await generateThreeTierPdfBlob(threeTierBom)
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'netstack-three-tier-report.pdf'
+        a.click()
+        URL.revokeObjectURL(url)
+      } catch {
+        // Silently fail -- user can retry
       } finally {
         setPdfGenerating(false)
       }
@@ -114,7 +131,7 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         a.click()
         URL.revokeObjectURL(url)
       } catch {
-        // Silently fail — user can retry
+        // Silently fail -- user can retry
       } finally {
         setPdfGenerating(false)
       }
@@ -124,6 +141,7 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
   const handlePrint = () => window.print()
 
   return (
+    <>
     <header className="flex h-11 items-center border-b bg-secondary/50 px-4">
       <img src={`${import.meta.env.BASE_URL}favicon-32x32.png`} alt="NetStack" className="mr-2 h-7 w-7" />
       <span className="text-[28px] font-semibold leading-none tracking-tight">
@@ -133,6 +151,23 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
       <ModeSelector mode={mode} onModeChange={onModeChange} />
 
       <div className="ml-auto flex items-center gap-1">
+        {/* Profile manager toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={profilesOpen ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={onToggleProfiles}
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('profiles.heading')}</TooltipContent>
+        </Tooltip>
+
+        <div className="mx-1 h-5 w-px bg-border" />
+
         {/* Export buttons */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -188,5 +223,12 @@ export function TopBar({ mode, onModeChange }: TopBarProps) {
         <LanguageSwitcher />
       </div>
     </header>
+    <ProfileManager
+      mode={mode}
+      open={profilesOpen}
+      onClose={onToggleProfiles}
+      onModeChange={onModeChange}
+    />
+    </>
   )
 }

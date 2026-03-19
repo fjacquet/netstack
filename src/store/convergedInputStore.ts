@@ -34,6 +34,9 @@ const DEFAULT_CONVERGED_INPUT: ConvergedSizingInput = {
   aggregationModel: 'Z9264F-ON',
   activeUplinksPerAggregation: 4,
   coreModel: 'Z9332F-ON',
+  // Brownfield toggles
+  existingSpinesDeployed: false,
+  existingCoreDeployed: false,
   // FC (disabled by default)
   hbaPortsPerServer: 0,
   storageTargetPorts: 4,

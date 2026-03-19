@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-import { InputForm } from './InputForm'
+import { EthInputAccordion } from '../input/EthInputAccordion'
 import { useInputStore } from '@/store/inputStore'
 import type { SizingInput } from '@/domain/schemas/input'
 
@@ -21,19 +21,27 @@ vi.mock('react-i18next', () => ({
 /** Returns a default SizingInput with optional overrides */
 function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
   return {
+    topology: 'leaf-spine',
     racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
     portsPerServerFrontend: 1,
     portsPerServerBackend: 1,
-    activeUplinksPerLeaf: 4,
     connectivityType: '25G',
     cableType: 'DAC',
+    activeUplinksPerLeaf: 4,
     leafModel: 'S5248F-ON',
     spineModel: 'S5232F-ON',
+    accessModel: 'S5248F-ON',
+    activeUplinksPerAccess: 4,
+    aggregationModel: 'Z9264F-ON',
+    activeUplinksPerAggregation: 4,
+    coreModel: 'Z9332F-ON',
     borderLeafModel: 'none',
     borderLeafCount: 0,
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR' as const,
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
     ...overrides,
   }
 }
@@ -54,11 +62,11 @@ beforeEach(() => {
   resetInputMock.mockClear()
 })
 
-describe('InputForm', () => {
+describe('EthInputAccordion (migrated from InputForm)', () => {
   // RACK-01: explicit rack count input
   it('renders rack count input with value from store', () => {
     mockStore(makeInput())
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const rackCountInput = screen.getByTestId('rack-count')
     expect(rackCountInput).toBeInTheDocument()
     expect((rackCountInput as HTMLInputElement).value).toBe('3')
@@ -66,7 +74,7 @@ describe('InputForm', () => {
 
   it('renders per-rack server count inputs matching racks array length', () => {
     mockStore(makeInput())
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     expect(screen.getByTestId('rack-server-0')).toBeInTheDocument()
     expect(screen.getByTestId('rack-server-1')).toBeInTheDocument()
     expect(screen.getByTestId('rack-server-2')).toBeInTheDocument()
@@ -83,7 +91,7 @@ describe('InputForm', () => {
         { serverCount: 5 },
       ],
     }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     expect(screen.getByTestId('rack-server-0')).toBeInTheDocument()
     expect(screen.getByTestId('rack-server-4')).toBeInTheDocument()
     expect(screen.queryByTestId('rack-server-5')).toBeNull()
@@ -96,7 +104,7 @@ describe('InputForm', () => {
     mockStore(makeInput({
       racks: [{ serverCount: 10 }, { serverCount: 20 }, { serverCount: 30 }],
     }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     expect((screen.getByTestId('rack-server-0') as HTMLInputElement).value).toBe('10')
     expect((screen.getByTestId('rack-server-1') as HTMLInputElement).value).toBe('20')
     expect((screen.getByTestId('rack-server-2') as HTMLInputElement).value).toBe('30')
@@ -106,7 +114,7 @@ describe('InputForm', () => {
     mockStore(makeInput({
       racks: [{ serverCount: 10 }, { serverCount: 20 }, { serverCount: 30 }],
     }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     // The total key is rendered as "sizing.totalServersDisplay:{"count":60}"
     expect(screen.getByText(/60/)).toBeInTheDocument()
   })
@@ -114,7 +122,7 @@ describe('InputForm', () => {
   // PORT-01: frontend port count
   it('renders frontend port count input with store value', () => {
     mockStore(makeInput({ portsPerServerFrontend: 2 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('ports-frontend') as HTMLInputElement
     expect(input).toBeInTheDocument()
     expect(input.value).toBe('2')
@@ -122,7 +130,7 @@ describe('InputForm', () => {
 
   it('frontend port input has min=0 and max=8', () => {
     mockStore(makeInput())
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('ports-frontend') as HTMLInputElement
     expect(input.min).toBe('0')
     expect(input.max).toBe('8')
@@ -131,7 +139,7 @@ describe('InputForm', () => {
   // PORT-02: backend port count
   it('renders backend port count input with store value', () => {
     mockStore(makeInput({ portsPerServerBackend: 3 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('ports-backend') as HTMLInputElement
     expect(input).toBeInTheDocument()
     expect(input.value).toBe('3')
@@ -139,7 +147,7 @@ describe('InputForm', () => {
 
   it('backend port input has min=0 and max=8', () => {
     mockStore(makeInput())
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('ports-backend') as HTMLInputElement
     expect(input.min).toBe('0')
     expect(input.max).toBe('8')
@@ -148,7 +156,7 @@ describe('InputForm', () => {
   // UPLN-01: active uplinks selector
   it('renders active uplinks input with store value', () => {
     mockStore(makeInput({ activeUplinksPerLeaf: 2 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('active-uplinks') as HTMLInputElement
     expect(input).toBeInTheDocument()
     expect(input.value).toBe('2')
@@ -156,39 +164,58 @@ describe('InputForm', () => {
 
   it('uplink input max reflects S5248F-ON uplinkPorts (4)', () => {
     mockStore(makeInput({ leafModel: 'S5248F-ON', activeUplinksPerLeaf: 4 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('active-uplinks') as HTMLInputElement
     expect(input.max).toBe('4')
   })
 
   it('uplink input max reflects S5212F-ON uplinkPorts (3)', () => {
     mockStore(makeInput({ leafModel: 'S5212F-ON', activeUplinksPerLeaf: 3 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('active-uplinks') as HTMLInputElement
     expect(input.max).toBe('3')
   })
 
   it('uplink input max reflects S5296F-ON uplinkPorts (8)', () => {
     mockStore(makeInput({ leafModel: 'S5296F-ON', activeUplinksPerLeaf: 4 }))
-    render(<InputForm />)
+    render(<EthInputAccordion />)
     const input = screen.getByTestId('active-uplinks') as HTMLInputElement
     expect(input.max).toBe('8')
   })
 
-  // Section heading rendering
-  it('renders all form section headings', () => {
+  // Section heading rendering — accordion sections use input.section.* keys
+  it('renders accordion section headings', () => {
     mockStore(makeInput())
-    render(<InputForm />)
-    expect(screen.getByText('sizing.rackConfigHeading')).toBeInTheDocument()
-    expect(screen.getByText('sizing.serverConnectivityHeading')).toBeInTheDocument()
-    expect(screen.getByText('sizing.networkConfigHeading')).toBeInTheDocument()
-    expect(screen.getByText('sizing.physicalHeading')).toBeInTheDocument()
+    render(<EthInputAccordion />)
+    expect(screen.getByText('input.section.rackConfig')).toBeInTheDocument()
+    expect(screen.getByText('input.section.switchSelection')).toBeInTheDocument()
+    expect(screen.getByText('input.section.advanced')).toBeInTheDocument()
   })
 
-  // Reset button
-  it('renders reset button', () => {
-    mockStore(makeInput())
-    render(<InputForm />)
-    expect(screen.getByText('sizing.resetButton')).toBeInTheDocument()
+  // INFRA-01: Existing spines toggle visibility
+  describe('existing infrastructure toggles', () => {
+    it('renders existing-spines-toggle when topology is leaf-spine', () => {
+      mockStore(makeInput({ topology: 'leaf-spine' }))
+      render(<EthInputAccordion />)
+      expect(screen.getByTestId('existing-spines-toggle')).toBeInTheDocument()
+    })
+
+    it('renders existing-core-toggle when topology is three-tier', () => {
+      mockStore(makeInput({ topology: 'three-tier' }))
+      render(<EthInputAccordion />)
+      expect(screen.getByTestId('existing-core-toggle')).toBeInTheDocument()
+    })
+
+    it('does NOT render existing-spines-toggle when topology is three-tier', () => {
+      mockStore(makeInput({ topology: 'three-tier' }))
+      render(<EthInputAccordion />)
+      expect(screen.queryByTestId('existing-spines-toggle')).toBeNull()
+    })
+
+    it('does NOT render existing-core-toggle when topology is leaf-spine', () => {
+      mockStore(makeInput({ topology: 'leaf-spine' }))
+      render(<EthInputAccordion />)
+      expect(screen.queryByTestId('existing-core-toggle')).toBeNull()
+    })
   })
 })

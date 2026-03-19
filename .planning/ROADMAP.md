@@ -7,6 +7,7 @@
 - ✅ **v2.0 FC SAN & Switch Positioning** — Phases 8-14 (shipped 2026-03-18)
 - ✅ **v3.0 Converged Mode** — Phases 15-17 (shipped 2026-03-18)
 - ✅ **v4.0 Three-Tier Topology** — Phases 18-20 (shipped 2026-03-19)
+- ✅ **v5.0 Unified Ethernet & Configurations** — Phases 21-24 (shipped 2026-03-19)
 
 ## Phases
 
@@ -60,13 +61,25 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 </details>
 
 <details>
-<summary>✅ v4.0 Three-Tier Topology (Phases 18-20) — SHIPPED 2026-03-19</summary>
+<summary>v4.0 Three-Tier Topology (Phases 18-20) — SHIPPED 2026-03-19</summary>
 
 - [x] Phase 18: Three-Tier Domain & Engine — Z-series catalog, tier field, topology selector, TDD engine (3/3 plans, completed 2026-03-18)
 - [x] Phase 19: Three-Tier UI & Converged Integration — 4th mode, converged topology selector, input/BOM/topology/rack (3/3 plans, completed 2026-03-18)
 - [x] Phase 20: Three-Tier Export & i18n — CSV/PDF export, 4 locales (2/2 plans, completed 2026-03-19)
 
 Full details: `.planning/milestones/v4.0-ROADMAP.md`
+
+</details>
+
+<details>
+<summary>v5.0 Unified Ethernet & Configurations (Phases 21-24) — SHIPPED 2026-03-19</summary>
+
+- [x] Phase 21: Unified Ethernet Mode (2/2 plans) — completed 2026-03-19
+- [x] Phase 22: Existing Infrastructure Toggle (2/2 plans) — completed 2026-03-19
+- [x] Phase 23: Save/Load Configurations (2/2 plans) — completed 2026-03-19
+- [x] Phase 24: Dedicated Input Page with Accordion Sections (2/2 plans) — completed 2026-03-19
+
+Full details: `.planning/milestones/v5.0-ROADMAP.md`
 
 </details>
 
@@ -93,4 +106,8 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 | 17. Converged Export & i18n | v3.0 | 2/2 | Complete | 2026-03-18 |
 | 18. Three-Tier Domain & Engine | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
-| 20. Three-Tier Export & i18n | 2/2 | Complete    | 2026-03-18 | - |
+| 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
+| 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
+| 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
+| 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
+| 24. Dedicated Input Page | v5.0 | 2/2 | Complete | 2026-03-19 |

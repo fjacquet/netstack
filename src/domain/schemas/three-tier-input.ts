@@ -62,6 +62,8 @@ export const ThreeTierSizingInputSchema = z.object({
 
   /** Switch placement mode -- affects rack overhead U-count, cable length advisory, and DAC compatibility */
   switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
+  /** Brownfield: core switches already deployed, exclude from BOM purchase qty */
+  existingCoreDeployed: z.boolean().default(false),
 });
 
 /** Inferred TypeScript type -- do not declare separately */

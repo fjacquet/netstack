@@ -11,7 +11,7 @@ import {
 import '@xyflow/react/dist/base.css'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/shallow'
-import { useThreeTierResultStore } from '@/store/threeTierResultStore'
+import { useResultStore } from '@/store/resultStore'
 import { useTheme } from '@/components/theme-provider'
 import { buildThreeTierTopologyGraph } from '../utils/buildThreeTierTopologyGraph'
 import { SwitchNode } from '../nodes/SwitchNode'
@@ -33,7 +33,7 @@ const nodeTypes = {
  */
 function ThreeTierCanvas() {
   const { t } = useTranslation()
-  const bom = useThreeTierResultStore(useShallow((s) => s.bom))
+  const bom = useResultStore(useShallow((s) => s.threeTierBom))
   const { theme } = useTheme()
   const rfInstance = useReactFlow()
 
@@ -108,7 +108,7 @@ function ThreeTierCanvas() {
  */
 export function ThreeTierTopologyTab() {
   const { t } = useTranslation()
-  const bom = useThreeTierResultStore(useShallow((s) => s.bom))
+  const bom = useResultStore(useShallow((s) => s.threeTierBom))
   const [showLegend, setShowLegend] = useState(false)
 
   const dispatchAction = useCallback((action: string) => {
