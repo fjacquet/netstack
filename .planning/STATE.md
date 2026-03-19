@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Unified Ethernet & Configurations
 status: completed
-stopped_at: Completed 22-02-PLAN.md
-last_updated: "2026-03-19T04:40:35.969Z"
-last_activity: 2026-03-19 -- Plan 02 complete (brownfield UI toggles + BOM labels)
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-03-19T05:00:46.922Z"
+last_activity: 2026-03-19 -- Plan 01 complete (profile domain layer + i18n)
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 67
+  total_plans: 6
+  completed_plans: 5
+  percent: 83
 ---
 
 # Project State
@@ -21,20 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** v5.0 Unified Ethernet & Configurations -- Phase 22 complete, Phase 23 next
+**Current focus:** v5.0 Unified Ethernet & Configurations -- Phase 23 Plan 01 complete, Plan 02 next
 
 ## Current Position
 
-Phase: 22 of 23 (Existing Infrastructure Toggle) -- COMPLETE
-Plan: 2 of 2 in current phase (all done)
-Status: Phase 22 complete, Phase 23 pending
-Last activity: 2026-03-19 -- Plan 02 complete (brownfield UI toggles + BOM labels)
+Phase: 23 of 23 (Save/Load Configurations) -- IN PROGRESS
+Plan: 1 of 2 in current phase (Plan 01 done, Plan 02 pending)
+Status: Plan 01 complete (profile domain layer), Plan 02 pending (profile manager UI)
+Last activity: 2026-03-19 -- Plan 01 complete (profile domain layer + i18n)
 
-Progress: [######░░░░] 67% (v5.0 milestone)
+Progress: [########░░] 83% (v5.0 milestone)
 
 ## Performance Metrics
 
 **Velocity (from v4.0):**
+
 - Total plans completed: 8 (v4.0)
 - Average duration: 5.9 min
 - Total execution time: 0.78 hours
@@ -53,10 +54,12 @@ Progress: [######░░░░] 67% (v5.0 milestone)
 |-------|-------|-------|----------|
 | 21-unified-ethernet-mode | 2/2 | 16min | 8min |
 | 22-existing-infrastructure-toggle | 2/2 | 10min | 5min |
+| 23-save-load-configurations | 1/2 | 4min | 4min |
 
 **Recent Trend:** Stable
 
 *Updated after each plan completion*
+| Phase 23 P01 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -86,6 +89,9 @@ Key architectural decisions relevant to v5.0:
 - [v5.0-P22]: inputStore version 8 with existingSpinesDeployed/existingCoreDeployed brownfield toggles
 - [v5.0-P22]: Brownfield toggles as native checkbox inside FormField for consistent form handling
 - [v5.0-P22]: BOM panel reads brownfield state from inputStore (not resultStore) for direct UI control
+- [v5.0-P23]: z.record(z.string(), z.unknown()) for profile inputState -- avoids circular coupling with mode-specific schemas
+- [v5.0-P23]: Duplicate profile name overwrites existing (upsert pattern, keeps same id)
+- [Phase 23]: z.record(z.string(), z.unknown()) for profile inputState -- avoids circular coupling with mode-specific schemas
 
 ### Pending Todos
 
@@ -97,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19
-Stopped at: Completed 22-02-PLAN.md
+Last session: 2026-03-19T05:00:41.542Z
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None

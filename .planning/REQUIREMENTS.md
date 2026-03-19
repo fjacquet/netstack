@@ -24,12 +24,12 @@
 
 ### Save/Load Configurations
 
-- [ ] **CFG-01**: User can save current input state as a named profile
-- [ ] **CFG-02**: User can load a saved profile, restoring all inputs
-- [ ] **CFG-03**: User can list saved profiles with summary (mode, topology, server count, date)
-- [ ] **CFG-04**: User can delete a saved profile
-- [ ] **CFG-05**: Profiles persist in localStorage across browser sessions
-- [ ] **CFG-06**: i18n labels for all configuration features in EN/FR/DE/IT
+- [x] **CFG-01**: User can save current input state as a named profile
+- [x] **CFG-02**: User can load a saved profile, restoring all inputs
+- [x] **CFG-03**: User can list saved profiles with summary (mode, topology, server count, date)
+- [x] **CFG-04**: User can delete a saved profile
+- [x] **CFG-05**: Profiles persist in localStorage across browser sessions
+- [x] **CFG-06**: i18n labels for all configuration features in EN/FR/DE/IT
 
 ## Future Requirements
 
@@ -59,12 +59,12 @@
 | INFRA-02 | Phase 22 | Complete |
 | INFRA-03 | Phase 22 | Complete |
 | INFRA-04 | Phase 22 | Complete |
-| CFG-01 | Phase 23 | Pending |
-| CFG-02 | Phase 23 | Pending |
-| CFG-03 | Phase 23 | Pending |
-| CFG-04 | Phase 23 | Pending |
-| CFG-05 | Phase 23 | Pending |
-| CFG-06 | Phase 23 | Pending |
+| CFG-01 | Phase 23 | Complete |
+| CFG-02 | Phase 23 | Complete |
+| CFG-03 | Phase 23 | Complete |
+| CFG-04 | Phase 23 | Complete |
+| CFG-05 | Phase 23 | Complete |
+| CFG-06 | Phase 23 | Complete |
 
 **Coverage:**
 - v5.0 requirements: 15 total
