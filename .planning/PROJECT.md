@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A client-side network sizing calculator supporting three modes: Dell Leaf-Spine Ethernet (Spine-Leaf), Brocade Fibre Channel SAN, and Converged (Ethernet + FC combined). Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser PWA deployed to GitHub Pages.
+A client-side network sizing calculator supporting four modes: **Spine-Leaf** (Dell Clos Ethernet), **Three-Tier** (Core/Aggregation/Access), **Fibre Channel** (Brocade FC SAN), and **Converged** (Ethernet + FC combined with topology selector). Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser PWA deployed to GitHub Pages.
 
 ## Core Value
 
@@ -47,18 +47,16 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Converged CSV/PDF export combining both Ethernet and FC sections — v3.0
 - ✓ Rack-level switch positioning (ToR/MoR/BoR) with OOB co-location (ADR-0013/0014) — v3.0
 
-## Current Milestone: v4.0 Three-Tier Topology
+- ✓ Three-Tier (Core/Aggregation/Access) topology as standalone mode + Converged topology selector (GH #9) — v4.0
+- ✓ Dell Z-series catalog: Z9264F-ON (64×100G), Z9332F-ON (32×400G), Z9432F-ON (32×400G) with tier field — v4.0
+- ✓ Three-tier sizing engine: access (2/rack), aggregation (formula, min 2), core (formula, min 2) — v4.0
+- ✓ Dual oversubscription at each tier boundary (access→aggr, aggr→core) — v4.0
+- ✓ Hierarchical topology diagram (tree layout: core → aggr → access → racks) — v4.0
+- ✓ Three-tier rack elevation: server racks with access switches + aggregation/core network racks — v4.0
+- ✓ Three-tier CSV/PDF export (standalone + converged integration) — v4.0
+- ✓ Converged mode topology selector: Leaf-Spine (Clos) or Three-Tier for Ethernet portion — v4.0
 
-**Goal:** Add Core/Aggregation/Access (3-tier) topology as an option within Spine-Leaf and Converged modes (GH #9). Not a new mode — a topology selector that changes the sizing engine, BOM output, and topology diagram while reusing rack elevation, export, and i18n infrastructure.
-
-**Target features:**
-- Topology selector: Leaf-Spine (Clos) vs Core/Aggr/Access (3-tier)
-- New sizing formulas for access/aggregation/core switch tiers
-- Oversubscription at each tier boundary
-- Hierarchical topology diagram (tree layout)
-- Works in both Spine-Leaf and Converged modes
-
-### Future (v4.0+)
+### Future (v5.0+)
 
 - Save/load named configurations
 - JSON export
@@ -77,6 +75,7 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ## Context
 
+Shipped v4.0 with 21,135 LOC TypeScript, 536 tests, 28 commits across 3 phases (18–20).
 Shipped v3.0 with 16,248 LOC TypeScript, 416 tests, 30 commits across 3 phases (15–17).
 Shipped v2.0 with 13,283 LOC TypeScript, 388 tests, 50 commits across 7 phases (8–14), 169 files changed.
 Shipped v1.1 with 223 tests, 34 commits across 3 phases (5–7), 55 files changed.
@@ -117,4 +116,4 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | FC ISL formula: fan-in ratio 7:1 (Broadcom threshold) | Matches Broadcom advisory; differs from Ethernet uplink formula | ✓ Good |
 
 ---
-*Last updated: 2026-03-18 after v3.0 milestone*
+*Last updated: 2026-03-19 after v4.0 milestone*
