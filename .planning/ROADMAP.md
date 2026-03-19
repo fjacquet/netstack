@@ -148,10 +148,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Exported CSV contains cable schedule rows with columns: link type, quantity, computed length, and standard SKU
   2. Exported PDF contains a cable schedule section with the same data, formatted consistently with existing BOM pages
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 28-01: CSV cable schedule rows + PDF cable schedule section
+- [ ] 28-01-PLAN.md — CSV cable schedule rows + PDF cable schedule section
 
 ## Progress
 
