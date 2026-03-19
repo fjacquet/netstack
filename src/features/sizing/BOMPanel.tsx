@@ -304,28 +304,34 @@ function ThreeTierBOMContent({ bom, violations, existingCoreDeployed }: { bom: T
                 <TableRow>
                   <TableHead scope="col">{t('bom.colCableType')}</TableHead>
                   <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                  <TableHead scope="col">{t('bom.colCableLength')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
                   <TableCell>{t('threeTier.serverAccessCables')}</TableCell>
                   <TableCell>{bom.serverAccessCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.serverAccessSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('threeTier.accessAggrCables')}</TableCell>
                   <TableCell>{bom.accessAggrCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.accessAggregationSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('threeTier.aggrCoreCables')}</TableCell>
                   <TableCell>{bom.aggrCoreCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.aggregationCoreSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Server-OOB</TableCell>
                   <TableCell>{bom.serverOobCables}</TableCell>
+                  <TableCell>—</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('threeTier.vltCables')}</TableCell>
                   <TableCell>{bom.vltCables}</TableCell>
+                  <TableCell>—</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -706,6 +712,7 @@ export function BOMPanel() {
                   <TableHead scope="col">{t('bom.colCableType')}</TableHead>
                   <TableHead scope="col">{t('bom.colCableCategory')}</TableHead>
                   <TableHead scope="col">{t('bom.colQty')}</TableHead>
+                  <TableHead scope="col">{t('bom.colCableLength')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -713,27 +720,32 @@ export function BOMPanel() {
                   <TableCell>Leaf-Spine</TableCell>
                   <TableCell>{cableCategory100G}</TableCell>
                   <TableCell>{bom.leafSpineCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.leafSpineSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Server-Leaf</TableCell>
                   <TableCell>{cableCategory25G}</TableCell>
                   <TableCell>{bom.serverLeafCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.serverLeafSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Server-OOB</TableCell>
                   <TableCell>1G RJ45</TableCell>
                   <TableCell>{bom.serverOobCables}</TableCell>
+                  <TableCell>—</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>VLT Interconnect</TableCell>
                   <TableCell>QSFP28-DD</TableCell>
                   <TableCell>{bom.vltCables}</TableCell>
+                  <TableCell>{bom.cableSchedule ? `${bom.cableSchedule.vltSkuM}m` : '—'}</TableCell>
                 </TableRow>
                 {bom.sfp28Count > 0 && (
                   <TableRow>
                     <TableCell>{t('bom.sfp28Transceiver')}</TableCell>
                     <TableCell>SFP28 LC (25G)</TableCell>
                     <TableCell>{bom.sfp28Count}</TableCell>
+                    <TableCell>—</TableCell>
                   </TableRow>
                 )}
                 {bom.qsfp28Count > 0 && (
@@ -741,6 +753,7 @@ export function BOMPanel() {
                     <TableCell>{t('bom.qsfp28Transceiver')}</TableCell>
                     <TableCell>QSFP28 MPO (100G)</TableCell>
                     <TableCell>{bom.qsfp28Count}</TableCell>
+                    <TableCell>—</TableCell>
                   </TableRow>
                 )}
               </TableBody>

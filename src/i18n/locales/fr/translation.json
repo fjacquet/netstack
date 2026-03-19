@@ -286,6 +286,7 @@
     "colUtilization": "Utilisation",
     "colCableType": "Type",
     "colCableCategory": "Categorie",
+    "colCableLength": "Longueur",
     "roleLeaf": "Leaf (ToR)",
     "roleSpine": "Spine",
     "roleOob": "OOB",
