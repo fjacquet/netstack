@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Unified Ethernet & Configurations
-status: planning
-stopped_at: Roadmap created, ready to plan Phase 21
-last_updated: "2026-03-19T09:00:00.000Z"
-last_activity: 2026-03-19 — v5.0 roadmap created (3 phases, 15 requirements)
+status: in-progress
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-03-19T03:59:31.000Z"
+last_activity: 2026-03-19 — Phase 21 Plan 01 complete (unified schema + mode reduction)
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 17
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** v5.0 Unified Ethernet & Configurations — Phase 21 ready to plan
+**Current focus:** v5.0 Unified Ethernet & Configurations — Phase 21 in progress
 
 ## Current Position
 
 Phase: 21 of 23 (Unified Ethernet Mode)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-19 — v5.0 roadmap created
+Plan: 2 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-19 — Plan 01 complete (unified schema + mode reduction)
 
-Progress: [░░░░░░░░░░] 0% (v5.0 milestone)
+Progress: [##░░░░░░░░] 17% (v5.0 milestone)
 
 ## Performance Metrics
 
@@ -46,6 +46,12 @@ Progress: [░░░░░░░░░░] 0% (v5.0 milestone)
 | 18-three-tier-domain-engine | 3/3 | 19min | 6.3min |
 | 19-three-tier-ui-converged | 3/3 | 20min | 6.7min |
 | 20-three-tier-export-i18n | 2/2 | 8min | 4min |
+
+**By Phase (v5.0):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 21-unified-ethernet-mode | 1/2 | 9min | 9min |
 
 **Recent Trend:** Stable
 
@@ -65,6 +71,10 @@ Key architectural decisions relevant to v5.0:
 - [v5.0]: Unified Ethernet merges Spine-Leaf + Three-Tier under one mode with topology selector (ADR-0018)
 - [v5.0]: Existing infrastructure toggle for brownfield deployments (ADR-0019)
 - [v5.0]: Save/load named configurations to localStorage (ADR-0020)
+- [v5.0-P21]: Unified SizingInputSchema with topology discriminator instead of separate schemas
+- [v5.0-P21]: Mode type reduced from 4 to 3 values (three-tier absorbed into ethernet)
+- [v5.0-P21]: resultStore topology-aware dispatch to calculateBOM or calculateThreeTierBOM
+- [v5.0-P21]: inputStore version 7 with automatic v6->v7 migration
 
 ### Pending Todos
 
@@ -77,5 +87,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: v5.0 roadmap created, ready to plan Phase 21
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None
