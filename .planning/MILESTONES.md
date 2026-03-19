@@ -1,13 +1,18 @@
 # Milestones
 
-## v5.0 Unified Ethernet & Configurations (In Progress)
+## v5.0 Unified Ethernet & Configurations (Shipped: 2026-03-19)
 
-**Phases planned:** 3 phases (21-23), 15 requirements
+**Phases completed:** 4 phases (21-24), 8 plans | 15/15 requirements satisfied | 552 tests
+**Timeline:** 1 day (2026-03-19)
 
-**Target features:**
-- Merge Spine-Leaf and Three-Tier into single Ethernet mode with topology selector
-- Existing infrastructure toggle (core/spines already deployed) for brownfield
-- Save/load named configurations to localStorage with full CRUD
+**Key accomplishments:**
+
+- Unified Ethernet mode — Clos (Spine-Leaf) and Three-Tier merged into a single mode with topology selector; ModeSelector reduced from 4 to 3 buttons
+- Brownfield toggles — "Spines already deployed" (Clos) and "Core switches already deployed" (Three-Tier); BOM excludes existing switches, preserves cable quantities and oversubscription calculations
+- Named configuration profiles — save/load/delete/list input profiles persisted to localStorage; ProfileManager slide-down panel in TopBar
+- Dedicated full-page accordion input form at `/#/input` for all 3 modes; sections: Rack Config / Switch Selection / Advanced (Ethernet), Rack Config / Fabric Config / Advanced (FC), Rack Config / Ethernet Switches / FC Fabric / Advanced (Converged)
+- React Router (HashRouter) — all views deep-linkable (`/#/`, `/#/input`, `/#/topology`, `/#/rack`); browser back/forward works; nav strip replaces Tabs
+- Architecture Decision Records: ADR-0018 through ADR-0022
 
 ---
 
@@ -16,6 +21,7 @@
 **Phases completed:** 3 phases, 8 plans, 0 tasks
 
 **Key accomplishments:**
+
 - (none recorded)
 
 ---
@@ -25,6 +31,7 @@
 **Phases planned:** 3 phases (18-20), 18 requirements
 
 **Target features:**
+
 - Core/Aggregation/Access (3-tier) topology as standalone mode and Converged option
 - Z-series switches (Z9264F-ON, Z9332F-ON, Z9432F-ON) in hardware catalog
 - 3-tier sizing engine with per-boundary oversubscription
@@ -39,6 +46,7 @@
 **Phases completed:** 3 phases, 7 plans, 0 tasks
 
 **Key accomplishments:**
+
 - (none recorded)
 
 ---

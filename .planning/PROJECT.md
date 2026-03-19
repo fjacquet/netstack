@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A client-side network sizing calculator supporting four modes: **Spine-Leaf** (Dell Clos Ethernet), **Three-Tier** (Core/Aggregation/Access), **Fibre Channel** (Brocade FC SAN), and **Converged** (Ethernet + FC combined with topology selector). Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Pure browser PWA deployed to GitHub Pages.
+A client-side network sizing calculator supporting three modes: **Ethernet** (Dell Clos or Three-Tier under SONiC, topology selector), **Fibre Channel** (Brocade FC SAN, dual-fabric), and **Converged** (Ethernet + FC combined). Engineers input server count and connectivity requirements, and the tool produces a complete Bill of Materials with interactive topology diagrams, rack elevation views, and CSV/PDF export. Full-page accordion input form at `/#/input`; all views deep-linkable via React Router. Pure browser PWA deployed to GitHub Pages.
 
 ## Core Value
 
@@ -56,16 +56,15 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 - ✓ Three-tier CSV/PDF export (standalone + converged integration) — v4.0
 - ✓ Converged mode topology selector: Leaf-Spine (Clos) or Three-Tier for Ethernet portion — v4.0
 
-## Current Milestone: v5.0 Unified Ethernet & Configurations
+- ✓ Unified Ethernet mode: Clos + Three-Tier merged; topology selector dropdown; ModeSelector = 3 buttons — v5.0
+- ✓ Brownfield toggles: "Spines already deployed" (Clos) + "Core switches already deployed" (Three-Tier); BOM excludes existing, cables preserved — v5.0
+- ✓ Named configuration profiles: save/load/delete/list input state to localStorage; ProfileManager slide-down from TopBar — v5.0
+- ✓ Dedicated full-page accordion input form at `/#/input` for all 3 modes; shadcn/ui Accordion — v5.0
+- ✓ React Router (HashRouter): `/#/`, `/#/input`, `/#/topology`, `/#/rack` — all views deep-linkable — v5.0
+- ✓ Nav strip with Configure / Results / Topology / Rack Elevation NavLinks replacing Tabs — v5.0
+- ✓ i18n labels for all v5.0 features in EN/FR/DE/IT — v5.0
 
-**Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector (ADR-0018), add existing infrastructure toggle for brownfield deployments (ADR-0019), and save/load named configurations (ADR-0020).
-
-**Target features:**
-- 3 modes: Ethernet (Clos or 3-tier), FC, Converged
-- Existing infrastructure toggle (core/spines already deployed)
-- Save/load named configurations to localStorage
-
-### Future (v5.0+)
+### Future (v6.0+)
 
 - JSON export
 - Multi-pod support for large deployments
@@ -83,13 +82,14 @@ Answer the question *"How many boxes and cables do I need to order?"* instantly 
 
 ## Context
 
+Shipped v5.0 with 552 tests, 4 phases (21–24), accordion input page, React Router, ProfileManager, brownfield toggles, ADR-0018–0022.
 Shipped v4.0 with 21,135 LOC TypeScript, 536 tests, 28 commits across 3 phases (18–20).
 Shipped v3.0 with 16,248 LOC TypeScript, 416 tests, 30 commits across 3 phases (15–17).
 Shipped v2.0 with 13,283 LOC TypeScript, 388 tests, 50 commits across 7 phases (8–14), 169 files changed.
 Shipped v1.1 with 223 tests, 34 commits across 3 phases (5–7), 55 files changed.
 Shipped v1.0 with 6,990 LOC TypeScript, 144 tests, 50 commits.
-Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflow/react, @react-pdf/renderer.
-5 Dell PowerSwitch models: S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON.
+Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui (Accordion), Zustand v5, Zod v4, @xyflow/react, @react-pdf/renderer, React Router v7 (HashRouter).
+5 Dell PowerSwitch models (Ethernet): S5248F-ON, S5232F-ON, S5224F-ON, S5212F-ON, S3248T-ON. 3 Dell Z-series (Three-Tier): Z9264F-ON, Z9332F-ON, Z9432F-ON.
 9 Brocade FC switch models: G710, G720, G730, X7-4, X7-8, 7850, G820, X8-4, X8-8.
 
 ## Constraints
@@ -122,6 +122,11 @@ Tech stack: React 19, Vite 6, Tailwind v4, shadcn/ui, Zustand v5, Zod v4, @xyflo
 | Two independent ReactFlowProvider instances for FC fabric A/B | Prevents cross-fabric edge rendering bugs | ✓ Good |
 | TDD (RED→GREEN) for all pure domain functions | Catches formula errors before UI is written | ✓ Good |
 | FC ISL formula: fan-in ratio 7:1 (Broadcom threshold) | Matches Broadcom advisory; differs from Ethernet uplink formula | ✓ Good |
+| HashRouter (no basename) for React Router | GitHub Pages hash routing; no server config needed | ✓ Good |
+| Brownfield post-processing in resultStore (not engine) | Keeps calculateBOM/calculateThreeTierBOM pure; post-processing is a UI concern | ✓ Good |
+| ProfileManager in TopBar as React fragment with fixed positioning | Slide-down overlay without layout disruption | ✓ Good |
+| NavLink `end` prop on root route (`/`) | Prevents Results nav item staying active on all routes | ✓ Good |
+| shadcn/ui Accordion with `defaultValue="rack-config"` | Rack Config open on load; single open section focus | ✓ Good |
 
 ---
-*Last updated: 2026-03-19 after v4.0 milestone*
+*Last updated: 2026-03-19 after v5.0 milestone*
