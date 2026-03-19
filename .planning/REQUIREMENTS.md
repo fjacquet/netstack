@@ -1,75 +1,98 @@
-# Requirements: NetStack v5.0
+# Requirements: NetStack v6.0 Physical Planning
 
 **Defined:** 2026-03-19
-**Core Value:** Answer "How many boxes and cables do I need?" instantly and accurately
+**Core Value:** Answer "How many boxes and cables do I need to order?" instantly and accurately — and now also "How long should those cables be?"
 
-> v4.0 requirements archived to `.planning/milestones/v4.0-REQUIREMENTS.md` (18/18 satisfied).
+## v6.0 Requirements
 
-## v5.0 Requirements
+### Cable Length Schedule
 
-### Unified Ethernet Mode
+- [ ] **CABLE-01**: User sees recommended cable length (metres + SKU) for server→leaf links in all modes
+- [ ] **CABLE-02**: User sees recommended cable length for leaf→spine and VLT links in Clos mode
+- [ ] **CABLE-03**: User sees three cable length estimates for Three-Tier: server→access, access→aggregation, aggregation→core
+- [ ] **CABLE-04**: User sees estimated ISL cable length for FC SAN mode
+- [ ] **CABLE-05**: Cable lengths map to nearest standard SKU (1m/3m/5m/10m ladder) with 15% slack buffer
+- [ ] **CABLE-06**: Cable lengths computed from rack pitch, rack height (derived from rack size), and switch position (ToR/MoR/BoR)
 
-- [x] **ETH-01**: Spine-Leaf and Three-Tier merged into a single "Ethernet" mode with topology selector dropdown
-- [x] **ETH-02**: ModeSelector shows 3 buttons (Ethernet, FC, Converged) instead of 4
-- [x] **ETH-03**: Ethernet input form conditionally renders Clos fields (leaf/spine) or 3-tier fields (access/aggr/core) based on topology
-- [x] **ETH-04**: Ethernet BOM panel, topology diagram, rack elevation, and export switch based on topology
-- [x] **ETH-05**: Standalone Three-Tier mode and its dedicated stores removed (dead code cleanup)
+### Rack Geometry Inputs
 
-### Existing Infrastructure
+- [ ] **RACK-01**: User can configure rack pitch in mm (default 600mm, optional field)
+- [ ] **RACK-02**: User can toggle "all racks adjacent" (default true)
+- [ ] **RACK-03**: When non-adjacent, user inputs rack-to-patch-panel distance (metres)
+- [ ] **RACK-04**: Non-adjacent mode shows an amber advisory recommending patch panels (not a red violation)
 
-- [x] **INFRA-01**: 3-tier mode has "Core switches already deployed" toggle — BOM excludes core switches when enabled
-- [x] **INFRA-02**: Clos mode has "Spines already deployed" toggle — BOM excludes spine switches when enabled
-- [x] **INFRA-03**: Cable BOM still includes inter-tier cables to existing switches (user needs cables)
-- [x] **INFRA-04**: Oversubscription ratios calculated against full fabric (existing + new)
+### DAC Distance Advisory Upgrade
 
-### Save/Load Configurations
+- [ ] **DAC-01**: DAC advisory shows the computed cable path length and the applicable DAC spec limit
+- [ ] **DAC-02**: Advisory trigger uses computed geometry vs speed-specific limits (25G SFP28 = 3m, 100G QSFP28 = 5m)
+- [ ] **DAC-03**: Fix existing `CABLE_CATALOG.DAC.maxDistanceM` to reflect speed-specific limits (was incorrectly set to 5m for all speeds)
 
-- [x] **CFG-01**: User can save current input state as a named profile
-- [x] **CFG-02**: User can load a saved profile, restoring all inputs
-- [x] **CFG-03**: User can list saved profiles with summary (mode, topology, server count, date)
-- [x] **CFG-04**: User can delete a saved profile
-- [x] **CFG-05**: Profiles persist in localStorage across browser sessions
-- [x] **CFG-06**: i18n labels for all configuration features in EN/FR/DE/IT
+### Schema & Store Foundation
 
-## Future Requirements
+- [ ] **PHYS-01**: New `advisories[]` output array distinct from `violations[]` — renders as amber advisory cards in UI
+- [ ] **PHYS-02**: `inputStore` bumped to version 9 with automatic migration for all new fields
+- [ ] **PHYS-03**: Profile load normalises against current schema before applying (no silent stale fields from saved profiles)
+- [ ] **PHYS-04**: i18n labels for all new inputs and sections in EN/FR/DE/IT
 
-- **PERS-02**: JSON export
-- **SCALE-01**: Multi-pod support for large deployments
-- Power budget calculation per rack
-- Weight/cooling estimates
+### Export
+
+- [ ] **EXP-05**: CSV export includes cable length schedule rows (link type, quantity, length, SKU)
+- [ ] **EXP-06**: PDF export includes a cable schedule section
+
+## v7.0 Requirements (Deferred)
+
+### Power Budget
+
+- **PWR-01**: BOM shows per-rack power budget with typical and max columns
+- **PWR-02**: User inputs estimated server power per server (default 300W, global)
+- **PWR-03**: Power budget shows grand total across all racks
+- **PWR-04**: HIGH_DENSITY_RACK advisory when rack power exceeds threshold
+
+### Data Portability
+
+- **PERS-02**: JSON file import/export for sharing configurations
+- **EXP-04**: JSON export for machine-readable BOM (procurement tool integration)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Cloud sync / user accounts | Pure client-side, no backend (ADR-0002) |
-| Profile import from file | v5.0+ — save/load is localStorage first |
-| Brownfield server inventory | Existing infra toggle is switches only, not servers |
+| Exact per-centimetre cable runs | Requires room CAD / floor plan; outside tool scope |
+| Power budget | Deferred to v7.0 |
+| PUE / energy cost calculator | Pricing changes too fast; separate domain |
+| Cooling BTU estimation | Too deployment-specific; separate domain |
+| Rack weight estimation | Low value for procurement; separate domain |
+| Multi-site / multi-row topology | Single-row assumption sufficient for target deployments |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ETH-01 | Phase 21 | Complete |
-| ETH-02 | Phase 21 | Complete |
-| ETH-03 | Phase 21 | Complete |
-| ETH-04 | Phase 21 | Complete |
-| ETH-05 | Phase 21 | Complete |
-| INFRA-01 | Phase 22 | Complete |
-| INFRA-02 | Phase 22 | Complete |
-| INFRA-03 | Phase 22 | Complete |
-| INFRA-04 | Phase 22 | Complete |
-| CFG-01 | Phase 23 | Complete |
-| CFG-02 | Phase 23 | Complete |
-| CFG-03 | Phase 23 | Complete |
-| CFG-04 | Phase 23 | Complete |
-| CFG-05 | Phase 23 | Complete |
-| CFG-06 | Phase 23 | Complete |
+| CABLE-01 | — | Pending |
+| CABLE-02 | — | Pending |
+| CABLE-03 | — | Pending |
+| CABLE-04 | — | Pending |
+| CABLE-05 | — | Pending |
+| CABLE-06 | — | Pending |
+| RACK-01 | — | Pending |
+| RACK-02 | — | Pending |
+| RACK-03 | — | Pending |
+| RACK-04 | — | Pending |
+| DAC-01 | — | Pending |
+| DAC-02 | — | Pending |
+| DAC-03 | — | Pending |
+| PHYS-01 | — | Pending |
+| PHYS-02 | — | Pending |
+| PHYS-03 | — | Pending |
+| PHYS-04 | — | Pending |
+| EXP-05 | — | Pending |
+| EXP-06 | — | Pending |
 
 **Coverage:**
-- v5.0 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0 ✓
+- v6.0 requirements: 19 total
+- Mapped to phases: 0 (roadmap pending)
+- Unmapped: 19 ⚠️
 
 ---
 *Requirements defined: 2026-03-19*
+*Last updated: 2026-03-19 after initial definition*
