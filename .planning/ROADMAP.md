@@ -136,7 +136,7 @@ Plans:
   1. Rack pitch and adjacency toggle fields appear in the Rack Config accordion section for all three modes
   2. Advisory cards display in amber (distinct from red violation cards) wherever advisories[] is non-empty
   3. All new input labels and advisory messages display correctly in EN, FR, DE, and IT without fallback keys
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
 - [ ] 27-01: Accordion form wiring (geometry fields) + advisory card component (amber) + i18n keys EN/FR/DE/IT
