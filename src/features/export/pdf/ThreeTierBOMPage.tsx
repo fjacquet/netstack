@@ -202,6 +202,35 @@ export function ThreeTierBOMPage({ bom }: ThreeTierBOMPageProps) {
           </View>
         )}
       </View>
+
+      {/* Cable Schedule (optional — only when bom.cableSchedule is present) */}
+      {bom.cableSchedule && (
+        <>
+          <Text style={styles.subheading}>Cable Schedule</Text>
+          <View style={styles.table}>
+            <View style={styles.headerRow}>
+              <Text style={{ ...styles.colModel, ...styles.headerText }}>Link Type</Text>
+              <Text style={{ ...styles.colRole, ...styles.headerText }}>Qty</Text>
+              <Text style={{ ...styles.colQty, ...styles.headerText }}>SKU</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>Server-Access</Text>
+              <Text style={styles.colRole}>{bom.serverAccessCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.serverAccessSkuM}m</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>Access-Aggr</Text>
+              <Text style={styles.colRole}>{bom.accessAggrCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.accessAggregationSkuM}m</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>Aggr-Core</Text>
+              <Text style={styles.colRole}>{bom.aggrCoreCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.aggregationCoreSkuM}m</Text>
+            </View>
+          </View>
+        </>
+      )}
     </Page>
   )
 }

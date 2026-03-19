@@ -201,6 +201,25 @@ export function FCBOMPage({ bom }: FCBOMPageProps) {
           <Text style={styles.portValue}>{bom.switchPortsPerFabric} ports</Text>
         </View>
       </View>
+
+      {/* Cable Schedule — top-level islCableLengthSkuM per ADR-0009 (FC parallel domain) */}
+      {bom.islCableLengthSkuM != null && (
+        <>
+          <Text style={styles.subheading}>Cable Schedule</Text>
+          <View style={styles.table}>
+            <View style={styles.headerRow}>
+              <Text style={{ ...styles.colModel, ...styles.headerText }}>Link Type</Text>
+              <Text style={{ ...styles.colRole, ...styles.headerText }}>Qty</Text>
+              <Text style={{ ...styles.colQty, ...styles.headerText }}>SKU</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>ISL Cable</Text>
+              <Text style={styles.colRole}>{bom.islCables}</Text>
+              <Text style={styles.colQty}>{bom.islCableLengthSkuM}m</Text>
+            </View>
+          </View>
+        </>
+      )}
     </Page>
   )
 }

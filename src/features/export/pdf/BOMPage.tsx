@@ -164,6 +164,35 @@ export function BOMPage({ bom }: BOMPageProps) {
           </View>
         )}
       </View>
+
+      {/* Cable Schedule (optional — only when bom.cableSchedule is present) */}
+      {bom.cableSchedule && (
+        <>
+          <Text style={styles.subheading}>Cable Schedule</Text>
+          <View style={styles.table}>
+            <View style={styles.headerRow}>
+              <Text style={{ ...styles.colModel, ...styles.headerText }}>Link Type</Text>
+              <Text style={{ ...styles.colRole, ...styles.headerText }}>Qty</Text>
+              <Text style={{ ...styles.colQty, ...styles.headerText }}>SKU</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>Server-Leaf</Text>
+              <Text style={styles.colRole}>{bom.serverLeafCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.serverLeafSkuM}m</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>Leaf-Spine</Text>
+              <Text style={styles.colRole}>{bom.leafSpineCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.leafSpineSkuM}m</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.colModel}>VLT</Text>
+              <Text style={styles.colRole}>{bom.vltCables}</Text>
+              <Text style={styles.colQty}>{bom.cableSchedule.vltSkuM}m</Text>
+            </View>
+          </View>
+        </>
+      )}
     </Page>
   )
 }
