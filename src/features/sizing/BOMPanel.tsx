@@ -20,6 +20,7 @@ import { Progress } from '@/components/ui/progress'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { ConstraintViolation } from '@/domain/schemas/bom'
 import type { ThreeTierBOM, ThreeTierConstraintViolation } from '@/domain/schemas/three-tier-bom'
+import { AdvisoryAlert } from './AdvisoryAlert'
 
 // -- Oversubscription badge variants --
 
@@ -401,6 +402,20 @@ function ThreeTierBOMContent({ bom, violations, existingCoreDeployed }: { bom: T
               </div>
             </div>
           )}
+
+          {/* -- Section G: Advisories -- */}
+          {(bom.advisories ?? []).length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t('bom.advisoriesHeading')}
+              </p>
+              <div className="space-y-2">
+                {(bom.advisories ?? []).map((a, i) => (
+                  <AdvisoryAlert key={`${a.code}-${i}`} a={a} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -749,6 +764,20 @@ export function BOMPanel() {
               <div className="space-y-2">
                 {(violations as ConstraintViolation[]).map((v) => (
                   <ViolationAlert key={'rackNumber' in v ? `${v.code}-${v.rackNumber}` : v.code} v={v} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* -- Section E: Advisories -- */}
+          {(bom.advisories ?? []).length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t('bom.advisoriesHeading')}
+              </p>
+              <div className="space-y-2">
+                {(bom.advisories ?? []).map((a, i) => (
+                  <AdvisoryAlert key={`${a.code}-${i}`} a={a} />
                 ))}
               </div>
             </div>

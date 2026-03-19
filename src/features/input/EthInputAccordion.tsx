@@ -70,6 +70,10 @@ interface FormValues {
   rackSize: '24U' | '42U' | '50U'
   serverUHeight: '1U' | '2U' | '4U' | '8U'
   switchPositioning: 'ToR' | 'MoR' | 'BoR'
+  // Geometry fields
+  rackPitchMm: number
+  racksAdjacent: boolean
+  patchPanelDistanceM: number
 }
 
 export function EthInputAccordion() {
@@ -103,6 +107,9 @@ export function EthInputAccordion() {
       rackSize: input.rackSize,
       serverUHeight: input.serverUHeight,
       switchPositioning: input.switchPositioning,
+      rackPitchMm: input.rackPitchMm,
+      racksAdjacent: input.racksAdjacent,
+      patchPanelDistanceM: input.patchPanelDistanceM,
     },
     mode: 'onChange',
   })
@@ -111,6 +118,9 @@ export function EthInputAccordion() {
 
   // Watch topology to conditionally render fields
   const currentTopology = form.watch('topology')
+
+  // Watch racksAdjacent to conditionally render patchPanelDistanceM
+  const watchedRacksAdjacent = form.watch('racksAdjacent')
 
   // Watch leafModel to derive max uplinks and clamp activeUplinksPerLeaf
   const currentLeafModel = form.watch('leafModel')
@@ -162,7 +172,9 @@ export function EthInputAccordion() {
         name === 'portsPerServerBackend' ||
         name === 'activeUplinksPerLeaf' ||
         name === 'activeUplinksPerAccess' ||
-        name === 'activeUplinksPerAggregation'
+        name === 'activeUplinksPerAggregation' ||
+        name === 'rackPitchMm' ||
+        name === 'patchPanelDistanceM'
       ) {
         if (debounceRef.current) clearTimeout(debounceRef.current)
         debounceRef.current = setTimeout(() => {
@@ -180,6 +192,7 @@ export function EthInputAccordion() {
         portsPerServerFrontend: _pf, portsPerServerBackend: _pb,
         activeUplinksPerLeaf: _au, activeUplinksPerAccess: _ua,
         activeUplinksPerAggregation: _uag,
+        rackPitchMm: _rpm, patchPanelDistanceM: _ppd,
         ...rest
       } = v as FormValues
       const validRest = Object.fromEntries(
@@ -296,6 +309,84 @@ export function EthInputAccordion() {
                 <p className="text-xs text-muted-foreground">
                   {t('sizing.totalServersDisplay', { count: totalServers })}
                 </p>
+
+                {/* Rack Pitch */}
+                <FormField
+                  control={form.control}
+                  name="rackPitchMm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm text-muted-foreground">{t('sizing.rackPitchMm')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={100}
+                          max={2000}
+                          data-testid="rack-pitch-mm"
+                          {...field}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            field.onChange(val === '' ? '' : Number(val))
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('sizing.rackPitchMmHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Racks Adjacent */}
+                <FormField
+                  control={form.control}
+                  name="racksAdjacent"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
+                          data-testid="racks-adjacent-toggle"
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal">{t('sizing.racksAdjacent')}</FormLabel>
+                        <FormDescription>{t('sizing.racksAdjacentHelp')}</FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Patch Panel Distance — only when racks are NOT adjacent */}
+                {!watchedRacksAdjacent && (
+                  <FormField
+                    control={form.control}
+                    name="patchPanelDistanceM"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm text-muted-foreground">{t('sizing.patchPanelDistanceM')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step="0.1"
+                            data-testid="patch-panel-distance"
+                            {...field}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              field.onChange(val === '' ? '' : Number(val))
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription>{t('sizing.patchPanelDistanceMHelp')}</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </AccordionContent>
           </AccordionItem>
