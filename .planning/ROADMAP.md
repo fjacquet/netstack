@@ -7,7 +7,7 @@
 - ✅ **v2.0 FC SAN & Switch Positioning** — Phases 8-14 (shipped 2026-03-18)
 - ✅ **v3.0 Converged Mode** — Phases 15-17 (shipped 2026-03-18)
 - ✅ **v4.0 Three-Tier Topology** — Phases 18-20 (shipped 2026-03-19)
-- 📋 **v5.0 Unified Ethernet & Configurations** — Phases 21-23 (planned)
+- 📋 **v5.0 Unified Ethernet & Configurations** — Phases 21-24 (planned)
 
 ## Phases
 
@@ -73,11 +73,12 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 ### v5.0 Unified Ethernet & Configurations (In Progress)
 
-**Milestone Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector, add existing infrastructure toggle for brownfield deployments, and save/load named configurations.
+**Milestone Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector, add existing infrastructure toggle for brownfield deployments, save/load named configurations, and provide a dedicated full-page input form with accordion sections.
 
 - [x] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector (completed 2026-03-19)
 - [x] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM (completed 2026-03-19)
 - [x] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD (completed 2026-03-19)
+- [ ] **Phase 24: Dedicated Input Page** - Full-page input form with accordion sections replacing the sidebar form
 
 ## Phase Details
 
@@ -125,6 +126,23 @@ Plans:
 - [x] 23-01-PLAN.md — Profile schema, CRUD service, tests, i18n labels (4 locales)
 - [x] 23-02-PLAN.md — ProfileManager UI component, TopBar integration, human verification
 
+### Phase 24: Dedicated Input Page with Accordion Sections
+**Goal**: Replace the sidebar input form with a dedicated full-page input form organized into collapsible accordion sections, improving usability for complex configurations
+**Depends on**: Phase 23
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, COMPAT
+**Success Criteria** (what must be TRUE):
+  1. User can navigate to /input and see a full-page accordion form for the current mode
+  2. Accordion sections are collapsible with Rack Config open by default
+  3. All 3 modes (Ethernet, FC, Converged) have accordion input pages
+  4. Results page shows BOM only (no sidebar InputForm)
+  5. Configure button in TopBar navigates to /input with active state
+  6. NavLink tab strip replaces Tabs with correct active states
+  7. All existing domain tests continue to pass (regression)
+**Plans:** 2 plans
+Plans:
+- [ ] 24-01-PLAN.md — Router + infrastructure (dependencies, HashRouter, accordion component, i18n, test stubs)
+- [ ] 24-02-PLAN.md — Accordion pages + nav migration (InputPage, accordions, ResultsPage, App.tsx routes, TopBar)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -152,13 +170,4 @@ Plans:
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
-
-### Phase 24: Dedicated input page with accordion sections
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 23
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 24 to break down)
+| 24. Dedicated Input Page | v5.0 | 0/2 | Planned | - |
