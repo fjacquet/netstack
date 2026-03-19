@@ -28,6 +28,9 @@ describe('resultStore (derived from inputStore)', () => {
         switchPositioning: 'ToR',
         existingSpinesDeployed: false,
         existingCoreDeployed: false,
+        rackPitchMm: 600,
+        racksAdjacent: true,
+        patchPanelDistanceM: 1,
       },
     })
   })
@@ -99,6 +102,9 @@ describe('INFRA: Existing infrastructure toggle', () => {
         switchPositioning: 'ToR',
         existingSpinesDeployed: false,
         existingCoreDeployed: false,
+        rackPitchMm: 600,
+        racksAdjacent: true,
+        patchPanelDistanceM: 1,
       },
     })
   })

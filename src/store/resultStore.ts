@@ -35,6 +35,10 @@ function toThreeTierInput(input: SizingInput): ThreeTierSizingInput {
     serverUHeight: input.serverUHeight,
     switchPositioning: input.switchPositioning,
     existingCoreDeployed: input.existingCoreDeployed,
+    // v9 geometry fields:
+    rackPitchMm: input.rackPitchMm,
+    racksAdjacent: input.racksAdjacent,
+    patchPanelDistanceM: input.patchPanelDistanceM,
   }
 }
 

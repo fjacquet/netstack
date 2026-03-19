@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { PersistStorage, StorageValue } from 'zustand/middleware'
 import type { SizingInput } from '@/domain/schemas/input'
+import { DEFAULT_ETH_INPUT } from '@/domain/schemas/defaults'
 
 interface InputState {
   input: SizingInput
@@ -10,40 +11,10 @@ interface InputState {
 }
 
 /**
- * Default input: 3 racks × 16 servers = 48 servers total.
- * Equivalent to the old scalar default of { totalServers: 48, serversPerRack: 16 }.
+ * Default input sourced from domain-layer defaults (single source of truth).
+ * See src/domain/schemas/defaults.ts for the full definition.
  */
-const DEFAULT_INPUT: SizingInput = {
-  topology: 'leaf-spine',
-  racks: [
-    { serverCount: 16 },
-    { serverCount: 16 },
-    { serverCount: 16 },
-  ],
-  portsPerServerFrontend: 1,
-  portsPerServerBackend: 1,
-  connectivityType: '25G',
-  cableType: 'DAC',
-  // Clos-specific defaults
-  activeUplinksPerLeaf: 4,
-  leafModel: 'S5248F-ON',
-  spineModel: 'S5232F-ON',
-  // Three-tier defaults
-  accessModel: 'S5248F-ON',
-  activeUplinksPerAccess: 4,
-  aggregationModel: 'Z9264F-ON',
-  activeUplinksPerAggregation: 4,
-  coreModel: 'Z9332F-ON',
-  // Shared defaults
-  borderLeafModel: 'none',
-  borderLeafCount: 0,
-  rackSize: '42U',
-  serverUHeight: '1U',
-  switchPositioning: 'ToR',
-  // Brownfield defaults
-  existingSpinesDeployed: false,
-  existingCoreDeployed: false,
-}
+const DEFAULT_INPUT: SizingInput = DEFAULT_ETH_INPUT
 
 /**
  * Lazy localStorage adapter: accesses window.localStorage at call time rather than at module
@@ -89,7 +60,7 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 8,
+      version: 9,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
@@ -97,7 +68,8 @@ export const useInputStore = create<InputState>()(
        * v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf),
        * v4 to v5 (adds serverUHeight), v5 to v6 (adds switchPositioning),
        * v6 to v7 (adds topology, three-tier model fields),
-       * and v7 to v8 (adds existingSpinesDeployed, existingCoreDeployed brownfield toggles).
+       * v7 to v8 (adds existingSpinesDeployed, existingCoreDeployed brownfield toggles),
+       * and v8 to v9 (adds rackPitchMm, racksAdjacent, patchPanelDistanceM geometry fields for v6.0 Physical Planning).
        * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields,
        * including topology (defaults to 'leaf-spine') and all three-tier fields.
        */

@@ -37,6 +37,10 @@ const DEFAULT_CONVERGED_INPUT: ConvergedSizingInput = {
   // Brownfield toggles
   existingSpinesDeployed: false,
   existingCoreDeployed: false,
+  // v9 geometry fields (Phase 25)
+  rackPitchMm: 600,
+  racksAdjacent: true,
+  patchPanelDistanceM: 1,
   // FC (disabled by default)
   hbaPortsPerServer: 0,
   storageTargetPorts: 4,
