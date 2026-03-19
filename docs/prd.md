@@ -2,9 +2,9 @@
 
 ## 1 Objective
 
-Automate the calculation of a **Leaf-Spine** network infrastructure with **OOB (Out-of-Band) management** for server rack deployments, exclusively on Dell S-series switches running SONiC.
+Automate the calculation of network infrastructure BOMs for three deployment modes: **Ethernet** (Dell PowerSwitch Clos or Three-Tier under SONiC), **Fibre Channel** (Brocade dual-fabric SAN), and **Converged** (combined Ethernet + FC). Supports brownfield deployments and named configuration profiles.
 
-**Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for any Dell SONiC Leaf-Spine deployment.
+**Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
 
 ## 2 Hardware Specifications (Reference)
 
@@ -196,4 +196,36 @@ Domain (pure TS, no React) → Store (Zustand) → Features (React components)
 - **Store layer** (`src/store/`): Zustand stores. `inputStore` persisted to localStorage; `resultStore` derived via subscription. FC and converged stores follow the same pattern.
 - **Features layer** (`src/features/`): React components organized by feature (input-form, bom-panel, topology, rack-elevation, export). Mode selector switches between Ethernet, FC, and converged views.
 
-See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0017).
+See `docs/adr/` for architecture decision records (ADR-0001 through ADR-0020).
+
+## 11 v5.0 Requirements (Completed 2026-03-19)
+
+### Unified Ethernet Mode
+
+| ID | Requirement | Phase | Status |
+|----|-------------|-------|--------|
+| ETH-01 | Spine-Leaf and Three-Tier merged into a single "Ethernet" mode with topology selector | Phase 21 | Complete |
+| ETH-02 | ModeSelector shows 3 buttons (Ethernet, FC, Converged) | Phase 21 | Complete |
+| ETH-03 | Ethernet input form conditionally renders Clos or Three-Tier fields based on topology | Phase 21 | Complete |
+| ETH-04 | BOM panel, topology diagram, rack elevation, and export switch based on topology | Phase 21 | Complete |
+| ETH-05 | Standalone Three-Tier mode and its dedicated stores removed | Phase 21 | Complete |
+
+### Existing Infrastructure (Brownfield)
+
+| ID | Requirement | Phase | Status |
+|----|-------------|-------|--------|
+| INFRA-01 | Three-Tier mode: "Core switches already deployed" toggle excludes core from BOM | Phase 22 | Complete |
+| INFRA-02 | Clos mode: "Spines already deployed" toggle excludes spines from BOM | Phase 22 | Complete |
+| INFRA-03 | Cable BOM still includes inter-tier cables to existing switches | Phase 22 | Complete |
+| INFRA-04 | Oversubscription calculated against full fabric (existing + new) | Phase 22 | Complete |
+
+### Save/Load Configurations
+
+| ID | Requirement | Phase | Status |
+|----|-------------|-------|--------|
+| CFG-01 | User can save current input state as a named profile | Phase 23 | Complete |
+| CFG-02 | User can load a saved profile, restoring all inputs | Phase 23 | Complete |
+| CFG-03 | User can list saved profiles with mode, topology, server count, and date | Phase 23 | Complete |
+| CFG-04 | User can delete a saved profile | Phase 23 | Complete |
+| CFG-05 | Profiles persist in localStorage across browser sessions | Phase 23 | Complete |
+| CFG-06 | i18n labels for all configuration features in EN/FR/DE/IT | Phase 23 | Complete |
