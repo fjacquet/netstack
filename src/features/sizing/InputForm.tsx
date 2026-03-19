@@ -57,6 +57,9 @@ interface FormValues {
   aggregationModel: 'Z9264F-ON' | 'Z9332F-ON' | 'Z9432F-ON' | 'S5232F-ON'
   activeUplinksPerAggregation: number
   coreModel: 'Z9332F-ON' | 'Z9432F-ON'
+  // Brownfield toggles
+  existingSpinesDeployed: boolean
+  existingCoreDeployed: boolean
   // Shared
   borderLeafModel: 'S5248F-ON' | 'S5224F-ON' | 'S5212F-ON' | 'S5296F-ON' | 'none'
   borderLeafCount: number
@@ -89,6 +92,8 @@ export function InputForm() {
       aggregationModel: input.aggregationModel,
       activeUplinksPerAggregation: input.activeUplinksPerAggregation,
       coreModel: input.coreModel,
+      existingSpinesDeployed: input.existingSpinesDeployed,
+      existingCoreDeployed: input.existingCoreDeployed,
       borderLeafModel: input.borderLeafModel,
       borderLeafCount: input.borderLeafCount,
       rackSize: input.rackSize,
@@ -486,6 +491,29 @@ export function InputForm() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Existing Spines Toggle */}
+                  <FormField
+                    control={form.control}
+                    name="existingSpinesDeployed"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
+                            data-testid="existing-spines-toggle"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm font-normal">{t('infra.existingSpinesToggle')}</FormLabel>
+                          <FormDescription>{t('infra.existingSpinesHelp')}</FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
                 </>
               )}
 
@@ -610,6 +638,29 @@ export function InputForm() {
                           </SelectContent>
                         </Select>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Existing Core Toggle */}
+                  <FormField
+                    control={form.control}
+                    name="existingCoreDeployed"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
+                            data-testid="existing-core-toggle"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm font-normal">{t('infra.existingCoreToggle')}</FormLabel>
+                          <FormDescription>{t('infra.existingCoreHelp')}</FormDescription>
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -776,6 +827,8 @@ export function InputForm() {
                   aggregationModel: 'Z9264F-ON',
                   activeUplinksPerAggregation: 4,
                   coreModel: 'Z9332F-ON',
+                  existingSpinesDeployed: false,
+                  existingCoreDeployed: false,
                   borderLeafModel: 'none',
                   borderLeafCount: 0,
                   rackSize: '42U',

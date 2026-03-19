@@ -199,4 +199,31 @@ describe('InputForm', () => {
     render(<InputForm />)
     expect(screen.getByText('sizing.resetButton')).toBeInTheDocument()
   })
+
+  // INFRA-01: Existing spines toggle visibility
+  describe('existing infrastructure toggles', () => {
+    it('renders existing-spines-toggle when topology is leaf-spine', () => {
+      mockStore(makeInput({ topology: 'leaf-spine' }))
+      render(<InputForm />)
+      expect(screen.getByTestId('existing-spines-toggle')).toBeInTheDocument()
+    })
+
+    it('renders existing-core-toggle when topology is three-tier', () => {
+      mockStore(makeInput({ topology: 'three-tier' }))
+      render(<InputForm />)
+      expect(screen.getByTestId('existing-core-toggle')).toBeInTheDocument()
+    })
+
+    it('does NOT render existing-spines-toggle when topology is three-tier', () => {
+      mockStore(makeInput({ topology: 'three-tier' }))
+      render(<InputForm />)
+      expect(screen.queryByTestId('existing-spines-toggle')).toBeNull()
+    })
+
+    it('does NOT render existing-core-toggle when topology is leaf-spine', () => {
+      mockStore(makeInput({ topology: 'leaf-spine' }))
+      render(<InputForm />)
+      expect(screen.queryByTestId('existing-core-toggle')).toBeNull()
+    })
+  })
 })
