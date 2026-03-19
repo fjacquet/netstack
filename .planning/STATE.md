@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Physical Planning
-status: roadmap_ready
-stopped_at: Roadmap defined — ready to plan Phase 25
-last_updated: "2026-03-19T00:00:00.000Z"
+status: in-progress
+stopped_at: "Completed 25-01-PLAN.md"
+last_updated: "2026-03-19T09:50:00.000Z"
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -19,16 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** Milestone v6.0 — Physical Planning (roadmap ready, starting Phase 25)
+**Current focus:** Phase 25 — Schema, Geometry Inputs & Advisory Foundation
 
 ## Current Position
 
-Phase: 25 — Schema, Geometry Inputs & Advisory Foundation (not started)
-Plan: —
-Status: Roadmap approved, ready to plan Phase 25
-Last activity: 2026-03-19 — v6.0 roadmap created (4 phases, 19 requirements mapped)
-
-Progress bar: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
+Phase: 25 (Schema, Geometry Inputs & Advisory Foundation) — EXECUTING
+Plan: 2 of 2 (Plan 01 complete)
 
 ## Performance Metrics
 
@@ -76,6 +72,13 @@ Progress bar: [░░░░░░░░░░░░░░░░░░░░] 0/4
 - DAC limits are speed-specific: 25G SFP28 = 3m, 100G QSFP28 = 5m (DAC-03 fixes incorrect flat 5m in catalog)
 - Non-adjacent rack mode produces an advisory (amber), not a violation (red)
 - Profile normalisation on load (Phase 25) prevents stale fields from saved profiles silently breaking new inputs
+
+### Key Decisions (v6.0 — Plan 25-01 executed)
+
+- AdvisorySchema is a separate discriminated union from ConstraintViolationSchema — PATCH_PANEL_RECOMMENDED is amber, not red
+- DAC catalog maxDistanceM changed to 3 (conservative 25G IEEE 802.3by); per-speed in maxDistanceBySpeed field
+- defaults.ts in domain layer is the single source of truth — stores import from it, not the reverse
+- inputStore v9 migration uses { ...DEFAULT_INPUT, ...oldInput } spread to backfill new geometry fields automatically
 
 ### v6.0 Phase Summary
 

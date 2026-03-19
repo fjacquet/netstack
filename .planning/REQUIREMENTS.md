@@ -16,21 +16,21 @@
 
 ### Rack Geometry Inputs
 
-- [ ] **RACK-01**: User can configure rack pitch in mm (default 600mm, optional field)
-- [ ] **RACK-02**: User can toggle "all racks adjacent" (default true)
-- [ ] **RACK-03**: When non-adjacent, user inputs rack-to-patch-panel distance (metres)
+- [x] **RACK-01**: User can configure rack pitch in mm (default 600mm, optional field)
+- [x] **RACK-02**: User can toggle "all racks adjacent" (default true)
+- [x] **RACK-03**: When non-adjacent, user inputs rack-to-patch-panel distance (metres)
 - [ ] **RACK-04**: Non-adjacent mode shows an amber advisory recommending patch panels (not a red violation)
 
 ### DAC Distance Advisory Upgrade
 
 - [ ] **DAC-01**: DAC advisory shows the computed cable path length and the applicable DAC spec limit
 - [ ] **DAC-02**: Advisory trigger uses computed geometry vs speed-specific limits (25G SFP28 = 3m, 100G QSFP28 = 5m)
-- [ ] **DAC-03**: Fix existing `CABLE_CATALOG.DAC.maxDistanceM` to reflect speed-specific limits (was incorrectly set to 5m for all speeds)
+- [x] **DAC-03**: Fix existing `CABLE_CATALOG.DAC.maxDistanceM` to reflect speed-specific limits (was incorrectly set to 5m for all speeds)
 
 ### Schema & Store Foundation
 
-- [ ] **PHYS-01**: New `advisories[]` output array distinct from `violations[]` — renders as amber advisory cards in UI
-- [ ] **PHYS-02**: `inputStore` bumped to version 9 with automatic migration for all new fields
+- [x] **PHYS-01**: New `advisories[]` output array distinct from `violations[]` — renders as amber advisory cards in UI
+- [x] **PHYS-02**: `inputStore` bumped to version 9 with automatic migration for all new fields
 - [ ] **PHYS-03**: Profile load normalises against current schema before applying (no silent stale fields from saved profiles)
 - [ ] **PHYS-04**: i18n labels for all new inputs and sections in EN/FR/DE/IT
 
@@ -74,15 +74,15 @@
 | CABLE-04 | Phase 26 | Pending |
 | CABLE-05 | Phase 26 | Pending |
 | CABLE-06 | Phase 26 | Pending |
-| RACK-01 | Phase 25 | Pending |
-| RACK-02 | Phase 25 | Pending |
-| RACK-03 | Phase 25 | Pending |
+| RACK-01 | Phase 25 | Complete |
+| RACK-02 | Phase 25 | Complete |
+| RACK-03 | Phase 25 | Complete |
 | RACK-04 | Phase 26 | Pending |
 | DAC-01 | Phase 26 | Pending |
 | DAC-02 | Phase 26 | Pending |
-| DAC-03 | Phase 25 | Pending |
-| PHYS-01 | Phase 25 | Pending |
-| PHYS-02 | Phase 25 | Pending |
+| DAC-03 | Phase 25 | Complete |
+| PHYS-01 | Phase 25 | Complete |
+| PHYS-02 | Phase 25 | Complete |
 | PHYS-03 | Phase 25 | Pending |
 | PHYS-04 | Phase 27 | Pending |
 | EXP-05 | Phase 28 | Pending |

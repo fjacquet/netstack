@@ -181,7 +181,7 @@ Plans:
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 24. Dedicated Input Page | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 25. Schema, Geometry Inputs & Advisory Foundation | v6.0 | 0/2 | Not started | - |
+| 25. Schema, Geometry Inputs & Advisory Foundation | 1/2 | In Progress|  | - |
 | 26. Cable Length Engine | v6.0 | 0/2 | Not started | - |
 | 27. UI & i18n | v6.0 | 0/1 | Not started | - |
 | 28. Export | v6.0 | 0/1 | Not started | - |
