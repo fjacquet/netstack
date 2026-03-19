@@ -11,9 +11,9 @@
 
 - [x] **ETH-01**: Spine-Leaf and Three-Tier merged into a single "Ethernet" mode with topology selector dropdown
 - [x] **ETH-02**: ModeSelector shows 3 buttons (Ethernet, FC, Converged) instead of 4
-- [ ] **ETH-03**: Ethernet input form conditionally renders Clos fields (leaf/spine) or 3-tier fields (access/aggr/core) based on topology
-- [ ] **ETH-04**: Ethernet BOM panel, topology diagram, rack elevation, and export switch based on topology
-- [ ] **ETH-05**: Standalone Three-Tier mode and its dedicated stores removed (dead code cleanup)
+- [x] **ETH-03**: Ethernet input form conditionally renders Clos fields (leaf/spine) or 3-tier fields (access/aggr/core) based on topology
+- [x] **ETH-04**: Ethernet BOM panel, topology diagram, rack elevation, and export switch based on topology
+- [x] **ETH-05**: Standalone Three-Tier mode and its dedicated stores removed (dead code cleanup)
 
 ### Existing Infrastructure
 
@@ -52,9 +52,9 @@
 |-------------|-------|--------|
 | ETH-01 | Phase 21 | Complete |
 | ETH-02 | Phase 21 | Complete |
-| ETH-03 | Phase 21 | Pending |
-| ETH-04 | Phase 21 | Pending |
-| ETH-05 | Phase 21 | Pending |
+| ETH-03 | Phase 21 | Complete |
+| ETH-04 | Phase 21 | Complete |
+| ETH-05 | Phase 21 | Complete |
 | INFRA-01 | Phase 22 | Pending |
 | INFRA-02 | Phase 22 | Pending |
 | INFRA-03 | Phase 22 | Pending |

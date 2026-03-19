@@ -75,7 +75,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 **Milestone Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector, add existing infrastructure toggle for brownfield deployments, and save/load named configurations.
 
-- [ ] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector
+- [x] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector (completed 2026-03-19)
 - [ ] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM
 - [ ] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD
 
@@ -91,7 +91,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   3. Ethernet input form shows leaf/spine fields when Clos is selected and access/aggr/core fields when Three-Tier is selected
   4. BOM panel, topology diagram, rack elevation, and export all render correctly for both Ethernet topologies
   5. No dead code remains from the standalone Three-Tier mode (stores, components, routes removed)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 21-01-PLAN.md — Unify schema, stores, mode selector (3 buttons), i18n
 - [ ] 21-02-PLAN.md — Wire UI components for topology dispatch, delete dead code
@@ -143,6 +143,6 @@ Plans:
 | 18. Three-Tier Domain & Engine | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
-| 21. Unified Ethernet Mode | 1/2 | In Progress|  | - |
+| 21. Unified Ethernet Mode | 2/2 | Complete   | 2026-03-19 | - |
 | 22. Existing Infrastructure Toggle | v5.0 | 0/? | Not started | - |
 | 23. Save/Load Configurations | v5.0 | 0/? | Not started | - |

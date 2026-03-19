@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Unified Ethernet & Configurations
 status: in-progress
-stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-03-19T03:59:31.000Z"
-last_activity: 2026-03-19 — Phase 21 Plan 01 complete (unified schema + mode reduction)
+stopped_at: Completed 21-02-PLAN.md (Phase 21 complete)
+last_updated: "2026-03-19T04:09:25.000Z"
+last_activity: 2026-03-19 — Phase 21 complete (unified Ethernet mode with topology UI)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 33
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 21 of 23 (Unified Ethernet Mode)
-Plan: 2 of 2 in current phase
-Status: In progress
-Last activity: 2026-03-19 — Plan 01 complete (unified schema + mode reduction)
+Phase: 21 of 23 (Unified Ethernet Mode) -- COMPLETE
+Plan: 2 of 2 in current phase -- COMPLETE
+Status: Phase 21 complete, ready for Phase 22
+Last activity: 2026-03-19 — Plan 02 complete (topology-aware UI + dead code removal)
 
-Progress: [##░░░░░░░░] 17% (v5.0 milestone)
+Progress: [###░░░░░░░] 33% (v5.0 milestone)
 
 ## Performance Metrics
 
@@ -51,7 +51,7 @@ Progress: [##░░░░░░░░] 17% (v5.0 milestone)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 21-unified-ethernet-mode | 1/2 | 9min | 9min |
+| 21-unified-ethernet-mode | 2/2 | 16min | 8min |
 
 **Recent Trend:** Stable
 
@@ -75,6 +75,8 @@ Key architectural decisions relevant to v5.0:
 - [v5.0-P21]: Mode type reduced from 4 to 3 values (three-tier absorbed into ethernet)
 - [v5.0-P21]: resultStore topology-aware dispatch to calculateBOM or calculateThreeTierBOM
 - [v5.0-P21]: inputStore version 7 with automatic v6->v7 migration
+- [v5.0-P21]: Topology-aware UI dispatch pattern -- InputForm, BOMPanel, TopologyTab, RackElevationTab, TopBar all check input.topology
+- [v5.0-P21]: 6 standalone three-tier files deleted (stores, forms, page, rack tab) -- functionality merged into unified components
 
 ### Pending Todos
 
@@ -87,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 21-01-PLAN.md
+Stopped at: Completed 21-02-PLAN.md (Phase 21 complete)
 Resume file: None
