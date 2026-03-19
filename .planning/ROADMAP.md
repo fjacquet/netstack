@@ -78,7 +78,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 - [x] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector (completed 2026-03-19)
 - [x] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM (completed 2026-03-19)
 - [x] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD (completed 2026-03-19)
-- [ ] **Phase 24: Dedicated Input Page** - Full-page input form with accordion sections replacing the sidebar form
+- [x] **Phase 24: Dedicated Input Page** - Full-page input form with accordion sections replacing the sidebar form (completed 2026-03-19)
 
 ## Phase Details
 
@@ -138,7 +138,7 @@ Plans:
   5. Configure button in TopBar navigates to /input with active state
   6. NavLink tab strip replaces Tabs with correct active states
   7. All existing domain tests continue to pass (regression)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 24-01-PLAN.md — Router + infrastructure (dependencies, HashRouter, accordion component, i18n, test stubs)
 - [ ] 24-02-PLAN.md — Accordion pages + nav migration (InputPage, accordions, ResultsPage, App.tsx routes, TopBar)
@@ -170,4 +170,4 @@ Plans:
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 22. Existing Infrastructure Toggle | v5.0 | 2/2 | Complete | 2026-03-19 |
 | 23. Save/Load Configurations | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 24. Dedicated Input Page | 1/2 | In Progress|  | - |
+| 24. Dedicated Input Page | 2/2 | Complete   | 2026-03-19 | - |
