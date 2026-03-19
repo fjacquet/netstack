@@ -34,6 +34,7 @@ function toThreeTierInput(input: SizingInput): ThreeTierSizingInput {
     rackSize: input.rackSize,
     serverUHeight: input.serverUHeight,
     switchPositioning: input.switchPositioning,
+    existingCoreDeployed: input.existingCoreDeployed,
   }
 }
 
@@ -45,9 +46,19 @@ function computeAndUpdateBOM(input: SizingInput): void {
   if (input.topology === 'three-tier') {
     const ttInput = toThreeTierInput(input)
     const ttBom = calculateThreeTierBOM(ttInput)
+    // Post-processing: zero out core switches for brownfield deployments
+    // Cables and oversubscription remain unchanged (calculated against full fabric)
+    if (input.existingCoreDeployed) {
+      ttBom.coreSwitches = 0
+    }
     useResultStore.setState({ bom: null, threeTierBom: ttBom, violations: ttBom.violations })
   } else {
     const bom = calculateBOM(input)
+    // Post-processing: zero out spine switches for brownfield deployments
+    // Cables and oversubscription remain unchanged (calculated against full fabric)
+    if (input.existingSpinesDeployed) {
+      bom.spineSwitches = 0
+    }
     useResultStore.setState({ bom, threeTierBom: null, violations: bom.violations })
   }
 }

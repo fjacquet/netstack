@@ -33,6 +33,8 @@ function makeInput(overrides: Partial<SizingInput> = {}): SizingInput {
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR' as const,
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
     ...overrides,
   };
 }
@@ -855,6 +857,8 @@ describe('RACK_CAPACITY_EXCEEDED: U-height capacity violation', () => {
       rackSize: '42U' as const,
       serverUHeight: '1U' as const,
       switchPositioning: 'ToR' as const,
+      existingSpinesDeployed: false,
+      existingCoreDeployed: false,
     };
     const bom = calculateBOM(inputWithoutHeight);
     expect(bom).toBeDefined();

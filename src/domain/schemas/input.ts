@@ -68,6 +68,10 @@ export const SizingInputSchema = z.object({
   serverUHeight: z.enum(['1U', '2U', '4U', '8U']).default('1U'),
   /** Switch placement mode — affects rack overhead U-count, cable length advisory, and DAC compatibility */
   switchPositioning: z.enum(['ToR', 'MoR', 'BoR']).default('ToR'),
+  /** Brownfield: spines already deployed, exclude from BOM (Clos topology) */
+  existingSpinesDeployed: z.boolean().default(false),
+  /** Brownfield: core switches already deployed, exclude from BOM (Three-Tier topology) */
+  existingCoreDeployed: z.boolean().default(false),
 });
 
 /** Inferred TypeScript type — do not declare separately */

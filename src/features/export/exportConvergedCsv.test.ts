@@ -41,6 +41,8 @@ const mockEthernetBom: NetworkBOM = {
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR',
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
   },
 }
 
@@ -85,6 +87,8 @@ const mockConvergedInput = {
   borderLeafModel: 'none' as const,
   borderLeafCount: 0,
   switchPositioning: 'ToR' as const,
+  existingSpinesDeployed: false,
+  existingCoreDeployed: false,
   accessModel: 'S5248F-ON' as const,
   aggregationModel: 'Z9264F-ON' as const,
   activeUplinksPerAggregation: 4,

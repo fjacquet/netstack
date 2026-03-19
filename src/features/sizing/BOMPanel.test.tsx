@@ -58,6 +58,8 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
       rackSize: '42U',
       serverUHeight: '1U',
       switchPositioning: 'ToR',
+      existingSpinesDeployed: false,
+      existingCoreDeployed: false,
     },
     ...overrides,
   }
@@ -174,6 +176,8 @@ describe('BOMPanel', () => {
           rackSize: '42U',
           serverUHeight: '1U',
           switchPositioning: 'ToR',
+          existingSpinesDeployed: false,
+          existingCoreDeployed: false,
         },
       })
       mockStore({ bom, threeTierBom: null, violations: [] })
@@ -226,6 +230,8 @@ describe('BOMPanel', () => {
           rackSize: '42U',
           serverUHeight: '1U',
           switchPositioning: 'ToR',
+          existingSpinesDeployed: false,
+          existingCoreDeployed: false,
         },
       })
       mockStore({ bom, threeTierBom: null, violations: [] })

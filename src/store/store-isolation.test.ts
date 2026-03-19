@@ -30,6 +30,8 @@ const DEFAULT_ETH_INPUT: SizingInput = {
   rackSize: '42U',
   serverUHeight: '1U',
   switchPositioning: 'ToR' as const,
+  existingSpinesDeployed: false,
+  existingCoreDeployed: false,
 }
 
 // FC store default — matches DEFAULT_FC_INPUT in fc-input schema

@@ -40,6 +40,9 @@ const DEFAULT_INPUT: SizingInput = {
   rackSize: '42U',
   serverUHeight: '1U',
   switchPositioning: 'ToR',
+  // Brownfield defaults
+  existingSpinesDeployed: false,
+  existingCoreDeployed: false,
 }
 
 /**
@@ -86,14 +89,15 @@ export const useInputStore = create<InputState>()(
     }),
     {
       name: 'netstack-input',
-      version: 7,
+      version: 8,
       storage: lazyLocalStorage,
       /**
        * Merge persisted state with defaults.
        * Handles migration from v2 (scalar totalServers/serversPerRack) to v3 (racks array),
        * v3 to v4 (adds portsPerServerFrontend, portsPerServerBackend, activeUplinksPerLeaf),
        * v4 to v5 (adds serverUHeight), v5 to v6 (adds switchPositioning),
-       * and v6 to v7 (adds topology, three-tier model fields).
+       * v6 to v7 (adds topology, three-tier model fields),
+       * and v7 to v8 (adds existingSpinesDeployed, existingCoreDeployed brownfield toggles).
        * The { ...DEFAULT_INPUT, ...oldInput } spread fills in any missing new fields,
        * including topology (defaults to 'leaf-spine') and all three-tier fields.
        */

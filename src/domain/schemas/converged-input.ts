@@ -57,6 +57,12 @@ export const ConvergedSizingInputSchema = z.object({
   /** Core tier switch model (3-tier topology only) */
   coreModel: z.enum(['Z9332F-ON', 'Z9432F-ON']).default('Z9332F-ON'),
 
+  // --- Brownfield toggles ---
+  /** Brownfield: spines already deployed, exclude from BOM (Clos topology) */
+  existingSpinesDeployed: z.boolean().default(false),
+  /** Brownfield: core switches already deployed, exclude from BOM (Three-Tier topology) */
+  existingCoreDeployed: z.boolean().default(false),
+
   // --- FC fields (from FCSizingInputSchema, but hbaPortsPerServer min=0) ---
   /** Number of HBA ports per server (0=FC disabled, 1-8=FC enabled). min=0 per CONV-04. */
   hbaPortsPerServer: z.number().int().min(0).max(8).default(0),

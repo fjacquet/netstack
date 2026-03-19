@@ -40,6 +40,8 @@ const mockBOM: NetworkBOM = {
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR',
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
   },
 }
 
@@ -98,6 +100,8 @@ function makeBom(positioning: 'ToR' | 'MoR' | 'BoR', racks = 2): NetworkBOM {
       rackSize: '42U',
       serverUHeight: '1U',
       switchPositioning: positioning,
+      existingSpinesDeployed: false,
+      existingCoreDeployed: false,
     },
   }
 }

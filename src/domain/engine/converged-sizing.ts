@@ -52,6 +52,9 @@ function toEthernetInput(input: ConvergedSizingInput): SizingInput {
     rackSize: input.rackSize,
     serverUHeight: input.serverUHeight,
     switchPositioning: input.switchPositioning,
+    // Brownfield toggles
+    existingSpinesDeployed: input.existingSpinesDeployed ?? false,
+    existingCoreDeployed: input.existingCoreDeployed ?? false,
   };
 }
 
@@ -77,6 +80,7 @@ function toThreeTierInput(input: ConvergedSizingInput): ThreeTierSizingInput {
     rackSize: input.rackSize,
     serverUHeight: input.serverUHeight,
     switchPositioning: input.switchPositioning,
+    existingCoreDeployed: input.existingCoreDeployed ?? false,
   };
 }
 

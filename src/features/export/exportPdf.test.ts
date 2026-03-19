@@ -49,6 +49,8 @@ const mockBom: NetworkBOM = {
     rackSize: '42U',
     serverUHeight: '1U',
     switchPositioning: 'ToR',
+    existingSpinesDeployed: false,
+    existingCoreDeployed: false,
   },
 }
 
