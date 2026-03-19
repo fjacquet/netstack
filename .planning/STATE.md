@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Unified Ethernet & Configurations
 status: completed
-stopped_at: Completed 22-01-PLAN.md
-last_updated: "2026-03-19T04:28:30.000Z"
-last_activity: 2026-03-19 -- Plan 01 complete (brownfield schema + post-processing + i18n)
+stopped_at: Completed 22-02-PLAN.md
+last_updated: "2026-03-19T04:35:49.000Z"
+last_activity: 2026-03-19 -- Plan 02 complete (brownfield UI toggles + BOM labels)
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 2
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Answer "How many boxes and cables do I need to order?" instantly and accurately for Dell SONiC Ethernet (Clos + Three-Tier), Brocade FC SAN, and Converged deployments.
-**Current focus:** v5.0 Unified Ethernet & Configurations -- Phase 22 in progress
+**Current focus:** v5.0 Unified Ethernet & Configurations -- Phase 22 complete, Phase 23 next
 
 ## Current Position
 
-Phase: 22 of 23 (Existing Infrastructure Toggle)
-Plan: 1 of 2 in current phase
-Status: Plan 01 complete, Plan 02 pending
-Last activity: 2026-03-19 -- Plan 01 complete (brownfield schema + post-processing + i18n)
+Phase: 22 of 23 (Existing Infrastructure Toggle) -- COMPLETE
+Plan: 2 of 2 in current phase (all done)
+Status: Phase 22 complete, Phase 23 pending
+Last activity: 2026-03-19 -- Plan 02 complete (brownfield UI toggles + BOM labels)
 
-Progress: [#####░░░░░] 50% (v5.0 milestone)
+Progress: [######░░░░] 67% (v5.0 milestone)
 
 ## Performance Metrics
 
@@ -52,7 +52,7 @@ Progress: [#####░░░░░] 50% (v5.0 milestone)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 21-unified-ethernet-mode | 2/2 | 16min | 8min |
-| 22-existing-infrastructure-toggle | 1/2 | 6min | 6min |
+| 22-existing-infrastructure-toggle | 2/2 | 10min | 5min |
 
 **Recent Trend:** Stable
 
@@ -80,6 +80,8 @@ Key architectural decisions relevant to v5.0:
 - [v5.0-P21]: 6 standalone three-tier files deleted (stores, forms, page, rack tab) -- functionality merged into unified components
 - [v5.0-P22]: Post-processing in resultStore (not engine) -- keeps calculateBOM/calculateThreeTierBOM pure
 - [v5.0-P22]: inputStore version 8 with existingSpinesDeployed/existingCoreDeployed brownfield toggles
+- [v5.0-P22]: Brownfield toggles as native checkbox inside FormField for consistent form handling
+- [v5.0-P22]: BOM panel reads brownfield state from inputStore (not resultStore) for direct UI control
 
 ### Pending Todos
 
@@ -92,5 +94,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Completed 22-01-PLAN.md
+Stopped at: Completed 22-02-PLAN.md
 Resume file: None

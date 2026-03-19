@@ -76,7 +76,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 **Milestone Goal:** Merge Spine-Leaf and Three-Tier into a single Ethernet mode with topology selector, add existing infrastructure toggle for brownfield deployments, and save/load named configurations.
 
 - [x] **Phase 21: Unified Ethernet Mode** - Merge Spine-Leaf and Three-Tier into one Ethernet mode with Clos/3-tier topology selector (completed 2026-03-19)
-- [ ] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM
+- [x] **Phase 22: Existing Infrastructure Toggle** - Brownfield support: exclude already-deployed switches from BOM (completed 2026-03-19)
 - [ ] **Phase 23: Save/Load Configurations** - Named profiles persisted to localStorage with full CRUD
 
 ## Phase Details
@@ -105,7 +105,7 @@ Plans:
   2. In Clos topology, user can toggle "Spines already deployed" and the BOM excludes spine switches from the count
   3. Cable BOM still includes cables connecting to existing switches (user still needs to order cables)
   4. Oversubscription ratios are calculated against the full fabric including existing switches (not just new equipment)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 22-01-PLAN.md — Schema fields, BOM post-processing, store v8 migration, i18n, tests
 - [ ] 22-02-PLAN.md — UI toggles in InputForm, "(existing)" labels in BOM panel
@@ -147,5 +147,5 @@ Plans:
 | 19. Three-Tier UI & Converged Integration | v4.0 | 3/3 | Complete | 2026-03-18 |
 | 20. Three-Tier Export & i18n | v4.0 | 2/2 | Complete | 2026-03-19 |
 | 21. Unified Ethernet Mode | v5.0 | 2/2 | Complete | 2026-03-19 |
-| 22. Existing Infrastructure Toggle | 1/2 | In Progress|  | - |
+| 22. Existing Infrastructure Toggle | 2/2 | Complete   | 2026-03-19 | - |
 | 23. Save/Load Configurations | v5.0 | 0/? | Not started | - |
