@@ -207,12 +207,9 @@ describe('FCInputAccordion (migrated from FCInputForm)', () => {
     mockStore(makeInput({ preferredGeneration: 'any' }), setInput)
     render(<FCInputAccordion />, { wrapper: Wrapper })
 
-    // Open and select from the generation selector (the combobox in the preferredGeneration form-item)
-    const genLabel = screen.getByText('fc.preferredGeneration')
-    const genTrigger = screen.getAllByRole('combobox').find((el) =>
-      el.closest('[data-slot="form-item"]') === genLabel.closest('[data-slot="form-item"]')
-    )
-    await act(async () => { fireEvent.click(genTrigger!) })
+    // Open the generation selector using its testid
+    const genTrigger = screen.getByTestId('preferred-generation-select')
+    await act(async () => { fireEvent.click(genTrigger) })
     const gen7Option = screen.getByRole('option', { name: 'fc.gen7' })
     await act(async () => { fireEvent.click(gen7Option) })
 

@@ -202,7 +202,7 @@ export function EthInputAccordion() {
   return (
     <Form {...form}>
       <form>
-        <Accordion type="single" collapsible defaultValue="rack-config" className="w-full">
+        <Accordion type="multiple" defaultValue={["rack-config", "switch-selection", "advanced"]} className="w-full">
 
           {/* === Section 1: Rack Configuration === */}
           <AccordionItem value="rack-config">

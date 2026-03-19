@@ -177,7 +177,7 @@ export function FCInputAccordion() {
   return (
     <Form {...form}>
       <form>
-        <Accordion type="single" collapsible defaultValue="rack-config" className="w-full">
+        <Accordion type="multiple" defaultValue={["rack-config", "fabric-config", "advanced"]} className="w-full">
 
           {/* === Section 1: Rack Configuration === */}
           <AccordionItem value="rack-config">
@@ -342,7 +342,7 @@ export function FCInputAccordion() {
                       <FormLabel className="text-sm text-muted-foreground">{t('fc.preferredGeneration')}</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger data-testid="preferred-generation-select">
                             <SelectValue placeholder={t('fc.genAny')} />
                           </SelectTrigger>
                         </FormControl>
