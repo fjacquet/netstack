@@ -12,6 +12,7 @@
 
 import type { Profile } from '../schemas/profile';
 import { ProfileListSchema } from '../schemas/profile';
+import { DEFAULT_ETH_INPUT, DEFAULT_CONVERGED_INPUT } from '../schemas/defaults';
 
 /** localStorage key for profile persistence */
 const PROFILES_KEY = 'netstack-profiles';
@@ -134,4 +135,42 @@ export function deleteProfile(id: string): void {
   const profiles = readProfiles();
   const filtered = profiles.filter((p) => p.id !== id);
   writeProfiles(filtered);
+}
+
+/**
+ * Normalise a saved Ethernet/Clos inputState against current defaults.
+ * Fills any keys missing from older profiles with DEFAULT_ETH_INPUT values.
+ * Does not mutate the input. Does not validate — validation happens at engine entry.
+ *
+ * PHYS-03: Ensures profiles saved before v9 (missing geometry fields) get
+ * rackPitchMm=600, racksAdjacent=true, patchPanelDistanceM=1 filled in.
+ */
+export function normalizeEthInputState(
+  saved: Record<string, unknown>
+): Record<string, unknown> {
+  return { ...(DEFAULT_ETH_INPUT as unknown as Record<string, unknown>), ...saved };
+}
+
+/**
+ * Normalise a saved FC inputState against current FC defaults.
+ * FC profiles have no geometry fields but this function exists for API
+ * consistency and forward compatibility with future FC schema additions.
+ */
+export function normalizeFCInputState(
+  saved: Record<string, unknown>
+): Record<string, unknown> {
+  // FC has no geometry fields to backfill — return a copy for immutability.
+  return { ...saved };
+}
+
+/**
+ * Normalise a saved Converged inputState against current defaults.
+ * Fills any keys missing from older profiles with DEFAULT_CONVERGED_INPUT values.
+ *
+ * PHYS-03: Ensures profiles saved before v9 get geometry defaults filled.
+ */
+export function normalizeConvergedInputState(
+  saved: Record<string, unknown>
+): Record<string, unknown> {
+  return { ...(DEFAULT_CONVERGED_INPUT as unknown as Record<string, unknown>), ...saved };
 }
