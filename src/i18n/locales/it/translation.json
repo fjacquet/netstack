@@ -62,7 +62,7 @@
   "results": {
     "heading": "Risultati",
     "emptyHeading": "Inserire i parametri",
-    "emptyBody": "Compilare il modulo per calcolare la BOM istantaneamente.",
+    "emptyBody": "Configura la tua rete nella pagina Ingressi, poi torna qui per vedere la tua distinta materiali.",
     "placeholder": "I risultati appariranno qui dopo l'inserimento dei parametri."
   },
   "placeholders": {
@@ -143,6 +143,12 @@
     "convergedPdfButton": "Esporta PDF Convergente",
     "threeTierCsvButton": "Esporta CSV Tre livelli",
     "threeTierPdfButton": "Esporta PDF Tre livelli"
+  },
+  "nav": {
+    "configure": "Configura",
+    "results": "Risultati",
+    "topology": "Topologia",
+    "rack": "Elevazione rack"
   },
   "mode": {
     "ethernet": "Ethernet",
@@ -232,6 +238,18 @@
     "borderLeafSwitches": "Switch Border Leaf",
     "accessToAggrOversubLabel": "Sovrascrizione accesso-aggregazione",
     "aggrToCoreOversubLabel": "Sovrascrizione aggregazione-core"
+  },
+  "input": {
+    "pageTitle": "Configurazione di rete",
+    "pageDescription": "Configura i parametri di rete. I risultati si aggiornano automaticamente.",
+    "section": {
+      "rackConfig": "Configurazione rack",
+      "switchSelection": "Selezione switch",
+      "advanced": "Avanzate",
+      "fabricConfig": "Configurazione fabric",
+      "ethernetSwitches": "Switch Ethernet",
+      "fcFabric": "Fabric FC"
+    }
   },
   "infra": {
     "existingSpinesToggle": "Spine gia installati",

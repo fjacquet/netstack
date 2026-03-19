@@ -62,7 +62,7 @@
   "results": {
     "heading": "Ergebnisse",
     "emptyHeading": "Parameter eingeben",
-    "emptyBody": "Fuellen Sie das Formular aus, um Ihre BOM sofort zu berechnen.",
+    "emptyBody": "Konfigurieren Sie Ihr Netzwerk auf der Eingabeseite und kehren Sie dann hierher zurück, um Ihre Stückliste zu sehen.",
     "placeholder": "Ergebnisse erscheinen hier nach Eingabe der Parameter."
   },
   "placeholders": {
@@ -143,6 +143,12 @@
     "convergedPdfButton": "Konvergiertes PDF exportieren",
     "threeTierCsvButton": "Drei-Schicht CSV exportieren",
     "threeTierPdfButton": "Drei-Schicht PDF exportieren"
+  },
+  "nav": {
+    "configure": "Konfigurieren",
+    "results": "Ergebnisse",
+    "topology": "Topologie",
+    "rack": "Rack-Ansicht"
   },
   "mode": {
     "ethernet": "Ethernet",
@@ -232,6 +238,18 @@
     "borderLeafSwitches": "Border-Leaf-Switches",
     "accessToAggrOversubLabel": "Access-Aggregation-Uberzeichnung",
     "aggrToCoreOversubLabel": "Aggregation-Core-Uberzeichnung"
+  },
+  "input": {
+    "pageTitle": "Netzwerkkonfiguration",
+    "pageDescription": "Netzwerkparameter konfigurieren. Ergebnisse werden automatisch aktualisiert.",
+    "section": {
+      "rackConfig": "Rack-Konfiguration",
+      "switchSelection": "Switch-Auswahl",
+      "advanced": "Erweitert",
+      "fabricConfig": "Fabric-Konfiguration",
+      "ethernetSwitches": "Ethernet-Switches",
+      "fcFabric": "FC-Fabric"
+    }
   },
   "infra": {
     "existingSpinesToggle": "Spines bereits installiert",

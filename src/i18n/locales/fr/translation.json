@@ -62,7 +62,7 @@
   "results": {
     "heading": "Resultats",
     "emptyHeading": "Saisir les parametres",
-    "emptyBody": "Remplissez le formulaire pour calculer votre BOM instantanement.",
+    "emptyBody": "Configurez votre réseau dans la page Entrées, puis revenez ici pour voir votre nomenclature.",
     "placeholder": "Les resultats apparaitront ici apres la saisie des parametres."
   },
   "placeholders": {
@@ -143,6 +143,12 @@
     "convergedPdfButton": "Exporter PDF Converge",
     "threeTierCsvButton": "Exporter CSV Trois niveaux",
     "threeTierPdfButton": "Exporter PDF Trois niveaux"
+  },
+  "nav": {
+    "configure": "Configurer",
+    "results": "Résultats",
+    "topology": "Topologie",
+    "rack": "Élévation de baie"
   },
   "mode": {
     "ethernet": "Ethernet",
@@ -232,6 +238,18 @@
     "borderLeafSwitches": "Commutateurs Border Leaf",
     "accessToAggrOversubLabel": "Sursouscription acces-agregation",
     "aggrToCoreOversubLabel": "Sursouscription agregation-coeur"
+  },
+  "input": {
+    "pageTitle": "Configuration réseau",
+    "pageDescription": "Configurez vos paramètres réseau. Les résultats se mettent à jour automatiquement.",
+    "section": {
+      "rackConfig": "Configuration des baies",
+      "switchSelection": "Sélection des commutateurs",
+      "advanced": "Avancé",
+      "fabricConfig": "Configuration du fabric",
+      "ethernetSwitches": "Commutateurs Ethernet",
+      "fcFabric": "Fabric FC"
+    }
   },
   "infra": {
     "existingSpinesToggle": "Spines deja deployes",

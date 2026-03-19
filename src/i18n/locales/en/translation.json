@@ -62,7 +62,7 @@
   "results": {
     "heading": "Results",
     "emptyHeading": "Enter Sizing Parameters",
-    "emptyBody": "Fill in the form on the left to calculate your BOM instantly.",
+    "emptyBody": "Configure your network in the Inputs page, then return here to see your BOM.",
     "placeholder": "Results will appear here once you enter sizing parameters."
   },
   "placeholders": {
@@ -143,6 +143,12 @@
     "convergedPdfButton": "Export Converged PDF",
     "threeTierCsvButton": "Export Three-Tier CSV",
     "threeTierPdfButton": "Export Three-Tier PDF"
+  },
+  "nav": {
+    "configure": "Configure Inputs",
+    "results": "Results",
+    "topology": "Topology",
+    "rack": "Rack Elevation"
   },
   "mode": {
     "ethernet": "Ethernet",
@@ -232,6 +238,18 @@
     "borderLeafSwitches": "Border Leaf Switches",
     "accessToAggrOversubLabel": "Access-Aggregation Oversubscription",
     "aggrToCoreOversubLabel": "Aggregation-Core Oversubscription"
+  },
+  "input": {
+    "pageTitle": "Network Configuration",
+    "pageDescription": "Configure your network parameters. Results update automatically.",
+    "section": {
+      "rackConfig": "Rack Configuration",
+      "switchSelection": "Switch Selection",
+      "advanced": "Advanced",
+      "fabricConfig": "Fabric Configuration",
+      "ethernetSwitches": "Ethernet Switches",
+      "fcFabric": "FC Fabric"
+    }
   },
   "infra": {
     "existingSpinesToggle": "Spines already deployed",
