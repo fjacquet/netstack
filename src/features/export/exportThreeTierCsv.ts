@@ -108,6 +108,38 @@ export function buildThreeTierCsvRows(bom: ThreeTierBOM): string[] {
     ])
   }
 
+  // Cable schedule (optional — only when bom.cableSchedule is present)
+  if (bom.cableSchedule) {
+    rows.push(['Section', 'Cable Schedule', '', '', '', '', ''])
+    rows.push([
+      'Cable Schedule',
+      'Server-Access',
+      'Server-Access',
+      String(bom.serverAccessCables),
+      'each',
+      conn,
+      'SKU: ' + bom.cableSchedule.serverAccessSkuM + 'm',
+    ])
+    rows.push([
+      'Cable Schedule',
+      'Access-Aggr',
+      'Access-Aggr',
+      String(bom.accessAggrCables),
+      'each',
+      conn,
+      'SKU: ' + bom.cableSchedule.accessAggregationSkuM + 'm',
+    ])
+    rows.push([
+      'Cable Schedule',
+      'Aggr-Core',
+      'Aggr-Core',
+      String(bom.aggrCoreCables),
+      'each',
+      conn,
+      'SKU: ' + bom.cableSchedule.aggregationCoreSkuM + 'm',
+    ])
+  }
+
   // Violation notes
   for (const v of bom.violations) {
     if (v.code === 'AGGREGATION_CAPACITY_EXCEEDED') {

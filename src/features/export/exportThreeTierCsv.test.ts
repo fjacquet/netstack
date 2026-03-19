@@ -47,6 +47,64 @@ const mockThreeTierBom: ThreeTierBOM = {
   },
 }
 
+const mockThreeTierBomWithCableSchedule: ThreeTierBOM = {
+  ...mockThreeTierBom,
+  cableSchedule: {
+    serverAccessSkuM: 3,
+    accessAggregationSkuM: 5,
+    aggregationCoreSkuM: 5,
+  },
+}
+
+describe('buildThreeTierCsvRows - cable schedule', () => {
+  it('emits a Section separator row and 3 data rows when cableSchedule is present', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBomWithCableSchedule)
+    const joined = rows.join('\n')
+    expect(joined).toContain('Section,Cable Schedule')
+    const scheduleRows = rows.filter((r) => r.startsWith('Cable Schedule,'))
+    expect(scheduleRows).toHaveLength(3)
+  })
+
+  it('emits Server-Access cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBomWithCableSchedule)
+    const row = rows.find((r) => r.includes('Server-Access') && r.startsWith('Cable Schedule,'))
+    expect(row).toBeDefined()
+    expect(row).toContain('SKU: 3m')
+  })
+
+  it('emits Access-Aggr cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBomWithCableSchedule)
+    const row = rows.find((r) => r.includes('Access-Aggr') && r.startsWith('Cable Schedule,'))
+    expect(row).toBeDefined()
+    expect(row).toContain('SKU: 5m')
+  })
+
+  it('emits Aggr-Core cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBomWithCableSchedule)
+    const row = rows.find((r) => r.includes('Aggr-Core') && r.startsWith('Cable Schedule,'))
+    expect(row).toBeDefined()
+    expect(row).toContain('SKU: 5m')
+  })
+
+  it('emits zero cable schedule rows when cableSchedule is undefined', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBom)
+    const joined = rows.join('\n')
+    expect(joined).not.toContain('Cable Schedule,')
+    expect(joined).not.toContain('Section,Cable Schedule')
+  })
+
+  it('every cable schedule row has exactly 7 comma-separated fields', () => {
+    const rows = buildThreeTierCsvRows(mockThreeTierBomWithCableSchedule)
+    const scheduleRows = rows.filter(
+      (r) => r.startsWith('Cable Schedule,') || r.startsWith('Section,Cable Schedule')
+    )
+    for (const row of scheduleRows) {
+      const fields = row.split(',')
+      expect(fields).toHaveLength(7)
+    }
+  })
+})
+
 describe('buildThreeTierCsvRows', () => {
   it('produces rows for access switches with role Access', () => {
     const rows = buildThreeTierCsvRows(mockThreeTierBom)

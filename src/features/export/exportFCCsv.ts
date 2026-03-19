@@ -79,6 +79,20 @@ export function buildFCCsvRows(bom: FCNetworkBOM): string[][] {
     'Fan-in ratio: ' + bom.fanInRatio.toFixed(1) + ':1',
   ])
 
+  // Cable schedule — top-level islCableLengthSkuM per ADR-0009 (FC parallel domain, no nested cableSchedule)
+  if (bom.islCableLengthSkuM != null) {
+    rows.push(['Section', 'Cable Schedule', '', '', '', 'FC', ''])
+    rows.push([
+      'Cable Schedule',
+      'ISL Cable',
+      'FC ISL',
+      String(bom.islCables),
+      'each',
+      'FC',
+      'SKU: ' + bom.islCableLengthSkuM + 'm',
+    ])
+  }
+
   // Violation notes
   for (const v of bom.violations) {
     if (v.code === 'FC_OVERSUBSCRIPTION_EXCEEDED') {

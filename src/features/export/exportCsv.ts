@@ -88,6 +88,38 @@ export function buildCsvRows(bom: NetworkBOM): string[] {
     ])
   }
 
+  // Cable schedule (optional — only when bom.cableSchedule is present)
+  if (bom.cableSchedule) {
+    rows.push(['Section', 'Cable Schedule', '', '', '', '', ''])
+    rows.push([
+      'Cable Schedule',
+      'Server-Leaf',
+      'Server-Leaf',
+      String(bom.serverLeafCables),
+      'each',
+      conn,
+      'SKU: ' + bom.cableSchedule.serverLeafSkuM + 'm',
+    ])
+    rows.push([
+      'Cable Schedule',
+      'Leaf-Spine',
+      'Leaf-Spine',
+      String(bom.leafSpineCables),
+      'each',
+      conn,
+      'SKU: ' + bom.cableSchedule.leafSpineSkuM + 'm',
+    ])
+    rows.push([
+      'Cable Schedule',
+      'VLT',
+      'VLT',
+      String(bom.vltCables),
+      'each',
+      '100G',
+      'SKU: ' + bom.cableSchedule.vltSkuM + 'm',
+    ])
+  }
+
   // Violation notes as informational rows
   for (const v of bom.violations) {
     if (v.code === 'OOB_PORT_SATURATION') {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildCsvString, wrapCsvValue } from './exportCsv'
+import { buildCsvString, buildCsvRows, wrapCsvValue } from './exportCsv'
 import type { NetworkBOM } from '@/domain/schemas/bom'
 
 const mockBom: NetworkBOM = {
@@ -57,6 +57,64 @@ describe('wrapCsvValue', () => {
   })
   it('doubles internal double quotes', () => {
     expect(wrapCsvValue('say "hi"')).toBe('"say ""hi"""')
+  })
+})
+
+const mockBomWithCableSchedule: NetworkBOM = {
+  ...mockBom,
+  cableSchedule: {
+    serverLeafSkuM: 3,
+    leafSpineSkuM: 5,
+    vltSkuM: 1,
+  },
+}
+
+describe('buildCsvRows - cable schedule', () => {
+  it('emits a Section separator row and 3 data rows when cableSchedule is present', () => {
+    const rows = buildCsvRows(mockBomWithCableSchedule)
+    const joined = rows.join('\n')
+    expect(joined).toContain('Section,Cable Schedule')
+    const scheduleRows = rows.filter((r) => r.startsWith('Cable Schedule,'))
+    expect(scheduleRows).toHaveLength(3)
+  })
+
+  it('emits Server-Leaf cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildCsvRows(mockBomWithCableSchedule)
+    const serverLeafRow = rows.find((r) => r.includes('Server-Leaf') && r.startsWith('Cable Schedule,'))
+    expect(serverLeafRow).toBeDefined()
+    expect(serverLeafRow).toContain('SKU: 3m')
+  })
+
+  it('emits Leaf-Spine cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildCsvRows(mockBomWithCableSchedule)
+    const leafSpineRow = rows.find((r) => r.includes('Leaf-Spine') && r.startsWith('Cable Schedule,'))
+    expect(leafSpineRow).toBeDefined()
+    expect(leafSpineRow).toContain('SKU: 5m')
+  })
+
+  it('emits VLT cable schedule row with correct SKU in Notes column', () => {
+    const rows = buildCsvRows(mockBomWithCableSchedule)
+    const vltRow = rows.find((r) => r.includes('VLT') && r.startsWith('Cable Schedule,'))
+    expect(vltRow).toBeDefined()
+    expect(vltRow).toContain('SKU: 1m')
+  })
+
+  it('emits zero cable schedule rows when cableSchedule is undefined', () => {
+    const rows = buildCsvRows(mockBom)
+    const joined = rows.join('\n')
+    expect(joined).not.toContain('Cable Schedule,')
+    expect(joined).not.toContain('Section,Cable Schedule')
+  })
+
+  it('every cable schedule row has exactly 7 comma-separated fields', () => {
+    const rows = buildCsvRows(mockBomWithCableSchedule)
+    const scheduleRows = rows.filter(
+      (r) => r.startsWith('Cable Schedule,') || r.startsWith('Section,Cable Schedule')
+    )
+    for (const row of scheduleRows) {
+      const fields = row.split(',')
+      expect(fields).toHaveLength(7)
+    }
   })
 })
 

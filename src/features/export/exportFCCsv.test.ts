@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFCCsvString } from './exportFCCsv'
+import { buildFCCsvString, buildFCCsvRows } from './exportFCCsv'
 import type { FCNetworkBOM } from '@/domain/schemas/fc-bom'
 
 const mockFCBom: FCNetworkBOM = {
@@ -54,6 +54,46 @@ const mockFCBomWithViolations: FCNetworkBOM = {
     },
   ],
 }
+
+const mockFCBomWithIslSku: FCNetworkBOM = {
+  ...mockFCBom,
+  islCableLengthSkuM: 5,
+}
+
+describe('buildFCCsvRows - cable schedule', () => {
+  it('emits a Section separator row and 1 ISL data row when islCableLengthSkuM is present', () => {
+    const rows = buildFCCsvRows(mockFCBomWithIslSku)
+    const sectionRow = rows.find((r) => r[0] === 'Section' && r[1] === 'Cable Schedule')
+    expect(sectionRow).toBeDefined()
+    const islSkuRow = rows.find((r) => r[0] === 'Cable Schedule' && r[1] === 'ISL Cable')
+    expect(islSkuRow).toBeDefined()
+  })
+
+  it('emits ISL cable schedule row with correct SKU value in Notes column', () => {
+    const rows = buildFCCsvRows(mockFCBomWithIslSku)
+    const islSkuRow = rows.find((r) => r[0] === 'Cable Schedule' && r[1] === 'ISL Cable')
+    expect(islSkuRow).toBeDefined()
+    expect(islSkuRow![6]).toBe('SKU: 5m')
+  })
+
+  it('emits zero cable schedule rows when islCableLengthSkuM is undefined', () => {
+    const rows = buildFCCsvRows(mockFCBom)
+    const sectionRow = rows.find((r) => r[0] === 'Section' && r[1] === 'Cable Schedule')
+    expect(sectionRow).toBeUndefined()
+    const islSkuRow = rows.find((r) => r[0] === 'Cable Schedule')
+    expect(islSkuRow).toBeUndefined()
+  })
+
+  it('every cable schedule row has exactly 7 elements', () => {
+    const rows = buildFCCsvRows(mockFCBomWithIslSku)
+    const scheduleRows = rows.filter(
+      (r) => r[0] === 'Cable Schedule' || (r[0] === 'Section' && r[1] === 'Cable Schedule')
+    )
+    for (const row of scheduleRows) {
+      expect(row).toHaveLength(7)
+    }
+  })
+})
 
 describe('buildFCCsvString', () => {
   it('starts with UTF-8 BOM character', () => {
