@@ -366,3 +366,13 @@ describe('FC-08: Oversubscription and violations', () => {
     expect(Array.isArray(result.violations)).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// CABLE-04: islCableLengthSkuM — fixed conservative 5m ISL cable length
+// ---------------------------------------------------------------------------
+describe('CABLE-04: islCableLengthSkuM', () => {
+  it('returns ISL cable length SKU (fixed conservative 5m)', () => {
+    const result = calculateFCBOM(makeInput());
+    expect(result.islCableLengthSkuM).toBe(5);
+  });
+});

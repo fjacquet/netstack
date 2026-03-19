@@ -17,6 +17,7 @@
  */
 
 import { FC_SWITCH_CATALOG } from '../catalog/brocade';
+import { computeFCIslLengthM } from './cable-length';
 import type { FCSizingInput } from '../schemas/fc-input';
 import type { FCConstraintViolation, FCNetworkBOM } from '../schemas/fc-bom';
 
@@ -207,6 +208,9 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
     });
   }
 
+  // ─── Step 8: ISL cable length (Phase 26, CABLE-04) ─────────────────────────
+  const islCableLengthSkuM = computeFCIslLengthM();
+
   // ─── Return FCNetworkBOM ───────────────────────────────────────────────────
   //
   // DUAL-FABRIC INVARIANT: fabricBSwitches === fabricASwitches (always)
@@ -224,5 +228,6 @@ export function calculateFCBOM(input: FCSizingInput): FCNetworkBOM {
     islOversubscriptionRatio,
     violations,
     input,
+    islCableLengthSkuM,
   };
 }

@@ -399,19 +399,29 @@ describe('Constraint violations', () => {
     expect(v.length).toBe(0);
   });
 
-  it('DAC_DISTANCE_ADVISORY when cableType=DAC and racks > 8', () => {
+  it('DAC_DISTANCE_ADVISORY when cableType=DAC and computed distance exceeds limit', () => {
+    // racksAdjacent=false, patchPanelDistanceM=10 → interRackCableLengthM >> 3m (25G limit)
     const result = calculateThreeTierBOM(makeInput({
-      racks: Array.from({ length: 10 }, () => ({ serverCount: 16 })),
+      racks: Array.from({ length: 3 }, () => ({ serverCount: 16 })),
       cableType: 'DAC',
+      racksAdjacent: false,
+      patchPanelDistanceM: 10,
+      connectivityType: '25G',
     }));
     const v = result.violations.filter(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(v.length).toBe(1);
+    if (v[0] && v[0].code === 'DAC_DISTANCE_ADVISORY') {
+      expect(v[0].computedDistanceM).toBeDefined();
+      expect(v[0].computedDistanceM!).toBeGreaterThan(3);
+    }
   });
 
   it('no DAC_DISTANCE_ADVISORY for AOC or fiber', () => {
     const result = calculateThreeTierBOM(makeInput({
       racks: Array.from({ length: 10 }, () => ({ serverCount: 16 })),
       cableType: 'AOC',
+      racksAdjacent: false,
+      patchPanelDistanceM: 10,
     }));
     const v = result.violations.filter(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(v.length).toBe(0);
@@ -485,22 +495,50 @@ describe('Border leaf switches', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cable length recommendation
+// Cable length recommendation (Phase 26 — now geometry-based from cable-length.ts)
 // ---------------------------------------------------------------------------
 describe('Cable length recommendation', () => {
-  it('ToR -> 2m', () => {
+  it('ToR -> valid cable SKU length from geometry', () => {
     const result = calculateThreeTierBOM(makeInput({ switchPositioning: 'ToR' }));
-    expect(result.recommendedCableLengthM).toBe(2);
+    expect([1, 3, 5, 10]).toContain(result.recommendedCableLengthM);
   });
 
-  it('MoR -> 1m', () => {
+  it('MoR -> valid cable SKU length from geometry', () => {
     const result = calculateThreeTierBOM(makeInput({ switchPositioning: 'MoR' }));
-    expect(result.recommendedCableLengthM).toBe(1);
+    expect([1, 3, 5, 10]).toContain(result.recommendedCableLengthM);
   });
 
-  it('BoR -> 2m', () => {
+  it('BoR -> valid cable SKU length from geometry', () => {
     const result = calculateThreeTierBOM(makeInput({ switchPositioning: 'BoR' }));
-    expect(result.recommendedCableLengthM).toBe(2);
+    expect([1, 3, 5, 10]).toContain(result.recommendedCableLengthM);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RACK-04: PATCH_PANEL_RECOMMENDED advisory
+// ---------------------------------------------------------------------------
+describe('RACK-04: PATCH_PANEL_RECOMMENDED advisory', () => {
+  it('emits advisory when racksAdjacent=false', () => {
+    const result = calculateThreeTierBOM(makeInput({ racksAdjacent: false, patchPanelDistanceM: 5 }));
+    expect(result.advisories.some(a => a.code === 'PATCH_PANEL_RECOMMENDED')).toBe(true);
+  });
+
+  it('does NOT emit advisory when racksAdjacent=true', () => {
+    const result = calculateThreeTierBOM(makeInput({ racksAdjacent: true }));
+    expect(result.advisories.some(a => a.code === 'PATCH_PANEL_RECOMMENDED')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CABLE-03: cableSchedule output
+// ---------------------------------------------------------------------------
+describe('CABLE-03: cableSchedule output', () => {
+  it('includes serverAccessSkuM, accessAggregationSkuM, aggregationCoreSkuM', () => {
+    const result = calculateThreeTierBOM(makeInput());
+    expect(result.cableSchedule).toBeDefined();
+    expect([1, 3, 5, 10]).toContain(result.cableSchedule!.serverAccessSkuM);
+    expect([1, 3, 5, 10]).toContain(result.cableSchedule!.accessAggregationSkuM);
+    expect([1, 3, 5, 10]).toContain(result.cableSchedule!.aggregationCoreSkuM);
   });
 });
 

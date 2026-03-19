@@ -16,10 +16,13 @@
  */
 
 import { SWITCH_CATALOG } from '../catalog/hardware';
+import { CABLE_CATALOG } from '../catalog/cables';
+import { deriveRackHeightM, computeThreeTierLengthsM, interRackCableLengthM } from './cable-length';
 import type { SwitchSpec } from '../catalog/types';
 import type { ThreeTierSizingInput } from '../schemas/three-tier-input';
 import type { ThreeTierBOM } from '../schemas/three-tier-bom';
 import type { ThreeTierConstraintViolation } from '../schemas/three-tier-bom';
+import type { Advisory } from '../schemas/bom';
 
 // OOB model is fixed (not selectable)
 const OOB = SWITCH_CATALOG['S3248T-ON'];
@@ -41,6 +44,9 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
 
   // --- Rack Count -- derived from racks array length ---
   const racks = input.racks.length;
+
+  // --- Cable Length Geometry (Phase 26) ---
+  const rackHeightM = deriveRackHeightM(input.rackSize);
 
   // --- Server Totals -- derived from racks array ---
   const totalServers = input.racks.reduce((sum, r) => sum + r.serverCount, 0);
@@ -129,13 +135,16 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
   const aggrCoreSpeed = AGGR.uplinkSpeedGbE ?? AGGR.downlinkSpeedGbE;
   const qsfp56ddCount = isFiber && aggrCoreSpeed === 400 ? 2 * aggrCoreCables : 0;
 
-  // --- Cable Length Map ---
-  const cableLengthMap: Record<ThreeTierSizingInput['switchPositioning'], number> = {
-    ToR: 2,
-    MoR: 1,
-    BoR: 2,
-  };
-  const recommendedCableLengthM = cableLengthMap[input.switchPositioning];
+  // --- Cable Schedule (Phase 26, CABLE-03) ---
+  const { serverAccessSkuM, accessAggregationSkuM, aggregationCoreSkuM } = computeThreeTierLengthsM({
+    rackPitchMm: input.rackPitchMm,
+    rackCount: racks,
+    rackHeightM,
+    switchPositioning: input.switchPositioning,
+    racksAdjacent: input.racksAdjacent,
+    patchPanelDistanceM: input.patchPanelDistanceM,
+  });
+  const recommendedCableLengthM = serverAccessSkuM; // backward compat
 
   // --- Constraint Violations ---
   const violations: ThreeTierConstraintViolation[] = [];
@@ -169,13 +178,19 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
     });
   }
 
-  // DAC_DISTANCE_ADVISORY
-  if (input.cableType === 'DAC' && racks > 8) {
-    violations.push({
-      code: 'DAC_DISTANCE_ADVISORY',
-      rackCount: racks,
-      cableType: 'DAC',
-    });
+  // DAC_DISTANCE_ADVISORY: computed geometry distance vs speed-specific limit (DAC-01, DAC-02)
+  if (input.cableType === 'DAC') {
+    const speedKey = input.connectivityType === '25G' ? 25 : 100;
+    const dacLimit = CABLE_CATALOG.DAC.maxDistanceBySpeed[speedKey as keyof typeof CABLE_CATALOG.DAC.maxDistanceBySpeed];
+    const worstCaseRawM = interRackCableLengthM(input.rackPitchMm, rackHeightM, input.racksAdjacent, input.patchPanelDistanceM);
+    if (worstCaseRawM > dacLimit) {
+      violations.push({
+        code: 'DAC_DISTANCE_ADVISORY',
+        rackCount: racks,
+        cableType: 'DAC',
+        computedDistanceM: worstCaseRawM,
+      });
+    }
   }
 
   // RACK_CAPACITY_EXCEEDED
@@ -193,6 +208,18 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
         totalU: rackSizeU,
       });
     }
+  }
+
+  // --- Advisories (Phase 26, RACK-04) ---
+  const advisories: Advisory[] = [];
+  if (!input.racksAdjacent) {
+    const speedKey = input.connectivityType === '25G' ? 25 : 100;
+    const longestLinkM = interRackCableLengthM(input.rackPitchMm, rackHeightM, false, input.patchPanelDistanceM);
+    advisories.push({
+      code: 'PATCH_PANEL_RECOMMENDED',
+      computedDistanceM: longestLinkM,
+      dacLimitM: CABLE_CATALOG.DAC.maxDistanceBySpeed[speedKey as keyof typeof CABLE_CATALOG.DAC.maxDistanceBySpeed],
+    });
   }
 
   return {
@@ -216,7 +243,8 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
     switchPositioning: input.switchPositioning,
     recommendedCableLengthM,
     violations,
-    advisories: [],
+    advisories,
     input,
+    cableSchedule: { serverAccessSkuM, accessAggregationSkuM, aggregationCoreSkuM },
   };
 }
