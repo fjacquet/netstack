@@ -105,7 +105,7 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   3. User can toggle "all racks adjacent" (defaults to true); when false, a distance-to-patch-panel field appears
   4. Saved profiles and localStorage state from before v6.0 load without errors after migration to store version 9
   5. DAC catalog correctly uses 3m limit for 25G SFP28 links and 5m limit for 100G QSFP28 links (not a flat 5m for all)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 25-01: Zod schema additions (advisories[], geometry inputs), store migration v9, DAC catalog fix
