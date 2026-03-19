@@ -3,12 +3,19 @@ import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { BOMPanel } from './BOMPanel'
 import { useResultStore } from '@/store/resultStore'
+import { useInputStore } from '@/store/inputStore'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { NetworkBOM } from '@/domain/schemas/bom'
+import type { SizingInput } from '@/domain/schemas/input'
 
 // Mock the resultStore to inject controlled BOM data
 vi.mock('@/store/resultStore', () => ({
   useResultStore: vi.fn(),
+}))
+
+// Mock the inputStore to inject controlled input state
+vi.mock('@/store/inputStore', () => ({
+  useInputStore: vi.fn(),
 }))
 
 // Mock react-i18next — return key names directly for assertion
@@ -65,11 +72,46 @@ function makeBom(overrides: Partial<NetworkBOM> = {}): NetworkBOM {
   }
 }
 
+// Default input for inputStore mock
+const DEFAULT_INPUT: SizingInput = {
+  topology: 'leaf-spine',
+  racks: [{ serverCount: 16 }, { serverCount: 16 }, { serverCount: 16 }],
+  portsPerServerFrontend: 1,
+  portsPerServerBackend: 1,
+  connectivityType: '25G',
+  cableType: 'DAC',
+  activeUplinksPerLeaf: 4,
+  leafModel: 'S5248F-ON',
+  spineModel: 'S5232F-ON',
+  accessModel: 'S5248F-ON',
+  activeUplinksPerAccess: 4,
+  aggregationModel: 'Z9264F-ON',
+  activeUplinksPerAggregation: 4,
+  coreModel: 'Z9332F-ON',
+  borderLeafModel: 'none',
+  borderLeafCount: 0,
+  rackSize: '42U',
+  serverUHeight: '1U',
+  switchPositioning: 'ToR',
+  existingSpinesDeployed: false,
+  existingCoreDeployed: false,
+}
+
 // Helper: mock useResultStore with a given state
 function mockStore(state: { bom: NetworkBOM | null; threeTierBom: null; violations: NetworkBOM['violations'] }) {
   vi.mocked(useResultStore).mockImplementation(
     (selector: (s: { bom: NetworkBOM | null; threeTierBom: null; violations: NetworkBOM['violations'] }) => unknown) =>
       selector(state)
+  )
+}
+
+// Helper: mock useInputStore with a given input
+function mockInputStore(overrides: Partial<SizingInput> = {}) {
+  const input = { ...DEFAULT_INPUT, ...overrides }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vi.mocked(useInputStore).mockImplementation(
+    (selector: (s: { input: SizingInput; setInput: (p: Partial<SizingInput>) => void; resetInput: () => void }) => unknown) =>
+      selector({ input, setInput: vi.fn(), resetInput: vi.fn() })
   )
 }
 
@@ -81,6 +123,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 describe('BOMPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default: mock inputStore with default leaf-spine input
+    mockInputStore()
   })
 
   // ── BOM-01: Switch quantities ─────────────────────────────────────────────
@@ -264,6 +308,31 @@ describe('BOMPanel', () => {
 
       // No alerts should be rendered
       expect(screen.queryAllByRole('alert')).toHaveLength(0)
+    })
+  })
+
+  // ── INFRA: Existing infrastructure labels ───────────────────────────────
+
+  describe('INFRA: existing infrastructure labels', () => {
+    it('does NOT show "(existing)" label when existingSpinesDeployed is false', () => {
+      mockInputStore({ existingSpinesDeployed: false })
+      const bom = makeBom()
+      mockStore({ bom, threeTierBom: null, violations: [] })
+
+      render(<BOMPanel />, { wrapper: Wrapper })
+
+      expect(screen.queryByTestId('existing-spines-label')).toBeNull()
+    })
+
+    it('shows "(existing)" label next to spine row when existingSpinesDeployed is true', () => {
+      mockInputStore({ existingSpinesDeployed: true })
+      const bom = makeBom({ spineSwitches: 0 })
+      mockStore({ bom, threeTierBom: null, violations: [] })
+
+      render(<BOMPanel />, { wrapper: Wrapper })
+
+      expect(screen.getByTestId('existing-spines-label')).toBeInTheDocument()
+      expect(screen.getByTestId('existing-spines-label').textContent).toContain('infra.existingLabel')
     })
   })
 })

@@ -209,7 +209,7 @@ function OversubBadge({ label, ratio, severityFn }: { label: string; ratio: numb
 
 // -- Three-Tier BOM content --
 
-function ThreeTierBOMContent({ bom, violations }: { bom: ThreeTierBOM; violations: ThreeTierConstraintViolation[] }) {
+function ThreeTierBOMContent({ bom, violations, existingCoreDeployed }: { bom: ThreeTierBOM; violations: ThreeTierConstraintViolation[]; existingCoreDeployed: boolean }) {
   const { t } = useTranslation()
 
   return (
@@ -264,10 +264,15 @@ function ThreeTierBOMContent({ bom, violations }: { bom: ThreeTierBOM; violation
                   <TableCell className="font-mono">{bom.input.aggregationModel}</TableCell>
                   <TableCell>{bom.aggregationSwitches}</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow className={existingCoreDeployed ? 'opacity-60' : ''}>
                   <TableCell>{t('threeTier.coreSwitches')}</TableCell>
                   <TableCell className="font-mono">{bom.input.coreModel}</TableCell>
-                  <TableCell>{bom.coreSwitches}</TableCell>
+                  <TableCell>
+                    {bom.coreSwitches}
+                    {existingCoreDeployed && (
+                      <span className="ml-1 text-xs text-muted-foreground" data-testid="existing-core-label">{t('infra.existingLabel')}</span>
+                    )}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('threeTier.oobSwitches')}</TableCell>
@@ -409,7 +414,13 @@ export function BOMPanel() {
   const { bom, threeTierBom, violations } = useResultStore(
     useShallow((s) => ({ bom: s.bom, threeTierBom: s.threeTierBom, violations: s.violations }))
   )
-  const topology = useInputStore(useShallow((s) => s.input.topology))
+  const { topology, existingSpinesDeployed, existingCoreDeployed } = useInputStore(
+    useShallow((s) => ({
+      topology: s.input.topology,
+      existingSpinesDeployed: s.input.existingSpinesDeployed,
+      existingCoreDeployed: s.input.existingCoreDeployed,
+    }))
+  )
 
   // -- Three-Tier rendering --
   if (topology === 'three-tier') {
@@ -426,7 +437,7 @@ export function BOMPanel() {
         </Card>
       )
     }
-    return <ThreeTierBOMContent bom={threeTierBom} violations={violations as ThreeTierConstraintViolation[]} />
+    return <ThreeTierBOMContent bom={threeTierBom} violations={violations as ThreeTierConstraintViolation[]} existingCoreDeployed={existingCoreDeployed} />
   }
 
   // -- Clos (leaf-spine) rendering --
@@ -587,10 +598,15 @@ export function BOMPanel() {
                   </TableCell>
                 </TableRow>
                 {/* Spine row */}
-                <TableRow>
+                <TableRow className={existingSpinesDeployed ? 'opacity-60' : ''}>
                   <TableCell className="font-mono">S5232F-ON</TableCell>
                   <TableCell>{t('bom.roleSpine')}</TableCell>
-                  <TableCell>{bom.spineSwitches}</TableCell>
+                  <TableCell>
+                    {bom.spineSwitches}
+                    {existingSpinesDeployed && (
+                      <span className="ml-1 text-xs text-muted-foreground" data-testid="existing-spines-label">{t('infra.existingLabel')}</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger asChild>
