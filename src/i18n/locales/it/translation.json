@@ -57,7 +57,13 @@
     "positionToR": "ToR — Cima del rack",
     "positionMoR": "MoR — Centro rack",
     "positionBoR": "BoR — Fondo rack",
-    "positioningHelp": "Influisce sul posizionamento degli switch e sulla lunghezza dei cavi nel rack"
+    "positioningHelp": "Influisce sul posizionamento degli switch e sulla lunghezza dei cavi nel rack",
+    "rackPitchMm": "Passo rack",
+    "rackPitchMmHelp": "Distanza centro-centro tra rack adiacenti in mm (predefinito 600 mm)",
+    "racksAdjacent": "Tutti i rack adiacenti",
+    "racksAdjacentHelp": "Deselezionare se i rack sono separati da corridoi che richiedono patch panel",
+    "patchPanelDistanceM": "Distanza dal patch panel (m)",
+    "patchPanelDistanceMHelp": "Distanza dalla faccia del rack al patch panel in metri"
   },
   "results": {
     "heading": "Risultati",
@@ -301,7 +307,10 @@
     "violationDacBody": "I cavi DAC sono limitati a 3m. Con {{rackCount}} rack, verificare che tutti i collegamenti leaf-spine rientrino nelle specifiche. Considerare AOC o fibra per distanze maggiori.",
     "violationRackCapacityTitle": "Capacita rack superata",
     "violationRackCapacityBody": "Il rack {{rackN}} richiede {{used}}U ma il rack e solo {{total}}U. Riduci l'altezza U dei server o sposta i server.",
-    "cableLengthAdvisory": "Lunghezza cavo consigliata: fino a {{maxLength}}m (posizionamento {{positioning}})"
+    "cableLengthAdvisory": "Lunghezza cavo consigliata: fino a {{maxLength}}m (posizionamento {{positioning}})",
+    "advisoriesHeading": "Avvisi",
+    "advisoryPatchPanelTitle": "Patch panel consigliato",
+    "advisoryPatchPanelBody": "I rack non adiacenti richiedono patch panel. Lunghezza cavo calcolata: {{computedDistanceM}} m (limite DAC: {{dacLimitM}} m)."
   },
   "pwa": {
     "offlineReady": "App pronta per l'uso offline.",

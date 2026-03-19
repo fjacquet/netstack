@@ -57,7 +57,13 @@
     "positionToR": "ToR — Rack-Oberkante",
     "positionMoR": "MoR — Rack-Mitte",
     "positionBoR": "BoR — Rack-Unterseite",
-    "positioningHelp": "Beeinflusst die Switch-Platzierung und Kabellaenge im Rack"
+    "positioningHelp": "Beeinflusst die Switch-Platzierung und Kabellaenge im Rack",
+    "rackPitchMm": "Rack-Abstand",
+    "rackPitchMmHelp": "Mittenabstand zwischen benachbarten Racks in mm (Standard: 600 mm)",
+    "racksAdjacent": "Alle Racks benachbart",
+    "racksAdjacentHelp": "Deaktivieren, wenn Racks durch G\u00e4nge getrennt sind und Patchpanels ben\u00f6tigen",
+    "patchPanelDistanceM": "Abstand zum Patchpanel (m)",
+    "patchPanelDistanceMHelp": "Abstand von der Rack-Vorderseite zum Patchpanel in Metern"
   },
   "results": {
     "heading": "Ergebnisse",
@@ -301,7 +307,10 @@
     "violationDacBody": "DAC-Kabel sind auf 3m begrenzt. Bei {{rackCount}} Racks ueberpruefen Sie, ob alle Leaf-Spine-Verbindungen innerhalb der Spezifikation liegen. Erwaegen Sie AOC oder Glasfaser fuer laengere Distanzen.",
     "violationRackCapacityTitle": "Rack-Kapazitaet ueberschritten",
     "violationRackCapacityBody": "Rack {{rackN}} benoetigt {{used}}U, aber das Rack hat nur {{total}}U. Reduzieren Sie die Server-U-Hoehe oder verschieben Sie Server.",
-    "cableLengthAdvisory": "Empfohlene Kabellaenge: bis zu {{maxLength}}m ({{positioning}}-Positionierung)"
+    "cableLengthAdvisory": "Empfohlene Kabellaenge: bis zu {{maxLength}}m ({{positioning}}-Positionierung)",
+    "advisoriesHeading": "Hinweise",
+    "advisoryPatchPanelTitle": "Patchpanel empfohlen",
+    "advisoryPatchPanelBody": "Nicht benachbarte Racks erfordern Patchpanels. Berechnete Kabellänge: {{computedDistanceM}} m (DAC-Limit: {{dacLimitM}} m)."
   },
   "pwa": {
     "offlineReady": "App ist offline bereit.",

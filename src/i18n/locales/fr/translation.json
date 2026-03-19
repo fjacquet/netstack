@@ -57,7 +57,13 @@
     "positionToR": "ToR — Sommet de baie",
     "positionMoR": "MoR — Milieu de baie",
     "positionBoR": "BoR — Fond de baie",
-    "positioningHelp": "Affecte le positionnement des commutateurs et la longueur des cables dans chaque baie"
+    "positioningHelp": "Affecte le positionnement des commutateurs et la longueur des cables dans chaque baie",
+    "rackPitchMm": "Espacement des baies",
+    "rackPitchMmHelp": "Distance entre les centres des baies adjacentes en mm (d\u00e9faut 600 mm)",
+    "racksAdjacent": "Baies adjacentes",
+    "racksAdjacentHelp": "D\u00e9cochez si les baies sont s\u00e9par\u00e9es par des all\u00e9es n\u00e9cessitant des panneaux de brassage",
+    "patchPanelDistanceM": "Distance au panneau de brassage (m)",
+    "patchPanelDistanceMHelp": "Distance de la face de la baie au panneau de brassage en m\u00e8tres"
   },
   "results": {
     "heading": "Resultats",
@@ -301,7 +307,10 @@
     "violationDacBody": "Les cables DAC sont limites a 3m. Avec {{rackCount}} baies, verifiez que toutes les liaisons leaf-spine respectent la specification. Envisagez l'AOC ou la fibre pour les distances plus longues.",
     "violationRackCapacityTitle": "Capacite du rack depassee",
     "violationRackCapacityBody": "Le rack {{rackN}} necessite {{used}}U mais ne dispose que de {{total}}U. Reduisez la hauteur U des serveurs ou deplacez-les.",
-    "cableLengthAdvisory": "Longueur de cable recommandee : jusqu'a {{maxLength}}m (positionnement {{positioning}})"
+    "cableLengthAdvisory": "Longueur de cable recommandee : jusqu'a {{maxLength}}m (positionnement {{positioning}})",
+    "advisoriesHeading": "Avertissements",
+    "advisoryPatchPanelTitle": "Panneau de brassage recommand\u00e9",
+    "advisoryPatchPanelBody": "Les baies non adjacentes n\u00e9cessitent des panneaux de brassage. Longueur calcul\u00e9e : {{computedDistanceM}} m (limite DAC : {{dacLimitM}} m)."
   },
   "pwa": {
     "offlineReady": "Application disponible hors ligne.",

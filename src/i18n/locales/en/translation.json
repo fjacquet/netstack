@@ -57,7 +57,13 @@
     "positionToR": "ToR — Top of Rack",
     "positionMoR": "MoR — Middle of Rack",
     "positionBoR": "BoR — Bottom of Rack",
-    "positioningHelp": "Affects switch placement and cable run length within each server rack"
+    "positioningHelp": "Affects switch placement and cable run length within each server rack",
+    "rackPitchMm": "Rack Pitch",
+    "rackPitchMmHelp": "Centre-to-centre distance between adjacent racks in mm (default 600 mm)",
+    "racksAdjacent": "All racks adjacent",
+    "racksAdjacentHelp": "Uncheck if racks are separated by aisles requiring patch panels",
+    "patchPanelDistanceM": "Patch panel distance (m)",
+    "patchPanelDistanceMHelp": "Distance from rack face to patch panel in metres"
   },
   "results": {
     "heading": "Results",
@@ -301,7 +307,10 @@
     "violationDacBody": "DAC cables are limited to 3m. With {{rackCount}} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances.",
     "violationRackCapacityTitle": "Rack Capacity Exceeded",
     "violationRackCapacityBody": "Rack {{rackN}} requires {{used}}U but the rack is only {{total}}U. Reduce server U-height or move servers to another rack.",
-    "cableLengthAdvisory": "Recommended cable run: up to {{maxLength}}m ({{positioning}} positioning)"
+    "cableLengthAdvisory": "Recommended cable run: up to {{maxLength}}m ({{positioning}} positioning)",
+    "advisoriesHeading": "Advisories",
+    "advisoryPatchPanelTitle": "Patch Panel Recommended",
+    "advisoryPatchPanelBody": "Non-adjacent racks require patch panels. Computed cable run: {{computedDistanceM}}m (DAC limit: {{dacLimitM}}m)."
   },
   "pwa": {
     "offlineReady": "App ready to work offline.",
