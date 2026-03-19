@@ -377,8 +377,8 @@ describe('DAC Distance Advisory', () => {
     expect(violation).toBeDefined();
     if (violation && violation.code === 'DAC_DISTANCE_ADVISORY') {
       expect(violation.cableType).toBe('DAC');
-      expect(violation.computedDistanceM).toBeDefined();
-      expect(violation.computedDistanceM!).toBeGreaterThan(3);
+      expect(violation.computedDistanceM).toBeGreaterThan(3);
+      expect(violation.dacLimitM).toBe(3); // 25G DAC limit
     }
   });
 

@@ -150,7 +150,7 @@ export function buildCsvRows(bom: NetworkBOM): string[] {
         '',
         '',
         '',
-        `DAC Distance Advisory: ${v.rackCount} racks — verify cable runs within 3m spec`,
+        `DAC Distance Advisory: ${v.computedDistanceM.toFixed(1)}m computed run exceeds ${v.dacLimitM}m DAC limit`,
       ])
     }
   }

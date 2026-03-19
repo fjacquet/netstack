@@ -242,7 +242,7 @@ describe('buildThreeTierCsvRows', () => {
     const bomWithViolation: ThreeTierBOM = {
       ...mockThreeTierBom,
       violations: [
-        { code: 'DAC_DISTANCE_ADVISORY', rackCount: 5, cableType: 'DAC' },
+        { code: 'DAC_DISTANCE_ADVISORY', rackCount: 5, cableType: 'DAC', computedDistanceM: 4.5, dacLimitM: 3 },
       ],
     }
     const rows = buildThreeTierCsvRows(bomWithViolation)

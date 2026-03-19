@@ -218,11 +218,13 @@ describe('ConstraintViolationSchema — SPINE_CAPACITY_EXCEEDED variant', () => 
 });
 
 describe('ConstraintViolationSchema — DAC_DISTANCE_ADVISORY variant', () => {
-  it('accepts DAC_DISTANCE_ADVISORY with rackCount and cableType fields', () => {
+  it('accepts DAC_DISTANCE_ADVISORY with rackCount, cableType, computedDistanceM and dacLimitM fields', () => {
     const result = ConstraintViolationSchema.safeParse({
       code: 'DAC_DISTANCE_ADVISORY',
       rackCount: 10,
       cableType: 'DAC',
+      computedDistanceM: 6.5,
+      dacLimitM: 3,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -293,7 +295,7 @@ describe('NetworkBOMSchema — acceptance of complete valid BOM', () => {
       switchPositioning: 'ToR',
       recommendedCableLengthM: 2,
       violations: [
-        { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC' },
+        { code: 'DAC_DISTANCE_ADVISORY', rackCount: 10, cableType: 'DAC', computedDistanceM: 6.5, dacLimitM: 3 },
       ],
       input: {
         racks: Array.from({ length: 10 }, () => ({ serverCount: 47 })),
@@ -694,25 +696,26 @@ describe('ThreeTierBOMSchema -- advisories field', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Phase 25 — DAC_DISTANCE_ADVISORY computedDistanceM (optional field)
+// Phase 25/26 — DAC_DISTANCE_ADVISORY computedDistanceM + dacLimitM (required fields)
 // ---------------------------------------------------------------------------
-describe('ConstraintViolationSchema -- DAC_DISTANCE_ADVISORY computedDistanceM', () => {
-  it('accepts DAC_DISTANCE_ADVISORY with optional computedDistanceM', () => {
+describe('ConstraintViolationSchema -- DAC_DISTANCE_ADVISORY computedDistanceM + dacLimitM', () => {
+  it('accepts DAC_DISTANCE_ADVISORY with computedDistanceM and dacLimitM', () => {
     const result = ConstraintViolationSchema.safeParse({
       code: 'DAC_DISTANCE_ADVISORY',
       rackCount: 10,
       cableType: 'DAC',
       computedDistanceM: 6.5,
+      dacLimitM: 3,
     });
     expect(result.success).toBe(true);
   });
 
-  it('accepts DAC_DISTANCE_ADVISORY without computedDistanceM', () => {
+  it('rejects DAC_DISTANCE_ADVISORY without computedDistanceM or dacLimitM', () => {
     const result = ConstraintViolationSchema.safeParse({
       code: 'DAC_DISTANCE_ADVISORY',
       rackCount: 10,
       cableType: 'DAC',
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 });

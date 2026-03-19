@@ -411,8 +411,8 @@ describe('Constraint violations', () => {
     const v = result.violations.filter(v => v.code === 'DAC_DISTANCE_ADVISORY');
     expect(v.length).toBe(1);
     if (v[0] && v[0].code === 'DAC_DISTANCE_ADVISORY') {
-      expect(v[0].computedDistanceM).toBeDefined();
-      expect(v[0].computedDistanceM!).toBeGreaterThan(3);
+      expect(v[0].computedDistanceM).toBeGreaterThan(3);
+      expect(v[0].dacLimitM).toBe(3); // 25G DAC limit
     }
   });
 

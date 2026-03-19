@@ -304,7 +304,7 @@
     "violationSpineTitle": "Spine-Kapazitaet ueberschritten",
     "violationSpineBody": "{{leafCount}} Leaf-Switches ueberschreiten die {{maxLeafs}}-Port-Kapazitaet der Spine-Ebene. Skalieren Sie die Spine-Switches oder segmentieren Sie in mehrere Pods.",
     "violationDacTitle": "DAC-Distanzwarnung",
-    "violationDacBody": "DAC-Kabel sind auf 3m begrenzt. Bei {{rackCount}} Racks ueberpruefen Sie, ob alle Leaf-Spine-Verbindungen innerhalb der Spezifikation liegen. Erwaegen Sie AOC oder Glasfaser fuer laengere Distanzen.",
+    "violationDacBody": "Berechnete Kabelstrecke: {{computedDistanceM}}m ueberschreitet das DAC-Limit von {{dacLimitM}}m. Erwaegen Sie AOC oder Glasfaser fuer laengere Strecken.",
     "violationRackCapacityTitle": "Rack-Kapazitaet ueberschritten",
     "violationRackCapacityBody": "Rack {{rackN}} benoetigt {{used}}U, aber das Rack hat nur {{total}}U. Reduzieren Sie die Server-U-Hoehe oder verschieben Sie Server.",
     "cableLengthAdvisory": "Empfohlene Kabellaenge: bis zu {{maxLength}}m ({{positioning}}-Positionierung)",

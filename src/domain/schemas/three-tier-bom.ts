@@ -46,8 +46,10 @@ export const ThreeTierConstraintViolationSchema = z.discriminatedUnion('code', [
     rackCount: z.number().int(),
     /** Cable type that triggered the advisory (always DAC) */
     cableType: z.literal('DAC'),
-    /** Computed cable run distance in metres (optional, set by Phase 26 cable length engine) */
-    computedDistanceM: z.number().optional(),
+    /** Computed cable run distance in metres */
+    computedDistanceM: z.number(),
+    /** Speed-specific DAC distance limit in metres (25G → 3m, 100G → 5m) */
+    dacLimitM: z.number(),
   }),
   z.object({
     code: z.literal('RACK_CAPACITY_EXCEEDED'),

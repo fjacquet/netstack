@@ -96,7 +96,7 @@ function ViolationAlert({ v }: { v: ConstraintViolation }) {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>{t('bom.violationDacTitle')}</AlertTitle>
         <AlertDescription>
-          {t('bom.violationDacBody', { rackCount: v.rackCount })}
+          {t('bom.violationDacBody', { computedDistanceM: v.computedDistanceM.toFixed(1), dacLimitM: v.dacLimitM })}
         </AlertDescription>
       </Alert>
     )
@@ -168,7 +168,7 @@ function ThreeTierViolationAlert({ v }: { v: ThreeTierConstraintViolation }) {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>{t('bom.violationDacTitle')}</AlertTitle>
         <AlertDescription>
-          {t('bom.violationDacBody', { rackCount: v.rackCount })}
+          {t('bom.violationDacBody', { computedDistanceM: v.computedDistanceM.toFixed(1), dacLimitM: v.dacLimitM })}
         </AlertDescription>
       </Alert>
     )

@@ -152,6 +152,7 @@ export function calculateBOM(input: SizingInput): NetworkBOM {
         rackCount: racks,
         cableType: 'DAC',
         computedDistanceM: worstCaseRawM,
+        dacLimitM: dacLimit,
       });
     }
   }

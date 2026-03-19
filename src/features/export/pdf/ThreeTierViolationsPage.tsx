@@ -66,7 +66,7 @@ function violationBody(v: ThreeTierConstraintViolation): string {
     case 'OOB_PORT_SATURATION':
       return `${v.required} ports required but only ${v.available} available on one S3248T-ON. Add a second OOB switch or reduce servers per rack.`
     case 'DAC_DISTANCE_ADVISORY':
-      return `DAC cables are limited to 3m. With ${v.rackCount} racks, verify all inter-tier runs are within spec. Consider AOC or fiber for longer distances.`
+      return `DAC Distance Advisory: computed run ${v.computedDistanceM.toFixed(1)}m exceeds ${v.dacLimitM}m limit. Consider AOC or fiber.`
     case 'RACK_CAPACITY_EXCEEDED':
       return `Rack ${v.rackNumber} uses ${v.usedU}U of ${v.totalU}U capacity. Reduce servers per rack or use a taller rack.`
     default:

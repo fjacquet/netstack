@@ -304,7 +304,7 @@
     "violationSpineTitle": "Capacite Spine depassee",
     "violationSpineBody": "{{leafCount}} switches leaf depassent la capacite de {{maxLeafs}} ports du tier spine. Ajoutez des switches spine ou segmentez en plusieurs pods.",
     "violationDacTitle": "Avertissement distance DAC",
-    "violationDacBody": "Les cables DAC sont limites a 3m. Avec {{rackCount}} baies, verifiez que toutes les liaisons leaf-spine respectent la specification. Envisagez l'AOC ou la fibre pour les distances plus longues.",
+    "violationDacBody": "Cable calcule : {{computedDistanceM}}m depasse la limite DAC de {{dacLimitM}}m. Envisagez l'AOC ou la fibre pour les longues distances.",
     "violationRackCapacityTitle": "Capacite du rack depassee",
     "violationRackCapacityBody": "Le rack {{rackN}} necessite {{used}}U mais ne dispose que de {{total}}U. Reduisez la hauteur U des serveurs ou deplacez-les.",
     "cableLengthAdvisory": "Longueur de cable recommandee : jusqu'a {{maxLength}}m (positionnement {{positioning}})",

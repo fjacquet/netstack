@@ -189,6 +189,7 @@ export function calculateThreeTierBOM(input: ThreeTierSizingInput): ThreeTierBOM
         rackCount: racks,
         cableType: 'DAC',
         computedDistanceM: worstCaseRawM,
+        dacLimitM: dacLimit,
       });
     }
   }

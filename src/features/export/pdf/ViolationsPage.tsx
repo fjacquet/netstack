@@ -60,7 +60,7 @@ function violationBody(v: ConstraintViolation): string {
     case 'SPINE_CAPACITY_EXCEEDED':
       return `${v.leafCount} leaf switches exceed the ${v.maxLeafs}-port capacity of the spine tier. Scale out spine switches or segment into multiple pods.`
     case 'DAC_DISTANCE_ADVISORY':
-      return `DAC cables are limited to 3m. With ${v.rackCount} racks, verify all leaf-to-spine runs are within spec. Consider AOC or fiber for longer distances.`
+      return `DAC Distance Advisory: computed run ${v.computedDistanceM.toFixed(1)}m exceeds ${v.dacLimitM}m limit. Consider AOC or fiber.`
     default:
       return ''
   }
