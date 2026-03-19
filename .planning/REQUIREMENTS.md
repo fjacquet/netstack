@@ -32,7 +32,7 @@
 - [x] **PHYS-01**: New `advisories[]` output array distinct from `violations[]` — renders as amber advisory cards in UI
 - [x] **PHYS-02**: `inputStore` bumped to version 9 with automatic migration for all new fields
 - [x] **PHYS-03**: Profile load normalises against current schema before applying (no silent stale fields from saved profiles)
-- [ ] **PHYS-04**: i18n labels for all new inputs and sections in EN/FR/DE/IT
+- [x] **PHYS-04**: i18n labels for all new inputs and sections in EN/FR/DE/IT
 
 ### Export
 
@@ -84,7 +84,7 @@
 | PHYS-01 | Phase 25 | Complete |
 | PHYS-02 | Phase 25 | Complete |
 | PHYS-03 | Phase 25 | Complete |
-| PHYS-04 | Phase 27 | Pending |
+| PHYS-04 | Phase 27 | Complete |
 | EXP-05 | Phase 28 | Pending |
 | EXP-06 | Phase 28 | Pending |
 
