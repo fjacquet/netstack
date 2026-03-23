@@ -537,6 +537,58 @@ export function ConvergedInputAccordion() {
                   )}
                 />
 
+                {/* Frontend Ports per Server */}
+                <FormField
+                  control={form.control}
+                  name="portsPerServerFrontend"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm text-muted-foreground">{t('sizing.portsPerServerFrontend')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={4}
+                          data-testid="ports-frontend"
+                          {...field}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            field.onChange(val === '' ? '' : Number(val))
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('sizing.frontendPortsHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Backend Ports per Server */}
+                <FormField
+                  control={form.control}
+                  name="portsPerServerBackend"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm text-muted-foreground">{t('sizing.portsPerServerBackend')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={8}
+                          data-testid="ports-backend"
+                          {...field}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            field.onChange(val === '' ? '' : Number(val))
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('sizing.backendPortsHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* === Leaf-Spine fields === */}
                 {currentTopology === 'leaf-spine' && (
                   <>
