@@ -1,3 +1,5 @@
+[![Release](https://img.shields.io/github/v/release/fjacquet/netstack?sort=semver)](https://github.com/fjacquet/netstack/releases/latest)
+
 <p align="center">
   <img src="public/android-chrome-192x192.png" alt="NetStack logo" width="96" height="96">
 </p>
