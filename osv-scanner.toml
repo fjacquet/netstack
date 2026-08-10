@@ -3,8 +3,5 @@
 # Everything that has a published fix is patched via package.json / package-lock.json.
 # Only advisories with no viable upgrade path are waived below, with the reason
 # and a re-check date.
-
-[[IgnoredVulns]]
-id = "GHSA-qwww-vcr4-c8h2"
-ignoreUntil = 2026-10-27
-reason = "react-router RSC Mode CSRF bypass. Not applicable: this app is a client-only SPA using HashRouter (src/main.tsx) with no data router, no server actions and no RSC mode, so the affected code path is never loaded. The advisory range is >=7.12.0 <8.3.0 and no 8.x is published, so the only npm-proposed remedy is a downgrade to 7.11.0 — a functional regression with no security benefit here. Re-check when react-router publishes a fixed release on a version we can move forward to."
+#
+# No waivers are currently in effect.
