@@ -1,6 +1,6 @@
 {
   "name": "netstack",
-  "version": "0.1.0",
+  "version": "6.0.5",
   "description": "Dell Leaf-Spine network sizing calculator",
   "type": "module",
   "scripts": {
